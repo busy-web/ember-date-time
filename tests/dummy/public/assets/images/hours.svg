@@ -1,0 +1,20 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210">
+    <defs>
+        <style>.cls-1{fill:#f1f1f2;}.cls-2{font-size:16px;fill:#2e3f50;font-family:Proxima Nova;}.cls-3{fill:#8f8f8e;}</style>
+    </defs>
+    <title>hours</title>
+    <circle class="cls-1" cx="105" cy="105" r="101.5"/>
+        <text id="hour-01" class="cls-2" transform="translate(135.83 42.91)">01</text>
+        <text class="cls-2" transform="translate(162.07 71.14)">02</text>
+        <text class="cls-2" transform="translate(172.65 109.7)">03</text>
+        <text class="cls-2" transform="translate(162.31 148.26)">04</text>
+        <text class="cls-2" transform="translate(133.82 176.49)">05</text>
+        <text class="cls-2" transform="translate(95.25 186.82)">06</text>
+        <text class="cls-2" transform="translate(57.3 176.49)">07</text>
+        <text class="cls-2" transform="translate(28.54 148.26)">08</text>
+        <text class="cls-2" transform="translate(18.13 109.7)">09</text>
+        <text class="cls-2" transform="translate(30.47 71.14)">10</text>
+        <text class="cls-2" transform="translate(60.89 42.91)">11</text>
+        <text class="cls-2" transform="translate(97.33 32.57)">12</text>
+    <circle class="cls-3" cx="104.75" cy="105.21" r="3.83"/>
+</svg>
