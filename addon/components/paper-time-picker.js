@@ -18,7 +18,7 @@ export default Ember.Component.extend(
     didInsertElement: function()
     {
         this._super();
-        // this.changesClock();
+        this.changesClock();
         var _this = this;
         var clock = Snap('#clocks-hour-svg');
 
@@ -38,18 +38,25 @@ export default Ember.Component.extend(
 
         hour01.click(hour01clicked);
 
-        var moveFunc = function (dx, dy, posx, posy) {
-            this.attr( { cx: posx , cy: posy } ); // basic drag, you would want to adjust to take care of where you grab etc.
-        };
+        var start = function() {
+            this.ox = parseInt(this.attr("cx"));
+            this.oy = parseInt(this.attr("cy"));
+            console.log("Start move, ox=" + this.ox + ", oy=" + this.oy);
+        }
 
-        circle01.drag( moveFunc,
-            function(){
-                console.log("Move started");
-            },
-            function(){
-                console.log("Move stopped");
-            }
-        );
+        var move = function(dx, dy) {
+            console.log('1', dx, dy);
+            this.attr({"cx": this.ox + dx, "cy": this.oy + dy});
+            console.log('2', dx, dy);
+        }
+
+        var stop = function() {
+            this.ox = parseInt(this.attr("cx"));
+            this.oy = parseInt(this.attr("cy"));
+            console.log("Stop move, ox=" + this.ox + ", oy=" + this.oy);
+        }
+
+        circle01.drag(move, start, stop);
 
         // hour 02 - line & circle
         var hour02 = clock.select('#hour02');
@@ -58,7 +65,7 @@ export default Ember.Component.extend(
 
         // makes hour 02 active
         var hour02clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour02', 'line02', 'circle02');
             line02.appendTo(clock);
             circle02.appendTo(clock);
             hour02.addClass('interiorWhite');
@@ -75,7 +82,7 @@ export default Ember.Component.extend(
 
         // makes hour 03 active
         var hour03clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour03', 'line03', 'circle03');
             line03.appendTo(clock);
             circle03.appendTo(clock);
             hour03.addClass('interiorWhite');
@@ -91,7 +98,7 @@ export default Ember.Component.extend(
 
         // makes hour 04 active
         var hour04clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour04', 'line04', 'circle04');
             line04.appendTo(clock);
             circle04.appendTo(clock);
             hour04.addClass('interiorWhite');
@@ -107,7 +114,7 @@ export default Ember.Component.extend(
 
         // makes hour 05 active
         var hour05clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour05', 'line05', 'circle05');
             line05.appendTo(clock);
             circle05.appendTo(clock);
             hour05.addClass('interiorWhite');
@@ -123,7 +130,7 @@ export default Ember.Component.extend(
 
         // makes hour 06 active
         var hour06clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour06', 'line06', 'circle06');
             line06.appendTo(clock);
             circle06.appendTo(clock);
             hour06.addClass('interiorWhite');
@@ -139,7 +146,7 @@ export default Ember.Component.extend(
 
         // makes hour 07 active
         var hour07clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour07', 'line07', 'circle07');
             line07.appendTo(clock);
             circle07.appendTo(clock);
             hour07.addClass('interiorWhite');
@@ -155,7 +162,7 @@ export default Ember.Component.extend(
 
         // makes hour 08 active
         var hour08clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour08', 'line08', 'circle08');
             line08.appendTo(clock);
             circle08.appendTo(clock);
             hour08.addClass('interiorWhite');
@@ -171,7 +178,7 @@ export default Ember.Component.extend(
 
         // makes hour 09 active
         var hour09clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour09', 'line09', 'circle09');
             line09.appendTo(clock);
             circle09.appendTo(clock);
             hour09.addClass('interiorWhite');
@@ -187,7 +194,7 @@ export default Ember.Component.extend(
 
         // makes hour 09 active
         var hour10clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour10', 'line10', 'circle10');
             line10.appendTo(clock);
             circle10.appendTo(clock);
             hour10.addClass('interiorWhite');
@@ -203,7 +210,7 @@ export default Ember.Component.extend(
 
         // makes hour 11 active
         var hour11clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour11', 'line11', 'circle11');
             line11.appendTo(clock);
             circle11.appendTo(clock);
             hour11.addClass('interiorWhite');
@@ -219,7 +226,7 @@ export default Ember.Component.extend(
 
         // makes hour 09 active
         var hour12clicked = function(event){
-            _this.removeOtherActives('hour02');
+            _this.removeOtherActives('hour12', 'line12', 'circle12');
             line12.appendTo(clock);
             circle12.appendTo(clock);
             hour12.addClass('interiorWhite');
@@ -331,43 +338,46 @@ export default Ember.Component.extend(
         line12.insertBefore(bigCircle);
         circle12.insertBefore(bigCircle);
 
-        // activeHour.removeClass('interiorWhite');
-        // activeHour.animate({stroke: "black", strokeWidth: "0"}, 100, mina.easeout).appendTo(clock);
-        // activeLine.remove();
-        // activeCircle.remove();
+        clock.select('#' + activeHour).addClass('interiorWhite');
+        clock.select('#' + activeLine).appendTo(clock);
+        clock.select('#' + activeCircle).appendTo(clock);
+        clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
 
         this.set('activeHour', activeHour);
     },
 
 
-    // changesClock: function()
-    // {
-    //     if(!Ember.isNone(this.get('time')))
-    //     {
-    //         var time = this.get('time');
-    //
-    //         // Create a new JavaScript Date object based on the timestamp
-    //         // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-    //         var date = new Date(time*1000);
-    //         // Hours part from the timestamp
-    //         var hours = date.getHours();
-    //         // Minutes part from the timestamp
-    //         var minutes = "0" + date.getMinutes();
-    //         // Seconds part from the timestamp
-    //         var seconds = "0" + date.getSeconds();
-    //
-    //         var activeHour = hours%12;
-    //         var hour = 'hour' + activeHour;
-    //         var line = 'line' + activeHour;
-    //         var circle = 'circle' + activeHour;
-    //         this.removeOtherActives(hour, line, circle);
-    //
-    //     }
-    //     else {
-    //         var date = new Date();
-    //     }
-    //
-    // },
+    changesClock: function()
+    {
+        if(!Ember.isNone(this.get('time')))
+        {
+            var time = this.get('time');
+
+            // Create a new JavaScript Date object based on the timestamp
+            // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+            var date = new Date(time*1000);
+            // Hours part from the timestamp
+            var hours = date.getHours();
+            // Minutes part from the timestamp
+            var minutes = "0" + date.getMinutes();
+            // Seconds part from the timestamp
+            var seconds = "0" + date.getSeconds();
+
+            var activeHour = hours%12;
+            var hour = 'hour' + activeHour;
+            var line = 'line' + activeHour;
+            var circle = 'circle' + activeHour;
+
+            var newHour = hour.replace(/"/g, "");
+            console.log(newHour);
+            this.removeOtherActives(newHour, line, circle);
+
+        }
+        else {
+            var date = new Date();
+        }
+
+    },
 
     actions: {
 
