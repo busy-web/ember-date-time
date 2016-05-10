@@ -1,4 +1,10 @@
+.cls-2 {
+    cursor: pointer;
+}
 
+.interiorWhite {
+    fill: white !important;
+}
 .clock-container {
     height: 280px;
     width: 500px;
@@ -36,11 +42,9 @@
                   left: 44.1%;
                   position: absolute;
                   top: 6%;
-                //   bottom: 32%;
                   transform-origin: 50% 89px;
                   width: 12%;
                   cursor: -webkit-grab; cursor:-moz-grab;
-
                 //   animation: circle 15s linear infinite;
 
               }
@@ -58,7 +62,6 @@
                   transform-origin: 50% 100%;
                   width: 1%;
                 //   animation: circle 15s linear infinite;
-                //   animation: rotate 60s infinite linear;
                 }
             }
         }
@@ -173,8 +176,7 @@
                 }
 
                 & > .hours {
-                    // background: #8F8F8E;
-                    background: black;
+                    background: #8F8F8E;
                     height: 65px;
                     left: 49.4%;
                     position: absolute;
@@ -182,7 +184,6 @@
                     transform-origin: 50% 100%;
                     width: 1%;
                     animation: circle 15s linear infinite;
-                  //   animation: rotate 60s infinite linear;
                 }
             }
         }
@@ -206,9 +207,4 @@
 @keyframes circle {
     from { transform:rotate(0deg); }
     to { transform:rotate(360deg); }
-}
-
-@keyframes inner-circle {
-    from { transform:rotate(0deg); }
-    to { transform:rotate(-360deg); }
 }
