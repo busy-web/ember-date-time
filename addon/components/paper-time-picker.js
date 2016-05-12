@@ -3,6 +3,9 @@ import layout from '../templates/components/paper-time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
 
+const center_x = 104.75;
+const center_y = 105;
+
 export default Ember.Component.extend(
 {
     classNames: ['paper-time-picker'],
@@ -40,47 +43,6 @@ export default Ember.Component.extend(
         };
 
         hour01.click(hour01clicked);
-
-        var move = function(dx,dy) {
-
-                this.attr({
-                    transform: 'r' + dy + ', 104.75,105'
-                });
-            // this.attr
-
-            //     transform: 'r' + 30 + ', 104.75,105'
-            // });
-            dy = 0;
-            console.log(dy);
-        };
-
-        var start = function() {
-            this.data('origTransform', this.transform().local );
-        };
-
-        var stop = function() {
-            var info = this.getBBox();
-            var endingX = info.cx;
-            var endingY = info.cy;
-
-            var dx = endingX - 104.75;
-            var dy = endingY - 105;
-
-            var hypo = Math.sqrt((dx * dx) + (dy * dy));
-            console.log(dx, dy, hypo);
-
-            var angle = Math.atan(Math.abs(dx) / Math.abs(dy));
-            // console.log(angle);
-
-            var degrees = Snap.deg(angle);
-
-            console.log(degrees);
-
-
-
-        };
-
-        move01.drag(move, start, stop);
 
         // hour 02 - line & circle
         var hour02 = clock.select('#hour02');
@@ -258,6 +220,167 @@ export default Ember.Component.extend(
         };
 
         hour12.click(hour12clicked);
+
+        //move function for dragging
+        var move = function(dx,dy,x,y) {
+            //
+            // var mouseX = x;
+            // var mouseY = y;
+            //
+            // var dx = mouseX - 104.75;
+            // var dy = mouseY - 105;
+            //
+            // var dxPos = dx < 0 ? 'left' : 'right';
+            // var dyPos = dy < 0 ? 'top' : 'bottom';
+            //
+            // var hypo = Math.sqrt((dx * dx) + (dy * dy));
+            // console.log(mouseY,mouseX);
+            //
+            // var angle = Math.atan(Math.abs(dx) / Math.abs(dy));
+            // console.log(angle);
+            //
+            // var degrees = Snap.deg(angle);
+            //
+            // console.log(dxPos, dyPos, degrees);
+
+            var endX = x - 133;
+            var endY = -(y - 186);
+            var startX = endX - dx;
+            var startY = endY + dy;
+
+            var slope = (startY/startX);
+            var isForward = endY < (slope*endX);
+
+            var angle = _this.angle(endX, endY, startX, startY);
+                angle = isForward ? angle : -angle;
+
+            console.log('angle', angle, isForward, slope, slope*(endX), endX, endY);
+            this.attr({
+                transform: ('r' + angle + ', ' + center_x + ',' + center_y)
+            });
+
+        };
+
+
+
+        var start = function() {
+            this.data('origTransform', this.transform().local );
+        };
+
+        var stop = function() {
+            var info = this.getBBox();
+            var endingX = info.cx;
+            var endingY = info.cy;
+
+            var dx = endingX - 104.75;
+            var dy = endingY - 105;
+
+            var dxPos = dx < 0 ? 'left' : 'right';
+            var dyPos = dy < 0 ? 'top' : 'bottom';
+
+            var hypo = Math.sqrt((dx * dx) + (dy * dy));
+            console.log(dx, dy, hypo);
+
+            var angle = Math.atan(Math.abs(dx) / Math.abs(dy));
+            // console.log(angle);
+
+            var degrees = Snap.deg(angle);
+
+            console.log(dxPos, dyPos, degrees);
+
+            if(dxPos === 'right' && dyPos === 'top')
+            {
+                if (degrees >= 0 && degrees <= 15)
+                {
+                    _this.removeOtherActives('hour12', 'line12', 'circle12');
+                }
+                if (degrees >= 16 && degrees <= 45)
+                {
+                    _this.removeOtherActives('hour01', 'line01', 'circle01');
+                }
+                if (degrees >= 46 && degrees <= 75)
+                {
+                    _this.removeOtherActives('hour02', 'line02', 'circle02');
+                }
+                if (degrees >= 76 && degrees <= 90)
+                {
+                    _this.removeOtherActives('hour03', 'line03', 'circle03');
+                }
+            }
+
+            if(dxPos === 'right' && dyPos === 'bottom')
+            {
+                if (degrees >= 0 && degrees <= 15)
+                {
+                    _this.removeOtherActives('hour06', 'line06', 'circle06');
+                }
+                if (degrees >= 16 && degrees <= 45)
+                {
+                    _this.removeOtherActives('hour05', 'line05', 'circle05');
+                }
+                if (degrees >= 46 && degrees <= 75)
+                {
+                    _this.removeOtherActives('hour04', 'line04', 'circle04');
+                }
+                if (degrees >= 76 && degrees <= 90)
+                {
+                    _this.removeOtherActives('hour03', 'line03', 'circle03');
+                }
+            }
+
+            if(dxPos === 'left' && dyPos === 'bottom')
+            {
+                if (degrees >= 0 && degrees <= 15)
+                {
+                    _this.removeOtherActives('hour06', 'line06', 'circle06');
+                }
+                if (degrees >= 16 && degrees <= 45)
+                {
+                    _this.removeOtherActives('hour07', 'line07', 'circle07');
+                }
+                if (degrees >= 46 && degrees <= 75)
+                {
+                    _this.removeOtherActives('hour08', 'line08', 'circle08');
+                }
+                if (degrees >= 76 && degrees <= 90)
+                {
+                    _this.removeOtherActives('hour09', 'line09', 'circle09');
+                }
+            }
+
+            if(dxPos === 'left' && dyPos === 'top')
+            {
+                if (degrees >= 0 && degrees <= 15)
+                {
+                    _this.removeOtherActives('hour12', 'line12', 'circle12');
+                }
+                if (degrees >= 16 && degrees <= 45)
+                {
+                    _this.removeOtherActives('hour11', 'line11', 'circle11');
+                }
+                if (degrees >= 46 && degrees <= 75)
+                {
+                    _this.removeOtherActives('hour10', 'line10', 'circle10');
+                }
+                if (degrees >= 76 && degrees <= 90)
+                {
+                    _this.removeOtherActives('hour09', 'line09', 'circle09');
+                }
+            }
+
+
+        };
+
+        move01.drag(move, start, stop);
+    },
+
+    angle: function(x, y, x2, y2)
+    {
+        let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
+        let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
+        let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
+
+        return (Math.acos(((p1*p1)+(p0*p0)-(p2*p2))/(2*(p1*p0)))*360)/(2*Math.PI);
     },
 
     removeOtherActives: function(activeHour, activeLine, activeCircle)
