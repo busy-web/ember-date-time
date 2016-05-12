@@ -27,6 +27,9 @@ export default Ember.Component.extend(
         var line01 = clock.select('#line01');
         var circle01 = clock.select('#circle01');
 
+        var move01 = clock.g(line01, circle01);
+
+
         // makes hour 01 active
         var hour01clicked = function(event){
             _this.removeOtherActives('hour01', 'line01', 'circle01');
@@ -38,25 +41,46 @@ export default Ember.Component.extend(
 
         hour01.click(hour01clicked);
 
-        var start = function() {
-            this.ox = parseInt(this.attr("cx"));
-            this.oy = parseInt(this.attr("cy"));
-            console.log("Start move, ox=" + this.ox + ", oy=" + this.oy);
-        }
+        var move = function(dx,dy) {
 
-        var move = function(dx, dy) {
-            console.log('1', dx, dy);
-            this.attr({"cx": this.ox + dx, "cy": this.oy + dy});
-            console.log('2', dx, dy);
-        }
+                this.attr({
+                    transform: 'r' + dy + ', 104.75,105'
+                });
+            // this.attr
+
+            //     transform: 'r' + 30 + ', 104.75,105'
+            // });
+            dy = 0;
+            console.log(dy);
+        };
+
+        var start = function() {
+            this.data('origTransform', this.transform().local );
+        };
 
         var stop = function() {
-            this.ox = parseInt(this.attr("cx"));
-            this.oy = parseInt(this.attr("cy"));
-            console.log("Stop move, ox=" + this.ox + ", oy=" + this.oy);
-        }
+            var info = this.getBBox();
+            var endingX = info.cx;
+            var endingY = info.cy;
 
-        circle01.drag(move, start, stop);
+            var dx = endingX - 104.75;
+            var dy = endingY - 105;
+
+            var hypo = Math.sqrt((dx * dx) + (dy * dy));
+            console.log(dx, dy, hypo);
+
+            var angle = Math.atan(Math.abs(dx) / Math.abs(dy));
+            // console.log(angle);
+
+            var degrees = Snap.deg(angle);
+
+            console.log(degrees);
+
+
+
+        };
+
+        move01.drag(move, start, stop);
 
         // hour 02 - line & circle
         var hour02 = clock.select('#hour02');
