@@ -22,16 +22,13 @@ export default Ember.Component.extend(
     {
         this._super();
         this.changesClock();
-        var _this = this;
+    },
+
+    drag: function(hour, line, circle)
+    {
         var clock = Snap('#clocks-hour-svg');
+        var _this = this;
 
-        // hour 01 - line & circle
-        var hour01 = clock.select('#hour01');
-        var line01 = clock.select('#line01');
-        var circle01 = clock.select('#circle01');
-
-        var move01 = clock.g(line01, circle01);
-        
         //move function for dragging
         var move = function(dx,dy,x,y) {
             var endX = x - 133;
@@ -43,12 +40,18 @@ export default Ember.Component.extend(
             var isForward = endY < (slope*endX);
 
             var angle = _this.angle(endX, endY, startX, startY);
-                angle = isForward ? angle : -angle;
 
+            var last2 = parseInt(hour.slice(-2));
+            if (last2 <= 6 || last2 === 12)
+            {
+                angle = isForward ? angle : -angle;
+            }
+            else {
+                angle = isForward ? -angle : angle;
+            }
             this.attr({
                 transform: ('r' + angle + ', ' + center_x + ',' + center_y)
             });
-
         };
 
         var start = function() {
@@ -151,7 +154,14 @@ export default Ember.Component.extend(
             }
         };
 
-        move01.drag(move, start, stop);
+        var curHour = clock.select('#' + hour);
+        var curLine = clock.select('#' + line);
+        var curCircle = clock.select('#' + circle);
+
+        var curGroup = clock.g(curLine, curCircle);
+        // curHour.drag(move, start, stop);
+        curGroup.drag(move, start, stop);
+        curGroup.insertBefore(curHour);
     },
 
     angle: function(x, y, x2, y2)
@@ -192,6 +202,7 @@ export default Ember.Component.extend(
         clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
 
         this.set('activeHour', activeHour);
+        this.drag(activeHour, activeLine, activeCircle);
     },
 
 
@@ -219,6 +230,7 @@ export default Ember.Component.extend(
             var newHour = hour.replace(/"/g, "");
 
             this.removeOtherActives(newHour, line, circle);
+            this.drag(hour, line, circle);
 
         }
         else {
@@ -241,6 +253,7 @@ export default Ember.Component.extend(
             hour01.addClass('interiorWhite');
             hour01.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
 
+            this.drag('hour01', 'line01', 'circle01');
         },
 
         click02: function()
@@ -255,6 +268,8 @@ export default Ember.Component.extend(
             circle02.appendTo(clock);
             hour02.addClass('interiorWhite');
             hour02.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour02', 'line02', 'circle02');
         },
 
         click03: function()
@@ -269,6 +284,8 @@ export default Ember.Component.extend(
             circle03.appendTo(clock);
             hour03.addClass('interiorWhite');
             hour03.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour03', 'line03', 'circle03');
         },
 
         click04: function()
@@ -283,6 +300,8 @@ export default Ember.Component.extend(
             circle04.appendTo(clock);
             hour04.addClass('interiorWhite');
             hour04.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour04', 'line04', 'circle04');
         },
 
         click05: function()
@@ -297,6 +316,8 @@ export default Ember.Component.extend(
             circle05.appendTo(clock);
             hour05.addClass('interiorWhite');
             hour05.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour05', 'line05', 'circle05');
         },
 
         click06: function()
@@ -311,6 +332,8 @@ export default Ember.Component.extend(
             circle06.appendTo(clock);
             hour06.addClass('interiorWhite');
             hour06.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour06', 'line06', 'circle06');
         },
 
         click07: function()
@@ -325,6 +348,8 @@ export default Ember.Component.extend(
             circle07.appendTo(clock);
             hour07.addClass('interiorWhite');
             hour07.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour07', 'line07', 'circle07');
         },
 
         click08: function()
@@ -339,6 +364,8 @@ export default Ember.Component.extend(
             circle08.appendTo(clock);
             hour08.addClass('interiorWhite');
             hour08.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour08', 'line08', 'circle08');
         },
 
         click09: function()
@@ -353,6 +380,8 @@ export default Ember.Component.extend(
             circle09.appendTo(clock);
             hour09.addClass('interiorWhite');
             hour09.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour09', 'line09', 'circle09');
         },
 
         click10: function()
@@ -367,6 +396,8 @@ export default Ember.Component.extend(
             circle10.appendTo(clock);
             hour10.addClass('interiorWhite');
             hour10.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour10', 'line10', 'circle10');
         },
 
         click11: function()
@@ -381,6 +412,8 @@ export default Ember.Component.extend(
             circle11.appendTo(clock);
             hour11.addClass('interiorWhite');
             hour11.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour11', 'line11', 'circle11');
         },
 
         click12: function()
@@ -395,6 +428,8 @@ export default Ember.Component.extend(
             circle12.appendTo(clock);
             hour12.addClass('interiorWhite');
             hour12.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.drag('hour12', 'line12', 'circle12');
         },
 
         amClicked: function()
