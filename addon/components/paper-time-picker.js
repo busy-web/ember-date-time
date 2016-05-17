@@ -14,9 +14,9 @@ export default Ember.Component.extend(
 
     rotateCircle: null,
 
-    time: 1462080332, //may 5 2016, 5 am
+    time: 1469080697, //may 5 2016, 5 am
 
-    activeHour: null,
+    lastGroup: null,
 
     didInsertElement: function()
     {
@@ -24,10 +24,12 @@ export default Ember.Component.extend(
         this.changesClock();
     },
 
-    drag: function(hour, line, circle)
+    newDrag: function(hour, line, circle)
     {
         var clock = Snap('#clocks-hour-svg');
         var _this = this;
+
+        var curHour = clock.select('#' + hour);
 
         //move function for dragging
         var move = function(dx,dy,x,y) {
@@ -56,6 +58,9 @@ export default Ember.Component.extend(
 
         var start = function() {
             this.data('origTransform', this.transform().local );
+            curHour.remove();
+            curHour.appendTo(clock);
+            curHour.removeClass('interiorWhite');
         };
 
         var stop = function() {
@@ -75,15 +80,15 @@ export default Ember.Component.extend(
 
             if(dxPos === 'right' && dyPos === 'top')
             {
-                if (degrees >= 0 && degrees <= 15)
+                if (degrees >= 0 && degrees <= 16)
                 {
                     _this.removeOtherActives('hour12', 'line12', 'circle12');
                 }
-                if (degrees >= 16 && degrees <= 45)
+                if (degrees >= 16 && degrees <= 46)
                 {
                     _this.removeOtherActives('hour01', 'line01', 'circle01');
                 }
-                if (degrees >= 46 && degrees <= 75)
+                if (degrees >= 46 && degrees <= 76)
                 {
                     _this.removeOtherActives('hour02', 'line02', 'circle02');
                 }
@@ -95,15 +100,15 @@ export default Ember.Component.extend(
 
             if(dxPos === 'right' && dyPos === 'bottom')
             {
-                if (degrees >= 0 && degrees <= 15)
+                if (degrees >= 0 && degrees <= 16)
                 {
                     _this.removeOtherActives('hour06', 'line06', 'circle06');
                 }
-                if (degrees >= 16 && degrees <= 45)
+                if (degrees >= 16 && degrees <= 46)
                 {
                     _this.removeOtherActives('hour05', 'line05', 'circle05');
                 }
-                if (degrees >= 46 && degrees <= 75)
+                if (degrees >= 46 && degrees <= 76)
                 {
                     _this.removeOtherActives('hour04', 'line04', 'circle04');
                 }
@@ -115,15 +120,15 @@ export default Ember.Component.extend(
 
             if(dxPos === 'left' && dyPos === 'bottom')
             {
-                if (degrees >= 0 && degrees <= 15)
+                if (degrees >= 0 && degrees <= 16)
                 {
                     _this.removeOtherActives('hour06', 'line06', 'circle06');
                 }
-                if (degrees >= 16 && degrees <= 45)
+                if (degrees >= 16 && degrees <= 46)
                 {
                     _this.removeOtherActives('hour07', 'line07', 'circle07');
                 }
-                if (degrees >= 46 && degrees <= 75)
+                if (degrees >= 46 && degrees <= 76)
                 {
                     _this.removeOtherActives('hour08', 'line08', 'circle08');
                 }
@@ -135,15 +140,15 @@ export default Ember.Component.extend(
 
             if(dxPos === 'left' && dyPos === 'top')
             {
-                if (degrees >= 0 && degrees <= 15)
+                if (degrees >= 0 && degrees <= 16)
                 {
                     _this.removeOtherActives('hour12', 'line12', 'circle12');
                 }
-                if (degrees >= 16 && degrees <= 45)
+                if (degrees >= 16 && degrees <= 46)
                 {
                     _this.removeOtherActives('hour11', 'line11', 'circle11');
                 }
-                if (degrees >= 46 && degrees <= 75)
+                if (degrees >= 46 && degrees <= 76)
                 {
                     _this.removeOtherActives('hour10', 'line10', 'circle10');
                 }
@@ -153,15 +158,19 @@ export default Ember.Component.extend(
                 }
             }
         };
+        if (!Ember.isNone(this.get('lastGroup')))
+        {
+            var undragPrevious = this.get('lastGroup');
+            undragPrevious.undrag();
+        }
 
         var curHour = clock.select('#' + hour);
         var curLine = clock.select('#' + line);
         var curCircle = clock.select('#' + circle);
 
-        var curGroup = clock.g(curLine, curCircle);
-        // curHour.drag(move, start, stop);
+        var curGroup = clock.g(curLine, curCircle, curHour);
         curGroup.drag(move, start, stop);
-        curGroup.insertBefore(curHour);
+        this.set('lastGroup', curGroup);
     },
 
     angle: function(x, y, x2, y2)
@@ -200,11 +209,8 @@ export default Ember.Component.extend(
         clock.select('#' + activeLine).appendTo(clock);
         clock.select('#' + activeCircle).appendTo(clock);
         clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-        this.set('activeHour', activeHour);
-        this.drag(activeHour, activeLine, activeCircle);
+        this.newDrag(activeHour, activeLine, activeCircle);
     },
-
 
     changesClock: function()
     {
@@ -229,8 +235,8 @@ export default Ember.Component.extend(
 
             var newHour = hour.replace(/"/g, "");
 
-            this.removeOtherActives(newHour, line, circle);
-            this.drag(hour, line, circle);
+            this.removeOtherActives(hour, line, circle);
+            this.newDrag(hour, line, circle);
 
         }
         else {
@@ -240,196 +246,18 @@ export default Ember.Component.extend(
 
     actions: {
 
-        click01: function()
+        clickHour: function(hour, line, circle)
         {
+            console.log(hour, line, circle);
             var clock = Snap('#clocks-hour-svg');
-            var hour01 = clock.select('#hour01');
-            var line01 = clock.select('#line01');
-            var circle01 = clock.select('#circle01');
 
-            this.removeOtherActives('hour01', 'line01', 'circle01');
-            line01.appendTo(clock);
-            circle01.appendTo(clock);
-            hour01.addClass('interiorWhite');
-            hour01.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+            this.removeOtherActives(hour, line, circle);
+            clock.select('#' + line).appendTo(clock);
+            clock.select('#' + circle).appendTo(clock);
+            clock.select('#' + hour).addClass('interiorWhite');
+            clock.select('#' + hour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
 
-            this.drag('hour01', 'line01', 'circle01');
-        },
-
-        click02: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour02 = clock.select('#hour02');
-            var line02 = clock.select('#line02');
-            var circle02 = clock.select('#circle02');
-
-            this.removeOtherActives('hour02', 'line02', 'circle02');
-            line02.appendTo(clock);
-            circle02.appendTo(clock);
-            hour02.addClass('interiorWhite');
-            hour02.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour02', 'line02', 'circle02');
-        },
-
-        click03: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour03 = clock.select('#hour03');
-            var line03 = clock.select('#line03');
-            var circle03 = clock.select('#circle03');
-
-            this.removeOtherActives('hour03', 'line03', 'circle03');
-            line03.appendTo(clock);
-            circle03.appendTo(clock);
-            hour03.addClass('interiorWhite');
-            hour03.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour03', 'line03', 'circle03');
-        },
-
-        click04: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour04 = clock.select('#hour04');
-            var line04 = clock.select('#line04');
-            var circle04 = clock.select('#circle04');
-
-            this.removeOtherActives('hour04', 'line04', 'circle04');
-            line04.appendTo(clock);
-            circle04.appendTo(clock);
-            hour04.addClass('interiorWhite');
-            hour04.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour04', 'line04', 'circle04');
-        },
-
-        click05: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour05 = clock.select('#hour05');
-            var line05 = clock.select('#line05');
-            var circle05 = clock.select('#circle05');
-
-            this.removeOtherActives('hour05', 'line05', 'circle05');
-            line05.appendTo(clock);
-            circle05.appendTo(clock);
-            hour05.addClass('interiorWhite');
-            hour05.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour05', 'line05', 'circle05');
-        },
-
-        click06: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour06 = clock.select('#hour06');
-            var line06 = clock.select('#line06');
-            var circle06 = clock.select('#circle06');
-
-            this.removeOtherActives('hour06', 'line06', 'circle06');
-            line06.appendTo(clock);
-            circle06.appendTo(clock);
-            hour06.addClass('interiorWhite');
-            hour06.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour06', 'line06', 'circle06');
-        },
-
-        click07: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour07 = clock.select('#hour07');
-            var line07 = clock.select('#line07');
-            var circle07 = clock.select('#circle07');
-
-            this.removeOtherActives('hour07', 'line07', 'circle07');
-            line07.appendTo(clock);
-            circle07.appendTo(clock);
-            hour07.addClass('interiorWhite');
-            hour07.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour07', 'line07', 'circle07');
-        },
-
-        click08: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour08 = clock.select('#hour08');
-            var line08 = clock.select('#line08');
-            var circle08 = clock.select('#circle08');
-
-            this.removeOtherActives('hour08', 'line08', 'circle08');
-            line08.appendTo(clock);
-            circle08.appendTo(clock);
-            hour08.addClass('interiorWhite');
-            hour08.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour08', 'line08', 'circle08');
-        },
-
-        click09: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour09 = clock.select('#hour09');
-            var line09 = clock.select('#line09');
-            var circle09 = clock.select('#circle09');
-
-            this.removeOtherActives('hour09', 'line09', 'circle09');
-            line09.appendTo(clock);
-            circle09.appendTo(clock);
-            hour09.addClass('interiorWhite');
-            hour09.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour09', 'line09', 'circle09');
-        },
-
-        click10: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour10 = clock.select('#hour10');
-            var line10 = clock.select('#line10');
-            var circle10 = clock.select('#circle10');
-
-            this.removeOtherActives('hour10', 'line10', 'circle10');
-            line10.appendTo(clock);
-            circle10.appendTo(clock);
-            hour10.addClass('interiorWhite');
-            hour10.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour10', 'line10', 'circle10');
-        },
-
-        click11: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour11 = clock.select('#hour11');
-            var line11 = clock.select('#line11');
-            var circle11 = clock.select('#circle11');
-
-            this.removeOtherActives('hour11', 'line11', 'circle11');
-            line11.appendTo(clock);
-            circle11.appendTo(clock);
-            hour11.addClass('interiorWhite');
-            hour11.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour11', 'line11', 'circle11');
-        },
-
-        click12: function()
-        {
-            var clock = Snap('#clocks-hour-svg');
-            var hour12 = clock.select('#hour12');
-            var line12 = clock.select('#line12');
-            var circle12 = clock.select('#circle12');
-
-            this.removeOtherActives('hour12', 'line12', 'circle12');
-            line12.appendTo(clock);
-            circle12.appendTo(clock);
-            hour12.addClass('interiorWhite');
-            hour12.animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.drag('hour12', 'line12', 'circle12');
+            this.newDrag(hour, line, circle);
         },
 
         amClicked: function()
