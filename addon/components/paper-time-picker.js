@@ -2,6 +2,7 @@ import Ember from 'ember';
 import layout from '../templates/components/paper-time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
+import moment from 'moment';
 
 const center_x = 104.75;
 const center_y = 105;
@@ -284,9 +285,6 @@ export default Ember.Component.extend(
             this.newDrag(hour, line, circle);
 
         }
-        else {
-            var date = new Date();
-        }
     },
 
     removeMinuteActives: function(minute, line, circle)
@@ -323,6 +321,16 @@ export default Ember.Component.extend(
             clock.select('#' + minute).addClass('interiorWhite');
             clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
         }
+        else
+        {
+            var hoursToTop = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+
+            hoursToTop.forEach(function(item)
+            {
+                clock.select('#minText' + item).appendTo(clock);
+            });
+
+        }
 
         // this.newDrag(activeHour, activeLine, activeCircle);
 
@@ -353,6 +361,31 @@ export default Ember.Component.extend(
             clock.select('#' + circle).appendTo(clock);
             clock.select('#' + minute).addClass('interiorWhite');
             clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+        },
+
+        minuteSectionClicked: function(minute)
+        {
+            var clock = new Snap('#clock-minutes-svg');
+            if (parseInt(minute) % 5 === 0)
+            {
+                var min = 'minText' + minute;
+                var line = 'minLine' + minute;
+                var circle = 'minCircle' + minute;
+
+                this.set('minutes', minute);
+                this.removeMinuteActives(min, line, circle);
+                clock.select('#' + line).appendTo(clock);
+                clock.select('#' + circle).appendTo(clock);
+                clock.select('#' + min).addClass('interiorWhite');
+                clock.select('#' + min).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+            }
+            else
+            {
+                var line2 = 'minLine' + minute;
+                var circle2 = 'minCircle' + minute;
+
+                this.removeMinuteActives(minute, line2, circle2);
+            }
         },
 
         upOrDownHour: function(value, event)

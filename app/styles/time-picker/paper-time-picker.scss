@@ -6,12 +6,14 @@
     fill: white !important;
 }
 .clock-container {
-    height: 280px;
+    height: 300px;
     width: 500px;
     border: solid 1px black;
 
     & > .outside-hours-container {
-        width: 50%;
+        width: 45%;
+        margin-left: 3%;
+        margin-right: 2%;
         height: 100%;
         float: left;
 
@@ -21,67 +23,12 @@
             margin-left: 30px;
             margin-top: 24px;
         }
-
-        & > .clock-hours {
-          border-radius: 50%;
-          background: #fff url(images/hours.svg) no-repeat center;
-          background-size: 100%;
-          height: 203px;
-          position: relative;
-          width: 203px;
-          float: left;
-          margin-left: 30px;
-
-          & > .hours-container {
-
-              & > .circle {
-                  background: #48ADDF;
-                  border-radius: 50%;
-                  opacity: .45;
-                  height: 12%;
-                  left: 44.1%;
-                  position: absolute;
-                  top: 6%;
-                  transform-origin: 50% 89px;
-                  width: 12%;
-                  cursor: -webkit-grab; cursor:-moz-grab;
-                //   animation: circle 15s linear infinite;
-
-              }
-
-              & > .circle:active {
-                  cursor: -webkit-grabbing; cursor:-moz-grabbing;
-              }
-
-              & > .hours {
-                  background: #8F8F8E;
-                  height: 32%;
-                  left: 49.4%;
-                  position: absolute;
-                  top: 18%;
-                  transform-origin: 50% 100%;
-                  width: 1%;
-                //   animation: circle 15s linear infinite;
-                }
-            }
-        }
-
-        & > .clock-hours.simple:after {
-            background: #000;
-            border-radius: 50%;
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 5%;
-            height: 5%;
-            z-index: 10;
-        }
     }
 
     & > .outside-minutes-container {
-        width: 50%;
+        width: 45%;
+        margin-left: 2%;
+        margin-right: 3%;
         height: 100%;
         float: left;
 
@@ -144,67 +91,5 @@
                 }
             }
         }
-
-        & > .clock-minutes {
-              border-radius: 50%;
-              background: #fff url(images/minutes.svg) no-repeat center;
-              background-size: 100%;
-              height: 203px;
-              position: relative;
-              width: 203px;
-              float: left;
-              margin-left: 10px;
-
-            & > .minutes-container {
-
-                & > .circle {
-                    background: #48ADDF;
-                    border-radius: 50%;
-                    opacity: .45;
-                    height: 12%;
-                    left: 44.1%;
-                    position: absolute;
-                    top: 6.9%;
-                    transform-origin: 50% 89px;
-                    width: 12%;
-                    cursor: -webkit-grab; cursor:-moz-grab;
-                    animation: circle 15s linear infinite;
-                }
-
-                & > .circle:active {
-                    cursor: -webkit-grabbing; cursor:-moz-grabbing;
-                }
-
-                & > .hours {
-                    background: #8F8F8E;
-                    height: 65px;
-                    left: 49.4%;
-                    position: absolute;
-                    top: 18%;
-                    transform-origin: 50% 100%;
-                    width: 1%;
-                    animation: circle 15s linear infinite;
-                }
-            }
-        }
-
-
-        & > .clock-minutes.simple:after {
-            background: #000;
-            border-radius: 50%;
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 5%;
-            height: 5%;
-            z-index: 10;
-        }
     }
-}
-
-@keyframes circle {
-    from { transform:rotate(0deg); }
-    to { transform:rotate(360deg); }
 }
