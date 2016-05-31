@@ -10,14 +10,12 @@ const center_y = 105;
 export default Ember.Component.extend(
 {
     classNames: ['paper-time-picker'],
-
     layout: layout,
-
-    rotateCircle: null,
 
     time: 1469080697, //may 5 2016, 5 am
 
     lastGroup: null,
+    lastMinute: null,
 
     hours: 10,
     minutes: 53,
@@ -31,6 +29,11 @@ export default Ember.Component.extend(
         this.changesClock();
     },
 
+    /**
+     * observes when the hours value is changed, and sets the clock to the new hour
+     * function for HOURS
+     * @public
+     */
     observeHours: Ember.observer('hours', function()
     {
         var hour = this.get('hours');
@@ -60,32 +63,67 @@ export default Ember.Component.extend(
         }
     }),
 
-    observeMinutes: Ember.observer('minutes', function()
-    {
-        var minutes = this.get('minutes');
-        var sliceMinute = ('0' + minutes).slice(-2);
-
-        var minText = 'minText' + sliceMinute;
-        var lineText = 'minLine' + sliceMinute;
-        var circleText = 'minCircle' + sliceMinute;
-        if (sliceMinute < 60 && sliceMinute > -1)
-        {
-            this.removeMinuteActives(minText, lineText, circleText);
-        }
-    }),
-
-
-    newDrag: function(hour, line, circle)
+    /**
+     * sets the new hour to active, as well as making every other hour not active
+     * function for HOURS
+     * @public
+     */
+    removeOtherActives: function(activeHour, activeLine, activeCircle)
     {
         var clock = new Snap('#clocks-hour-svg');
-        var _this = this;
+        var bigCircle = clock.select('#bigCircle');
+        var allHours = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
+        allHours.forEach(function(item)
+        {
+            var hourSelect = '#hour' + item;
+            var lineSelect = '#line' + item;
+            var circleSelect = '#circle' + item;
+
+            clock.select(hourSelect).removeClass('interiorWhite');
+            clock.select(lineSelect).insertBefore(bigCircle);
+            clock.select(circleSelect).insertBefore(bigCircle);
+        });
+
+        clock.select('#' + activeHour).addClass('interiorWhite');
+        clock.select('#' + activeLine).appendTo(clock);
+        clock.select('#' + activeCircle).appendTo(clock);
+        clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+        this.newDrag(activeHour, activeLine, activeCircle);
+
+        var newTime = ('0' + activeHour).slice(-2);
+        this.set('hours', newTime);
+    },
+
+    /**
+     * handles all the function events for dragging on the hours clock
+     * newDrag must contain start, move and stop functions within it
+     * function for HOURS
+     * @public
+     */
+    newDrag: function(hour, line, circle)
+    {
+        var _this = this;
+        var clock = new Snap('#clocks-hour-svg');
         var curHour = clock.select('#' + hour);
 
-        //move function for dragging
+        /**
+         * allows for the hours group to start being dragged
+         */
+        var start = function() {
+            this.data('origTransform', this.transform().local );
+            curHour.remove();
+            curHour.appendTo(clock);
+            curHour.removeClass('interiorWhite');
+        };
+
+        /**
+         * moves the dial on the hour clock while transforming group
+         */
         var move = function(dx,dy,x,y) {
+
             var endX = x - 133;
-            var endY = -(y - 186);
+            var endY = -(y - 210);
             var startX = endX - dx;
             var startY = endY + dy;
 
@@ -107,13 +145,9 @@ export default Ember.Component.extend(
             });
         };
 
-        var start = function() {
-            this.data('origTransform', this.transform().local );
-            curHour.remove();
-            curHour.appendTo(clock);
-            curHour.removeClass('interiorWhite');
-        };
-
+        /**
+         * checks to see where the dragging stops and makes the closest hour active
+         */
         var stop = function() {
             var info = this.getBBox();
             var endingX = info.cx;
@@ -208,6 +242,7 @@ export default Ember.Component.extend(
                 }
             }
         };
+
         if (!Ember.isNone(this.get('lastGroup')))
         {
             var undragPrevious = this.get('lastGroup');
@@ -217,48 +252,173 @@ export default Ember.Component.extend(
         var curHours = clock.select('#' + hour);
         var curLine = clock.select('#' + line);
         var curCircle = clock.select('#' + circle);
-
         var curGroup = clock.g(curLine, curCircle, curHours);
+
         curGroup.drag(move, start, stop);
         this.set('lastGroup', curGroup);
     },
 
-    angle: function(x, y, x2, y2)
+    /**
+     * observes when the minutes value is changed, and sets the clock to the new hour
+     * function for MINUTES
+     * @public
+     */
+    observeMinutes: Ember.observer('minutes', function()
     {
-        let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
-        let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
-        let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
+        var minutes = this.get('minutes');
+        var sliceMinute = ('0' + minutes).slice(-2);
 
-        return (Math.acos(((p1*p1)+(p0*p0)-(p2*p2))/(2*(p1*p0)))*360)/(2*Math.PI);
-    },
-
-    removeOtherActives: function(activeHour, activeLine, activeCircle)
-    {
-        var clock = new Snap('#clocks-hour-svg');
-        var bigCircle = clock.select('#bigCircle');
-        var allHours = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-
-        allHours.forEach(function(item)
+        var minText = 'minText' + sliceMinute;
+        var lineText = 'minLine' + sliceMinute;
+        var circleText = 'minCircle' + sliceMinute;
+        if (sliceMinute < 60 && sliceMinute > -1)
         {
-            var hourSelect = '#hour' + item;
-            var lineSelect = '#line' + item;
-            var circleSelect = '#circle' + item;
+            this.removeMinuteActives(minText, lineText, circleText);
+        }
+    }),
 
-            clock.select(hourSelect).removeClass('interiorWhite');
+    /**
+     * sets the new minute to active, as well as making every other minute not active
+     * function for MINUTES
+     * @public
+     */
+    removeMinuteActives: function(minute, line, circle)
+    {
+        var clock = new Snap('#clock-minutes-svg');
+        var bigCircle = clock.select('#bigCircleMinutes');
+        var newTime = ('0' + minute).slice(-2);
+        var allMinutes = [];
+
+        for (var i = 0; i < 60; i++) {
+            i = ('0' + i).slice(-2);
+            allMinutes.push(i);
+        }
+
+        allMinutes.forEach(function(item)
+        {
+            var hourSelect = '#minText' + item;
+            var lineSelect = '#minLine' + item;
+            var circleSelect = '#minCircle' + item;
+
+            if (!Ember.isNone(clock.select(hourSelect)))
+            {
+                clock.select(hourSelect).removeClass('interiorWhite');
+            }
             clock.select(lineSelect).insertBefore(bigCircle);
             clock.select(circleSelect).insertBefore(bigCircle);
         });
-
-        clock.select('#' + activeHour).addClass('interiorWhite');
-        clock.select('#' + activeLine).appendTo(clock);
-        clock.select('#' + activeCircle).appendTo(clock);
-        clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-        this.newDrag(activeHour, activeLine, activeCircle);
-
-        var newTime = ('0' + activeHour).slice(-2);
-        this.set('hours', newTime);
+        clock.select('#' + line).appendTo(clock);
+        clock.select('#' + circle).appendTo(clock);
+        if (newTime % 5 === 0)
+        {
+            clock.select('#' + minute).addClass('interiorWhite');
+            clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+        }
+        else
+        {
+            var hoursToTop = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+            hoursToTop.forEach(function(item)
+            {
+                clock.select('#minText' + item).appendTo(clock);
+            });
+        }
+        this.minutesDrag(minute, line, circle);
+        this.set('minutes', newTime);
     },
 
+    /**
+     * handles all the function events for dragging on the minutes clock
+     * minutesDrag must contain start, move and stop functions within it
+     * function for HOURS
+     * @public
+     */
+    minutesDrag: function(minute, line, circle)
+    {
+        var clock = new Snap('#clock-minutes-svg');
+        var _this = this;
+        var newMin = parseInt(minute.slice(-2));
+        var curMinute = clock.select('#minText' + newMin);
+
+        /**
+         * allows for the minutes group to start being dragged
+         */
+        var start = function() {
+            this.data('origTransform', this.transform().local );
+            if(newMin % 5 === 0)
+            {
+                curMinute.remove();
+                curMinute.appendTo(clock);
+                curMinute.removeClass('interiorWhite');
+            }
+        };
+
+        /**
+         * moves the dial on the minute clock while transforming group
+         */
+        var move = function(dx,dy,x,y) {
+            var endX = x - 381;
+            var endY = -(y - 213);
+            var startX = endX - dx;
+            var startY = endY + dy;
+
+            var slope = (startY/startX);
+            var isForward = endY < (slope*endX);
+
+            var angle = _this.angle(endX, endY, startX, startY);
+
+            var last2 = parseInt(minute.slice(-2));
+            if (last2 <= 30 || last2 === 0)
+            {
+                angle = isForward ? angle : -angle;
+            }
+            else {
+                angle = isForward ? -angle : angle;
+            }
+            this.attr({
+                transform: ('r' + angle + ', ' + center_x + ',' + center_y)
+            });
+        };
+
+        /**
+         * checks to see where the dragging stops and makes the closest hour active
+         */
+        var stop = function() {
+            //need to do
+        };
+
+        if (!Ember.isNone(this.get('lastMinute')))
+        {
+            var undragPrevious = this.get('lastMinute');
+            undragPrevious.undrag();
+        }
+
+        if (newMin % 5 === 0)
+        {
+            var newMin2 = ('0' + minute).slice(-2);
+            var curMin = clock.select('#minText' + newMin2);
+            var curLine = clock.select('#' + line);
+            var curCircle = clock.select('#' + circle);
+            var currentSelect = clock.g(curLine, curCircle, curMin);
+
+            currentSelect.drag(move, start, stop);
+            this.set('lastMinute', currentSelect);
+        }
+        else
+        {
+            var curLine2 = clock.select('#' + line);
+            var curCircle2 = clock.select('#' + circle);
+            var currentSelect2 = clock.g(curLine2, curCircle2);
+
+            currentSelect2.drag(move, start, stop);
+            this.set('lastMinute', currentSelect2);
+        }
+    },
+
+    /**
+     * initially sets the clocks based on the passed time
+     *
+     * @public
+     */
     changesClock: function()
     {
         if(!Ember.isNone(this.get('time')))
@@ -287,58 +447,27 @@ export default Ember.Component.extend(
         }
     },
 
-    removeMinuteActives: function(minute, line, circle)
+    /**
+     * gets the angle at which the drag is taking place
+     *
+     * @public
+     */
+    angle: function(x, y, x2, y2)
     {
-        var clock = new Snap('#clock-minutes-svg');
-        var bigCircle = clock.select('#bigCircleMinutes');
-        var newTime = ('0' + minute).slice(-2);
+        let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
+        let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
+        let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
 
-        var allMinutes = [];
-
-        for (var i = 0; i < 60; i++) {
-            i = ('0' + i).slice(-2);
-            allMinutes.push(i);
-        }
-
-        allMinutes.forEach(function(item)
-        {
-            var hourSelect = '#minText' + item;
-            var lineSelect = '#minLine' + item;
-            var circleSelect = '#minCircle' + item;
-
-            if (!Ember.isNone(clock.select(hourSelect)))
-            {
-                clock.select(hourSelect).removeClass('interiorWhite');
-            }
-            clock.select(lineSelect).insertBefore(bigCircle);
-            clock.select(circleSelect).insertBefore(bigCircle);
-        });
-
-        clock.select('#' + line).appendTo(clock);
-        clock.select('#' + circle).appendTo(clock);
-        if (newTime % 5 === 0)
-        {
-            clock.select('#' + minute).addClass('interiorWhite');
-            clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-        }
-        else
-        {
-            var hoursToTop = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
-
-            hoursToTop.forEach(function(item)
-            {
-                clock.select('#minText' + item).appendTo(clock);
-            });
-
-        }
-
-        // this.newDrag(activeHour, activeLine, activeCircle);
-
-        this.set('minutes', newTime);
+        return (Math.acos(((p1*p1)+(p0*p0)-(p2*p2))/(2*(p1*p0)))*360)/(2*Math.PI);
     },
 
     actions: {
 
+        /**
+         * sets the clicked hour to active and makes the active hour draggable
+         *
+         * @public
+         */
         clickHour: function(hour, line, circle)
         {
             var clock = new Snap('#clocks-hour-svg');
@@ -352,6 +481,11 @@ export default Ember.Component.extend(
             this.newDrag(hour, line, circle);
         },
 
+        /**
+         * sets the clicked minute to active and makes the active minute draggable
+         *
+         * @public
+         */
         clickMin: function(minute, line, circle)
         {
             var clock = new Snap('#clock-minutes-svg');
@@ -361,8 +495,15 @@ export default Ember.Component.extend(
             clock.select('#' + circle).appendTo(clock);
             clock.select('#' + minute).addClass('interiorWhite');
             clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.minutesDrag(minute, line, circle);
         },
 
+        /**
+         * handles clicking on minutes that are not intervals of 5
+         *
+         * @public
+         */
         minuteSectionClicked: function(minute)
         {
             var clock = new Snap('#clock-minutes-svg');
@@ -388,6 +529,11 @@ export default Ember.Component.extend(
             }
         },
 
+        /**
+         * handles up or down buttons pressed when on hours
+         *
+         * @public
+         */
         upOrDownHour: function(value, event)
         {
             var code = event.keyCode || event.which;
@@ -419,6 +565,11 @@ export default Ember.Component.extend(
             }
         },
 
+        /**
+         * handles up or down buttons pressed when on minutes
+         *
+         * @public
+         */
         upOrDownMinute: function(value, event)
         {
             var code = event.keyCode || event.which;
