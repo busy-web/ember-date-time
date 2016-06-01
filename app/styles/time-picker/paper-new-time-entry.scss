@@ -1,0 +1,163 @@
+
+.paper-new-time-entry {
+
+    & > div.inputContainer {
+        width: 100%;
+        max-width: 600px;
+        height: 100px;
+
+        & > div.inputHeader {
+            width: 100%;
+            height:15px;
+
+            & > div.headerInDate {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                color: #48BD85;
+                font-size: 10px;
+                font-weight: bold;
+            }
+
+            & > div.headerInTime {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                color: #48BD85;
+                font-size: 10px;
+                font-weight: bold;
+            }
+
+            & > div.headerOutDate {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                color: #EB483F;
+                font-size: 10px;
+                font-weight: bold;
+            }
+
+            & > div.headerOutTime {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                color: #EB483F;
+                font-size: 10px;
+                font-weight: bold;
+            }
+        }
+
+        & > div.inputBody {
+            width: 100%;
+
+            & > div.inputInDate {
+                float: left;
+                vertical-align: top;
+                width: 20%;
+                text-align: center;
+                border-width: 2px 0 2px 2px;
+                border-color: #E1DFDF;
+                border-style: solid;
+
+                & > div.monthContainer {
+                    width: 30%;
+                    display: inline-block;
+
+                    & > input.month {
+                        width: 100%;
+                        height: 100%;
+                        text-align: center;
+                        font-size: 16px;
+                        height: 32px;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                    }
+                }
+
+                & > div.dayContainer {
+                    width: 30%;
+                    display: inline-block;
+
+                    & > input.day {
+                        width: 100%;
+                        text-align: center;
+                        font-size: 16px;
+                        height: 32px;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                    }
+                }
+
+                & > div.yearContainer {
+                    width: 40%;
+                    display: inline-block;
+
+                    & > input.year {
+                        width: 100%;
+                        text-align: center;
+                        font-size: 16px;
+                        height: 32px;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                    }
+                }
+            }
+
+            & > input.inputInTime {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                font-size: 16px;
+                height: 32px;
+                margin: 0;
+                padding: 0;
+                border-width: 2px 0;
+                border-color: #E1DFDF;
+                border-style: solid;
+            }
+
+            & > input.inputOutDate {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                font-size: 16px;
+                height: 32px;
+                margin: 0;
+                padding: 0;
+                border-width: 2px 0;
+                border-color: #E1DFDF;
+                border-style: solid;
+            }
+
+            & > input.inputOutTime {
+                float: left;
+                vertical-align: top;
+                width: 17%;
+                margin: 0;
+                text-align: center;
+                font-size: 16px;
+                height: 32px;
+                margin: 0;
+                padding: 0;
+                border-width: 2px 2px 2px 0;
+                border-color: #E1DFDF;
+                border-style: solid;
+            }
+        }
+    }
+}
