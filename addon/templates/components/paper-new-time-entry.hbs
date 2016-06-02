@@ -6,21 +6,64 @@
             <div class="headerOutDate">OUT DATE</div>
             <div class="headerOutTime">OUT TIME</div>
         </div>
+
+        {{!-- in date inputs --}}
         <div class="inputBody">
             <div class="inputInDate">
                 <div class="monthContainer">
-                    <input class="month" type="text" maxlength="2"/>/
+                    {{input class="month" type="text" maxlength="2" value=clockInMonths key-down='addMonths'}}
                 </div>
+                <div class="monthSlash">/</div>
                 <div class="dayContainer">
-                    <input class="day" type="text" maxlength="2"/> /
+                    {{input class="day" type="text" maxlength="2" value=clockInDays key-down='addDays'}}
                 </div>
+                <div class="daySlash">/</div>
+                <div class="yearContainer">
+                    {{input class="year" type="text" maxlength="4" value=clockInYears key-down='addYears'}}
+                </div>
+            </div>
+
+            {{!-- in time inputs  --}}
+            <div class="inputInTime">
+                <div class="hourContainer">
+                    {{input type="text" class="hour" maxlength="2" value=clockInHours}}
+                </div>
+                <div class="timeColon">:</div>
+                <div class="minuteContainer">
+                    {{input type="text" class="minute" maxlength="2" value=clockInMinutes}}
+                </div>
+                <div class="merideanContainer">
+                    <input type="text" class="am-pm" maxlength="2"/>
+                </div>
+                <div class="dividingDash">-</div>
+            </div>
+
+            <div class="inputOutDate">
+                <div class="monthContainer">
+                    <input class="month" type="text" maxlength="2" onclick="this.select()"/>
+                </div>
+                <div class="monthSlash">/</div>
+                <div class="dayContainer">
+                    <input class="day" type="text" maxlength="2"/>
+                </div>
+                <div class="daySlash">/</div>
                 <div class="yearContainer">
                     <input class="year" type="text" maxlength="4"/>
                 </div>
             </div>
-             <input type="text" class="inputInTime" placeholder="in time"/>
-             <input type="text" class="inputOutDate" placeholder="out date"/>
-             <input type="text" class="inputOutTime" placeholder="out time"/>
+
+            <div class="inputOutTime">
+                <div class="hourContainer">
+                    <input type="text" class="hour" maxlength="2"/>
+                </div>
+                <div class="timeColon">:</div>
+                <div class="minuteContainer">
+                    <input type="text" class="minute" maxlength="2"/>
+                </div>
+                <div class="merideanContainer">
+                    <input type="text" class="am-pm" maxlength="2"/>
+                </div>
+            </div>
         </div>
     </div>
 </div>
