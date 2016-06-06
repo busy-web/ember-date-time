@@ -11,57 +11,57 @@
         <div class="inputBody">
             <div class="inputInDate">
                 <div class="monthContainer">
-                    {{input class="month" type="text" maxlength="2" value=clockInMonths key-down='addMonths'}}
+                    {{input class="month" type="text" maxlength="2" value=clockInMonths key-down=(action 'keyUpDownClockInMonth' 'months' 'clockInMonths')  focus-out='focusOutClockInMonth'}}
                 </div>
                 <div class="monthSlash">/</div>
                 <div class="dayContainer">
-                    {{input class="day" type="text" maxlength="2" value=clockInDays key-down='addDays'}}
+                    {{input class="day" type="text" maxlength="2" value=clockInDays key-down=(action 'keyUpDownIn' 'days' 'clockInDays')}}
                 </div>
                 <div class="daySlash">/</div>
                 <div class="yearContainer">
-                    {{input class="year" type="text" maxlength="4" value=clockInYears key-down='addYears'}}
+                    {{input class="year" type="text" maxlength="4" value=clockInYears key-down=(action 'keyUpDownIn' 'years' 'clockInYears')}}
                 </div>
             </div>
 
             {{!-- in time inputs  --}}
             <div class="inputInTime">
                 <div class="hourContainer">
-                    {{input type="text" class="hour" maxlength="2" value=clockInHours  key-down='addHours'}}
+                    {{input type="text" class="hour" maxlength="2" value=clockInHours  key-down=(action 'keyUpDownIn' 'hours' 'clockInHours')}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input type="text" class="minute" maxlength="2" value=clockInMinutes  key-down='addMinutes'}}
+                    {{input type="text" class="minute" maxlength="2" value=clockInMinutes  key-down=(action 'keyUpDownIn' 'minutes' 'clockInMinutes')}}
                 </div>
                 <div class="merideanContainer">
-                    {{input type="text" class="am-pm" maxlength="2" value=clockInMeridian}}
+                    {{input type="text" class="am-pm" maxlength="2" value=clockInMeridian key-down='clockInMeridianKeyDown'}}
                 </div>
                 <div class="dividingDash">-</div>
             </div>
 
             <div class="inputOutDate">
                 <div class="monthContainer">
-                    {{input class="month" type="text" maxlength="2" value=clockOutMonths}}
+                    {{input class="month" type="text" maxlength="2" value=clockOutMonths key-down=(action 'keyUpDownOut' 'months')}}
                 </div>
                 <div class="monthSlash">/</div>
                 <div class="dayContainer">
-                    {{input class="day" type="text" maxlength="2" value=clockOutDays}}
+                    {{input class="day" type="text" maxlength="2" value=clockOutDays key-down=(action 'keyUpDownOut' 'days')}}
                 </div>
                 <div class="daySlash">/</div>
                 <div class="yearContainer">
-                    {{input class="year" type="text" maxlength="4" value=clockOutYears}}
+                    {{input class="year" type="text" maxlength="4" value=clockOutYears key-down=(action 'keyUpDownOut' 'years')}}
                 </div>
             </div>
 
             <div class="inputOutTime">
                 <div class="hourContainer">
-                    {{input type="text" class="hour" maxlength="2" value=clockOutHours}}
+                    {{input type="text" class="hour" maxlength="2" value=clockOutHours key-down=(action 'keyUpDownOut' 'hours')}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input type="text" class="minute" maxlength="2" value=clockOutMinutes}}
+                    {{input type="text" class="minute" maxlength="2" value=clockOutMinutes key-down=(action 'keyUpDownOut' 'minutes')}}
                 </div>
                 <div class="merideanContainer">
-                    {{input type="text" class="am-pm" maxlength="2" value=clockOutMeridian}}
+                    {{input type="text" class="am-pm" maxlength="2" value=clockOutMeridian key-down='clockOutMeridianKeyDown'}}
                 </div>
             </div>
         </div>

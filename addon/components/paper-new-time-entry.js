@@ -245,136 +245,162 @@ export default Ember.Component.extend({
         this.set('clockOutYears', newFormat);
     }),
 
-    clockInMinutesTyped: Ember.observer('clockInMinutes', function()
-    {
-        var minutes = this.get('clockInMinutes');
-        var clockInTimestamp = this.get('inTimestamp');
-        var momentObj = moment(clockInTimestamp);
-        var newTime = momentObj.minutes(minutes);
-
-        console.log(minutes);
-        this.set('inTimestamp', newTime);
-    }),
-
     actions: {
 
-        addMeridian: function()
+        focusOutClockInMonth: function()
         {
-            var time = this.get('inTimestamp');
-            var code = event.keyCode || event.which;
-            if (code === 38)
+            var month = (parseInt(this.get('clockInMonths')) - 1);
+            var clockInTimestamp = this.get('inTimestamp');
+            var momentObj = moment(clockInTimestamp);
+
+            if (!this.get('clockInMonths'))
             {
-                var momentObj = moment(time);
-                momentObj.add(1, 'minutes');
-                var reverseConversion = momentObj.unix() * 1000;
-                this.set('inTimestamp', reverseConversion);
+                var currentMonth = momentObj.month();
+                console.log(currentMonth);
+                console.log('here');
+                var reset = momentObj.month(1);
+                console.log(reset);
+                // this.set('inTimestamp', reset);
             }
-            if (code === 40)
+            else
             {
-                var momentObj2 = moment(time);
-                momentObj2.subtract(1, 'minutes');
-                var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('inTimestamp', reverseConversion2);
+                var newTime = momentObj.month(month);
+                this.set('inTimestamp', newTime);
             }
         },
 
-        addMinutes: function()
+        keyUpDownClockInMonth: function(type, value)
         {
             var time = this.get('inTimestamp');
             var code = event.keyCode || event.which;
             if (code === 38)
             {
+                var momentObjAdd = moment(time);
+                var setTimeAdd = momentObjAdd.month();
+                if (this.get(value) !== setTimeAdd)
+                {
+                    var newStrAdd = (parseInt(this.get(value)));
+                    var newTimeAdd = momentObjAdd.month(newStrAdd);
+                    this.set('inTimestamp', newTimeAdd);
+                }
+                else
+                {
+                    var momentObjAddElse = moment(time);
+                    momentObjAddElse.add(1, type);
+                    var reverseConversionAddElse = momentObjAddElse.unix() * 1000;
+                    this.set('inTimestamp', reverseConversionAddElse);
+                }
+            }
+
+            if (code === 40)
+            {
+                var momentObjMinus = moment(time);
+                var setTimeMinus = momentObjMinus.month();
+                if (this.get(value) !== setTimeMinus)
+                {
+                    var newStrMinus = (parseInt(this.get(value)) - 2);
+                    var newTimeMinus = momentObjMinus.month(newStrMinus);
+                    this.set('inTimestamp', newTimeMinus);
+                }
+                else
+                {
+                    var momentObjMinusElse = moment(time);
+                    momentObjMinusElse.subtract(1, type);
+                    var reverseConversionMinus = momentObjMinusElse.unix() * 1000;
+                    this.set('inTimestamp', reverseConversionMinus);
+                }
+            }
+
+            var key = event.keyCode || event.which;
+            key = String.fromCharCode(key);
+            var regex = /[0-9]|\./;
+            if( !regex.test(key) )
+            {
+                console.log(code);
+                if (code === 46 || code === 8 || code === 9)
+                {
+                    return true;
+                }
+                else
+                {
+                    event.returnValue = false;
+                    if(event.preventDefault)
+                    {
+                        event.preventDefault();
+                    }
+                }
+            }
+
+        },
+
+        keyUpDownIn: function()
+        {
+
+        },
+
+        keyUpDownOut: function(type)
+        {
+            var time = this.get('outTimestamp');
+            var code = event.keyCode || event.which;
+            if (code === 38)
+            {
                 var momentObj = moment(time);
-                momentObj.add(1, 'minutes');
+                momentObj.add(1, type);
                 var reverseConversion = momentObj.unix() * 1000;
-                this.set('inTimestamp', reverseConversion);
+                this.set('outTimestamp', reverseConversion);
             }
             if (code === 40)
             {
                 var momentObj2 = moment(time);
-                momentObj2.subtract(1, 'minutes');
+                momentObj2.subtract(1, type);
                 var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('inTimestamp', reverseConversion2);
+                this.set('outTimestamp', reverseConversion2);
             }
         },
 
-        addHours: function()
+        clockInMeridianKeyDown: function()
         {
             var time = this.get('inTimestamp');
             var code = event.keyCode || event.which;
-            if (code === 38)
+            if (code === 38 || code === 40)
             {
+                var current = this.get('clockInMeridian');
                 var momentObj = moment(time);
-                momentObj.add(1, 'hours');
-                var reverseConversion = momentObj.unix() * 1000;
-                this.set('inTimestamp', reverseConversion);
-            }
-            if (code === 40)
-            {
-                var momentObj2 = moment(time);
-                momentObj2.subtract(1, 'hours');
-                var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('inTimestamp', reverseConversion2);
+                if (current === 'AM')
+                {
+                    momentObj.add(12, 'hours');
+                    var reverseConversion = momentObj.unix() * 1000;
+                    this.set('inTimestamp', reverseConversion);
+                }
+                else
+                {
+                    momentObj.subtract(12, 'hours');
+                    var reverseConversionBack = momentObj.unix() * 1000;
+                    this.set('inTimestamp', reverseConversionBack);
+                }
             }
         },
 
-        addDays: function(value, event)
+        clockOutMeridianKeyDown: function()
         {
-            var time = this.get('inTimestamp');
+            var time = this.get('outTimestamp');
             var code = event.keyCode || event.which;
-            if (code === 38)
+            if (code === 38 || code === 40)
             {
+                var current = this.get('clockOutMeridian');
                 var momentObj = moment(time);
-                momentObj.add(1, 'days');
-                var reverseConversion = momentObj.unix() * 1000;
-                this.set('inTimestamp', reverseConversion);
-            }
-            if (code === 40)
-            {
-                var momentObj2 = moment(time);
-                momentObj2.subtract(1, 'days');
-                var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('inTimestamp', reverseConversion2);
-            }
-        },
-
-        addMonths: function()
-        {
-            var time = this.get('inTimestamp');
-            var code = event.keyCode || event.which;
-            if (code === 38)
-            {
-                var momentObj = moment(time);
-                momentObj.add(1, 'months');
-                var reverseConversion = momentObj.unix() * 1000;
-                this.set('inTimestamp', reverseConversion);
-            }
-            if (code === 40)
-            {
-                var momentObj2 = moment(time);
-                momentObj2.subtract(1, 'months');
-                var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('inTimestamp', reverseConversion2);
-            }
-        },
-
-        addYears: function()
-        {
-            var time = this.get('inTimestamp');
-            var code = event.keyCode || event.which;
-            if (code === 38)
-            {
-                var momentObj = moment(time);
-                momentObj.add(1, 'years');
-                var reverseConversion = momentObj.unix() * 1000;
-                this.set('inTimestamp', reverseConversion);
-            }
-            if (code === 40)
-            {
-                var momentObj2 = moment(time);
-                momentObj2.subtract(1, 'years');
-                var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('inTimestamp', reverseConversion2);
+                if (current === 'AM')
+                {
+                    momentObj.add(12, 'hours');
+                    var reverseConversion = momentObj.unix() * 1000;
+                    this.set('outTimestamp', reverseConversion);
+                }
+                else
+                {
+                    momentObj.subtract(12, 'hours');
+                    var reverseConversionBack = momentObj.unix() * 1000;
+                    this.set('outTimestamp', reverseConversionBack);
+                }
             }
         }
     }
