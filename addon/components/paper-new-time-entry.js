@@ -247,31 +247,153 @@ export default Ember.Component.extend({
 
     actions: {
 
-        focusOutClockInMonth: function()
+        focusOutClockMonth: function(timestamp, value)
         {
-            var month = (parseInt(this.get('clockInMonths')) - 1);
-            var clockInTimestamp = this.get('inTimestamp');
+            var month = (parseInt(this.get(value)) - 1);
+            var clockInTimestamp = this.get(timestamp);
             var momentObj = moment(clockInTimestamp);
 
-            if (!this.get('clockInMonths'))
+            if (Ember.isEmpty(month) || Ember.isNone(month) || isNaN(month))
             {
                 var currentMonth = momentObj.month();
-                console.log(currentMonth);
-                console.log('here');
-                var reset = momentObj.month(1);
-                console.log(reset);
-                // this.set('inTimestamp', reset);
+                var reset = momentObj.month(currentMonth);
+                this.set(timestamp, reset);
             }
             else
             {
                 var newTime = momentObj.month(month);
-                this.set('inTimestamp', newTime);
+                this.set(timestamp, newTime);
             }
         },
 
-        keyUpDownClockInMonth: function(type, value)
+        focusOutClockDay: function(timestamp, value)
         {
-            var time = this.get('inTimestamp');
+            var day = (parseInt(this.get(value)));
+            var clockInTimestamp = this.get(timestamp);
+            var momentObj = moment(clockInTimestamp);
+
+            if (Ember.isEmpty(day) || Ember.isNone(day) || isNaN(day))
+            {
+                var currentDay = momentObj.date();
+                var reset = momentObj.date(currentDay);
+                this.set(timestamp, reset);
+            }
+            else
+            {
+                var newTime = momentObj.date(day);
+                this.set(timestamp, newTime);
+            }
+        },
+
+        focusOutClockYear: function(timestamp, value)
+        {
+            var year = (parseInt(this.get(value)));
+            var clockInTimestamp = this.get(timestamp);
+            var momentObj = moment(clockInTimestamp);
+
+            if (Ember.isEmpty(year) || Ember.isNone(year) || isNaN(year))
+            {
+                var currentYear = momentObj.year();
+                var reset = momentObj.year(currentYear);
+                this.set(timestamp, reset);
+            }
+            else
+            {
+                var newTime = momentObj.year(year);
+                this.set(timestamp, newTime);
+            }
+        },
+
+        focusOutClockHour: function(timestamp, value)
+        {
+            var hour = (parseInt(this.get(value)));
+            var clockInTimestamp = this.get(timestamp);
+            var momentObj = moment(clockInTimestamp);
+
+            if (Ember.isEmpty(hour) || Ember.isNone(hour) || isNaN(hour))
+            {
+                var currentHour = momentObj.hour();
+                var reset = momentObj.hour(currentHour);
+                this.set(timestamp, reset);
+            }
+            else
+            {
+                var newTime = momentObj.hour(hour);
+                this.set(timestamp, newTime);
+            }
+        },
+
+        focusOutClockMinute: function(timestamp, value)
+        {
+            var minute = (parseInt(this.get(value)));
+            var clockInTimestamp = this.get(timestamp);
+            var momentObj = moment(clockInTimestamp);
+
+            if (Ember.isEmpty(minute) || Ember.isNone(minute) || isNaN(minute))
+            {
+                var currentMinute = momentObj.minute();
+                var reset = momentObj.minute(currentMinute);
+                this.set(timestamp, reset);
+            }
+            else
+            {
+                var newTime = momentObj.minute(minute);
+                this.set(timestamp, newTime);
+            }
+        },
+
+        focusOutClockMeridian: function(timestamp, value)
+        {
+            var current = this.get(value);
+            var time = this.get(timestamp);
+            var momentObj = moment(time);
+            var reset = momentObj.format('A');
+
+            if (Ember.isEmpty(current) || Ember.isNone(current))
+            {
+                this.set(value, reset);
+            }
+
+            var allowed = ['a', 'A', 'p', 'P', 'am', 'AM', 'pm', 'PM'];
+
+            if (allowed.indexOf(current) >= 0)
+            {
+                if (current === 'a' || current === 'A' || current === 'am' || current === 'AM')
+                {
+                    if (reset === 'AM')
+                    {
+                        this.set(value, reset);
+                    }
+                    if (reset === 'PM')
+                    {
+                        momentObj.subtract(12, 'hours');
+                        var reverseConversionBack = momentObj.unix() * 1000;
+                        this.set(timestamp, reverseConversionBack);
+                    }
+                }
+                else
+                {
+                    if (reset === 'PM')
+                    {
+                        this.set(value, reset);
+                    }
+                    if (reset === 'AM')
+                    {
+                        momentObj.add(12, 'hours');
+                        var reverseConversionBack2 = momentObj.unix() * 1000;
+                        this.set(timestamp, reverseConversionBack2);
+                    }
+                }
+            }
+            else
+            {
+                this.set(value, reset);
+            }
+        },
+
+        keyUpDownClockMonths: function(timestamp, value)
+        {
+            var time = this.get(timestamp);
             var code = event.keyCode || event.which;
             if (code === 38)
             {
@@ -281,14 +403,14 @@ export default Ember.Component.extend({
                 {
                     var newStrAdd = (parseInt(this.get(value)));
                     var newTimeAdd = momentObjAdd.month(newStrAdd);
-                    this.set('inTimestamp', newTimeAdd);
+                    this.set(timestamp, newTimeAdd);
                 }
                 else
                 {
                     var momentObjAddElse = moment(time);
-                    momentObjAddElse.add(1, type);
+                    momentObjAddElse.add(1, 'months');
                     var reverseConversionAddElse = momentObjAddElse.unix() * 1000;
-                    this.set('inTimestamp', reverseConversionAddElse);
+                    this.set(timestamp, reverseConversionAddElse);
                 }
             }
 
@@ -300,23 +422,23 @@ export default Ember.Component.extend({
                 {
                     var newStrMinus = (parseInt(this.get(value)) - 2);
                     var newTimeMinus = momentObjMinus.month(newStrMinus);
-                    this.set('inTimestamp', newTimeMinus);
+                    this.set(timestamp, newTimeMinus);
                 }
                 else
                 {
                     var momentObjMinusElse = moment(time);
-                    momentObjMinusElse.subtract(1, type);
+                    momentObjMinusElse.subtract(1, 'months');
                     var reverseConversionMinus = momentObjMinusElse.unix() * 1000;
-                    this.set('inTimestamp', reverseConversionMinus);
+                    this.set(timestamp, reverseConversionMinus);
                 }
             }
 
             var key = event.keyCode || event.which;
-            key = String.fromCharCode(key);
+            var newkey = String.fromCharCode(key);
             var regex = /[0-9]|\./;
-            if( !regex.test(key) )
+
+            if( !regex.test(newkey) )
             {
-                console.log(code);
                 if (code === 46 || code === 8 || code === 9)
                 {
                     return true;
@@ -330,7 +452,6 @@ export default Ember.Component.extend({
                     }
                 }
             }
-
         },
 
         keyUpDownIn: function()
