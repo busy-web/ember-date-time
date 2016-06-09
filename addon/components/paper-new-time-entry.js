@@ -247,6 +247,11 @@ export default Ember.Component.extend({
 
     actions: {
 
+        focusInput: function(id)
+        {
+            Ember.$(id).select();
+        },
+
         focusOutClockMonth: function(timestamp, value)
         {
             var month = (parseInt(this.get(value)) - 1);
@@ -304,7 +309,7 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockHour: function(timestamp, value)
+        focusOutClockHour: function(timestamp, value, meridian)
         {
             var hour = (parseInt(this.get(value)));
             var clockInTimestamp = this.get(timestamp);
@@ -318,8 +323,18 @@ export default Ember.Component.extend({
             }
             else
             {
-                var newTime = momentObj.hour(hour);
-                this.set(timestamp, newTime);
+                var currentMeridian = this.get(meridian);
+
+                if (currentMeridian === 'AM')
+                {
+                    var newTime = momentObj.hour(hour);
+                    this.set(timestamp, newTime);
+                }
+                else
+                {
+                    var newTimePlus = momentObj.hour(hour + 12);
+                    this.set(timestamp, newTimePlus);
+                }
             }
         },
 
@@ -348,7 +363,6 @@ export default Ember.Component.extend({
             var time = this.get(timestamp);
             var momentObj = moment(time);
             var reset = momentObj.format('A');
-
             if (Ember.isEmpty(current) || Ember.isNone(current))
             {
                 this.set(value, reset);
@@ -391,46 +405,24 @@ export default Ember.Component.extend({
             }
         },
 
-        keyUpDownClockMonths: function(timestamp, value)
+        keyUpDownHandler: function(timestamp, amount)
         {
             var time = this.get(timestamp);
             var code = event.keyCode || event.which;
             if (code === 38)
             {
-                var momentObjAdd = moment(time);
-                var setTimeAdd = momentObjAdd.month();
-                if (this.get(value) !== setTimeAdd)
-                {
-                    var newStrAdd = (parseInt(this.get(value)));
-                    var newTimeAdd = momentObjAdd.month(newStrAdd);
-                    this.set(timestamp, newTimeAdd);
-                }
-                else
-                {
-                    var momentObjAddElse = moment(time);
-                    momentObjAddElse.add(1, 'months');
-                    var reverseConversionAddElse = momentObjAddElse.unix() * 1000;
-                    this.set(timestamp, reverseConversionAddElse);
-                }
+                var momentObjUp = moment(time);
+                momentObjUp.add(1, amount);
+                var reverseConversionUp = momentObjUp.unix() * 1000;
+                this.set(timestamp, reverseConversionUp);
             }
 
             if (code === 40)
             {
-                var momentObjMinus = moment(time);
-                var setTimeMinus = momentObjMinus.month();
-                if (this.get(value) !== setTimeMinus)
-                {
-                    var newStrMinus = (parseInt(this.get(value)) - 2);
-                    var newTimeMinus = momentObjMinus.month(newStrMinus);
-                    this.set(timestamp, newTimeMinus);
-                }
-                else
-                {
-                    var momentObjMinusElse = moment(time);
-                    momentObjMinusElse.subtract(1, 'months');
-                    var reverseConversionMinus = momentObjMinusElse.unix() * 1000;
-                    this.set(timestamp, reverseConversionMinus);
-                }
+                var momentObjDown = moment(time);
+                momentObjDown.subtract(1, amount);
+                var reverseConversionDown = momentObjDown.unix() * 1000;
+                this.set(timestamp, reverseConversionDown);
             }
 
             var key = event.keyCode || event.which;
@@ -451,31 +443,6 @@ export default Ember.Component.extend({
                         event.preventDefault();
                     }
                 }
-            }
-        },
-
-        keyUpDownIn: function()
-        {
-
-        },
-
-        keyUpDownOut: function(type)
-        {
-            var time = this.get('outTimestamp');
-            var code = event.keyCode || event.which;
-            if (code === 38)
-            {
-                var momentObj = moment(time);
-                momentObj.add(1, type);
-                var reverseConversion = momentObj.unix() * 1000;
-                this.set('outTimestamp', reverseConversion);
-            }
-            if (code === 40)
-            {
-                var momentObj2 = moment(time);
-                momentObj2.subtract(1, type);
-                var reverseConversion2 = momentObj2.unix() * 1000;
-                this.set('outTimestamp', reverseConversion2);
             }
         },
 

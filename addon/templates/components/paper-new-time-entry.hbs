@@ -11,57 +11,57 @@
         <div class="inputBody">
             <div class="inputInDate">
                 <div class="monthContainer">
-                    {{input class="month" type="text"  maxlength="2" value=clockInMonths key-down=(action 'keyUpDownClockMonths' 'inTimestamp' 'clockInMonths')  focus-out=(action 'focusOutClockMonth' 'inTimestamp' 'clockInMonths')}}
+                    {{input id="clockInMonth" class="month" type="text"  maxlength="2" value=clockInMonths key-down=(action 'keyUpDownHandler' 'inTimestamp' 'months')  focus-out=(action 'focusOutClockMonth' 'inTimestamp' 'clockInMonths') focus-in=(action 'focusInput' '#clockInMonth')}}
                 </div>
                 <div class="monthSlash">/</div>
                 <div class="dayContainer">
-                    {{input class="day" type="text" maxlength="2" value=clockInDays key-down=(action 'keyUpDownIn') focus-out=(action 'focusOutClockDay' 'inTimestamp' 'clockInDays')}}
+                    {{input id="clockInDay" class="day" type="text" maxlength="2" value=clockInDays key-down=(action 'keyUpDownHandler' 'inTimestamp' 'days') focus-out=(action 'focusOutClockDay' 'inTimestamp' 'clockInDays') focus-in=(action 'focusInput' '#clockInDay')}}
                 </div>
                 <div class="daySlash">/</div>
                 <div class="yearContainer">
-                    {{input class="year" type="text" maxlength="4" value=clockInYears key-down=(action 'keyUpDownIn') focus-out=(action 'focusOutClockYear' 'inTimestamp' 'clockInYears')}}
+                    {{input id="clockInYear" class="year" type="text" maxlength="4" value=clockInYears key-down=(action 'keyUpDownHandler' 'inTimestamp' 'years') focus-out=(action 'focusOutClockYear' 'inTimestamp' 'clockInYears') focus-in=(action 'focusInput' '#clockInYear')}}
                 </div>
             </div>
 
             {{!-- in time inputs  --}}
             <div class="inputInTime">
                 <div class="hourContainer">
-                    {{input type="text" class="hour" maxlength="2" value=clockInHours  key-down=(action 'keyUpDownIn') focus-out=(action 'focusOutClockHour' 'inTimestamp' 'clockInHours')}}
+                    {{input id="clockInHour" type="text" class="hour" maxlength="2" value=clockInHours  key-down=(action 'keyUpDownHandler' 'inTimestamp' 'hours') focus-out=(action 'focusOutClockHour' 'inTimestamp' 'clockInHours' 'clockInMeridian' focus-in=(action 'focusInput' '#clockInHour'))}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input type="text" class="minute" maxlength="2" value=clockInMinutes  key-down=(action 'keyUpDownIn') focus-out=(action 'focusOutClockMinute' 'inTimestamp' 'clockInMinutes')}}
+                    {{input id="clockInMinute" type="text" class="minute" maxlength="2" value=clockInMinutes  key-down=(action 'keyUpDownHandler' 'inTimestamp' 'minutes') focus-out=(action 'focusOutClockMinute' 'inTimestamp' 'clockInMinutes') focus-in=(action 'focusInput' '#clockInMinute')}}
                 </div>
                 <div class="merideanContainer">
-                    {{input type="text" class="am-pm" maxlength="2" value=clockInMeridian key-down='clockInMeridianKeyDown' focus-out=(action 'focusOutClockMeridian' 'inTimestamp' 'clockInMeridian')}}
+                    {{input id="clockInMeridian" type="text" class="am-pm" maxlength="2" value=clockInMeridian key-down='clockInMeridianKeyDown' focus-out=(action 'focusOutClockMeridian' 'inTimestamp' 'clockInMeridian') focus-in=(action 'focusInput' '#clockInMeridian')}}
                 </div>
                 <div class="dividingDash">-</div>
             </div>
 
             <div class="inputOutDate">
                 <div class="monthContainer">
-                    {{input class="month" type="text" maxlength="2" value=clockOutMonths key-down=(action 'keyUpDownClockMonths' 'outTimestamp' 'clockOutMonths') focus-out=(action 'focusOutClockMonth' 'outTimestamp' 'clockOutMonths')}}
+                    {{input id="clockOutMonth" class="month" type="text" maxlength="2" value=clockOutMonths key-down=(action 'keyUpDownHandler' 'outTimestamp' 'months') focus-out=(action 'focusOutClockMonth' 'outTimestamp' 'clockOutMonths') focus-in=(action 'focusInput' '#clockOutMonth')}}
                 </div>
                 <div class="monthSlash">/</div>
                 <div class="dayContainer">
-                    {{input class="day" type="text" maxlength="2" value=clockOutDays key-down=(action 'keyUpDownOut') focus-out=(action 'focusOutClockDay' 'outTimestamp' 'clockOutDays')}}
+                    {{input id="clockOutDay" class="day" type="text" maxlength="2" value=clockOutDays key-down=(action 'keyUpDownHandler' 'outTimestamp' 'days') focus-out=(action 'focusOutClockDay' 'outTimestamp' 'clockOutDays') focus-in=(action 'focusInput' '#clockOutDay')}}
                 </div>
                 <div class="daySlash">/</div>
                 <div class="yearContainer">
-                    {{input class="year" type="text" maxlength="4" value=clockOutYears key-down=(action 'keyUpDownOut') focus-out=(action 'focusOutClockYear' 'outTimestamp' 'clockOutYears')}}
+                    {{input id="clockOutYear" class="year" type="text" maxlength="4" value=clockOutYears key-down=(action 'keyUpDownHandler' 'outTimestamp' 'years') focus-out=(action 'focusOutClockYear' 'outTimestamp' 'clockOutYears')  focus-in=(action 'focusInput' '#clockOutYear')}}
                 </div>
             </div>
 
             <div class="inputOutTime">
                 <div class="hourContainer">
-                    {{input type="text" class="hour" maxlength="2" value=clockOutHours key-down=(action 'keyUpDownOut') focus-out=(action 'focusOutClockHour' 'outTimestamp' 'clockOutHours')}}
+                    {{input id="clockOutHour" type="text" class="hour" maxlength="2" value=clockOutHours key-down=(action 'keyUpDownHandler' 'outTimestamp' 'hours') focus-out=(action 'focusOutClockHour' 'outTimestamp' 'clockOutHours' 'clockOutMeridian') focus-in=(action 'focusInput' '#clockOutHour')}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input type="text" class="minute" maxlength="2" value=clockOutMinutes key-down=(action 'keyUpDownOut') focus-out=(action 'focusOutClockMinute' 'outTimestamp' 'clockOutMinutes')}}
+                    {{input id="clockOutMinute" type="text" class="minute" maxlength="2" value=clockOutMinutes key-down=(action 'keyUpDownHandler' 'outTimestamp' 'minutes') focus-out=(action 'focusOutClockMinute' 'outTimestamp' 'clockOutMinutes') focus-in=(action 'focusInput' '#clockOutMinute')}}
                 </div>
                 <div class="merideanContainer">
-                    {{input type="text" class="am-pm" maxlength="2" value=clockOutMeridian key-down='clockOutMeridianKeyDown' focus-out=(action 'focusOutClockMeridian' 'outTimestamp' 'clockOutMeridian')}}
+                    {{input id="clockOutMeridian" type="text" class="am-pm" maxlength="2" value=clockOutMeridian key-down='clockOutMeridianKeyDown' focus-out=(action 'focusOutClockMeridian' 'outTimestamp' 'clockOutMeridian')  focus-in=(action 'focusInput' '#clockOutMeridian')}}
                 </div>
             </div>
         </div>
