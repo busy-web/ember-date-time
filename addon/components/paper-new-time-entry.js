@@ -24,6 +24,11 @@ export default Ember.Component.extend({
     clockOutMonths: null,
     clockOutYears: null,
 
+    // auto-tabbing junk
+    currentInput: null,
+    currentInputMaxlength: null,
+    acceptedCharacter: null,
+
     init: function()
     {
         this._super();
@@ -245,11 +250,37 @@ export default Ember.Component.extend({
         this.set('clockOutYears', newFormat);
     }),
 
+    observesCurrentInput: Ember.observer('currentInput', function()
+    {
+        var input = Ember.$(this.get('currentInput'));
+        this.set('currentInputMaxlength', input[0].maxLength);
+    }),
+
     actions: {
 
         focusInput: function(id)
         {
             Ember.$(id).select();
+
+            this.set('currentInput', id);
+        },
+
+        checkAutoTab: function(nextInput)
+        {
+            var code = event.keyCode || event.which;
+
+            var name = this.get('currentInput').slice(1);
+            var value = this.get(name);
+            if (this.get('currentInputMaxlength') === value.length)
+            {
+                if (code !== 38 && code !== 40 && this.get('acceptedCharacter'))
+                {
+                    this.set('acceptedCharacter', false);
+                    var next = Ember.$(nextInput);
+                    next.focus();
+                }
+            }
+
         },
 
         focusOutClockMonth: function(timestamp, value)
@@ -409,6 +440,7 @@ export default Ember.Component.extend({
         {
             var time = this.get(timestamp);
             var code = event.keyCode || event.which;
+
             if (code === 38)
             {
                 var momentObjUp = moment(time);
@@ -433,6 +465,7 @@ export default Ember.Component.extend({
             {
                 if (code === 46 || code === 8 || code === 9)
                 {
+                    this.set('acceptedCharacter', false);
                     return true;
                 }
                 else
@@ -442,7 +475,12 @@ export default Ember.Component.extend({
                     {
                         event.preventDefault();
                     }
+                    this.set('acceptedCharacter', false);
                 }
+            }
+            else
+            {
+                this.set('acceptedCharacter', true);
             }
         },
 
@@ -450,6 +488,7 @@ export default Ember.Component.extend({
         {
             var time = this.get('inTimestamp');
             var code = event.keyCode || event.which;
+
             if (code === 38 || code === 40)
             {
                 var current = this.get('clockInMeridian');
@@ -466,6 +505,10 @@ export default Ember.Component.extend({
                     var reverseConversionBack = momentObj.unix() * 1000;
                     this.set('inTimestamp', reverseConversionBack);
                 }
+            }
+            else
+            {
+                this.set('acceptedCharacter', true);
             }
         },
 
