@@ -10,6 +10,9 @@ export default Ember.Component.extend({
     inTimestamp: null,
     outTimestamp: null,
 
+    showInTimeClock: null,
+    showOutTimeClock: null,
+
     clockInMeridian: null,
     clockInMinutes: null,
     clockInHours: null,
@@ -258,11 +261,12 @@ export default Ember.Component.extend({
 
     actions: {
 
-        focusInput: function(id)
+        focusInput: function(id, openDialog)
         {
             Ember.$(id).select();
 
             this.set('currentInput', id);
+            this.set(openDialog, true);
         },
 
         checkAutoTab: function(nextInput)
@@ -280,7 +284,6 @@ export default Ember.Component.extend({
                     next.focus();
                 }
             }
-
         },
 
         focusOutClockMonth: function(timestamp, value)
@@ -340,8 +343,10 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockHour: function(timestamp, value, meridian)
+        focusOutClockHour: function(timestamp, value, meridian, closeDialog)
         {
+            this.set(closeDialog, false);
+
             var hour = (parseInt(this.get(value)));
             var clockInTimestamp = this.get(timestamp);
             var momentObj = moment(clockInTimestamp);
@@ -369,8 +374,10 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockMinute: function(timestamp, value)
+        focusOutClockMinute: function(timestamp, value, closeDialog)
         {
+            this.set(closeDialog, false);
+
             var minute = (parseInt(this.get(value)));
             var clockInTimestamp = this.get(timestamp);
             var momentObj = moment(clockInTimestamp);
@@ -388,8 +395,10 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockMeridian: function(timestamp, value)
+        focusOutClockMeridian: function(timestamp, value, closeDialog)
         {
+            this.set(closeDialog, false);
+
             var current = this.get(value);
             var time = this.get(timestamp);
             var momentObj = moment(time);
@@ -506,7 +515,7 @@ export default Ember.Component.extend({
                     this.set('inTimestamp', reverseConversionBack);
                 }
             }
-            else
+            if (code !== 46 && code !== 8 && code !== 9)
             {
                 this.set('acceptedCharacter', true);
             }

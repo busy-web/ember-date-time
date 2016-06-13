@@ -12,7 +12,7 @@ export default Ember.Component.extend(
     classNames: ['paper-time-picker'],
     layout: layout,
 
-    time: 1469080697, //may 5 2016, 5 am
+    timestamp: null,
 
     lastGroup: null,
     lastMinute: null,
@@ -421,23 +421,22 @@ export default Ember.Component.extend(
      */
     changesClock: function()
     {
-        if(!Ember.isNone(this.get('time')))
+        if(!Ember.isNone(this.get('timestamp')))
         {
-            var time = this.get('time');
+            var time = this.get('timestamp');
 
-            // Create a new JavaScript Date object based on the timestamp
-            // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-            var date = new Date(time*1200);
-            // Hours part from the timestamp
-            var hours = date.getHours();
-            // Minutes part from the timestamp
-            var minutes = date.getMinutes();
+            var momentObj = moment(time);
+
+            var hours = momentObj.hour();
+            var minutes = momentObj.minutes();
 
             var activeHour = ('0' + (hours%12)).slice(-2);
 
             var hour = 'hour' + activeHour;
             var line = 'line' + activeHour;
             var circle = 'circle' + activeHour;
+
+            console.log(hour, line, circle);
 
             this.set('hours', hours);
             this.set('minutes', minutes);
@@ -446,6 +445,27 @@ export default Ember.Component.extend(
 
         }
     },
+
+    observeTimestamp: Ember.observer('timestamp', function()
+    {
+        var time = this.get('timestamp');
+
+        var momentObj = moment(time);
+
+        var hours = momentObj.hour();
+        var minutes = momentObj.minutes();
+
+        var activeHour = ('0' + (hours%12)).slice(-2);
+
+        var hour = 'hour' + activeHour;
+        var line = 'line' + activeHour;
+        var circle = 'circle' + activeHour;
+
+        this.set('hours', hours);
+        this.set('minutes', minutes);
+        this.removeOtherActives(hour, line, circle);
+        this.newDrag(hour, line, circle);
+    }),
 
     /**
      * gets the angle at which the drag is taking place
@@ -471,6 +491,12 @@ export default Ember.Component.extend(
         clickHour: function(hour, line, circle)
         {
             var clock = new Snap('#clocks-hour-svg');
+
+            var timestamp = this.get('timestamp');
+            var momentObj = moment(timestamp);
+            var setHour = momentObj.hour(parseInt(hour.slice(-2)));
+            var reverseConversion = setHour.unix() * 1000;
+            this.set('timestamp', reverseConversion);
 
             this.removeOtherActives(hour, line, circle);
             clock.select('#' + line).appendTo(clock);
