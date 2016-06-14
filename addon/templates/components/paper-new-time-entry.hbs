@@ -26,11 +26,11 @@
             {{!-- in time inputs  --}}
             <div class="inputInTime">
                 <div class="hourContainer">
-                    {{input id="clockInHours" type="text" class="hour" maxlength="2" value=clockInHours  key-down=(action 'keyUpDownHandler' 'inTimestamp' 'hours') focus-out=(action 'focusOutClockHour' 'inTimestamp' 'clockInHours' 'clockInMeridian') focus-in=(action 'focusInput' '#clockInHours' 'showInTimeClock') key-up=(action 'checkAutoTab' '#clockInMinutes')}}
+                    {{input id="clockInHours" type="text" class="hour" maxlength="2" value=clockInHours  key-down=(action 'keyUpDownHours' 'inTimestamp' 'clockInHours') focus-out=(action 'focusOutClockHour' 'inTimestamp' 'clockInHours' 'clockInMeridian') focus-in=(action 'focusInput' '#clockInHours' 'showInTimeClock') key-up=(action 'checkAutoTab' '#clockInMinutes')}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input id="clockInMinutes" type="text" class="minute" maxlength="2" value=clockInMinutes  key-down=(action 'keyUpDownHandler' 'inTimestamp' 'minutes') focus-out=(action 'focusOutClockMinute' 'inTimestamp' 'clockInMinutes') focus-in=(action 'focusInput' '#clockInMinutes' 'showInTimeClock') key-up=(action 'checkAutoTab' '#clockInMeridian')}}
+                    {{input id="clockInMinutes" type="text" class="minute" maxlength="2" value=clockInMinutes  key-down=(action 'keyUpDownMinutes' 'inTimestamp' 'clockInMinutes') focus-out=(action 'focusOutClockMinute' 'inTimestamp' 'clockInMinutes') focus-in=(action 'focusInput' '#clockInMinutes' 'showInTimeClock') key-up=(action 'checkAutoTab' '#clockInMeridian')}}
                 </div>
                 <div class="merideanContainer">
                     {{input id="clockInMeridian" type="text" class="am-pm" maxlength="2" value=clockInMeridian key-down='clockInMeridianKeyDown' focus-out=(action 'focusOutClockMeridian' 'inTimestamp' 'clockInMeridian') focus-in=(action 'focusInput' '#clockInMeridian' 'showInTimeClock') key-up=(action 'checkAutoTab' '#clockOutMonths')}}
@@ -54,11 +54,11 @@
 
             <div class="inputOutTime">
                 <div class="hourContainer">
-                    {{input id="clockOutHours" type="text" class="hour" maxlength="2" value=clockOutHours key-down=(action 'keyUpDownHandler' 'outTimestamp' 'hours') focus-out=(action 'focusOutClockHour' 'outTimestamp' 'clockOutHours' 'clockOutMeridian') focus-in=(action 'focusInput' '#clockOutHours' 'showOutTimeClock') key-up=(action 'checkAutoTab' '#clockOutMinutes')}}
+                    {{input id="clockOutHours" type="text" class="hour" maxlength="2" value=clockOutHours key-down=(action 'keyUpDownHours' 'outTimestamp' 'clockOutHours') focus-out=(action 'focusOutClockHour' 'outTimestamp' 'clockOutHours' 'clockOutMeridian') focus-in=(action 'focusInput' '#clockOutHours' 'showOutTimeClock') key-up=(action 'checkAutoTab' '#clockOutMinutes')}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input id="clockOutMinutes" type="text" class="minute" maxlength="2" value=clockOutMinutes key-down=(action 'keyUpDownHandler' 'outTimestamp' 'minutes') focus-out=(action 'focusOutClockMinute' 'outTimestamp' 'clockOutMinutes') focus-in=(action 'focusInput' '#clockOutMinutes' 'showOutTimeClock') key-up=(action 'checkAutoTab' '#clockOutMeridian')}}
+                    {{input id="clockOutMinutes" type="text" class="minute" maxlength="2" value=clockOutMinutes key-down=(action 'keyUpDownMinutes' 'outTimestamp' 'clockOutMinutes') focus-out=(action 'focusOutClockMinute' 'outTimestamp' 'clockOutMinutes') focus-in=(action 'focusInput' '#clockOutMinutes' 'showOutTimeClock') key-up=(action 'checkAutoTab' '#clockOutMeridian')}}
                 </div>
                 <div class="merideanContainer">
                     {{input id="clockOutMeridian" type="text" class="am-pm" maxlength="2" value=clockOutMeridian key-down='clockOutMeridianKeyDown' focus-out=(action 'focusOutClockMeridian' 'outTimestamp' 'clockOutMeridian')  focus-in=(action 'focusInput' '#clockOutMeridian' 'showOutTimeClock') key-up=(action 'checkAutoTab' '#unFocus')}}

@@ -259,6 +259,35 @@ export default Ember.Component.extend({
         this.set('currentInputMaxlength', input[0].maxLength);
     }),
 
+    checkRestrictedCharacter: function(event)
+    {
+        var key = event.keyCode || event.which;
+        var newkey = String.fromCharCode(key);
+        var regex = /[0-9]|\./;
+
+        if( !regex.test(newkey) )
+        {
+            if (key === 46 || key === 8 || key === 9)
+            {
+                this.set('acceptedCharacter', false);
+                return true;
+            }
+            else
+            {
+                event.returnValue = false;
+                if(event.preventDefault)
+                {
+                    event.preventDefault();
+                }
+                this.set('acceptedCharacter', false);
+            }
+        }
+        else
+        {
+            this.set('acceptedCharacter', true);
+        }
+    },
+
     actions: {
 
         focusInput: function(id, openDialog)
@@ -343,10 +372,8 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockHour: function(timestamp, value, meridian, closeDialog)
+        focusOutClockHour: function(timestamp, value, meridian)
         {
-            this.set(closeDialog, false);
-
             var hour = (parseInt(this.get(value)));
             var clockInTimestamp = this.get(timestamp);
             var momentObj = moment(clockInTimestamp);
@@ -374,10 +401,8 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockMinute: function(timestamp, value, closeDialog)
+        focusOutClockMinute: function(timestamp, value)
         {
-            this.set(closeDialog, false);
-
             var minute = (parseInt(this.get(value)));
             var clockInTimestamp = this.get(timestamp);
             var momentObj = moment(clockInTimestamp);
@@ -390,14 +415,23 @@ export default Ember.Component.extend({
             }
             else
             {
-                var newTime = momentObj.minute(minute);
-                this.set(timestamp, newTime);
+                if (minute >= 60)
+                {
+                    minute = minute % 60;
+                    var newTime = momentObj.minute(minute);
+                    this.set(timestamp, newTime);
+                }
+                else
+                {
+                    var newTime2 = momentObj.minute(minute);
+                    this.set(timestamp, newTime2);
+                }
             }
         },
 
-        focusOutClockMeridian: function(timestamp, value, closeDialog)
+        focusOutClockMeridian: function(timestamp, value)
         {
-            this.set(closeDialog, false);
+            console.log('here');
 
             var current = this.get(value);
             var time = this.get(timestamp);
@@ -445,6 +479,114 @@ export default Ember.Component.extend({
             }
         },
 
+        keyUpDownMinutes: function(timestamp, value)
+        {
+            var time = this.get(timestamp);
+            var code = event.keyCode || event.which;
+            if (code === 38)
+            {
+                var momentObjUp = moment(time);
+
+                if (momentObjUp.minutes() + 1 >= 60)
+                {
+                    momentObjUp.subtract(59, 'minutes');
+                }
+                else
+                {
+                    momentObjUp.add(1, 'minutes');
+                }
+                var reverseConversionUp = momentObjUp.unix() * 1000;
+                this.set(timestamp, reverseConversionUp);
+            }
+            if (code === 40)
+            {
+                var momentObjDown = moment(time);
+
+                if (momentObjDown.minutes() - 1 < 0)
+                {
+                    momentObjDown.add(59, 'minutes');
+                }
+                else
+                {
+                    momentObjDown.subtract(1, 'minutes');
+                }
+                var reverseConversionDown = momentObjDown.unix() * 1000;
+                this.set(timestamp, reverseConversionDown);
+            }
+
+            var current = this.get(value);
+
+            if (current.length < 2)
+            {
+                if (parseInt(current + event.key) > 59)
+                {
+                    console.log('Minutes must be in between 0 - 60');
+                    event.returnValue = false;
+                    if(event.preventDefault)
+                    {
+                        event.preventDefault();
+                    }
+                    this.set('acceptedCharacter', false);
+                }
+            }
+
+            this.checkRestrictedCharacter(event);
+        },
+
+        keyUpDownHours: function(timestamp, value)
+        {
+            var time = this.get(timestamp);
+            var code = event.keyCode || event.which;
+            if (code === 38)
+            {
+                var momentObjUp = moment(time);
+
+                if (momentObjUp.hour() + 1 >= 12)
+                {
+                    momentObjUp.subtract(11, 'hours');
+                }
+                else
+                {
+                    momentObjUp.add(1, 'hours');
+                }
+                var reverseConversionUp = momentObjUp.unix() * 1000;
+                this.set(timestamp, reverseConversionUp);
+            }
+            if (code === 40)
+            {
+                var momentObjDown = moment(time);
+
+                if (momentObjDown.hour() - 1 < 0)
+                {
+                    momentObjDown.add(11, 'hours');
+                }
+                else
+                {
+                    momentObjDown.subtract(1, 'hours');
+                }
+                var reverseConversionDown = momentObjDown.unix() * 1000;
+                this.set(timestamp, reverseConversionDown);
+            }
+
+            var current = this.get(value);
+
+            if (current.length < 2)
+            {
+                if (parseInt(current + event.key) > 12)
+                {
+                    console.log('hours must be in between 0 - 12');
+                    event.returnValue = false;
+                    if(event.preventDefault)
+                    {
+                        event.preventDefault();
+                    }
+                    this.set('acceptedCharacter', false);
+                }
+            }
+
+            this.checkRestrictedCharacter(event);
+        },
+
         keyUpDownHandler: function(timestamp, amount)
         {
             var time = this.get(timestamp);
@@ -457,7 +599,6 @@ export default Ember.Component.extend({
                 var reverseConversionUp = momentObjUp.unix() * 1000;
                 this.set(timestamp, reverseConversionUp);
             }
-
             if (code === 40)
             {
                 var momentObjDown = moment(time);
@@ -466,35 +607,12 @@ export default Ember.Component.extend({
                 this.set(timestamp, reverseConversionDown);
             }
 
-            var key = event.keyCode || event.which;
-            var newkey = String.fromCharCode(key);
-            var regex = /[0-9]|\./;
-
-            if( !regex.test(newkey) )
-            {
-                if (code === 46 || code === 8 || code === 9)
-                {
-                    this.set('acceptedCharacter', false);
-                    return true;
-                }
-                else
-                {
-                    event.returnValue = false;
-                    if(event.preventDefault)
-                    {
-                        event.preventDefault();
-                    }
-                    this.set('acceptedCharacter', false);
-                }
-            }
-            else
-            {
-                this.set('acceptedCharacter', true);
-            }
+            this.checkRestrictedCharacter(event);
         },
 
         clockInMeridianKeyDown: function()
         {
+            console.log('here');
             var time = this.get('inTimestamp');
             var code = event.keyCode || event.which;
 
@@ -523,6 +641,8 @@ export default Ember.Component.extend({
 
         clockOutMeridianKeyDown: function()
         {
+            console.log('here');
+
             var time = this.get('outTimestamp');
             var code = event.keyCode || event.which;
             if (code === 38 || code === 40)

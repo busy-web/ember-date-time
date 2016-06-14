@@ -20,9 +20,6 @@ export default Ember.Component.extend(
     hours: 10,
     minutes: 53,
 
-    isAM: true,
-    isPM: false,
-
     didInsertElement: function()
     {
         this._super();
@@ -51,8 +48,6 @@ export default Ember.Component.extend(
             var simpleHour = sliceHour % 12;
             var sliceSimpleHour = ('0' + simpleHour).slice(-2);
 
-            this.set('isPM', true);
-            this.set('isAM', false);
             this.set('hours', sliceSimpleHour);
 
             hourText = 'hour' + sliceSimpleHour;
@@ -72,7 +67,7 @@ export default Ember.Component.extend(
     {
         var clock = new Snap('#clocks-hour-svg');
         var bigCircle = clock.select('#bigCircle');
-        var allHours = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+        var allHours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
 
         allHours.forEach(function(item)
         {
@@ -256,6 +251,13 @@ export default Ember.Component.extend(
 
         curGroup.drag(move, start, stop);
         this.set('lastGroup', curGroup);
+
+        var timestamp = this.get('timestamp');
+        var momentObj = moment(timestamp);
+        var setHour = momentObj.hour(parseInt(hour.slice(-2)));
+        var reverseConversion = setHour.unix() * 1000;
+
+        this.set('timestamp', reverseConversion);
     },
 
     /**
@@ -436,8 +438,6 @@ export default Ember.Component.extend(
             var line = 'line' + activeHour;
             var circle = 'circle' + activeHour;
 
-            console.log(hour, line, circle);
-
             this.set('hours', hours);
             this.set('minutes', minutes);
             this.removeOtherActives(hour, line, circle);
@@ -451,10 +451,8 @@ export default Ember.Component.extend(
         var time = this.get('timestamp');
 
         var momentObj = moment(time);
-
         var hours = momentObj.hour();
         var minutes = momentObj.minutes();
-
         var activeHour = ('0' + (hours%12)).slice(-2);
 
         var hour = 'hour' + activeHour;
@@ -496,6 +494,7 @@ export default Ember.Component.extend(
             var momentObj = moment(timestamp);
             var setHour = momentObj.hour(parseInt(hour.slice(-2)));
             var reverseConversion = setHour.unix() * 1000;
+
             this.set('timestamp', reverseConversion);
 
             this.removeOtherActives(hour, line, circle);
@@ -516,6 +515,14 @@ export default Ember.Component.extend(
         {
             var clock = new Snap('#clock-minutes-svg');
 
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+            var newMin = minute.slice(-2);
+            var newTime = momentObj.minutes(newMin);
+            var reverseConversion = newTime.unix() * 1000;
+
+            this.set('timestamp', reverseConversion);
+
             this.removeMinuteActives(minute, line, circle);
             clock.select('#' + line).appendTo(clock);
             clock.select('#' + circle).appendTo(clock);
@@ -533,6 +540,14 @@ export default Ember.Component.extend(
         minuteSectionClicked: function(minute)
         {
             var clock = new Snap('#clock-minutes-svg');
+
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+            var newTime = momentObj.minutes(minute);
+            var reverseConversion = newTime.unix() * 1000;
+
+            this.set('timestamp', reverseConversion);
+
             if (parseInt(minute) % 5 === 0)
             {
                 var min = 'minText' + minute;
@@ -555,90 +570,38 @@ export default Ember.Component.extend(
             }
         },
 
-        /**
-         * handles up or down buttons pressed when on hours
-         *
-         * @public
-         */
-        upOrDownHour: function(value, event)
-        {
-            var code = event.keyCode || event.which;
-            if (code === 38)
-            {
-                var hour = this.get('hours');
-                var parseHour = parseInt(hour) + 1;
-                var slice = ('0' + parseHour).slice(-2);
-                this.set('hours', slice);
-            }
-            if (code === 40)
-            {
-                var hourDown = this.get('hours');
-                var parseHourDown = parseInt(hourDown) - 1;
-                var sliceDown = ('0' + parseHourDown).slice(-2);
-
-                if (sliceDown > -1 && sliceDown <= 59)
-                {
-                    this.set('hours', sliceDown);
-                }
-                if (sliceDown < 0)
-                {
-                    this.set('hours', '11');
-                }
-                if (sliceDown === '00')
-                {
-                    this.set('hours', '12');
-                }
-            }
-        },
-
-        /**
-         * handles up or down buttons pressed when on minutes
-         *
-         * @public
-         */
-        upOrDownMinute: function(value, event)
-        {
-            var code = event.keyCode || event.which;
-            if (code === 38)
-            {
-                var minute = this.get('minutes');
-                var parseMinute = parseInt(minute) + 1;
-                var slice = ('0' + parseMinute).slice(-2);
-
-                if (slice <= 59)
-                {
-                    this.set('minutes', slice);
-                }
-                if (slice > 59)
-                {
-                    this.set('minutes', '00');
-                }
-            }
-            if (code === 40)
-            {
-                var minuteDown = this.get('minutes');
-                var parseMinuteDown = parseInt(minuteDown) - 1;
-                var sliceDown = ('0' + parseMinuteDown).slice(-2);
-
-                if (sliceDown > -1 && sliceDown <= 59)
-                {
-                    this.set('minutes', sliceDown);
-                }
-                if (sliceDown < 0)
-                {
-                    this.set('minutes', '59');
-                }
-            }
-        },
 
         amClicked: function()
         {
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+            var current = momentObj.format('HH');
 
+            console.log(current);
+            console.log(momentObj);
+            //
+            // if (current === 'PM')
+            // {
+            //     momentObj.subtract(12, 'hours');
+            //     var reverseConversionBack = momentObj.unix() * 1000;
+            //     this.set('timestamp', reverseConversionBack);
+            // }
         },
 
         pmClicked: function()
         {
-
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+            var current = momentObj.format('A');
+            console.log(current);
+            console.log(momentObj);
+            // if (current === 'AM')
+            // {
+            //     var newTime = momentObj.add(12, 'hours');
+            //     var reverseConversionBack = (newTime.unix() * 1000);
+            //
+            //     this.set('timestamp', reverseConversionBack);
+            // }
         }
     }
 });
