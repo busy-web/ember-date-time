@@ -612,7 +612,6 @@ export default Ember.Component.extend({
 
         clockInMeridianKeyDown: function()
         {
-            console.log('here');
             var time = this.get('inTimestamp');
             var code = event.keyCode || event.which;
 
@@ -641,8 +640,6 @@ export default Ember.Component.extend({
 
         clockOutMeridianKeyDown: function()
         {
-            console.log('here');
-
             var time = this.get('outTimestamp');
             var code = event.keyCode || event.which;
             if (code === 38 || code === 40)
