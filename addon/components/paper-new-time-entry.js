@@ -288,6 +288,20 @@ export default Ember.Component.extend({
         }
     },
 
+    closeOtherDialogs: function(openDialog)
+    {
+        if (openDialog === "showInTimeClock")
+        {
+            this.set('showInTimeClock', true);
+            this.set('showOutTimeClock', false);
+        }
+        if (openDialog === 'showOutTimeClock')
+        {
+            this.set('showOutTimeClock', true);
+            this.set('showInTimeClock', false);
+        }
+    },
+
     actions: {
 
         focusInput: function(id, openDialog)
@@ -295,7 +309,8 @@ export default Ember.Component.extend({
             Ember.$(id).select();
 
             this.set('currentInput', id);
-            this.set(openDialog, true);
+
+            this.closeOtherDialogs(openDialog);
         },
 
         checkAutoTab: function(nextInput)
@@ -372,11 +387,11 @@ export default Ember.Component.extend({
             }
         },
 
-        focusOutClockHour: function(timestamp, value, meridian)
+        focusOutClockHour: function(timestamp, value)
         {
             var hour = (parseInt(this.get(value)));
-            var clockInTimestamp = this.get(timestamp);
-            var momentObj = moment(clockInTimestamp);
+            var newTimestamp = this.get(timestamp);
+            var momentObj = moment(newTimestamp);
 
             if (Ember.isEmpty(hour) || Ember.isNone(hour) || isNaN(hour))
             {
@@ -386,17 +401,32 @@ export default Ember.Component.extend({
             }
             else
             {
-                var currentMeridian = this.get(meridian);
-
+                var currentMeridian = momentObj.format('A');
                 if (currentMeridian === 'AM')
                 {
-                    var newTime = momentObj.hour(hour);
-                    this.set(timestamp, newTime);
+                    if (hour === 12)
+                    {
+                        var newTime = momentObj.hour('0');
+                        this.set(timestamp, newTime);
+                    }
+                    else
+                    {
+                        var newTime2 = momentObj.hour(hour);
+                        this.set(timestamp, newTime2);
+                    }
                 }
                 else
                 {
-                    var newTimePlus = momentObj.hour(hour + 12);
-                    this.set(timestamp, newTimePlus);
+                    if (hour === 12)
+                    {
+                        var newTime3 = momentObj.hour('12');
+                        this.set(timestamp, newTime3);
+                    }
+                    else
+                    {
+                        var newTime4 = momentObj.hour(hour + 12);
+                        this.set(timestamp, newTime4);
+                    }
                 }
             }
         },

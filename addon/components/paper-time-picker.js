@@ -332,6 +332,20 @@ export default Ember.Component.extend(
 
         curGroup.drag(move, start, stop);
         this.set('lastGroup', curGroup);
+
+        var currentHour = moment(this.get('timestamp')).hour();
+        var currentClock = parseInt(hour.slice(-2));
+
+        console.log(currentHour, currentClock);
+
+        if (currentHour !== currentClock && (currentHour - 12) !== currentClock)
+        {
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+            var newHour = momentObj.hour(currentClock);
+            var reverseConversion = newHour.unix() * 1000;
+            this.set('timestamp', reverseConversion);
+        }
     },
 
 
@@ -591,12 +605,12 @@ export default Ember.Component.extend(
 
         amClicked: function()
         {
+            console.log('here');
             var time = this.get('timestamp');
             var momentObj = moment(time);
             var current = momentObj.format('A');
             if (current === 'PM')
             {
-                console.log(Ember.$('#am'));
                 var newTime = momentObj.subtract(12, 'hours');
                 var reverseConversionBack = (newTime.unix() * 1000);
 
@@ -606,6 +620,7 @@ export default Ember.Component.extend(
 
         pmClicked: function()
         {
+            console.log('here 2');
             var time = this.get('timestamp');
             var momentObj = moment(time);
             var current = momentObj.format('A');
