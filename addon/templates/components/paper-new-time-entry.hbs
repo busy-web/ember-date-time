@@ -11,7 +11,7 @@
         <div class="inputBody">
             <div class="inputInDate">
                 <div class="monthContainer">
-                    {{input id="clockInMonths" type="number" max="12" class="month" type="text"  maxlength="2" value=clockInMonths key-down=(action 'keyUpDownHandler' 'inTimestamp' 'months')  focus-out=(action 'focusOutClockMonth' 'inTimestamp' 'clockInMonths') focus-in=(action 'focusInput' '#clockInMonths') key-up=(action 'checkAutoTab' '#clockInDays')}}
+                    {{input id="clockInMonths" type="text" class="month" type="text"  maxlength="2" value=clockInMonths key-down=(action 'keyUpDownHandler' 'inTimestamp' 'months')  focus-out=(action 'focusOutClockMonth' 'inTimestamp' 'clockInMonths') focus-in=(action 'focusInput' '#clockInMonths') key-up=(action 'checkAutoTab' '#clockInDays')}}
                 </div>
                 <div class="monthSlash">/</div>
                 <div class="dayContainer">
@@ -75,3 +75,5 @@
 {{#if showOutTimeClock}}
     {{paper-time-picker timestamp=outTimestamp}}
 {{/if}}
+
+{{paper-date-picker timestamp=inTimestamp}}

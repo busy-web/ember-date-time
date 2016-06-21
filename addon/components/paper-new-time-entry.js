@@ -12,6 +12,8 @@ export default Ember.Component.extend({
 
     showInTimeClock: null,
     showOutTimeClock: null,
+    showInTimeCalender: true,
+    showOutTimeCalender: false,
 
     clockInMeridian: null,
     clockInMinutes: null,

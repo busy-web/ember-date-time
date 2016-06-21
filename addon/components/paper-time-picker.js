@@ -14,6 +14,9 @@ export default Ember.Component.extend(
 
     timestamp: null,
 
+    maxDate: null,
+    minDate: null,
+
     lastGroup: null,
     lastMinute: null,
 
@@ -25,36 +28,97 @@ export default Ember.Component.extend(
     lastMinuteLine: null,
     lastMinuteCircle: null,
 
-    hours: 10,
-    minutes: 53,
+    hours: null,
+    minutes: null,
+
+    hoursActive: true,
+    minutesActive: false,
 
     didInsertElement: function()
     {
         this._super();
         this.changesClock();
+
+        if(moment(this.get('timestamp')).format('A') === "AM")
+        {
+            Ember.$('.am').addClass('am-active');
+            Ember.$('.pm').addClass('pm-inactive');
+        }
+        else
+        {
+            Ember.$('.pm').addClass('pm-active');
+            Ember.$('.am').addClass('am-inactive');
+        }
     },
+
+    observesHours: Ember.observer('timestamp', function()
+    {
+        var time = this.get('timestamp');
+        var momentObj = moment(time);
+        var newFormat = momentObj.format('HH');
+
+        this.set('hours', newFormat);
+    }),
+
+    observesMinutes: Ember.observer('timestamp', function()
+    {
+        var time = this.get('timestamp');
+        var momentObj = moment(time);
+        var newFormat = momentObj.format('mm');
+
+        this.set('minutes', newFormat);
+    }),
+
+    observesAmPm: Ember.observer('timestamp', function()
+    {
+        var time = this.get('timestamp');
+        var momentObj = moment(time);
+        var newFormat = momentObj.format('A');
+
+        if(newFormat === "AM")
+        {
+            Ember.$('.am').removeClass('am-inactive');
+            Ember.$('.am').addClass('am-active');
+
+            Ember.$('.pm').removeClass('pm-active');
+            Ember.$('.pm').addClass('pm-inactive');
+        }
+        else
+        {
+            Ember.$('.pm').removeClass('pm-inactive');
+            Ember.$('.pm').addClass('pm-active');
+
+            Ember.$('.am').addClass('am-inactive');
+            Ember.$('.am').removeClass('am-active');
+        }
+    }),
 
     /**
      * remove initial circles and lines for hours clock
      * function for HOURS
      * @public
      */
+
+
     removeInitialHours: function()
     {
-        var clock = new Snap('#clocks-hour-svg');
-        var bigCircle = clock.select('#bigCircle');
-        var allHours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
-
-        allHours.forEach(function(item)
+        if (this.get('hoursActive'))
         {
-            var hourSelect = '#hour' + item;
-            var lineSelect = '#line' + item;
-            var circleSelect = '#circle' + item;
+            var clock = new Snap('#clocks-hour-svg');
+            var bigCircle = clock.select('#bigCircle');
+            var allHours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
 
-            clock.select(hourSelect).removeClass('interiorWhite');
-            clock.select(lineSelect).insertBefore(bigCircle);
-            clock.select(circleSelect).insertBefore(bigCircle);
-        });
+            allHours.forEach(function(item)
+            {
+                var hourSelect = '#hour' + item;
+                var lineSelect = '#line' + item;
+                var circleSelect = '#circle' + item;
+
+                clock.select(hourSelect).removeClass('interiorWhite');
+                clock.select(lineSelect).insertBefore(bigCircle);
+                clock.select(circleSelect).insertBefore(bigCircle);
+            });
+        }
     },
 
     /**
@@ -64,28 +128,31 @@ export default Ember.Component.extend(
      */
     removeInitialMinutes: function()
     {
-        var clock = new Snap('#clock-minutes-svg');
-        var bigCircle = clock.select('#bigCircleMinutes');
-        var allMinutes = [];
-
-        for (var i = 0; i < 60; i++) {
-            i = ('0' + i).slice(-2);
-            allMinutes.push(i);
-        }
-
-        allMinutes.forEach(function(item)
+        if (this.get('minutesActive'))
         {
-            var hourSelect = '#minText' + item;
-            var lineSelect = '#minLine' + item;
-            var circleSelect = '#minCircle' + item;
+            var clock = new Snap('#clock-minutes-svg');
+            var bigCircle = clock.select('#bigCircleMinutes');
+            var allMinutes = [];
 
-            if (!Ember.isNone(clock.select(hourSelect)))
-            {
-                clock.select(hourSelect).removeClass('interiorWhite');
+            for (var i = 0; i < 60; i++) {
+                i = ('0' + i).slice(-2);
+                allMinutes.push(i);
             }
-            clock.select(lineSelect).insertBefore(bigCircle);
-            clock.select(circleSelect).insertBefore(bigCircle);
-        });
+
+            allMinutes.forEach(function(item)
+            {
+                var hourSelect = '#minText' + item;
+                var lineSelect = '#minLine' + item;
+                var circleSelect = '#minCircle' + item;
+
+                if (!Ember.isNone(clock.select(hourSelect)))
+                {
+                    clock.select(hourSelect).removeClass('interiorWhite');
+                }
+                clock.select(lineSelect).insertBefore(bigCircle);
+                clock.select(circleSelect).insertBefore(bigCircle);
+            });
+        }
     },
 
     /**
@@ -95,30 +162,33 @@ export default Ember.Component.extend(
      */
     removeLastActiveHour: function(activeHour, activeLine, activeCircle)
     {
-        var clock = new Snap('#clocks-hour-svg');
-        var bigCircle = clock.select('#bigCircle');
-
-        var hourText = this.get('lastHourText');
-        var hourLine = this.get('lastHourLine');
-        var hourCircle = this.get('lastHourCircle');
-
-        if (!Ember.isNone(hourText) || !Ember.isNone(hourLine) || !Ember.isNone(hourCircle))
+        if (this.get('hoursActive'))
         {
-            clock.select('#' + hourText).removeClass('interiorWhite');
-            clock.select('#' + hourLine).insertBefore(bigCircle);
-            clock.select('#' + hourCircle).insertBefore(bigCircle);
+            var clock = new Snap('#clocks-hour-svg');
+            var bigCircle = clock.select('#bigCircle');
+
+            var hourText = this.get('lastHourText');
+            var hourLine = this.get('lastHourLine');
+            var hourCircle = this.get('lastHourCircle');
+
+            if (!Ember.isNone(hourText) || !Ember.isNone(hourLine) || !Ember.isNone(hourCircle))
+            {
+                clock.select('#' + hourText).removeClass('interiorWhite');
+                clock.select('#' + hourLine).insertBefore(bigCircle);
+                clock.select('#' + hourCircle).insertBefore(bigCircle);
+            }
+
+            clock.select('#' + activeHour).addClass('interiorWhite');
+            clock.select('#' + activeLine).appendTo(clock);
+            clock.select('#' + activeCircle).appendTo(clock);
+            clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.set('lastHourText', activeHour);
+            this.set('lastHourLine', activeLine);
+            this.set('lastHourCircle', activeCircle);
+
+            this.newDrag(activeHour, activeLine, activeCircle);
         }
-
-        clock.select('#' + activeHour).addClass('interiorWhite');
-        clock.select('#' + activeLine).appendTo(clock);
-        clock.select('#' + activeCircle).appendTo(clock);
-        clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-        this.set('lastHourText', activeHour);
-        this.set('lastHourLine', activeLine);
-        this.set('lastHourCircle', activeCircle);
-
-        this.newDrag(activeHour, activeLine, activeCircle);
     },
 
     /**
@@ -128,47 +198,50 @@ export default Ember.Component.extend(
      */
     removeLastActiveMinute: function(minute, line, circle)
     {
-        var clock = new Snap('#clock-minutes-svg');
-        var bigCircle = clock.select('#bigCircleMinutes');
-        var newTime = ('0' + minute).slice(-2);
-
-        var minuteText = this.get('lastMinuteText');
-        var minuteLine = this.get('lastMinuteLine');
-        var minuteCircle = this.get('lastMinuteCircle');
-
-        if (!Ember.isNone(minuteText) || !Ember.isNone(minuteLine) || !Ember.isNone(minuteCircle))
+        if (this.get('minutesActive'))
         {
-            var sliceOld = parseInt(('0' + minuteText).slice(-2));
-            if (sliceOld % 5 === 0)
+            var clock = new Snap('#clock-minutes-svg');
+            var bigCircle = clock.select('#bigCircleMinutes');
+            var newTime = ('0' + minute).slice(-2);
+
+            var minuteText = this.get('lastMinuteText');
+            var minuteLine = this.get('lastMinuteLine');
+            var minuteCircle = this.get('lastMinuteCircle');
+
+            if (!Ember.isNone(minuteText) || !Ember.isNone(minuteLine) || !Ember.isNone(minuteCircle))
             {
-                clock.select('#' + minuteText).removeClass('interiorWhite');
+                var sliceOld = parseInt(('0' + minuteText).slice(-2));
+                if (sliceOld % 5 === 0)
+                {
+                    clock.select('#' + minuteText).removeClass('interiorWhite');
+                }
+                clock.select('#' + minuteLine).insertBefore(bigCircle);
+                clock.select('#' + minuteCircle).insertBefore(bigCircle);
             }
-            clock.select('#' + minuteLine).insertBefore(bigCircle);
-            clock.select('#' + minuteCircle).insertBefore(bigCircle);
-        }
 
-        clock.select('#' + line).appendTo(clock);
-        clock.select('#' + circle).appendTo(clock);
+            clock.select('#' + line).appendTo(clock);
+            clock.select('#' + circle).appendTo(clock);
 
-        if (newTime % 5 === 0)
-        {
-            clock.select('#' + minute).addClass('interiorWhite');
-            clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-        }
-        else
-        {
-            var hoursToTop = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
-            hoursToTop.forEach(function(item)
+            if (newTime % 5 === 0)
             {
-                clock.select('#minText' + item).appendTo(clock);
-            });
+                clock.select('#' + minute).addClass('interiorWhite');
+                clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+            }
+            else
+            {
+                var hoursToTop = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+                hoursToTop.forEach(function(item)
+                {
+                    clock.select('#minText' + item).appendTo(clock);
+                });
+            }
+
+            this.set('lastMinuteText', minute);
+            this.set('lastMinuteLine', line);
+            this.set('lastMinuteCircle', circle);
+
+            this.minutesDrag(minute, line, circle);
         }
-
-        this.set('lastMinuteText', minute);
-        this.set('lastMinuteLine', line);
-        this.set('lastMinuteCircle', circle);
-
-        this.minutesDrag(minute, line, circle);
     },
 
     /**
@@ -336,15 +409,23 @@ export default Ember.Component.extend(
         var currentHour = moment(this.get('timestamp')).hour();
         var currentClock = parseInt(hour.slice(-2));
 
-        console.log(currentHour, currentClock);
-
-        if (currentHour !== currentClock && (currentHour - 12) !== currentClock)
+        if (currentHour !== currentClock)
         {
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
-            var newHour = momentObj.hour(currentClock);
-            var reverseConversion = newHour.unix() * 1000;
-            this.set('timestamp', reverseConversion);
+            var timestamp = this.get('timestamp');
+            var momentObj = moment(timestamp);
+
+            if (momentObj.format('A') === "AM")
+            {
+                var setHour = momentObj.hour(currentClock);
+                var reverseConversion = setHour.unix() * 1000;
+                this.set('timestamp', reverseConversion);
+            }
+            else
+            {
+                var setHour2 = momentObj.hour(currentClock + 12);
+                var reverseConversion2 = setHour2.unix() * 1000;
+                this.set('timestamp', reverseConversion2);
+            }
         }
     },
 
@@ -454,8 +535,12 @@ export default Ember.Component.extend(
 
             var hours = momentObj.hour();
             var minutes = momentObj.minutes();
+
             var sliceMinute = ('0' + minutes%60).slice(-2);
             var activeHour = ('0' + (hours%12)).slice(-2);
+
+            this.set('hours', activeHour);
+            this.set('minutes', sliceMinute);
 
             var hour = 'hour' + activeHour;
             var line = 'line' + activeHour;
@@ -523,10 +608,19 @@ export default Ember.Component.extend(
 
             var timestamp = this.get('timestamp');
             var momentObj = moment(timestamp);
-            var setHour = momentObj.hour(parseInt(hour.slice(-2)));
-            var reverseConversion = setHour.unix() * 1000;
 
-            this.set('timestamp', reverseConversion);
+            if (momentObj.format('A') === "AM")
+            {
+                var setHour = momentObj.hour(parseInt(hour.slice(-2)));
+                var reverseConversion = setHour.unix() * 1000;
+                this.set('timestamp', reverseConversion);
+            }
+            else
+            {
+                var setHour2 = momentObj.hour(parseInt(hour.slice(-2)) + 12);
+                var reverseConversion2 = setHour2.unix() * 1000;
+                this.set('timestamp', reverseConversion2);
+            }
 
             this.removeLastActiveHour(hour, line, circle);
             clock.select('#' + line).appendTo(clock);
@@ -605,7 +699,6 @@ export default Ember.Component.extend(
 
         amClicked: function()
         {
-            console.log('here');
             var time = this.get('timestamp');
             var momentObj = moment(time);
             var current = momentObj.format('A');
@@ -620,7 +713,6 @@ export default Ember.Component.extend(
 
         pmClicked: function()
         {
-            console.log('here 2');
             var time = this.get('timestamp');
             var momentObj = moment(time);
             var current = momentObj.format('A');
@@ -631,6 +723,75 @@ export default Ember.Component.extend(
 
                 this.set('timestamp', reverseConversionBack);
             }
+        },
+
+        hourHeaderClicked: function()
+        {
+            Ember.$('#clocks-hour-svg').removeClass('inactive');
+            Ember.$('#clocks-hour-svg').addClass('active');
+
+            Ember.$('#clock-minutes-svg').removeClass('active');
+            Ember.$('#clock-minutes-svg').addClass('inactive');
+
+            Ember.$('.outside-hours-container-bottom').attr('style', 'pointer-events: none');
+            Ember.$('.outside-hours-container').attr('style', 'pointer-events: all');
+
+            Ember.$('.hours-header').removeClass('inactive');
+            Ember.$('.hours-header').addClass('active');
+
+            Ember.$('.minutes-header').removeClass('active');
+            Ember.$('.minutes-header').addClass('inactive');
+
+            this.set('hoursActive', true);
+            this.set('minutesActive', false);
+            this.removeInitialHours();
+
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+            var hours = momentObj.hour();
+
+            var activeHour = ('0' + (hours%12)).slice(-2);
+
+            var hour = 'hour' + activeHour;
+            var line = 'line' + activeHour;
+            var circle = 'circle' + activeHour;
+
+            this.removeLastActiveHour(hour, line, circle);
+        },
+
+        minuteHeaderClicked: function()
+        {
+            Ember.$('#clocks-hour-svg').removeClass('active');
+            Ember.$('#clocks-hour-svg').addClass('inactive');
+
+            Ember.$('#clock-minutes-svg').removeClass('inactive');
+            Ember.$('#clock-minutes-svg').addClass('active');
+
+            Ember.$('.outside-hours-container').attr('style', 'pointer-events: none');
+            Ember.$('.outside-hours-container-bottom').attr('style', 'pointer-events: all');
+
+            Ember.$('.hours-header').addClass('inactive');
+            Ember.$('.hours-header').removeClass('active');
+
+            Ember.$('.minutes-header').addClass('active');
+            Ember.$('.minutes-header').removeClass('inactive');
+
+            this.set('hoursActive', false);
+            this.set('minutesActive', true);
+            this.removeInitialMinutes();
+
+            var time = this.get('timestamp');
+            var momentObj = moment(time);
+
+            var minutes = momentObj.minutes();
+
+            var sliceMinute = ('0' + minutes%60).slice(-2);
+
+            var minText = 'minText' + sliceMinute;
+            var lineText = 'minLine' + sliceMinute;
+            var circleText = 'minCircle' + sliceMinute;
+
+            this.removeLastActiveMinute(minText, lineText, circleText);
         }
     }
 });
