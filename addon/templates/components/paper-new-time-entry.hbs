@@ -69,11 +69,9 @@
 </div>
 
 {{#if showInTimeClock}}
-    {{paper-time-picker timestamp=inTimestamp}}
+    {{complete-time-picker timestamp=inTimestamp}}
 {{/if}}
 
 {{#if showOutTimeClock}}
     {{paper-time-picker timestamp=outTimestamp}}
 {{/if}}
-
-{{paper-date-picker timestamp=inTimestamp}}

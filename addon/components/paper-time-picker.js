@@ -830,11 +830,11 @@ export default Ember.Component.extend(
             var circleText = 'minCircle' + sliceMinute;
 
             this.removeLastActiveMinute(minText, lineText, circleText);
-        },
-
-        switchToCalender: function()
-        {
-            console.log('need to do');
         }
+
+        // switchToCalender: function()
+        // {
+        //     console.log('need to do');
+        // }
     }
 });

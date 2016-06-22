@@ -1,0 +1,20 @@
+
+.complete-time-picker {
+  height: 330px;
+  width: 250px;
+  border: 1px solid black;
+
+  & > div.picker-container {
+
+    & > div.picker-footer {
+
+      & > div.currentDate {
+        margin-left: 15px;
+        height: 20px;
+        margin-top: 5px;
+        cursor: pointer;
+        color: #8f8f8e;
+      }
+    }
+  }
+}

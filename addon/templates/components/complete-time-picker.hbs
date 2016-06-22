@@ -1,0 +1,24 @@
+
+<div class="picker-container">
+
+    {{#if isClock}}
+        {{paper-time-picker timestamp=timestamp}}
+    {{/if}}
+
+    {{#if isCalender}}
+        {{paper-date-picker timestamp=timestamp}}
+    {{/if}}
+
+    <div class="picker-footer">
+
+        {{#if isClock}}
+            <div class="currentDate" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
+        {{/if}}
+
+        {{#if isCalender}}
+            <div class="currentDate" {{action 'togglePicker' 'isCalender'}}>{{currentTime}}</div>
+        {{/if}}
+
+    </div>
+
+</div>
