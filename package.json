@@ -1,7 +1,7 @@
 {
   "name": "ember-paper-time-picker",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Ember addon for a paper like time picker",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,11 +11,11 @@
     "start": "ember server",
     "test": "ember try:testall"
   },
-  "repository": "",
+  "repository": "https://github.com/busybusy/webapp-ember-paper-time-picker.git",
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "busy inc",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.2.0",
