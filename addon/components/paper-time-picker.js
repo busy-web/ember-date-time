@@ -34,6 +34,8 @@ export default Ember.Component.extend(
     hoursActive: true,
     minutesActive: false,
 
+    currentDate: null,
+
     didInsertElement: function()
     {
         this._super();
@@ -51,13 +53,47 @@ export default Ember.Component.extend(
         }
     },
 
+    clickableDate: Ember.observer('timestamp', function()
+    {
+        var timestamp = this.get('timestamp');
+        var momentObj = moment(timestamp);
+        var format = momentObj.format('MMM DD, YYYY');
+
+        this.set('currentDate', format);
+    }),
+
     observesHours: Ember.observer('timestamp', function()
     {
-        var time = this.get('timestamp');
-        var momentObj = moment(time);
-        var newFormat = momentObj.format('HH');
+        var timestamp = this.get('timestamp');
+        var momentObj = moment(timestamp);
 
-        this.set('hours', newFormat);
+        var hour = momentObj.hour();
+        var currentMeridian = momentObj.format('A');
+
+        if (currentMeridian === 'AM')
+        {
+            if (hour === 0)
+            {
+                this.set('hours', '12');
+            }
+            else
+            {
+                var newTime2 = momentObj.hour();
+                this.set('hours', ('0' + newTime2).slice(-2));
+            }
+        }
+        else
+        {
+            if (hour === 12)
+            {
+                this.set('hours', '12');
+            }
+            else
+            {
+                var newTime4 = momentObj.hour();
+                this.set('hours', ('0' + (newTime4 - 12)).slice(-2));
+            }
+        }
     }),
 
     observesMinutes: Ember.observer('timestamp', function()
@@ -535,12 +571,14 @@ export default Ember.Component.extend(
 
             var hours = momentObj.hour();
             var minutes = momentObj.minutes();
+            var currentDate = momentObj.format('MMM DD, YYYY');
 
             var sliceMinute = ('0' + minutes%60).slice(-2);
             var activeHour = ('0' + (hours%12)).slice(-2);
 
             this.set('hours', activeHour);
             this.set('minutes', sliceMinute);
+            this.set('currentDate', currentDate);
 
             var hour = 'hour' + activeHour;
             var line = 'line' + activeHour;
@@ -792,6 +830,11 @@ export default Ember.Component.extend(
             var circleText = 'minCircle' + sliceMinute;
 
             this.removeLastActiveMinute(minText, lineText, circleText);
+        },
+
+        switchToCalender: function()
+        {
+            console.log('need to do');
         }
     }
 });
