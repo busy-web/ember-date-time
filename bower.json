@@ -6,7 +6,6 @@
     "ember-cli-test-loader": "0.2.2",
     "ember-qunit-notifications": "0.1.0",
     "ember-cli-snap-svg-shim": "^0.0.3",
-    "moment": "momentjs#^2.13.0",
     "pikaday": "^1.4.0"
   }
 }
