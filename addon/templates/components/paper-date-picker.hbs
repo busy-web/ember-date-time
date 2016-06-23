@@ -1,1 +1,37 @@
-{{pikaday-input value=timestamp minDate=minDate maxDate=maxDate format="DD"}}
+
+<div class="calender-container">
+
+    <div class="header-container">
+
+        <div class="day-of-week">{{dayOfWeek}}</div>
+
+        <div class="month-container">
+
+            <div class="subtract-month" {{action "subtractMonth"}}></div>
+
+            <div class="month">{{month}}</div>
+
+            <div class="add-month" {{action "addMonth"}}></div>
+
+        </div>
+
+        <div class="day-of-month">{{day}}</div>
+
+        <div class="year-container">
+
+            <div class="subtract-year" {{action "subtractYear"}}></div>
+
+            <div class="year">{{year}}</div>
+
+            <div class="add-year" {{action "addYear"}}></div>
+
+        </div>
+
+    </div>
+
+    <div class="calender-body">
+
+
+    </div>
+
+</div>
