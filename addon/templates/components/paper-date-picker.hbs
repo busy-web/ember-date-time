@@ -29,8 +29,36 @@
 
     </div>
 
+    <hr>
+
     <div class="calender-body">
 
+        <div class="month-year">{{monthYear}}</div>
+
+        <table class="calender">
+            <tr>
+                <th>S</th>
+                <th>M</th>
+                <th>T</th>
+                <th>W</th>
+                <th>T</th>
+                <th>F</th>
+                <th>S</th>
+            </tr>
+
+        {{#each groupedArray as |week|}}
+            <tr>
+                {{#each week as |day|}}
+                    {{#if day}}
+                        <td class="valid-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
+                    {{else}}
+                        <td class="invalid-day"></td>
+                    {{/if}}
+                {{/each}}
+            </tr>
+        {{/each}}
+
+        </table>
 
     </div>
 

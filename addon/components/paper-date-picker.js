@@ -14,10 +14,85 @@ export default Ember.Component.extend({
     month: null,
     year: null,
 
+    monthYear: null,
+    nextMonthYear: null,
+
+    daysArray: null,
+    completeArray: null,
+    groupedArray: null,
+
     init: function()
     {
         this._super();
 
+    },
+
+    buildDaysArrayForMonth: Ember.on('init', Ember.observer('timestamp', function() {
+
+        var current = moment(this.get('timestamp'));
+
+        var daysArray = Ember.A();
+        var firstDay = current.clone().startOf('month');
+        var lastDay = current.clone().endOf('month');
+        var currentDay = firstDay;
+
+        while (currentDay.isBefore(lastDay)) {
+            daysArray.pushObject(currentDay);
+            currentDay = currentDay.clone().add('days', 1);
+        }
+
+        this.set('daysArray', daysArray);
+    })),
+
+    buildCompleteArray: Ember.observer('daysArray', function()
+    {
+        var nullHeadLength = 0;
+        var monthArrayLength = 42;
+        var daysArray = this.get('daysArray');
+        var firstDayPosition = daysArray.get('firstObject').day();
+        var numberOfDays = daysArray.get('length');
+
+        var completeArray = [];
+
+        for (var i=0; i<firstDayPosition; i++) {
+            nullHeadLength++;
+            completeArray.push(null);
+        }
+
+        daysArray.forEach(function(day)
+        {
+            completeArray.push(day);
+        });
+
+        var nullTailLength = monthArrayLength - nullHeadLength - numberOfDays;
+
+        for (var x=0; x<nullTailLength; x++) {
+            nullHeadLength++;
+            completeArray.push(null);
+        }
+        this.set('completeArray', completeArray);
+    }),
+
+    groupByWeeks: Ember.observer('completeArray', function()
+    {
+        var array = this.get('completeArray');
+        var grouped = Ember.A([]);
+
+        grouped.pushObject(array.filter(this.inRange(0, 7)));
+        grouped.pushObject(array.filter(this.inRange(7, 14)));
+        grouped.pushObject(array.filter(this.inRange(14, 21)));
+        grouped.pushObject(array.filter(this.inRange(21, 28)));
+        grouped.pushObject(array.filter(this.inRange(28, 35)));
+        grouped.pushObject(array.filter(this.inRange(35, 42)));
+
+        this.set('groupedArray', grouped);
+    }),
+
+    inRange: function(lower, upper)
+    {
+        return function (each, index) {
+            return (index >= lower && index < upper);
+        };
     },
 
     initDayOfWeek: Ember.on('init', Ember.observer('timestamp', function() {
@@ -50,6 +125,8 @@ export default Ember.Component.extend({
         let time = this.get('timestamp');
         let momentObj = moment(time);
         let newFormat = momentObj.format('DD');
+
+        console.log('test', time);
 
         this.set('day', newFormat);
     }),
@@ -88,7 +165,40 @@ export default Ember.Component.extend({
         this.set('year', newFormat);
     }),
 
+    initMonthYear: Ember.on('init', Ember.observer('timestamp', function() {
+        let time = this.get('timestamp');
+        let momentObj = moment(time);
+        let newFormat = momentObj.format('MMMM YYYY');
+
+        this.set('monthYear', newFormat);
+    })),
+
+    observesMonthYear: Ember.observer('timestamp', function()
+    {
+        let time = this.get('timestamp');
+        let momentObj = moment(time);
+        let newFormat = momentObj.format('MMMM YYYY');
+
+        this.set('monthYear', newFormat);
+    }),
+
     actions: {
+
+        dayClicked(day)
+        {
+            let newDay = day.date();
+            let newMonth = day.month();
+            let newYear = day.year();
+
+            let timestamp = moment(this.get('timestamp'));
+                timestamp.date(newDay);
+                timestamp.month(newMonth);
+                timestamp.year(newYear);
+
+            let reverse = timestamp.unix() * 1000;
+
+            this.set('timestamp', reverse);
+        },
 
         subtractMonth()
         {

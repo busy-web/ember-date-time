@@ -94,5 +94,37 @@
         }
       }
     }
+
+    & > div.calender-body {
+
+      & > div.month-year {
+        font-size: 12px;
+        text-align: center;
+      }
+
+      & > table.calender {
+        width: 100%;
+
+        & > tr {
+
+          & > th {
+            font-weight: normal;
+            font-size: 13px;
+          }
+
+          & > td {
+            text-align: center;
+
+            &.valid-day {
+              cursor: pointer;
+            }
+
+            &.invalid-day {
+
+            }
+          }
+        }
+      }
+    }
   }
 }
