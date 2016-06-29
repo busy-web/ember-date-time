@@ -39,7 +39,28 @@ export default Ember.Component.extend(
     didInsertElement: function()
     {
         this._super();
-        this.changesClock();
+        this.removeInitialHours();
+        this.removeInitialMinutes();
+
+        var time = this.get('timestamp');
+        var momentObj = moment(time);
+
+        var hours = momentObj.hour();
+        var minutes = momentObj.minutes();
+
+        var sliceMinute = ('0' + minutes%60).slice(-2);
+        var activeHour = ('0' + (hours%12)).slice(-2);
+
+        var hour = 'hour' + activeHour;
+        var line = 'line' + activeHour;
+        var circle = 'circle' + activeHour;
+
+        var minText = 'minText' + sliceMinute;
+        var lineText = 'minLine' + sliceMinute;
+        var circleText = 'minCircle' + sliceMinute;
+
+        this.removeLastActiveMinute(minText, lineText, circleText);
+        this.removeLastActiveHour(hour, line, circle);
 
         if(moment(this.get('timestamp')).format('A') === "AM")
         {
@@ -307,8 +328,11 @@ export default Ember.Component.extend(
          */
         var move = function(dx,dy,x,y) {
 
-            var endX = x - 133;
-            var endY = -(y - 210);
+            let center_point = Ember.$('#centerPointHour');
+            let coordinates = center_point[0].getBoundingClientRect();
+
+            var endX = x - (coordinates.left + 3);
+            var endY = -(y - (coordinates.top - 3));
             var startX = endX - dx;
             var startY = endY + dy;
 
@@ -469,7 +493,7 @@ export default Ember.Component.extend(
     /**
      * handles all the function events for dragging on the minutes clock
      * minutesDrag must contain start, move and stop functions within it
-     * function for HOURS
+     * function for Minutes
      * @public
      */
     minutesDrag: function(minute, line, circle)
@@ -496,8 +520,13 @@ export default Ember.Component.extend(
          * moves the dial on the minute clock while transforming group
          */
         var move = function(dx,dy,x,y) {
-            var endX = x - 381;
-            var endY = -(y - 213);
+
+            let center_point = Ember.$('#centerPointMinutes');
+            let coordinates = center_point[0].getBoundingClientRect();
+
+            var endX = x - (coordinates.left + 3);
+            var endY = -(y - (coordinates.top - 3));
+
             var startX = endX - dx;
             var startY = endY + dy;
 
@@ -559,10 +588,9 @@ export default Ember.Component.extend(
      *
      * @public
      */
-    changesClock: function()
+
+    setUpClock: Ember.on('init', Ember.observer('timestamp', function()
     {
-        this.removeInitialHours();
-        this.removeInitialMinutes();
 
         if(!Ember.isNone(this.get('timestamp')))
         {
@@ -579,20 +607,8 @@ export default Ember.Component.extend(
             this.set('hours', activeHour);
             this.set('minutes', sliceMinute);
             this.set('currentDate', currentDate);
-
-            var hour = 'hour' + activeHour;
-            var line = 'line' + activeHour;
-            var circle = 'circle' + activeHour;
-
-            var minText = 'minText' + sliceMinute;
-            var lineText = 'minLine' + sliceMinute;
-            var circleText = 'minCircle' + sliceMinute;
-
-            this.removeLastActiveMinute(minText, lineText, circleText);
-            this.removeLastActiveHour(hour, line, circle);
-
         }
-    },
+    })),
 
     observeTimestamp: Ember.observer('timestamp', function()
     {
@@ -831,10 +847,5 @@ export default Ember.Component.extend(
 
             this.removeLastActiveMinute(minText, lineText, circleText);
         }
-
-        // switchToCalender: function()
-        // {
-        //     console.log('need to do');
-        // }
     }
 });
