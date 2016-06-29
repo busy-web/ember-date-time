@@ -1,6 +1,6 @@
 
 .complete-time-picker {
-  height: 330px;
+  // height: 330px;
   width: 250px;
   border: 1px solid black;
 
@@ -10,8 +10,8 @@
 
       & > div.currentDate {
         margin-left: 15px;
-        height: 20px;
-        margin-top: 5px;
+        height: 30px;
+        margin-top: 15px;
         cursor: pointer;
         color: #8f8f8e;
       }

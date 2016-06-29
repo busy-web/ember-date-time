@@ -1,5 +1,5 @@
 .paper-date-picker {
-    height: 285px;
+    height: 340px;
     width: 250px;
 
   & > div.calender-container {
@@ -20,33 +20,11 @@
         width: 100%;
         text-align: center;
 
-        & > div.subtract-month {
-          cursor: pointer;
-          display: inline-block;
-          width: 0;
-          height: 0;
-          border-top: 6px solid transparent;
-          border-bottom: 6px solid transparent;
-          border-right:10px solid #2E3E4F;
-          margin-right: 10px;
-        }
-
         & > div.month {
           display: inline-block;
           font-size: 18px;
           height: 100%;
           width: 45px;
-        }
-
-        & > div.add-month {
-          cursor: pointer;
-          display: inline-block;
-          width: 0;
-          height: 0;
-          border-top: 6px solid transparent;
-          border-bottom: 6px solid transparent;
-          border-left:10px solid #2E3E4F;
-          margin-left: 10px;
         }
       }
 
@@ -97,13 +75,43 @@
 
     & > div.calender-body {
 
-      & > div.month-year {
-        font-size: 12px;
+      & > div.header {
         text-align: center;
+
+        & > div.month-year {
+          width: 80px;
+          font-size: 12px;
+          margin-top: 12px;
+          text-align: center;
+          display: inline-block;
+        }
+
+        & > div.add-month {
+          cursor: pointer;
+          display: inline-block;
+          width: 0;
+          height: 0;
+          border-top: 6px solid transparent;
+          border-bottom: 6px solid transparent;
+          border-left:10px solid #2E3E4F;
+          margin-left: 10px;
+        }
+
+        & > div.subtract-month {
+          cursor: pointer;
+          display: inline-block;
+          width: 0;
+          height: 0;
+          border-top: 6px solid transparent;
+          border-bottom: 6px solid transparent;
+          border-right:10px solid #2E3E4F;
+          margin-right: 10px;
+        }
       }
 
       & > table.calender {
         width: 100%;
+        margin-top: 10px;
 
         & > tr {
 
@@ -114,6 +122,9 @@
 
           & > td {
             text-align: center;
+            font-size: 12px;
+            width: 10px;
+            height: 20px;
 
             &.valid-day {
               cursor: pointer;
@@ -121,6 +132,10 @@
 
             &.invalid-day {
 
+            }
+
+            &.disabled-day {
+              color: #8f8f8e;
             }
           }
         }

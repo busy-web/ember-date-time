@@ -24,9 +24,27 @@ export default Ember.Component.extend({
         var currentDate = momentObj.format('MMM DD, YYYY');
         this.set('currentDate', currentDate);
 
-        var currentTime = momentObj.format('HH:mm A');
+        var currentTime = momentObj.format('hh:mm A');
         this.set('currentTime', currentTime);
     },
+
+    observesCurrentDate: Ember.observer('timestamp', function()
+    {
+        let time = this.get('timestamp');
+        let momentObj = moment(time);
+        let newFormat = momentObj.format('MMM DD, YYYY');
+
+        this.set('currentDate', newFormat);
+    }),
+
+    observesCurrentTime: Ember.observer('timestamp', function()
+    {
+        let time = this.get('timestamp');
+        let momentObj = moment(time);
+        let newFormat = momentObj.format('hh:mm A');
+
+        this.set('currentTime', newFormat);
+    }),
 
     actions: {
 

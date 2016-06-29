@@ -10,6 +10,9 @@ export default Ember.Component.extend({
     inTimestamp: null,
     outTimestamp: null,
 
+    maxDate: null,
+    minDate: null,
+
     showInTimeClock: null,
     showOutTimeClock: null,
     showInTimeCalender: true,
@@ -41,11 +44,23 @@ export default Ember.Component.extend({
         var start = moment();
         var end = moment();
 
+        var startDate = moment();
+        var endDate = moment();
+
         var startOf = start.startOf('day');
         var endOf = end.startOf('day');
 
         var startTime = startOf.add(9, 'hours');
         var endTime = endOf.add(17, 'hours');
+
+        var startDateFinal = startDate.startOf('day');
+        var endDateFinal = endDate.startOf('day');
+
+        var minDate = startDateFinal.subtract(90, 'days');
+        var maxDate = endDateFinal.add(90, 'days');
+
+        this.set('minDate', (minDate.unix() * 1000));
+        this.set('maxDate', (maxDate.unix() * 1000));
 
         this.set('inTimestamp', (startTime.unix() * 1000));
         this.set('outTimestamp', (endTime.unix() * 1000));

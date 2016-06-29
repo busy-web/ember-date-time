@@ -7,11 +7,9 @@
 
         <div class="month-container">
 
-            <div class="subtract-month" {{action "subtractMonth"}}></div>
 
             <div class="month">{{month}}</div>
 
-            <div class="add-month" {{action "addMonth"}}></div>
 
         </div>
 
@@ -19,11 +17,11 @@
 
         <div class="year-container">
 
-            <div class="subtract-year" {{action "subtractYear"}}></div>
+            {{!-- <div class="subtract-year" {{action "subtractYear"}}></div> --}}
 
             <div class="year">{{year}}</div>
 
-            <div class="add-year" {{action "addYear"}}></div>
+            {{!-- <div class="add-year" {{action "addYear"}}></div> --}}
 
         </div>
 
@@ -33,7 +31,15 @@
 
     <div class="calender-body">
 
-        <div class="month-year">{{monthYear}}</div>
+        <div class="header">
+
+            <div class="subtract-month" {{action "subtractMonth"}}></div>
+
+            <div class="month-year">{{monthYear}}</div>
+
+            <div class="add-month" {{action "addMonth"}}></div>
+
+        </div>
 
         <table class="calender">
             <tr>
@@ -50,7 +56,11 @@
             <tr>
                 {{#each week as |day|}}
                     {{#if day}}
-                        <td class="valid-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
+                        {{#if day.isDisabled}}
+                            <td class="disabled-day">{{formatDay day}}</td>
+                        {{else}}
+                            <td class="valid-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
+                        {{/if}}
                     {{else}}
                         <td class="invalid-day"></td>
                     {{/if}}

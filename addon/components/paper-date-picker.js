@@ -7,6 +7,8 @@ export default Ember.Component.extend({
     layout: layout,
 
     timestamp: null,
+    calenderTimestamp: null,
+
     minDate: null,
     maxDate: null,
 
@@ -24,21 +26,54 @@ export default Ember.Component.extend({
     init: function()
     {
         this._super();
+        this.set('calenderTimestamp', this.get('timestamp'));
 
     },
 
-    buildDaysArrayForMonth: Ember.on('init', Ember.observer('timestamp', function() {
+    resetCalenderTimestamp: Ember.observer('timestamp', function()
+    {
+        let time = this.get('timestamp');
 
-        var current = moment(this.get('timestamp'));
+        this.set('calenderTimestamp', time);
+    }),
+
+    buildDaysArrayForMonth: Ember.on('init', Ember.observer('calenderTimestamp', function() {
+
+        var current = moment(this.get('calenderTimestamp'));
 
         var daysArray = Ember.A();
         var firstDay = current.clone().startOf('month');
         var lastDay = current.clone().endOf('month');
         var currentDay = firstDay;
 
+        let minDate = moment(this.get('minDate'));
+        let maxDate = moment(this.get('maxDate'));
+
         while (currentDay.isBefore(lastDay)) {
-            daysArray.pushObject(currentDay);
-            currentDay = currentDay.clone().add('days', 1);
+            if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
+            {
+                if (!Ember.isNone(minDate))
+                {
+                    if (!currentDay.isBefore(minDate) && !currentDay.isAfter(maxDate))
+                    {
+                        currentDay.isDisabled = false;
+                        daysArray.pushObject(currentDay);
+                        currentDay = currentDay.clone().add('days', 1);
+                    }
+                    else
+                    {
+                        currentDay.isDisabled = true;
+                        daysArray.pushObject(currentDay);
+                        currentDay = currentDay.clone().add('days', 1);
+                    }
+                }
+            }
+            else
+            {
+                currentDay.isDisabled = false;
+                daysArray.pushObject(currentDay);
+                currentDay = currentDay.clone().add('days', 1);
+            }
         }
 
         this.set('daysArray', daysArray);
@@ -126,8 +161,6 @@ export default Ember.Component.extend({
         let momentObj = moment(time);
         let newFormat = momentObj.format('DD');
 
-        console.log('test', time);
-
         this.set('day', newFormat);
     }),
 
@@ -165,17 +198,17 @@ export default Ember.Component.extend({
         this.set('year', newFormat);
     }),
 
-    initMonthYear: Ember.on('init', Ember.observer('timestamp', function() {
-        let time = this.get('timestamp');
+    initMonthYear: Ember.on('init', Ember.observer('calenderTimestamp', function() {
+        let time = this.get('calenderTimestamp');
         let momentObj = moment(time);
         let newFormat = momentObj.format('MMMM YYYY');
 
         this.set('monthYear', newFormat);
     })),
 
-    observesMonthYear: Ember.observer('timestamp', function()
+    observesMonthYear: Ember.observer('calenderTimestamp', function()
     {
-        let time = this.get('timestamp');
+        let time = this.get('calenderTimestamp');
         let momentObj = moment(time);
         let newFormat = momentObj.format('MMMM YYYY');
 
@@ -202,22 +235,22 @@ export default Ember.Component.extend({
 
         subtractMonth()
         {
-            let timestamp = this.get('timestamp');
+            let timestamp = this.get('calenderTimestamp');
             let object = moment(timestamp);
             let subtract = object.subtract('1', 'months');
             let reverse = subtract.unix() * 1000;
 
-            this.set('timestamp', reverse);
+            this.set('calenderTimestamp', reverse);
         },
 
         addMonth()
         {
-            let timestamp = this.get('timestamp');
+            let timestamp = this.get('calenderTimestamp');
             let object = moment(timestamp);
             let add = object.add('1', 'months');
             let reverse = add.unix() * 1000;
 
-            this.set('timestamp', reverse);
+            this.set('calenderTimestamp', reverse);
         },
 
         subtractYear()
