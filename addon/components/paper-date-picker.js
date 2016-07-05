@@ -42,8 +42,8 @@ export default Ember.Component.extend({
         var current = moment(this.get('calenderTimestamp'));
 
         var daysArray = Ember.A();
-        var firstDay = current.clone().startOf('month');
-        var lastDay = current.clone().endOf('month');
+        var firstDay = current.clone().startOf('month').hour(current.hour()).minute(current.minute());
+        var lastDay = current.clone().endOf('month').hour(current.hour()).minute(current.minute());
         var currentDay = firstDay;
 
         let minDate = moment(this.get('minDate'));

@@ -44,7 +44,7 @@ export default Ember.Component.extend({
         var start = moment();
         var end = moment();
 
-        var startDate = moment();
+        // var startDate = moment();
         var endDate = moment();
 
         var startOf = start.startOf('day');
@@ -53,14 +53,14 @@ export default Ember.Component.extend({
         var startTime = startOf.add(9, 'hours');
         var endTime = endOf.add(17, 'hours');
 
-        var startDateFinal = startDate.startOf('day');
+        // var startDateFinal = startDate.startOf('day');
         var endDateFinal = endDate.startOf('day');
 
-        var minDate = startDateFinal.subtract(90, 'days');
-        var maxDate = endDateFinal.add(90, 'days');
+        // var minDate = startDateFinal.subtract(90, 'days');
+        var maxDate = endDateFinal.add(2, 'days');
 
-        this.set('minDate', (minDate.unix() * 1000));
-        this.set('maxDate', (maxDate.unix() * 1000));
+        this.set('minDate', (startTime.unix() * 1000));
+        this.set('maxDate', (endTime.add(3, 'days').add(30, 'minutes').unix() * 1000));
 
         this.set('inTimestamp', (startTime.unix() * 1000));
         this.set('outTimestamp', (endTime.unix() * 1000));

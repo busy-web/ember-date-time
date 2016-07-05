@@ -41,6 +41,7 @@ export default Ember.Component.extend(
         this._super();
         this.removeInitialHours();
         this.removeInitialMinutes();
+        this.minMaxHourHandler();
 
         var time = this.get('timestamp');
         var momentObj = moment(time);
@@ -150,13 +151,94 @@ export default Ember.Component.extend(
         }
     }),
 
+    minMaxHourHandler: Ember.observer('timestamp', function()
+    {
+        let clock = new Snap('#clocks-hour-svg');
+
+        let maxDate = moment(this.get('maxDate'));
+        let minDate = moment(this.get('minDate'));
+        let timestamp = moment(this.get('timestamp'));
+
+        if (!Ember.isNone(maxDate) || !Ember.isNone(minDate))
+        {
+            if (timestamp.format('A') === 'AM')
+            {
+                let amHours = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+                amHours.forEach(function(hourAM)
+                {
+                    let item = ('0' + hourAM).slice(-2);
+                    clock.select('#hour' + item).removeClass('disabled-hour');
+
+                    let newHour = timestamp.hour(hourAM);
+                    if (newHour.isBefore(minDate) || newHour.isAfter(maxDate))
+                    {
+                        clock.select('#hour' + item).addClass('disabled-hour');
+                    }
+                });
+            }
+            else
+            {
+                let pmHours = ['12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+                pmHours.forEach(function(hourPM)
+                {
+                    let clockHour = ('0' + parseInt(hourPM) % 12).slice(-2);
+                    clock.select('#hour' + clockHour).removeClass('disabled-hour');
+
+                    let newHour = timestamp.hour(hourPM);
+                    if (newHour.isBefore(minDate) || newHour.isAfter(maxDate))
+                    {
+                        clock.select('#hour' + clockHour).addClass('disabled-hour');
+                    }
+                });
+            }
+        }
+    }),
+
+    minMaxMinuteHandler: Ember.observer('timestamp', function()
+    {
+        let clock = new Snap('#clock-minutes-svg');
+
+        let maxDate = moment(this.get('maxDate'));
+        let minDate = moment(this.get('minDate'));
+        let timestamp = moment(this.get('timestamp'));
+
+        if (!Ember.isNone(maxDate) || !Ember.isNone(minDate))
+        {
+            var allMinutes = [];
+
+            for (var i = 0; i < 60; i++) {
+                i = ('0' + i).slice(-2);
+                allMinutes.push(i);
+            }
+            allMinutes.forEach(function(minute)
+            {
+                let item = ('0' + minute).slice(-2);
+
+                clock.select('#sectionMin' + item).removeClass('disabled-minute');
+
+                if (!Ember.isNone(clock.select('#minText' + item)))
+                {
+                    clock.select('#minText' + item).removeClass('disabled-minute');
+                }
+
+                let newMinute = timestamp.minute(minute);
+                if (newMinute.isBefore(minDate) || newMinute.isAfter(maxDate))
+                {
+                    if (!Ember.isNone(clock.select('#minText' + item)))
+                    {
+                        clock.select('#minText' + item).addClass('disabled-minute');
+                    }
+                    clock.select('#sectionMin' + item).addClass('disabled-section');
+                }
+            });
+        }
+    }),
+
     /**
      * remove initial circles and lines for hours clock
      * function for HOURS
      * @public
      */
-
-
     removeInitialHours: function()
     {
         if (this.get('hoursActive'))
@@ -167,13 +249,9 @@ export default Ember.Component.extend(
 
             allHours.forEach(function(item)
             {
-                var hourSelect = '#hour' + item;
-                var lineSelect = '#line' + item;
-                var circleSelect = '#circle' + item;
-
-                clock.select(hourSelect).removeClass('interiorWhite');
-                clock.select(lineSelect).insertBefore(bigCircle);
-                clock.select(circleSelect).insertBefore(bigCircle);
+                clock.select('#hour' + item).removeClass('interiorWhite');
+                clock.select('#line' + item).insertBefore(bigCircle);
+                clock.select('#circle' + item).insertBefore(bigCircle);
             });
         }
     },
@@ -198,16 +276,12 @@ export default Ember.Component.extend(
 
             allMinutes.forEach(function(item)
             {
-                var hourSelect = '#minText' + item;
-                var lineSelect = '#minLine' + item;
-                var circleSelect = '#minCircle' + item;
-
-                if (!Ember.isNone(clock.select(hourSelect)))
+                if (!Ember.isNone(clock.select('#minText' + item)))
                 {
-                    clock.select(hourSelect).removeClass('interiorWhite');
+                    clock.select('#minText' + item).removeClass('interiorWhite');
                 }
-                clock.select(lineSelect).insertBefore(bigCircle);
-                clock.select(circleSelect).insertBefore(bigCircle);
+                clock.select('#minLine' + item).insertBefore(bigCircle);
+                clock.select('#minCircle' + item).insertBefore(bigCircle);
             });
         }
     },
@@ -521,6 +595,14 @@ export default Ember.Component.extend(
          */
         var move = function(dx,dy,x,y) {
 
+
+            let dragged_x = clock.select('#' + circle).getBBox().x;
+            let dragged_y = clock.select('#' + circle).getBBox().y;
+
+            // this._bboxwt.cx, this._bboxwt.cy)
+
+            console.log(dragged_x, dragged_y, this._.bboxwt);
+
             let center_point = Ember.$('#centerPointMinutes');
             let coordinates = center_point[0].getBoundingClientRect();
 
@@ -552,7 +634,9 @@ export default Ember.Component.extend(
          * checks to see where the dragging stops and makes the closest hour active
          */
         var stop = function() {
-            //need to do
+            // var target = event.target.id;
+            // var minute = target.slice(-2);
+            // _this.removeLastActiveMinute('minText' + minute, 'minLine' + minute, 'minCircle' + minute);
         };
 
         if (!Ember.isNone(this.get('lastMinute')))
@@ -759,9 +843,11 @@ export default Ember.Component.extend(
             if (current === 'PM')
             {
                 var newTime = momentObj.subtract(12, 'hours');
-                var reverseConversionBack = (newTime.unix() * 1000);
-
-                this.set('timestamp', reverseConversionBack);
+                if (!momentObj.isBefore(this.get('minDate')))
+                {
+                    var reverseConversionBack = (newTime.unix() * 1000);
+                    this.set('timestamp', reverseConversionBack);
+                }
             }
         },
 
@@ -773,9 +859,12 @@ export default Ember.Component.extend(
             if (current === 'AM')
             {
                 var newTime = momentObj.add(12, 'hours');
-                var reverseConversionBack = (newTime.unix() * 1000);
 
-                this.set('timestamp', reverseConversionBack);
+                if (!momentObj.isAfter(this.get('maxDate')))
+                {
+                    var reverseConversionBack = (newTime.unix() * 1000);
+                    this.set('timestamp', reverseConversionBack);
+                }
             }
         },
 

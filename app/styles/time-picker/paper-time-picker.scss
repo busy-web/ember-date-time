@@ -6,6 +6,21 @@
 .interiorWhite {
     fill: white !important;
 }
+
+.disabled-hour {
+  pointer-events: none;
+  stroke: red;
+}
+
+.disabled-minute {
+  pointer-events: none;
+  stroke: red;
+}
+
+.disabled-section {
+  pointer-events: none;
+}
+
 .paper-time-picker {
     height: 285px;
     width: 250px;
