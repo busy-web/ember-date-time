@@ -317,7 +317,6 @@ export default Ember.Component.extend(
             this.set('lastHourText', activeHour);
             this.set('lastHourLine', activeLine);
             this.set('lastHourCircle', activeCircle);
-
             this.newDrag(activeHour, activeLine, activeCircle);
         }
     },
@@ -386,6 +385,8 @@ export default Ember.Component.extend(
         var _this = this;
         var clock = new Snap('#clocks-hour-svg');
         var curHour = clock.select('#' + hour);
+        var currentAngle = null;
+        var newHour = null;
 
         /**
          * allows for the hours group to start being dragged
@@ -426,104 +427,23 @@ export default Ember.Component.extend(
             this.attr({
                 transform: ('r' + angle + ', ' + center_x + ',' + center_y)
             });
+
+            let lastHour = _this.get('lastHourCircle');
+            let actualHour = parseInt(lastHour.slice(-2));
+            currentAngle = actualHour * 30;
+
+            let anglePositive = angle > 0;
+            let over180 = 180 + Math.abs((180 - Math.abs(angle)));
+
+            newHour = anglePositive ? angle : over180;
+
         };
 
         /**
          * checks to see where the dragging stops and makes the closest hour active
          */
         var stop = function() {
-            var info = this.getBBox();
-            var endingX = info.cx;
-            var endingY = info.cy;
-
-            var dx = endingX - 104.75;
-            var dy = endingY - 105;
-
-            var dxPos = dx < 0 ? 'left' : 'right';
-            var dyPos = dy < 0 ? 'top' : 'bottom';
-
-            var angle = Math.atan(Math.abs(dx) / Math.abs(dy));
-            var degrees = Snap.deg(angle);
-
-            if(dxPos === 'right' && dyPos === 'top')
-            {
-                if (degrees >= 0 && degrees <= 16)
-                {
-                    _this.removeLastActiveHour('hour00', 'line00', 'circle00');
-                }
-                if (degrees >= 16 && degrees <= 46)
-                {
-                    _this.removeLastActiveHour('hour01', 'line01', 'circle01');
-                }
-                if (degrees >= 46 && degrees <= 76)
-                {
-                    _this.removeLastActiveHour('hour02', 'line02', 'circle02');
-                }
-                if (degrees >= 76 && degrees <= 90)
-                {
-                    _this.removeLastActiveHour('hour03', 'line03', 'circle03');
-                }
-            }
-
-            if(dxPos === 'right' && dyPos === 'bottom')
-            {
-                if (degrees >= 0 && degrees <= 16)
-                {
-                    _this.removeLastActiveHour('hour06', 'line06', 'circle06');
-                }
-                if (degrees >= 16 && degrees <= 46)
-                {
-                    _this.removeLastActiveHour('hour05', 'line05', 'circle05');
-                }
-                if (degrees >= 46 && degrees <= 76)
-                {
-                    _this.removeLastActiveHour('hour04', 'line04', 'circle04');
-                }
-                if (degrees >= 76 && degrees <= 90)
-                {
-                    _this.removeLastActiveHour('hour03', 'line03', 'circle03');
-                }
-            }
-
-            if(dxPos === 'left' && dyPos === 'bottom')
-            {
-                if (degrees >= 0 && degrees <= 16)
-                {
-                    _this.removeLastActiveHour('hour06', 'line06', 'circle06');
-                }
-                if (degrees >= 16 && degrees <= 46)
-                {
-                    _this.removeLastActiveHour('hour07', 'line07', 'circle07');
-                }
-                if (degrees >= 46 && degrees <= 76)
-                {
-                    _this.removeLastActiveHour('hour08', 'line08', 'circle08');
-                }
-                if (degrees >= 76 && degrees <= 90)
-                {
-                    _this.removeLastActiveHour('hour09', 'line09', 'circle09');
-                }
-            }
-
-            if(dxPos === 'left' && dyPos === 'top')
-            {
-                if (degrees >= 0 && degrees <= 16)
-                {
-                    _this.removeLastActiveHour('hour00', 'line00', 'circle00');
-                }
-                if (degrees >= 16 && degrees <= 46)
-                {
-                    _this.removeLastActiveHour('hour11', 'line11', 'circle11');
-                }
-                if (degrees >= 46 && degrees <= 76)
-                {
-                    _this.removeLastActiveHour('hour10', 'line10', 'circle10');
-                }
-                if (degrees >= 76 && degrees <= 90)
-                {
-                    _this.removeLastActiveHour('hour09', 'line09', 'circle09');
-                }
-            }
+            _this.getHourByDegree(currentAngle, newHour);
         };
 
         if (!Ember.isNone(this.get('lastGroup')))
@@ -563,6 +483,77 @@ export default Ember.Component.extend(
         }
     },
 
+    getHourByDegree: function(offset, degree)
+    {
+        let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
+        let formatHour = this.formatHourStrings(hour);
+
+        if (this.hourOverMaxMin(formatHour))
+        {
+            this.removeLastActiveHour('hour' + formatHour, 'line' + formatHour, 'circle' + formatHour);
+        }
+        else
+        {
+            this.removeLastActiveHour(this.get('lastHourText'), this.get('lastHourLine'), this.get('lastHourCircle'));
+        }
+    },
+
+    hourOverMaxMin: function(hour)
+    {
+        let timeAm = moment(this.get('timestamp'));
+        let setAm = timeAm.hour(parseInt(hour));
+
+        let timePm = moment(this.get('timestamp'));
+        let setPm = timePm.hour(parseInt(hour) + 12);
+
+        if (this.timeIsAm())
+        {
+            if (setAm.isBefore(this.get('minDate')) || setAm.isAfter(this.get('maxDate')))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (setPm.isBefore(this.get('minDate')) || setPm.isAfter(this.get('maxDate')))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    },
+
+    timeIsAm: function()
+    {
+        let time = moment(this.get('timestamp'));
+        if (time.format('A') === 'AM')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    },
+
+    formatHourStrings: function(time)
+    {
+        if (parseInt(time) !== 12)
+        {
+            return ('0' + time).slice(-2);
+        }
+        else
+        {
+            return '00';
+        }
+    },
 
     /**
      * handles all the function events for dragging on the minutes clock
