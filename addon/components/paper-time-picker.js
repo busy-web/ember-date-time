@@ -446,6 +446,8 @@ export default Ember.Component.extend(
             _this.getHourByDegree(currentAngle, newHour);
         };
 
+        _this.postDragMinutes(hour);
+
         if (!Ember.isNone(this.get('lastGroup')))
         {
             var undragPrevious = this.get('lastGroup');
@@ -459,7 +461,10 @@ export default Ember.Component.extend(
 
         curGroup.drag(move, start, stop);
         this.set('lastGroup', curGroup);
+    },
 
+    postDragMinutes(hour)
+    {
         var currentHour = moment(this.get('timestamp')).hour();
         var currentClock = parseInt(hour.slice(-2));
 
@@ -495,6 +500,64 @@ export default Ember.Component.extend(
         else
         {
             this.removeLastActiveHour(this.get('lastHourText'), this.get('lastHourLine'), this.get('lastHourCircle'));
+        }
+    },
+
+    getMinuteByDegree: function(offset, degree)
+    {
+        let minute = (((offset / 6) + (Math.round(degree / 6))) % 60);
+        let formatMinute = this.formatMinuteStrings(minute);
+
+        if (this.minuteOverMaxMin(formatMinute))
+        {
+            if (this.minuteModFive(formatMinute))
+            {
+                this.setMinuteToTimestamp(minute);
+                this.removeLastActiveMinute('minText' + formatMinute, 'minLine' + formatMinute, 'minCircle' + formatMinute);
+            }
+            else
+            {
+                this.minuteSectionActivate(formatMinute);
+            }
+        }
+        else
+        {
+            if (this.minuteModFive(formatMinute))
+            {
+                this.setMinuteToTimestamp(minute);
+                this.removeLastActiveMinute(this.get('lastMinuteText'), this.get('lastMinuteLine'), this.get('lastMinuteCircle'));
+            }
+            else
+            {
+                this.minuteSectionActivate(this.formatMinuteStrings(this.get('lastMinuteText')));
+            }
+        }
+    },
+
+    minuteModFive: function(minute)
+    {
+        if (parseInt(minute) % 5 === 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    },
+
+    minuteOverMaxMin: function(minute)
+    {
+        let time = moment(this.get('timestamp'));
+        let setMin = time.minute(parseInt(minute));
+
+        if (setMin.isBefore(this.get('minDate')) || setMin.isAfter(this.get('maxDate')))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
         }
     },
 
@@ -543,6 +606,18 @@ export default Ember.Component.extend(
         }
     },
 
+    formatMinuteStrings: function(time)
+    {
+        if (parseInt(time) !== 60)
+        {
+            return ('0' + time).slice(-2);
+        }
+        else
+        {
+            return '00';
+        }
+    },
+
     formatHourStrings: function(time)
     {
         if (parseInt(time) !== 12)
@@ -552,6 +627,45 @@ export default Ember.Component.extend(
         else
         {
             return '00';
+        }
+    },
+
+    setMinuteToTimestamp: function(minute)
+    {
+        var time = this.get('timestamp');
+        var momentObj = moment(time);
+        var newTime = momentObj.minutes(minute);
+        var reverseConversion = newTime.unix() * 1000;
+
+        this.set('timestamp', reverseConversion);
+    },
+
+    minuteSectionActivate: function(minute)
+    {
+        this.setMinuteToTimestamp(minute);
+
+        var clock = new Snap('#clock-minutes-svg');
+
+        if (this.minuteModFive(minute))
+        {
+            var min = 'minText' + minute;
+            var line = 'minLine' + minute;
+            var circle = 'minCircle' + minute;
+
+            this.set('minutes', minute);
+            this.removeLastActiveMinute(min, line, circle);
+            clock.select('#' + line).appendTo(clock);
+            clock.select('#' + circle).appendTo(clock);
+            clock.select('#' + min).addClass('interiorWhite');
+            clock.select('#' + min).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+        }
+        else
+        {
+            var min2 = 'minText' + minute;
+            var line2 = 'minLine' + minute;
+            var circle2 = 'minCircle' + minute;
+
+            this.removeLastActiveMinute(min2, line2, circle2);
         }
     },
 
@@ -565,8 +679,11 @@ export default Ember.Component.extend(
     {
         var clock = new Snap('#clock-minutes-svg');
         var _this = this;
-        var newMin = parseInt(minute.slice(-2));
+        var newMin = this.formatMinuteStrings(parseInt(minute.slice(-2)));
         var curMinute = clock.select('#minText' + newMin);
+
+        var currentAngle = null;
+        var newMinute = null;
 
         /**
          * allows for the minutes group to start being dragged
@@ -585,14 +702,6 @@ export default Ember.Component.extend(
          * moves the dial on the minute clock while transforming group
          */
         var move = function(dx,dy,x,y) {
-
-
-            let dragged_x = clock.select('#' + circle).getBBox().x;
-            let dragged_y = clock.select('#' + circle).getBBox().y;
-
-            // this._bboxwt.cx, this._bboxwt.cy)
-
-            console.log(dragged_x, dragged_y, this._.bboxwt);
 
             let center_point = Ember.$('#centerPointMinutes');
             let coordinates = center_point[0].getBoundingClientRect();
@@ -619,15 +728,23 @@ export default Ember.Component.extend(
             this.attr({
                 transform: ('r' + angle + ', ' + center_x + ',' + center_y)
             });
+
+            let lastMinute = _this.get('lastMinuteCircle');
+            let actualMinute = parseInt(lastMinute.slice(-2));
+            currentAngle = actualMinute * 6;
+
+            let anglePositive = angle > 0;
+            let over180 = 180 + Math.abs((180 - Math.abs(angle)));
+
+            newMinute = anglePositive ? angle : over180;
+
         };
 
         /**
          * checks to see where the dragging stops and makes the closest hour active
          */
         var stop = function() {
-            // var target = event.target.id;
-            // var minute = target.slice(-2);
-            // _this.removeLastActiveMinute('minText' + minute, 'minLine' + minute, 'minCircle' + minute);
+            _this.getMinuteByDegree(currentAngle, newMinute);
         };
 
         if (!Ember.isNone(this.get('lastMinute')))
