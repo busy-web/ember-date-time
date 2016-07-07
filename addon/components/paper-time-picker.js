@@ -129,11 +129,7 @@ export default Ember.Component.extend(
 
     observesAmPm: Ember.observer('timestamp', function()
     {
-        var time = this.get('timestamp');
-        var momentObj = moment(time);
-        var newFormat = momentObj.format('A');
-
-        if(newFormat === "AM")
+        if(this.timeIsAm())
         {
             Ember.$('.am').removeClass('am-inactive');
             Ember.$('.am').addClass('am-active');
@@ -236,7 +232,7 @@ export default Ember.Component.extend(
 
     /**
      * remove initial circles and lines for hours clock
-     * function for HOURS
+     *
      * @public
      */
     removeInitialHours: function()
@@ -257,8 +253,8 @@ export default Ember.Component.extend(
     },
 
     /**
-     * remove initial circles and lines for hours clock
-     * function for HOURS
+     * remove initial circles and lines for minutes clock
+     *
      * @public
      */
     removeInitialMinutes: function()
@@ -309,10 +305,7 @@ export default Ember.Component.extend(
                 clock.select('#' + hourCircle).insertBefore(bigCircle);
             }
 
-            clock.select('#' + activeHour).addClass('interiorWhite');
-            clock.select('#' + activeLine).appendTo(clock);
-            clock.select('#' + activeCircle).appendTo(clock);
-            clock.select('#' + activeHour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+            this.hourTextActivate(activeHour, activeLine, activeCircle);
 
             this.set('lastHourText', activeHour);
             this.set('lastHourLine', activeLine);
@@ -488,6 +481,35 @@ export default Ember.Component.extend(
         }
     },
 
+    convertToTimestamp: function(momentObject)
+    {
+        let reverse = momentObject.unix() * 1000;
+        this.set('timestamp', reverse);
+    },
+
+    currentHour: function()
+    {
+        var time = moment(this.get('timestamp'));
+        var hour = ('0' + (time.hour() % 12)).slice(-2);
+
+        return hour;
+    },
+
+    currentMinute: function()
+    {
+        var time = moment(this.get('timestamp'));
+        var minute = time.minute();
+
+        return this.formatMinuteStrings(minute);
+    },
+
+    currentDateFormat: function()
+    {
+        var time = moment(this.get('timestamp'));
+
+        return time.format('MMM DD, YYYY');
+    },
+
     getHourByDegree: function(offset, degree)
     {
         let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
@@ -606,11 +628,11 @@ export default Ember.Component.extend(
         }
     },
 
-    formatMinuteStrings: function(time)
+    formatMinuteStrings: function(minute)
     {
-        if (parseInt(time) !== 60)
+        if (parseInt(minute) !== 60)
         {
-            return ('0' + time).slice(-2);
+            return ('0' + minute).slice(-2);
         }
         else
         {
@@ -618,16 +640,46 @@ export default Ember.Component.extend(
         }
     },
 
-    formatHourStrings: function(time)
+    formatMinuteInteger: function(minute)
     {
-        if (parseInt(time) !== 12)
+        let min = minute.slice(-2);
+        return parseInt(min);
+    },
+
+    formatHourStrings: function(hour)
+    {
+        if (parseInt(hour) !== 12)
         {
-            return ('0' + time).slice(-2);
+            return ('0' + hour).slice(-2);
         }
         else
         {
             return '00';
         }
+    },
+
+    formatHourInteger: function(hour)
+    {
+        let sliced = hour.slice(-2);
+        return parseInt(sliced);
+    },
+
+    hourStrings: function(hour)
+    {
+        return {
+            text: 'hour' + hour,
+            line: 'line' + hour,
+            circle: 'circle' + hour
+        };
+    },
+
+    minuteStrings: function(minute)
+    {
+        return {
+            text: 'minText' + minute,
+            line: 'minLine' + minute,
+            circle: 'minCircle' + minute
+        };
     },
 
     setMinuteToTimestamp: function(minute)
@@ -640,32 +692,49 @@ export default Ember.Component.extend(
         this.set('timestamp', reverseConversion);
     },
 
+    hourTextActivate: function(hour, line, circle)
+    {
+        var clock = new Snap('#clocks-hour-svg');
+
+        clock.select('#' + hour).addClass('interiorWhite');
+        clock.select('#' + line).appendTo(clock);
+        clock.select('#' + circle).appendTo(clock);
+        clock.select('#' + hour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+    },
+
+    minuteTextActivate: function(minute, line, circle)
+    {
+        var clock = new Snap('#clock-minutes-svg');
+
+        this.removeLastActiveMinute(minute, line, circle);
+        clock.select('#' + line).appendTo(clock);
+        clock.select('#' + circle).appendTo(clock);
+        clock.select('#' + minute).addClass('interiorWhite');
+        clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+        this.minutesDrag(minute, line, circle);
+    },
+
     minuteSectionActivate: function(minute)
     {
         this.setMinuteToTimestamp(minute);
 
-        var clock = new Snap('#clock-minutes-svg');
+        let strings = this.minuteStrings(minute);
+        let clock = new Snap('#clock-minutes-svg');
 
         if (this.minuteModFive(minute))
         {
-            var min = 'minText' + minute;
-            var line = 'minLine' + minute;
-            var circle = 'minCircle' + minute;
-
             this.set('minutes', minute);
-            this.removeLastActiveMinute(min, line, circle);
-            clock.select('#' + line).appendTo(clock);
-            clock.select('#' + circle).appendTo(clock);
-            clock.select('#' + min).addClass('interiorWhite');
-            clock.select('#' + min).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+            clock.select('#' + strings.line).appendTo(clock);
+            clock.select('#' + strings.circle).appendTo(clock);
+            clock.select('#' + strings.text).addClass('interiorWhite');
+            clock.select('#' + strings.text).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+
+            this.removeLastActiveMinute(strings.text, strings.line, strings.circle);
         }
         else
         {
-            var min2 = 'minText' + minute;
-            var line2 = 'minLine' + minute;
-            var circle2 = 'minCircle' + minute;
-
-            this.removeLastActiveMinute(min2, line2, circle2);
+            this.removeLastActiveMinute(strings.text, strings.line, strings.circle);
         }
     },
 
@@ -780,50 +849,37 @@ export default Ember.Component.extend(
      *
      * @public
      */
-
     setUpClock: Ember.on('init', Ember.observer('timestamp', function()
     {
-
         if(!Ember.isNone(this.get('timestamp')))
         {
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
+            let currentHour = this.currentHour();
+            let currentMinute = this.currentMinute();
+            let currentDate = this.currentDateFormat();
 
-            var hours = momentObj.hour();
-            var minutes = momentObj.minutes();
-            var currentDate = momentObj.format('MMM DD, YYYY');
-
-            var sliceMinute = ('0' + minutes%60).slice(-2);
-            var activeHour = ('0' + (hours%12)).slice(-2);
-
-            this.set('hours', activeHour);
-            this.set('minutes', sliceMinute);
+            this.set('hours', currentHour);
+            this.set('minutes', currentMinute);
             this.set('currentDate', currentDate);
         }
     })),
 
+    /**
+     * observes timestamp and keeps data correct
+     *
+     * @public
+     */
     observeTimestamp: Ember.observer('timestamp', function()
     {
         if(!Ember.isNone(this.get('timestamp')))
         {
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
+            let hour = this.currentHour();
+            let minute = this.currentMinute();
 
-            var hours = momentObj.hour();
-            var minutes = momentObj.minutes();
-            var sliceMinute = ('0' + minutes%60).slice(-2);
-            var activeHour = ('0' + (hours%12)).slice(-2);
+            let hourObs = this.hourStrings(hour);
+            let minuteObs = this.minuteStrings(minute);
 
-            var hour = 'hour' + activeHour;
-            var line = 'line' + activeHour;
-            var circle = 'circle' + activeHour;
-
-            var minText = 'minText' + sliceMinute;
-            var lineText = 'minLine' + sliceMinute;
-            var circleText = 'minCircle' + sliceMinute;
-
-            this.removeLastActiveMinute(minText, lineText, circleText);
-            this.removeLastActiveHour(hour, line, circle);
+            this.removeLastActiveMinute(minuteObs.text, minuteObs.line, minuteObs.circle);
+            this.removeLastActiveHour(hourObs.text, hourObs.line, hourObs.circle);
         }
     }),
 
@@ -850,57 +906,33 @@ export default Ember.Component.extend(
          */
         clickHour: function(hour, line, circle)
         {
-            var clock = new Snap('#clocks-hour-svg');
-
             var timestamp = this.get('timestamp');
             var momentObj = moment(timestamp);
 
-            if (momentObj.format('A') === "AM")
+            if (this.timeIsAm())
             {
-                var setHour = momentObj.hour(parseInt(hour.slice(-2)));
-                var reverseConversion = setHour.unix() * 1000;
-                this.set('timestamp', reverseConversion);
+                var setHour = momentObj.hour(this.formatHourInteger(hour));
+                this.convertToTimestamp(setHour);
             }
             else
             {
-                var setHour2 = momentObj.hour(parseInt(hour.slice(-2)) + 12);
-                var reverseConversion2 = setHour2.unix() * 1000;
-                this.set('timestamp', reverseConversion2);
+                var setHour2 = momentObj.hour(this.formatHourInteger(hour) + 12);
+                this.convertToTimestamp(setHour2);
             }
 
             this.removeLastActiveHour(hour, line, circle);
-            clock.select('#' + line).appendTo(clock);
-            clock.select('#' + circle).appendTo(clock);
-            clock.select('#' + hour).addClass('interiorWhite');
-            clock.select('#' + hour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
             this.newDrag(hour, line, circle);
         },
 
         /**
-         * sets the clicked minute to active and makes the active minute draggable
+         * handles minute text being clicked
          *
          * @public
          */
         clickMin: function(minute, line, circle)
         {
-            var clock = new Snap('#clock-minutes-svg');
-
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
-            var newMin = minute.slice(-2);
-            var newTime = momentObj.minutes(newMin);
-            var reverseConversion = newTime.unix() * 1000;
-
-            this.set('timestamp', reverseConversion);
-
-            this.removeLastActiveMinute(minute, line, circle);
-            clock.select('#' + line).appendTo(clock);
-            clock.select('#' + circle).appendTo(clock);
-            clock.select('#' + minute).addClass('interiorWhite');
-            clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.minutesDrag(minute, line, circle);
+            this.setMinuteToTimestamp(this.formatMinuteInteger(minute));
+            this.minuteTextActivate(minute, line, circle);
         },
 
         /**
@@ -910,68 +942,58 @@ export default Ember.Component.extend(
          */
         minuteSectionClicked: function(minute)
         {
-            var clock = new Snap('#clock-minutes-svg');
-
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
-            var newTime = momentObj.minutes(minute);
-            var reverseConversion = newTime.unix() * 1000;
-
-            this.set('timestamp', reverseConversion);
-
-            if (parseInt(minute) % 5 === 0)
-            {
-                var min = 'minText' + minute;
-                var line = 'minLine' + minute;
-                var circle = 'minCircle' + minute;
-
-                this.set('minutes', minute);
-                this.removeLastActiveMinute(min, line, circle);
-                clock.select('#' + line).appendTo(clock);
-                clock.select('#' + circle).appendTo(clock);
-                clock.select('#' + min).addClass('interiorWhite');
-                clock.select('#' + min).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-            }
-            else
-            {
-                var min2 = 'minText' + minute;
-                var line2 = 'minLine' + minute;
-                var circle2 = 'minCircle' + minute;
-
-                this.removeLastActiveMinute(min2, line2, circle2);
-            }
+            this.setMinuteToTimestamp(this.formatMinuteInteger(minute));
+            this.minuteSectionActivate(this.formatMinuteStrings(minute));
         },
 
-
+        /**
+         * handles clicking AM, wont allow if it goes under min date
+         *
+         * @public
+         */
         amClicked: function()
         {
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
-            var current = momentObj.format('A');
-            if (current === 'PM')
+            let time = moment(this.get('timestamp'));
+            let newTime = time.subtract(12, 'hours');
+
+            if (!this.timeIsAm())
             {
-                var newTime = momentObj.subtract(12, 'hours');
-                if (!momentObj.isBefore(this.get('minDate')))
+                if (!Ember.isNone(this.get('minDate')))
                 {
-                    var reverseConversionBack = (newTime.unix() * 1000);
-                    this.set('timestamp', reverseConversionBack);
+                    if (!time.isBefore(this.get('minDate')))
+                    {
+                        this.convertToTimestamp(newTime);
+                    }
+                }
+                else
+                {
+                    this.convertToTimestamp(newTime);
                 }
             }
         },
 
+        /**
+         * handles clicking PM, wont allow if it goes over max date
+         *
+         * @public
+         */
         pmClicked: function()
         {
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
-            var current = momentObj.format('A');
-            if (current === 'AM')
-            {
-                var newTime = momentObj.add(12, 'hours');
+            let time = moment(this.get('timestamp'));
+            let newTime = time.add(12, 'hours');
 
-                if (!momentObj.isAfter(this.get('maxDate')))
+            if (this.timeIsAm())
+            {
+                if (!Ember.isNone(this.get('maxDate')))
                 {
-                    var reverseConversionBack = (newTime.unix() * 1000);
-                    this.set('timestamp', reverseConversionBack);
+                    if (!time.isAfter(this.get('maxDate')))
+                    {
+                        this.convertToTimestamp(newTime);
+                    }
+                }
+                else
+                {
+                    this.convertToTimestamp(newTime);
                 }
             }
         },
