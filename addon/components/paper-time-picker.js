@@ -63,7 +63,7 @@ export default Ember.Component.extend(
         this.removeLastActiveMinute(minText, lineText, circleText);
         this.removeLastActiveHour(hour, line, circle);
 
-        if(moment(this.get('timestamp')).format('A') === "AM")
+        if(this.timeIsAm())
         {
             Ember.$('.am').addClass('am-active');
             Ember.$('.pm').addClass('pm-inactive');
@@ -77,45 +77,16 @@ export default Ember.Component.extend(
 
     clickableDate: Ember.observer('timestamp', function()
     {
-        var timestamp = this.get('timestamp');
-        var momentObj = moment(timestamp);
-        var format = momentObj.format('MMM DD, YYYY');
+        let timestamp = moment(this.get('timestamp'));
+        let format = timestamp.format('MMM DD, YYYY');
 
         this.set('currentDate', format);
     }),
 
     observesHours: Ember.observer('timestamp', function()
     {
-        var timestamp = this.get('timestamp');
-        var momentObj = moment(timestamp);
-
-        var hour = momentObj.hour();
-        var currentMeridian = momentObj.format('A');
-
-        if (currentMeridian === 'AM')
-        {
-            if (hour === 0)
-            {
-                this.set('hours', '12');
-            }
-            else
-            {
-                var newTime2 = momentObj.hour();
-                this.set('hours', ('0' + newTime2).slice(-2));
-            }
-        }
-        else
-        {
-            if (hour === 12)
-            {
-                this.set('hours', '12');
-            }
-            else
-            {
-                var newTime4 = momentObj.hour();
-                this.set('hours', ('0' + (newTime4 - 12)).slice(-2));
-            }
-        }
+        let hour = this.currentHour();
+        this.set('hours', hour);
     }),
 
     observesMinutes: Ember.observer('timestamp', function()
@@ -439,7 +410,7 @@ export default Ember.Component.extend(
             _this.getHourByDegree(currentAngle, newHour);
         };
 
-        _this.postDragMinutes(hour);
+        _this.postDragHours(hour);
 
         if (!Ember.isNone(this.get('lastGroup')))
         {
@@ -456,27 +427,22 @@ export default Ember.Component.extend(
         this.set('lastGroup', curGroup);
     },
 
-    postDragMinutes(hour)
+    postDragHours(hour)
     {
-        var currentHour = moment(this.get('timestamp')).hour();
-        var currentClock = parseInt(hour.slice(-2));
-
-        if (currentHour !== currentClock)
+        if (parseInt(this.currentHour()) !== this.formatHourInteger(hour))
         {
-            var timestamp = this.get('timestamp');
-            var momentObj = moment(timestamp);
+            let timestamp = moment(this.get('timestamp'));
+            let setHour = null;
 
-            if (momentObj.format('A') === "AM")
+            if (this.timeIsAm())
             {
-                var setHour = momentObj.hour(currentClock);
-                var reverseConversion = setHour.unix() * 1000;
-                this.set('timestamp', reverseConversion);
+                setHour = timestamp.hour(this.formatHourInteger(hour));
+                this.convertToTimestamp(setHour);
             }
             else
             {
-                var setHour2 = momentObj.hour(currentClock + 12);
-                var reverseConversion2 = setHour2.unix() * 1000;
-                this.set('timestamp', reverseConversion2);
+                setHour = timestamp.hour(this.formatHourInteger(hour) + 12);
+                this.convertToTimestamp(setHour);
             }
         }
     },
@@ -489,23 +455,23 @@ export default Ember.Component.extend(
 
     currentHour: function()
     {
-        var time = moment(this.get('timestamp'));
-        var hour = ('0' + (time.hour() % 12)).slice(-2);
+        let time = moment(this.get('timestamp'));
+        let hour = ('0' + (time.hour() % 12)).slice(-2);
 
         return hour;
     },
 
     currentMinute: function()
     {
-        var time = moment(this.get('timestamp'));
-        var minute = time.minute();
+        let time = moment(this.get('timestamp'));
+        let minute = time.minute();
 
         return this.formatMinuteStrings(minute);
     },
 
     currentDateFormat: function()
     {
-        var time = moment(this.get('timestamp'));
+        let time = moment(this.get('timestamp'));
 
         return time.format('MMM DD, YYYY');
     },
@@ -822,7 +788,7 @@ export default Ember.Component.extend(
             undragPrevious.undrag();
         }
 
-        if (newMin % 5 === 0)
+        if (this.minuteModFive(newMin))
         {
             var newMin2 = ('0' + minute).slice(-2);
             var curMin = clock.select('#minText' + newMin2);
