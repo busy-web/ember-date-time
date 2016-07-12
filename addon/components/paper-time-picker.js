@@ -52,16 +52,13 @@ export default Ember.Component.extend(
         var sliceMinute = ('0' + minutes%60).slice(-2);
         var activeHour = ('0' + (hours%12)).slice(-2);
 
-        var hour = 'hour' + activeHour;
-        var line = 'line' + activeHour;
-        var circle = 'circle' + activeHour;
 
         var minText = 'minText' + sliceMinute;
         var lineText = 'minLine' + sliceMinute;
         var circleText = 'minCircle' + sliceMinute;
 
         this.removeLastActiveMinute(minText, lineText, circleText);
-        this.removeLastActiveHour(hour, line, circle);
+        this.removeLastActiveHour(activeHour);
 
         if(this.timeIsAm())
         {
@@ -86,6 +83,7 @@ export default Ember.Component.extend(
     observesHours: Ember.observer('timestamp', function()
     {
         let hour = this.currentHour();
+        hour =  hour === '00' ? '12' : hour;
         this.set('hours', hour);
     }),
 
@@ -226,12 +224,10 @@ export default Ember.Component.extend(
      */
     removeInitialMinutes: function()
     {
+        let _this = this;
         if (this.get('minutesActive'))
         {
-            let clock = new Snap('#clock-minutes-svg');
-            let bigCircle = clock.select('#bigCircleMinutes');
             let allMinutes = [];
-
             for (var i = 0; i < 60; i++) {
                 i = ('0' + i).slice(-2);
                 allMinutes.push(i);
@@ -239,12 +235,7 @@ export default Ember.Component.extend(
 
             allMinutes.forEach(function(item)
             {
-                if (!Ember.isNone(clock.select('#minText' + item)))
-                {
-                    clock.select('#minText' + item).removeClass('interiorWhite');
-                }
-                clock.select('#minLine' + item).insertBefore(bigCircle);
-                clock.select('#minCircle' + item).insertBefore(bigCircle);
+                _this.removeMinute(item);
             });
         }
     },
@@ -254,26 +245,23 @@ export default Ember.Component.extend(
      * function for HOURS
      * @public
      */
-    removeLastActiveHour: function(activeHour, activeLine, activeCircle)
+    removeLastActiveHour: function(hour)
     {
+        let strings = this.hourStrings(hour);
         if (this.get('hoursActive'))
         {
-            var hourText = this.get('lastHourText');
-            var hourLine = this.get('lastHourLine');
-            var hourCircle = this.get('lastHourCircle');
-
-            if (!Ember.isNone(hourText) || !Ember.isNone(hourLine) || !Ember.isNone(hourCircle))
+            if (!Ember.isNone(this.get('lastHourText')) || !Ember.isNone(this.get('lastHourLine')) || !Ember.isNone(this.get('lastHourCircle')))
             {
-                let hour = hourText.slice(-2);
+                let hour = this.formatHourStrings(this.get('lastHourText'));
                 this.removeHour(hour);
             }
 
-            this.hourTextActivate(activeHour, activeLine, activeCircle);
+            this.hourTextActivate(strings.text, strings.line, strings.circle);
 
-            this.set('lastHourText', activeHour);
-            this.set('lastHourLine', activeLine);
-            this.set('lastHourCircle', activeCircle);
-            this.newDrag(activeHour, activeLine, activeCircle);
+            this.set('lastHourText', strings.text);
+            this.set('lastHourLine', strings.line);
+            this.set('lastHourCircle', strings.circle);
+            this.newDrag(hour);
         }
     },
 
@@ -282,51 +270,32 @@ export default Ember.Component.extend(
      * function for MINUTES
      * @public
      */
-    removeLastActiveMinute: function(minute, line, circle)
+    removeLastActiveMinute: function(minute)
     {
+        let strings = this.minuteStrings(minute);
         if (this.get('minutesActive'))
         {
-            var clock = new Snap('#clock-minutes-svg');
-            var bigCircle = clock.select('#bigCircleMinutes');
-            var newTime = ('0' + minute).slice(-2);
-
-            var minuteText = this.get('lastMinuteText');
-            var minuteLine = this.get('lastMinuteLine');
-            var minuteCircle = this.get('lastMinuteCircle');
-
-            if (!Ember.isNone(minuteText) || !Ember.isNone(minuteLine) || !Ember.isNone(minuteCircle))
+            if (!Ember.isNone(this.get('lastMinuteText')) || !Ember.isNone(this.get('lastMinuteLine')) || !Ember.isNone(this.get('lastMinuteCircle')))
             {
-                var sliceOld = parseInt(('0' + minuteText).slice(-2));
-                if (sliceOld % 5 === 0)
-                {
-                    clock.select('#' + minuteText).removeClass('interiorWhite');
-                }
-                clock.select('#' + minuteLine).insertBefore(bigCircle);
-                clock.select('#' + minuteCircle).insertBefore(bigCircle);
+                let sliceOld = this.formatMinuteStrings(this.get('lastMinuteText'));
+                this.removeMinute(sliceOld);
             }
 
-            clock.select('#' + line).appendTo(clock);
-            clock.select('#' + circle).appendTo(clock);
-
-            if (newTime % 5 === 0)
+            if (this.minuteModFive(this.formatMinuteStrings(minute)))
             {
-                clock.select('#' + minute).addClass('interiorWhite');
-                clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+                this.minuteTextActivate(this.formatMinuteStrings(minute));
             }
             else
             {
-                var hoursToTop = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
-                hoursToTop.forEach(function(item)
-                {
-                    clock.select('#minText' + item).appendTo(clock);
-                });
+                console.log('here');
+                this.minuteSectionActivate(this.formatMinuteStrings(minute));
             }
 
-            this.set('lastMinuteText', minute);
-            this.set('lastMinuteLine', line);
-            this.set('lastMinuteCircle', circle);
+            this.set('lastMinuteText', strings.text);
+            this.set('lastMinuteLine', strings.line);
+            this.set('lastMinuteCircle', strings.circle);
 
-            this.minutesDrag(minute, line, circle);
+            this.minutesDrag(strings.text, strings.line, strings.circle);
         }
     },
 
@@ -336,11 +305,13 @@ export default Ember.Component.extend(
      * function for HOURS
      * @public
      */
-    newDrag: function(hour, line, circle)
+    newDrag: function(hour)
     {
-        var _this = this;
-        var clock = new Snap('#clocks-hour-svg');
-        var curHour = clock.select('#' + hour);
+        let _this = this;
+        let clock = new Snap('#clocks-hour-svg');
+        let strings = this.hourStrings(hour);
+
+        var curHour = clock.select('#' + strings.text);
         var currentAngle = null;
         var newHour = null;
 
@@ -362,24 +333,27 @@ export default Ember.Component.extend(
             let center_point = Ember.$('#centerPointHour');
             let coordinates = center_point[0].getBoundingClientRect();
 
-            var endX = x - (coordinates.left + 3);
-            var endY = -(y - (coordinates.top - 3));
-            var startX = endX - dx;
-            var startY = endY + dy;
+            let endX = x - (coordinates.left + 3);
+            let endY = -(y - (coordinates.top - 3));
+            let startX = endX - dx;
+            let startY = endY + dy;
 
-            var slope = (startY/startX);
-            var isForward = endY < (slope*endX);
+            let angle = _this.angle(endX, endY, startX, startY);
 
-            var angle = _this.angle(endX, endY, startX, startY);
+            let slope = (startY/startX);
+            let isForward = endY < (slope*endX);
 
-            var last2 = parseInt(hour.slice(-2));
+            let last2 = parseInt(_this.formatHourStrings(strings.text));
+
             if (last2 <= 6 || last2 === 12)
             {
                 angle = isForward ? angle : -angle;
             }
-            else {
+            else
+            {
                 angle = isForward ? -angle : angle;
             }
+
             this.attr({
                 transform: ('r' + angle + ', ' + center_x + ',' + center_y)
             });
@@ -402,7 +376,7 @@ export default Ember.Component.extend(
             _this.getHourByDegree(currentAngle, newHour);
         };
 
-        _this.postDragHours(hour);
+        _this.postDragHours(strings.text);
 
         if (!Ember.isNone(this.get('lastGroup')))
         {
@@ -410,9 +384,9 @@ export default Ember.Component.extend(
             undragPrevious.undrag();
         }
 
-        var curHours = clock.select('#' + hour);
-        var curLine = clock.select('#' + line);
-        var curCircle = clock.select('#' + circle);
+        var curHours = clock.select('#' + strings.text);
+        var curLine = clock.select('#' + strings.line);
+        var curCircle = clock.select('#' + strings.circle);
         var curGroup = clock.g(curLine, curCircle, curHours);
 
         curGroup.drag(move, start, stop);
@@ -475,11 +449,11 @@ export default Ember.Component.extend(
 
         if (this.hourOverMaxMin(formatHour))
         {
-            this.removeLastActiveHour('hour' + formatHour, 'line' + formatHour, 'circle' + formatHour);
+            this.removeLastActiveHour(formatHour);
         }
         else
         {
-            this.removeLastActiveHour(this.get('lastHourText'), this.get('lastHourLine'), this.get('lastHourCircle'));
+            this.removeLastActiveHour(this.formatMinuteStrings(this.get('lastHourText')));
         }
     },
 
@@ -660,6 +634,20 @@ export default Ember.Component.extend(
         clock.select('#circle' + hour).insertBefore(bigCircle);
     },
 
+    removeMinute: function(minute)
+    {
+        let clock = new Snap('#clock-minutes-svg');
+        let bigCircle = clock.select('#bigCircleMinutes');
+
+        if (!Ember.isNone(clock.select('#minText' + minute)))
+        {
+            clock.select('#minText' + minute).removeClass('interiorWhite');
+        }
+
+        clock.select('#minLine' + minute).insertBefore(bigCircle);
+        clock.select('#minCircle' + minute).insertBefore(bigCircle);
+    },
+
     hourTextActivate: function(hour, line, circle)
     {
         var clock = new Snap('#clocks-hour-svg');
@@ -670,40 +658,26 @@ export default Ember.Component.extend(
         clock.select('#' + hour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
     },
 
-    minuteTextActivate: function(minute, line, circle)
+    minuteTextActivate: function(minute)
     {
         var clock = new Snap('#clock-minutes-svg');
+        let strings = this.minuteStrings(minute);
 
-        this.removeLastActiveMinute(minute, line, circle);
-        clock.select('#' + line).appendTo(clock);
-        clock.select('#' + circle).appendTo(clock);
-        clock.select('#' + minute).addClass('interiorWhite');
-        clock.select('#' + minute).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+        clock.select('#' + strings.line).appendTo(clock);
+        clock.select('#' + strings.circle).appendTo(clock);
+        clock.select('#' + strings.text).addClass('interiorWhite');
+        clock.select('#' + strings.text).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
 
-        this.minutesDrag(minute, line, circle);
+        this.minutesDrag(strings.text, strings.line, strings.circle);
     },
 
     minuteSectionActivate: function(minute)
     {
-        this.setMinuteToTimestamp(minute);
-
         let strings = this.minuteStrings(minute);
         let clock = new Snap('#clock-minutes-svg');
 
-        if (this.minuteModFive(minute))
-        {
-            this.set('minutes', minute);
-            clock.select('#' + strings.line).appendTo(clock);
-            clock.select('#' + strings.circle).appendTo(clock);
-            clock.select('#' + strings.text).addClass('interiorWhite');
-            clock.select('#' + strings.text).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-
-            this.removeLastActiveMinute(strings.text, strings.line, strings.circle);
-        }
-        else
-        {
-            this.removeLastActiveMinute(strings.text, strings.line, strings.circle);
-        }
+        clock.select('#' + strings.line).appendTo(clock);
+        clock.select('#' + strings.circle).appendTo(clock);
     },
 
     /**
@@ -847,7 +821,7 @@ export default Ember.Component.extend(
             let minuteObs = this.minuteStrings(minute);
 
             this.removeLastActiveMinute(minuteObs.text, minuteObs.line, minuteObs.circle);
-            this.removeLastActiveHour(hourObs.text, hourObs.line, hourObs.circle);
+            this.removeLastActiveHour(hour);
         }
     }),
 
@@ -872,7 +846,7 @@ export default Ember.Component.extend(
          *
          * @public
          */
-        clickHour: function(hour, line, circle)
+        clickHour: function(hour)
         {
             var timestamp = this.get('timestamp');
             var momentObj = moment(timestamp);
@@ -888,8 +862,7 @@ export default Ember.Component.extend(
                 this.convertToTimestamp(setHour2);
             }
 
-            this.removeLastActiveHour(hour, line, circle);
-            this.newDrag(hour, line, circle);
+            this.removeLastActiveHour(hour);
         },
 
         /**
@@ -897,10 +870,10 @@ export default Ember.Component.extend(
          *
          * @public
          */
-        clickMin: function(minute, line, circle)
+        clickMin: function(minute)
         {
             this.setMinuteToTimestamp(this.formatMinuteInteger(minute));
-            this.minuteTextActivate(minute, line, circle);
+            this.removeLastActiveMinute(minute);
         },
 
         /**
@@ -911,7 +884,7 @@ export default Ember.Component.extend(
         minuteSectionClicked: function(minute)
         {
             this.setMinuteToTimestamp(this.formatMinuteInteger(minute));
-            this.minuteSectionActivate(this.formatMinuteStrings(minute));
+            this.removeLastActiveMinute(this.formatMinuteStrings(minute));
         },
 
         /**
@@ -993,11 +966,7 @@ export default Ember.Component.extend(
 
             var activeHour = ('0' + (hours%12)).slice(-2);
 
-            var hour = 'hour' + activeHour;
-            var line = 'line' + activeHour;
-            var circle = 'circle' + activeHour;
-
-            this.removeLastActiveHour(hour, line, circle);
+            this.removeLastActiveHour(activeHour);
         },
 
         minuteHeaderClicked: function()
