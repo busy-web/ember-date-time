@@ -31,29 +31,19 @@ export default Ember.Component.extend(
     hours: null,
     minutes: null,
 
-    hoursActive: true,
-    minutesActive: false,
-
     currentDate: null,
 
+    /**
+     * hides and shows the correct elements once the svgs are inserted
+     *
+     * @public
+     */
     didInsertElement: function()
     {
         this._super();
+
         this.removeInitialHours();
         this.removeInitialMinutes();
-        this.minMaxHourHandler();
-
-        var time = this.get('timestamp');
-        var momentObj = moment(time);
-
-        var hours = momentObj.hour();
-        var minutes = momentObj.minutes();
-
-        var sliceMinute = ('0' + minutes%60).slice(-2);
-        var activeHour = ('0' + (hours%12)).slice(-2);
-
-        this.removeLastActiveMinute(sliceMinute);
-        this.removeLastActiveHour(activeHour);
 
         if(this.timeIsAm())
         {
@@ -67,6 +57,30 @@ export default Ember.Component.extend(
         }
     },
 
+    /**
+     * initially sets the clocks based on the passed time
+     *
+     * @public
+     */
+    setUpClock: Ember.on('init', Ember.observer('timestamp', function()
+    {
+        if(!Ember.isNone(this.get('timestamp')))
+        {
+            let currentHour = this.currentHour();
+            let currentMinute = this.currentMinute();
+            let currentDate = this.currentDateFormat();
+
+            this.set('hours', currentHour);
+            this.set('minutes', currentMinute);
+            this.set('currentDate', currentDate);
+        }
+    })),
+
+    /**
+     * formats date in bottom left corner
+     *
+     * @public
+     */
     clickableDate: Ember.observer('timestamp', function()
     {
         let timestamp = moment(this.get('timestamp'));
@@ -75,19 +89,11 @@ export default Ember.Component.extend(
         this.set('currentDate', format);
     }),
 
-    observesHours: Ember.observer('timestamp', function()
-    {
-        let hour = this.currentHour();
-        hour =  hour === '00' ? '12' : hour;
-        this.set('hours', hour);
-    }),
-
-    observesMinutes: Ember.observer('timestamp', function()
-    {
-        let minute = this.currentMinute();
-        this.set('minutes', minute);
-    }),
-
+    /**
+     * applies and removes correct classes to AM PM buttons
+     *
+     * @public
+     */
     observesAmPm: Ember.observer('timestamp', function()
     {
         if(this.timeIsAm())
@@ -108,6 +114,11 @@ export default Ember.Component.extend(
         }
     }),
 
+    /**
+     * makes hours disabled if they are exceeding min/max dates
+     *
+     * @public
+     */
     minMaxHourHandler: Ember.observer('timestamp', function()
     {
         let _this = this;
@@ -152,6 +163,11 @@ export default Ember.Component.extend(
         }
     }),
 
+    /**
+     * makes minutes disabled if they are exceeding min/max dates
+     *
+     * @public
+     */
     minMaxMinuteHandler: Ember.observer('timestamp', function()
     {
         let _this = this;
@@ -165,7 +181,7 @@ export default Ember.Component.extend(
         {
             let allMinutes = [];
 
-            for (var i = 0; i < 60; i++) {
+            for (let i = 0; i < 60; i++) {
                 i = ('0' + i).slice(-2);
                 allMinutes.push(i);
             }
@@ -202,14 +218,14 @@ export default Ember.Component.extend(
     {
         let _this = this;
 
-        if (this.get('hoursActive'))
+        let allHours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
+        allHours.forEach(function(item)
         {
-            let allHours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
-            allHours.forEach(function(item)
-            {
-                _this.removeHour(item);
-            });
-        }
+            _this.removeHour(item);
+        });
+
+        this.removeLastActiveHour(this.currentHour());
+        this.minMaxHourHandler();
     },
 
     /**
@@ -220,83 +236,446 @@ export default Ember.Component.extend(
     removeInitialMinutes: function()
     {
         let _this = this;
-        if (this.get('minutesActive'))
-        {
-            let allMinutes = [];
-            for (var i = 0; i < 60; i++) {
-                i = ('0' + i).slice(-2);
-                allMinutes.push(i);
-            }
 
-            allMinutes.forEach(function(item)
-            {
-                _this.removeMinute(item);
-            });
+        let allMinutes = [];
+        for (let i = 0; i < 60; i++) {
+            i = ('0' + i).slice(-2);
+            allMinutes.push(i);
         }
+
+        allMinutes.forEach(function(item)
+        {
+            _this.removeMinute(item);
+        });
+
+        this.removeLastActiveMinute(this.currentMinute());
+        this.minMaxMinuteHandler();
     },
 
     /**
      * removes the last active hour and displays the now active one
-     * function for HOURS
+     *
      * @public
      */
     removeLastActiveHour: function(hour)
     {
         let strings = this.hourStrings(hour);
-        if (this.get('hoursActive'))
+
+        if (!Ember.isNone(this.get('lastHourText')) || !Ember.isNone(this.get('lastHourLine')) || !Ember.isNone(this.get('lastHourCircle')))
         {
-            if (!Ember.isNone(this.get('lastHourText')) || !Ember.isNone(this.get('lastHourLine')) || !Ember.isNone(this.get('lastHourCircle')))
-            {
-                let hour = this.formatHourStrings(this.get('lastHourText'));
-                this.removeHour(hour);
-            }
-
-            this.hourTextActivate(strings.text, strings.line, strings.circle);
-
-            this.set('lastHourText', strings.text);
-            this.set('lastHourLine', strings.line);
-            this.set('lastHourCircle', strings.circle);
-            this.newDrag(hour);
+            let hour = this.formatHourStrings(this.get('lastHourText'));
+            this.removeHour(hour);
         }
+
+        this.hourTextActivate(hour);
+
+        this.set('lastHourText', strings.text);
+        this.set('lastHourLine', strings.line);
+        this.set('lastHourCircle', strings.circle);
+        this.newDrag(hour);
     },
 
     /**
      * sets the new minute to active, as well as making the last minute not active
-     * function for MINUTES
+     *
      * @public
      */
     removeLastActiveMinute: function(minute)
     {
         let strings = this.minuteStrings(minute);
-        if (this.get('minutesActive'))
-        {
-            if (!Ember.isNone(this.get('lastMinuteText')) || !Ember.isNone(this.get('lastMinuteLine')) || !Ember.isNone(this.get('lastMinuteCircle')))
-            {
-                let sliceOld = this.formatMinuteStrings(this.get('lastMinuteText'));
-                this.removeMinute(sliceOld);
-            }
 
-            if (this.minuteModFive(this.formatMinuteStrings(minute)))
+        if (!Ember.isNone(this.get('lastMinuteText')) || !Ember.isNone(this.get('lastMinuteLine')) || !Ember.isNone(this.get('lastMinuteCircle')))
+        {
+            let sliceOld = this.formatMinuteStrings(this.get('lastMinuteText'));
+            this.removeMinute(sliceOld);
+        }
+
+        if (this.minuteModFive(this.formatMinuteStrings(minute)))
+        {
+            this.minuteTextActivate(this.formatMinuteStrings(minute));
+        }
+        else
+        {
+            this.minuteSectionActivate(this.formatMinuteStrings(minute));
+        }
+
+        this.set('lastMinuteText', strings.text);
+        this.set('lastMinuteLine', strings.line);
+        this.set('lastMinuteCircle', strings.circle);
+
+        this.minutesDrag(minute);
+    },
+
+    /**
+     * converts moment object to a unix timestamp, and sets that to the global timestamp
+     *
+     * @public
+     */
+    convertToTimestamp: function(momentObject)
+    {
+        let reverse = momentObject.unix() * 1000;
+        this.set('timestamp', reverse);
+    },
+
+    /**
+     * returns the hour of the current timestamp
+     *
+     * @public
+     */
+    currentHour: function()
+    {
+        let time = moment(this.get('timestamp'));
+        let hour = ('0' + (time.hour() % 12)).slice(-2);
+
+        return hour;
+    },
+
+    /**
+     * returns the minute of the current timestamp
+     *
+     * @public
+     */
+    currentMinute: function()
+    {
+        let time = moment(this.get('timestamp'));
+        let minute = time.minute();
+
+        return this.formatMinuteStrings(minute);
+    },
+
+    /**
+     * returns the date of the current timestamp
+     *
+     * @public
+     */
+    currentDateFormat: function()
+    {
+        let time = moment(this.get('timestamp'));
+
+        return time.format('MMM DD, YYYY');
+    },
+
+    /**
+     * sets the correct hour based on the rotated degrees on the hour drag
+     *
+     * @public
+     */
+    getHourByDegree: function(offset, degree)
+    {
+        let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
+        let formatHour = this.formatHourStrings(hour);
+
+        if (this.hourOverMaxMin(formatHour))
+        {
+            this.removeLastActiveHour(formatHour);
+        }
+        else
+        {
+            this.removeLastActiveHour(this.formatMinuteStrings(this.get('lastHourText')));
+        }
+    },
+
+    /**
+     * sets the correct minute based on the rotated degrees on the minute drag
+     *
+     * @public
+     */
+    getMinuteByDegree: function(offset, degree)
+    {
+        let minute = (((offset / 6) + (Math.round(degree / 6))) % 60);
+        let formatMinute = this.formatMinuteStrings(minute);
+        let formatOldMinute = this.formatMinuteStrings(this.get('lastMinuteText'));
+
+        if (this.minuteOverMaxMin(formatMinute))
+        {
+            this.setMinuteToTimestamp(minute);
+            this.minuteSectionActivate(formatMinute);
+            this.removeLastActiveMinute(formatMinute);
+        }
+        else
+        {
+            this.removeLastActiveMinute(formatOldMinute);
+        }
+    },
+
+    /**
+     * returns true if the minute is a multiple of five
+     *
+     * @public
+     */
+    minuteModFive: function(minute)
+    {
+        if (parseInt(minute) % 5 === 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    },
+
+    /**
+     * returns false if the minute exceeds min or max date
+     *
+     * @public
+     */
+    minuteOverMaxMin: function(minute)
+    {
+        let time = moment(this.get('timestamp'));
+        let setMin = time.minute(parseInt(minute));
+
+        if (setMin.isBefore(this.get('minDate')) || setMin.isAfter(this.get('maxDate')))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    },
+
+    /**
+     * returns false if the hour exceeds min or max date
+     *
+     * @public
+     */
+    hourOverMaxMin: function(hour)
+    {
+        let timeAm = moment(this.get('timestamp'));
+        let setAm = timeAm.hour(parseInt(hour));
+
+        let timePm = moment(this.get('timestamp'));
+        let setPm = timePm.hour(parseInt(hour) + 12);
+
+        if (this.timeIsAm())
+        {
+            if (setAm.isBefore(this.get('minDate')) || setAm.isAfter(this.get('maxDate')))
             {
-                this.minuteTextActivate(this.formatMinuteStrings(minute));
+                return false;
             }
             else
             {
-                this.minuteSectionActivate(this.formatMinuteStrings(minute));
+                return true;
             }
-
-            this.set('lastMinuteText', strings.text);
-            this.set('lastMinuteLine', strings.line);
-            this.set('lastMinuteCircle', strings.circle);
-
-            this.minutesDrag(minute);
         }
+        else
+        {
+            if (setPm.isBefore(this.get('minDate')) || setPm.isAfter(this.get('maxDate')))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    },
+
+    /**
+     * returns true if the set timestamp is AM
+     *
+     * @public
+     */
+    timeIsAm: function()
+    {
+        let time = moment(this.get('timestamp'));
+        if (time.format('A') === 'AM')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    },
+
+    /**
+     * returns the minute passed in - formatted correctly
+     *
+     * @public
+     */
+    formatMinuteStrings: function(minute)
+    {
+        if (parseInt(minute) !== 60)
+        {
+            return ('0' + minute).slice(-2);
+        }
+        else
+        {
+            return '00';
+        }
+    },
+
+    /**
+     * returns the hour passed in - formatted correctly
+     *
+     * @public
+     */
+    formatHourStrings: function(hour)
+    {
+        if (parseInt(hour) !== 12)
+        {
+            return ('0' + hour).slice(-2);
+        }
+        else
+        {
+            return '00';
+        }
+    },
+
+    /**
+     * formats string to an integer
+     *
+     * @public
+     */
+    stringToInteger: function(string)
+    {
+        let min = string.slice(-2);
+        return parseInt(min);
+    },
+
+    /**
+     * returns object with names of all hour strings
+     *
+     * @public
+     */
+    hourStrings: function(hour)
+    {
+        return {
+            text: 'hour' + hour,
+            line: 'line' + hour,
+            circle: 'circle' + hour
+        };
+    },
+
+    /**
+     * returns object with names of all minute strings
+     *
+     * @public
+     */
+    minuteStrings: function(minute)
+    {
+        return {
+            text: 'minText' + minute,
+            line: 'minLine' + minute,
+            circle: 'minCircle' + minute
+        };
+    },
+
+    /**
+     * sets the timestamp to be the passed minute
+     *
+     * @public
+     */
+    setMinuteToTimestamp: function(minute)
+    {
+        let time = this.get('timestamp');
+        let momentObj = moment(time);
+        let newTime = momentObj.minutes(minute);
+        let reverseConversion = newTime.unix() * 1000;
+
+        this.set('timestamp', reverseConversion);
+    },
+
+    /**
+     * removes the hour that was passed in from the clock
+     *
+     * @public
+     */
+    removeHour: function(hour)
+    {
+        let clock = new Snap('#clocks-hour-svg');
+        let bigCircle = clock.select('#bigCircle');
+
+        clock.select('#hour' + hour).removeClass('interiorWhite');
+        clock.select('#line' + hour).insertBefore(bigCircle);
+        clock.select('#circle' + hour).insertBefore(bigCircle);
+    },
+
+    /**
+     * removes the minute that was passed in from the clock
+     *
+     * @public
+     */
+    removeMinute: function(minute)
+    {
+        let clock = new Snap('#clock-minutes-svg');
+        let bigCircle = clock.select('#bigCircleMinutes');
+
+        if (!Ember.isNone(clock.select('#minText' + minute)))
+        {
+            clock.select('#minText' + minute).removeClass('interiorWhite');
+        }
+
+        clock.select('#minLine' + minute).insertBefore(bigCircle);
+        clock.select('#minCircle' + minute).insertBefore(bigCircle);
+    },
+
+    /**
+     * activates hour on the clock
+     *
+     * @public
+     */
+    hourTextActivate: function(hour)
+    {
+        let strings = this.hourStrings(hour);
+        let clock = new Snap('#clocks-hour-svg');
+
+        clock.select('#' + strings.text).addClass('interiorWhite');
+        clock.select('#' + strings.line).appendTo(clock);
+        clock.select('#' + strings.circle).appendTo(clock);
+        clock.select('#' + strings.text).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+    },
+
+    /**
+     * activates minute with text on the clock
+     *
+     * @public
+     */
+    minuteTextActivate: function(minute)
+    {
+        let strings = this.minuteStrings(minute);
+        let clock = new Snap('#clock-minutes-svg');
+
+        clock.select('#' + strings.line).appendTo(clock);
+        clock.select('#' + strings.circle).appendTo(clock);
+        clock.select('#' + strings.text).addClass('interiorWhite');
+        clock.select('#' + strings.text).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
+    },
+
+    /**
+     * activates minute on the clock that doesn't have text
+     *
+     * @public
+     */
+    minuteSectionActivate: function(minute)
+    {
+        let strings = this.minuteStrings(minute);
+        let clock = new Snap('#clock-minutes-svg');
+
+        clock.select('#' + strings.line).appendTo(clock);
+        clock.select('#' + strings.circle).appendTo(clock);
+    },
+
+    /**
+     * gets the angle at which the drag is taking place
+     *
+     * @public
+     */
+    angle: function(x, y, x2, y2)
+    {
+        let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
+        let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
+        let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
+
+        return (Math.acos(((p1*p1)+(p0*p0)-(p2*p2))/(2*(p1*p0)))*360)/(2*Math.PI);
     },
 
     /**
      * handles all the function events for dragging on the hours clock
      * newDrag must contain start, move and stop functions within it
-     * function for HOURS
+     *
      * @public
      */
     newDrag: function(hour)
@@ -305,14 +684,14 @@ export default Ember.Component.extend(
         let clock = new Snap('#clocks-hour-svg');
         let strings = this.hourStrings(hour);
 
-        var curHour = clock.select('#' + strings.text);
-        var currentAngle = null;
-        var newHour = null;
+        let curHour = clock.select('#' + strings.text);
+        let currentAngle = null;
+        let newHour = null;
 
         /**
          * allows for the hours group to start being dragged
          */
-        var start = function() {
+        let start = function() {
             this.data('origTransform', this.transform().local );
             curHour.remove();
             curHour.appendTo(clock);
@@ -322,7 +701,7 @@ export default Ember.Component.extend(
         /**
          * moves the dial on the hour clock while transforming group
          */
-        var move = function(dx,dy,x,y) {
+        let move = function(dx,dy,x,y) {
 
             let center_point = Ember.$('#centerPointHour');
             let coordinates = center_point[0].getBoundingClientRect();
@@ -366,7 +745,7 @@ export default Ember.Component.extend(
         /**
          * checks to see where the dragging stops and makes the closest hour active
          */
-        var stop = function() {
+        let stop = function() {
             _this.getHourByDegree(currentAngle, newHour);
         };
 
@@ -374,295 +753,48 @@ export default Ember.Component.extend(
 
         if (!Ember.isNone(this.get('lastGroup')))
         {
-            var undragPrevious = this.get('lastGroup');
+            let undragPrevious = this.get('lastGroup');
             undragPrevious.undrag();
         }
 
-        var curHours = clock.select('#' + strings.text);
-        var curLine = clock.select('#' + strings.line);
-        var curCircle = clock.select('#' + strings.circle);
-        var curGroup = clock.g(curLine, curCircle, curHours);
+        let curHours = clock.select('#' + strings.text);
+        let curLine = clock.select('#' + strings.line);
+        let curCircle = clock.select('#' + strings.circle);
+        let curGroup = clock.g(curLine, curCircle, curHours);
 
         curGroup.drag(move, start, stop);
         this.set('lastGroup', curGroup);
     },
 
+    /**
+     * sets the dragged hour to the global timestamp
+     *
+     * @public
+     */
     postDragHours(hour)
     {
-        if (parseInt(this.currentHour()) !== this.formatHourInteger(hour))
+        if (parseInt(this.currentHour()) !== this.stringToInteger(hour))
         {
             let timestamp = moment(this.get('timestamp'));
             let setHour = null;
 
             if (this.timeIsAm())
             {
-                setHour = timestamp.hour(this.formatHourInteger(hour));
+                setHour = timestamp.hour(this.stringToInteger(hour));
                 this.convertToTimestamp(setHour);
             }
             else
             {
-                setHour = timestamp.hour(this.formatHourInteger(hour) + 12);
+                setHour = timestamp.hour(this.stringToInteger(hour) + 12);
                 this.convertToTimestamp(setHour);
             }
         }
-    },
-
-    convertToTimestamp: function(momentObject)
-    {
-        let reverse = momentObject.unix() * 1000;
-        this.set('timestamp', reverse);
-    },
-
-    currentHour: function()
-    {
-        let time = moment(this.get('timestamp'));
-        let hour = ('0' + (time.hour() % 12)).slice(-2);
-
-        return hour;
-    },
-
-    currentMinute: function()
-    {
-        let time = moment(this.get('timestamp'));
-        let minute = time.minute();
-
-        return this.formatMinuteStrings(minute);
-    },
-
-    currentDateFormat: function()
-    {
-        let time = moment(this.get('timestamp'));
-
-        return time.format('MMM DD, YYYY');
-    },
-
-    getHourByDegree: function(offset, degree)
-    {
-        let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
-        let formatHour = this.formatHourStrings(hour);
-
-        if (this.hourOverMaxMin(formatHour))
-        {
-            this.removeLastActiveHour(formatHour);
-        }
-        else
-        {
-            this.removeLastActiveHour(this.formatMinuteStrings(this.get('lastHourText')));
-        }
-    },
-
-    getMinuteByDegree: function(offset, degree)
-    {
-        let minute = (((offset / 6) + (Math.round(degree / 6))) % 60);
-        let formatMinute = this.formatMinuteStrings(minute);
-        let formatOldMinute = this.formatMinuteStrings(this.get('lastMinuteText'));
-
-        if (this.minuteOverMaxMin(formatMinute))
-        {
-            this.setMinuteToTimestamp(minute);
-            this.minuteSectionActivate(formatMinute);
-            this.removeLastActiveMinute(formatMinute);
-        }
-        else
-        {
-            this.removeLastActiveMinute(formatOldMinute);
-        }
-    },
-
-    minuteModFive: function(minute)
-    {
-        if (parseInt(minute) % 5 === 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    },
-
-    minuteOverMaxMin: function(minute)
-    {
-        let time = moment(this.get('timestamp'));
-        let setMin = time.minute(parseInt(minute));
-
-        if (setMin.isBefore(this.get('minDate')) || setMin.isAfter(this.get('maxDate')))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    },
-
-    hourOverMaxMin: function(hour)
-    {
-        let timeAm = moment(this.get('timestamp'));
-        let setAm = timeAm.hour(parseInt(hour));
-
-        let timePm = moment(this.get('timestamp'));
-        let setPm = timePm.hour(parseInt(hour) + 12);
-
-        if (this.timeIsAm())
-        {
-            if (setAm.isBefore(this.get('minDate')) || setAm.isAfter(this.get('maxDate')))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-        {
-            if (setPm.isBefore(this.get('minDate')) || setPm.isAfter(this.get('maxDate')))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-    },
-
-    timeIsAm: function()
-    {
-        let time = moment(this.get('timestamp'));
-        if (time.format('A') === 'AM')
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    },
-
-    formatMinuteStrings: function(minute)
-    {
-        if (parseInt(minute) !== 60)
-        {
-            return ('0' + minute).slice(-2);
-        }
-        else
-        {
-            return '00';
-        }
-    },
-
-    formatMinuteInteger: function(minute)
-    {
-        let min = minute.slice(-2);
-        return parseInt(min);
-    },
-
-    formatHourStrings: function(hour)
-    {
-        if (parseInt(hour) !== 12)
-        {
-            return ('0' + hour).slice(-2);
-        }
-        else
-        {
-            return '00';
-        }
-    },
-
-    formatHourInteger: function(hour)
-    {
-        let sliced = hour.slice(-2);
-        return parseInt(sliced);
-    },
-
-    hourStrings: function(hour)
-    {
-        return {
-            text: 'hour' + hour,
-            line: 'line' + hour,
-            circle: 'circle' + hour
-        };
-    },
-
-    minuteStrings: function(minute)
-    {
-        return {
-            text: 'minText' + minute,
-            line: 'minLine' + minute,
-            circle: 'minCircle' + minute
-        };
-    },
-
-    setMinuteToTimestamp: function(minute)
-    {
-        var time = this.get('timestamp');
-        var momentObj = moment(time);
-        var newTime = momentObj.minutes(minute);
-        var reverseConversion = newTime.unix() * 1000;
-
-        this.set('timestamp', reverseConversion);
-    },
-
-    removeHour: function(hour)
-    {
-        let clock = new Snap('#clocks-hour-svg');
-        let bigCircle = clock.select('#bigCircle');
-
-        clock.select('#hour' + hour).removeClass('interiorWhite');
-        clock.select('#line' + hour).insertBefore(bigCircle);
-        clock.select('#circle' + hour).insertBefore(bigCircle);
-    },
-
-    removeMinute: function(minute)
-    {
-        let clock = new Snap('#clock-minutes-svg');
-        let bigCircle = clock.select('#bigCircleMinutes');
-
-        if (!Ember.isNone(clock.select('#minText' + minute)))
-        {
-            clock.select('#minText' + minute).removeClass('interiorWhite');
-        }
-
-        clock.select('#minLine' + minute).insertBefore(bigCircle);
-        clock.select('#minCircle' + minute).insertBefore(bigCircle);
-    },
-
-    hourTextActivate: function(hour, line, circle)
-    {
-        var clock = new Snap('#clocks-hour-svg');
-
-        clock.select('#' + hour).addClass('interiorWhite');
-        clock.select('#' + line).appendTo(clock);
-        clock.select('#' + circle).appendTo(clock);
-        clock.select('#' + hour).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-    },
-
-    minuteTextActivate: function(minute)
-    {
-        var clock = new Snap('#clock-minutes-svg');
-        let strings = this.minuteStrings(minute);
-
-        clock.select('#' + strings.line).appendTo(clock);
-        clock.select('#' + strings.circle).appendTo(clock);
-        clock.select('#' + strings.text).addClass('interiorWhite');
-        clock.select('#' + strings.text).animate({fill: "white"}, 100, mina.easein).appendTo(clock);
-    },
-
-    minuteSectionActivate: function(minute)
-    {
-        let strings = this.minuteStrings(minute);
-        let clock = new Snap('#clock-minutes-svg');
-
-        clock.select('#' + strings.line).appendTo(clock);
-        clock.select('#' + strings.circle).appendTo(clock);
     },
 
     /**
      * handles all the function events for dragging on the minutes clock
      * minutesDrag must contain start, move and stop functions within it
-     * function for Minutes
+     *
      * @public
      */
     minutesDrag: function(minute)
@@ -681,7 +813,7 @@ export default Ember.Component.extend(
          */
         let start = function() {
             this.data('origTransform', this.transform().local );
-            if(_this.minuteModFive(_this.formatMinuteInteger(minute)))
+            if(_this.minuteModFive(_this.stringToInteger(minute)))
             {
                 curMinute.remove();
                 curMinute.appendTo(clock);
@@ -731,7 +863,7 @@ export default Ember.Component.extend(
         };
 
         /**
-         * checks to see where the dragging stops and makes the closest hour active
+         * checks to see where the dragging stops and makes the closest minute active
          */
         let stop = function() {
             _this.getMinuteByDegree(currentAngle, newMinute);
@@ -764,56 +896,6 @@ export default Ember.Component.extend(
         }
     },
 
-    /**
-     * initially sets the clocks based on the passed time
-     *
-     * @public
-     */
-    setUpClock: Ember.on('init', Ember.observer('timestamp', function()
-    {
-        if(!Ember.isNone(this.get('timestamp')))
-        {
-            let currentHour = this.currentHour();
-            let currentMinute = this.currentMinute();
-            let currentDate = this.currentDateFormat();
-
-            this.set('hours', currentHour);
-            this.set('minutes', currentMinute);
-            this.set('currentDate', currentDate);
-        }
-    })),
-
-    /**
-     * observes timestamp and keeps data correct
-     *
-     * @public
-     */
-    observeTimestamp: Ember.observer('timestamp', function()
-    {
-        if(!Ember.isNone(this.get('timestamp')))
-        {
-            let hour = this.currentHour();
-            let minute = this.currentMinute();
-
-            this.removeLastActiveMinute(minute);
-            this.removeLastActiveHour(hour);
-        }
-    }),
-
-    /**
-     * gets the angle at which the drag is taking place
-     *
-     * @public
-     */
-    angle: function(x, y, x2, y2)
-    {
-        let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
-        let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
-        let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
-
-        return (Math.acos(((p1*p1)+(p0*p0)-(p2*p2))/(2*(p1*p0)))*360)/(2*Math.PI);
-    },
-
     actions: {
 
         /**
@@ -823,17 +905,16 @@ export default Ember.Component.extend(
          */
         clickHour: function(hour)
         {
-            let timestamp = this.get('timestamp');
-            let momentObj = moment(timestamp);
+            let timestamp = moment(this.get('timestamp'));
 
             if (this.timeIsAm())
             {
-                let setHour = momentObj.hour(this.formatHourInteger(hour));
+                let setHour = timestamp.hour(this.stringToInteger(hour));
                 this.convertToTimestamp(setHour);
             }
             else
             {
-                let setHour2 = momentObj.hour(this.formatHourInteger(hour) + 12);
+                let setHour2 = timestamp.hour(this.stringToInteger(hour) + 12);
                 this.convertToTimestamp(setHour2);
             }
 
@@ -847,7 +928,7 @@ export default Ember.Component.extend(
          */
         clickMin: function(minute)
         {
-            this.setMinuteToTimestamp(this.formatMinuteInteger(minute));
+            this.setMinuteToTimestamp(this.stringToInteger(minute));
             this.removeLastActiveMinute(minute);
         },
 
@@ -858,7 +939,7 @@ export default Ember.Component.extend(
          */
         minuteSectionClicked: function(minute)
         {
-            this.setMinuteToTimestamp(this.formatMinuteInteger(minute));
+            this.setMinuteToTimestamp(this.stringToInteger(minute));
             this.removeLastActiveMinute(this.formatMinuteStrings(minute));
         },
 
@@ -914,6 +995,11 @@ export default Ember.Component.extend(
             }
         },
 
+        /**
+         * handles clicking the hour in the header
+         *
+         * @public
+         */
         hourHeaderClicked: function()
         {
             Ember.$('#clocks-hour-svg').removeClass('inactive');
@@ -931,19 +1017,15 @@ export default Ember.Component.extend(
             Ember.$('.minutes-header').removeClass('active');
             Ember.$('.minutes-header').addClass('inactive');
 
-            this.set('hoursActive', true);
-            this.set('minutesActive', false);
             this.removeInitialHours();
-
-            var time = this.get('timestamp');
-            var momentObj = moment(time);
-            var hours = momentObj.hour();
-
-            var activeHour = ('0' + (hours%12)).slice(-2);
-
-            this.removeLastActiveHour(activeHour);
+            this.removeLastActiveHour(this.currentHour());
         },
 
+        /**
+         * handles clicking the minute in the header
+         *
+         * @public
+         */
         minuteHeaderClicked: function()
         {
             Ember.$('#clocks-hour-svg').removeClass('active');
@@ -961,13 +1043,8 @@ export default Ember.Component.extend(
             Ember.$('.minutes-header').addClass('active');
             Ember.$('.minutes-header').removeClass('inactive');
 
-            this.set('hoursActive', false);
-            this.set('minutesActive', true);
             this.removeInitialMinutes();
-
-            let minute = this.currentMinute();
-
-            this.removeLastActiveMinute(minute);
+            this.removeLastActiveMinute(this.currentMinute());
         }
     }
 });
