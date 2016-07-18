@@ -66,7 +66,7 @@ export default Ember.Component.extend(
     {
         if(!Ember.isNone(this.get('timestamp')))
         {
-            let currentHour = this.currentHour();
+            let currentHour = this.currentHourHeader();
             let currentMinute = this.currentMinute();
             let currentDate = this.currentDateFormat();
 
@@ -115,56 +115,89 @@ export default Ember.Component.extend(
     }),
 
     /**
-     * makes hours disabled if they are exceeding min/max dates
+     * checks for min/max dates and calls setHourDisabled()
      *
      * @public
      */
     minMaxHourHandler: Ember.observer('timestamp', function()
     {
-        let _this = this;
-        let clock = new Snap('#clocks-hour-svg');
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
 
-        let maxDate = moment(this.get('maxDate'));
-        let minDate = moment(this.get('minDate'));
-        let timestamp = moment(this.get('timestamp'));
-
-        if (!Ember.isNone(maxDate) || !Ember.isNone(minDate))
+        if(!Ember.isNone(minDate) || !Ember.isNone(maxDate))
         {
-            if (timestamp.format('A') === 'AM')
+            if (this.timeIsAm())
             {
                 let amHours = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
-                amHours.forEach(function(hourAM)
-                {
-                    let item = _this.formatHourStrings(hourAM);
-                    clock.select('#hour' + item).removeClass('disabled-hour');
-
-                    let newHour = timestamp.hour(hourAM);
-                    if (newHour.isBefore(minDate) || newHour.isAfter(maxDate))
-                    {
-                        clock.select('#hour' + item).addClass('disabled-hour');
-                    }
-                });
+                this.setHourDisabled(amHours, 'AM');
             }
             else
             {
                 let pmHours = ['12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
-                pmHours.forEach(function(hourPM)
-                {
-                    let clockHour = _this.formatMinuteStrings((parseInt(hourPM) - 12));
-                    clock.select('#hour' + clockHour).removeClass('disabled-hour');
-
-                    let newHour = timestamp.hour(hourPM);
-                    if (newHour.isBefore(minDate) || newHour.isAfter(maxDate))
-                    {
-                        clock.select('#hour' + clockHour).addClass('disabled-hour');
-                    }
-                });
+                this.setHourDisabled(pmHours, 'PM');
             }
         }
     }),
 
     /**
-     * makes minutes disabled if they are exceeding min/max dates
+     * makes hours disabled if they are exceeding min/max dates
+     *
+     * @public
+     */
+    setHourDisabled: function(list, AmPm)
+    {
+        let _this = this;
+        let clock = new Snap('#clocks-hour-svg');
+
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
+        let timestamp = moment(this.get('timestamp'));
+
+        list.forEach(function(hour)
+        {
+            let clockHour = null;
+
+            if (AmPm === 'AM')
+            {
+                clockHour = _this.formatHourStrings(hour);
+            }
+            else
+            {
+                clockHour = _this.formatMinuteStrings((parseInt(hour) - 12));
+            }
+
+            clock.select('#hour' + clockHour).removeClass('disabled-hour');
+
+            let newHour = timestamp.hour(hour);
+
+            if (Ember.isNone(maxDate) && !Ember.isNone(minDate))
+            {
+                if (newHour.isBefore(moment(minDate)))
+                {
+                    clock.select('#hour' + clockHour).addClass('disabled-hour');
+                }
+            }
+
+            if (!Ember.isNone(maxDate) && Ember.isNone(minDate))
+            {
+                if (newHour.isAfter(moment(maxDate)))
+                {
+                    clock.select('#hour' + clockHour).addClass('disabled-hour');
+                }
+            }
+
+            if (!Ember.isNone(maxDate) && !Ember.isNone(minDate))
+            {
+                if (newHour.isBefore(moment(minDate)) || newHour.isAfter(moment(maxDate)))
+                {
+                    clock.select('#hour' + clockHour).addClass('disabled-hour');
+                }
+            }
+        });
+    },
+
+    /**
+     * checks for min/max dates and calls setMinuteDisabled()
      *
      * @public
      */
@@ -197,17 +230,59 @@ export default Ember.Component.extend(
                 }
 
                 let newMinute = timestamp.minute(minute);
-                if (newMinute.isBefore(minDate) || newMinute.isAfter(maxDate))
-                {
-                    if (!Ember.isNone(clock.select('#minText' + item)))
-                    {
-                        clock.select('#minText' + item).addClass('disabled-minute');
-                    }
-                    clock.select('#sectionMin' + item).addClass('disabled-section');
-                }
+                _this.setMinuteDisabled(item, newMinute);
             });
         }
     }),
+
+    /**
+     * makes minutes disabled if they are exceeding min/max dates
+     *
+     * @public
+     */
+    setMinuteDisabled: function(item, newMinute)
+    {
+        let clock = new Snap('#clock-minutes-svg');
+
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
+
+        if (Ember.isNone(maxDate) && !Ember.isNone(minDate))
+        {
+            if (newMinute.isBefore(moment(minDate)))
+            {
+                if (!Ember.isNone(clock.select('#minText' + item)))
+                {
+                    clock.select('#minText' + item).addClass('disabled-minute');
+                }
+                clock.select('#sectionMin' + item).addClass('disabled-section');
+            }
+        }
+
+        if (!Ember.isNone(maxDate) && Ember.isNone(minDate))
+        {
+            if (newMinute.isAfter(moment(maxDate)))
+            {
+                if (!Ember.isNone(clock.select('#minText' + item)))
+                {
+                    clock.select('#minText' + item).addClass('disabled-minute');
+                }
+                clock.select('#sectionMin' + item).addClass('disabled-section');
+            }
+        }
+
+        if (!Ember.isNone(maxDate) && !Ember.isNone(minDate))
+        {
+            if (newMinute.isBefore(moment(minDate)) || newMinute.isAfter(moment(maxDate)))
+            {
+                if (!Ember.isNone(clock.select('#minText' + item)))
+                {
+                    clock.select('#minText' + item).addClass('disabled-minute');
+                }
+                clock.select('#sectionMin' + item).addClass('disabled-section');
+            }
+        }
+    },
 
     /**
      * remove initial circles and lines for hours clock
@@ -331,6 +406,19 @@ export default Ember.Component.extend(
     },
 
     /**
+     * returns the hour of the current timestamp for the header
+     *
+     * @public
+     */
+    currentHourHeader: function()
+    {
+        let time = moment(this.get('timestamp'));
+        let hour = ('0' + (time.hour() % 12)).slice(-2);
+        hour = hour === '00' ? '12' : hour;
+        return hour;
+    },
+
+    /**
      * returns the minute of the current timestamp
      *
      * @public
@@ -450,24 +538,54 @@ export default Ember.Component.extend(
 
         if (this.timeIsAm())
         {
-            if (setAm.isBefore(this.get('minDate')) || setAm.isAfter(this.get('maxDate')))
+            if (!Ember.isNone(this.get('maxDate')))
             {
-                return false;
+                if (setAm.isBefore(this.get('minDate')))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
+
             else
             {
-                return true;
+                if (setAm.isBefore(this.get('minDate')) || setAm.isAfter(this.get('maxDate')))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
         else
         {
-            if (setPm.isBefore(this.get('minDate')) || setPm.isAfter(this.get('maxDate')))
+            if (!Ember.isNone(this.get('maxDate')))
             {
-                return false;
+                if (setPm.isBefore(this.get('minDate')))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
+
             else
             {
-                return true;
+                if (setPm.isBefore(this.get('minDate')) || setPm.isAfter(this.get('maxDate')))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
     },

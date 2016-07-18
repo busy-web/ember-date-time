@@ -1,1 +1,0 @@
-export { default } from 'ember-paper-time-picker/components/paper-clock-in-at';

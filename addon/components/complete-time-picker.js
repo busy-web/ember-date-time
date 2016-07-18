@@ -10,13 +10,31 @@ export default Ember.Component.extend({
     isCalender: false,
 
     timestamp: null,
+    datetime: null,
 
     currentDate: null,
     currentTime: null,
 
+    minDate: null,
+    maxDate: null,
+
     init: function()
     {
         this._super();
+
+        if (Ember.isNone(this.get('timestamp')))
+        {
+            let now = moment();
+            let back = now.unix() * 1000;
+
+            this.set('timestamp', back);
+        }
+        // let min = ((moment().subtract('days', 1).subtract('hours', 2).subtract('minutes', 10)).unix()) * 1000;
+        let max = ((moment().add('days', 1).subtract('hours', 6).subtract('minutes', 30)).unix()) * 1000;
+
+        // this.set('minDate', min);
+        this.set('maxDate', max);
+
 
         var time = this.get('timestamp');
         var momentObj = moment(time);
@@ -26,6 +44,10 @@ export default Ember.Component.extend({
 
         var currentTime = momentObj.format('hh:mm A');
         this.set('currentTime', currentTime);
+
+        var datetime = momentObj.format('MMM DD, YYYY hh:mm A');
+        this.set('datetime', datetime);
+
     },
 
     observesCurrentDate: Ember.observer('timestamp', function()
@@ -44,6 +66,15 @@ export default Ember.Component.extend({
         let newFormat = momentObj.format('hh:mm A');
 
         this.set('currentTime', newFormat);
+    }),
+
+    observesDateTime: Ember.observer('timestamp', function()
+    {
+        let time = this.get('timestamp');
+        let momentObj = moment(time);
+        let newFormat = momentObj.format('MMM DD, YYYY hh:mm A');
+        console.log('here', newFormat);
+        this.set('datetime', newFormat);
     }),
 
     actions: {

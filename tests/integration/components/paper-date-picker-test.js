@@ -8,6 +8,7 @@ moduleForComponent('paper-date-picker', 'Integration | Component | paper date pi
 test('it renders', function(assert) {
   // Set any properties with this.set('myProperty', 'value');
   // Handle any actions with this.on('myAction', function(val) { ... });
+  this.on('dayClicked', function(day) {console.log(day);});
 
   this.render(hbs`{{paper-date-picker}}`);
 
