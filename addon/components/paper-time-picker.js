@@ -536,57 +536,50 @@ export default Ember.Component.extend(
         let timePm = moment(this.get('timestamp'));
         let setPm = timePm.hour(parseInt(hour) + 12);
 
-        if (this.timeIsAm())
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
+
+
+        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
         {
-            if (!Ember.isNone(this.get('maxDate')))
+            if (this.timeIsAm())
             {
-                if (setAm.isBefore(this.get('minDate')))
+                if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
                 {
-                    return false;
+                    return !setAm.isAfter(maxDate);
                 }
-                else
+
+                if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
                 {
-                    return true;
+                    return !setAm.isBefore(minDate);
+                }
+
+                if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
+                {
+                    return setAm.isBetween(minDate, maxDate);
                 }
             }
-
             else
             {
-                if (setAm.isBefore(this.get('minDate')) || setAm.isAfter(this.get('maxDate')))
+                if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
                 {
-                    return false;
+                    return !setPm.isAfter(maxDate);
                 }
-                else
+
+                if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
                 {
-                    return true;
+                    return !setPm.isBefore(minDate);
+                }
+
+                if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
+                {
+                    return setPm.isBetween(minDate, maxDate);
                 }
             }
         }
         else
         {
-            if (!Ember.isNone(this.get('maxDate')))
-            {
-                if (setPm.isBefore(this.get('minDate')))
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-            else
-            {
-                if (setPm.isBefore(this.get('minDate')) || setPm.isAfter(this.get('maxDate')))
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
+            return false;
         }
     },
 

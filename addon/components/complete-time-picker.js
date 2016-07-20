@@ -30,8 +30,11 @@ export default Ember.Component.extend({
             this.set('timestamp', back);
         }
 
-        let maxDate = moment().add('minutes', 30);
-        this.set('maxDate', maxDate);
+        // let maxDate = moment().add('minutes', 30);
+        let minDate = moment().subtract('hours', 5).subtract('days', 2);
+
+        this.set('minDate', minDate);
+        // this.set('maxDate', maxDate);
 
         var time = this.get('timestamp');
         var momentObj = moment(time);
