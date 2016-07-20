@@ -1,26 +1,4 @@
 
-.cls-2 {
-    cursor: pointer;
-}
-
-.interiorWhite {
-    fill: white !important;
-}
-
-.disabled-hour {
-  pointer-events: none;
-  stroke: red;
-}
-
-.disabled-minute {
-  pointer-events: none;
-  stroke: red;
-}
-
-.disabled-section {
-  pointer-events: none;
-}
-
 .paper-time-picker {
     height: 285px;
     width: 250px;
@@ -156,6 +134,42 @@
                 font-size: 16px;
                 text-align: center;
             }
+
+            & > svg {
+
+              & > line {
+
+              }
+
+              & > circle {
+                .cls-2 {
+                    cursor: pointer;
+                }
+              }
+
+              & > text {
+                &.disabled-hour {
+                  pointer-events: none;
+                  stroke: red;
+                }
+                &.interiorWhite {
+                    fill: white !important;
+                }
+              }
+
+              & > g {
+
+                & > text {
+                  &.interiorWhite {
+                      fill: white !important;
+                  }
+                  &.disabled-hour {
+                    pointer-events: none;
+                    stroke: red;
+                  }
+                }
+              }
+            }
         }
 
         & > .outside-hours-container-bottom {
@@ -173,6 +187,50 @@
 
             & .active {
                 visibility: visible;;
+            }
+
+            & > svg {
+
+              & > path {
+                &.disabled-section {
+                  pointer-events: none;
+                }
+              }
+
+              & > line {
+
+              }
+
+              & > circle {
+                .cls-2 {
+                    cursor: pointer;
+                }
+              }
+
+              & > text {
+                &.interiorWhite {
+                    fill: white !important;
+                }
+
+                &.disabled-minute {
+                  pointer-events: none;
+                  stroke: red;
+                }
+              }
+
+              & > g {
+
+                & > text {
+                  &.interiorWhite {
+                      fill: white !important;
+                  }
+
+                  &.disabled-minute {
+                    pointer-events: none;
+                    stroke: red;
+                  }
+                }
+              }
             }
         }
     }

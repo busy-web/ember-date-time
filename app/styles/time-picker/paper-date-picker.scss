@@ -134,6 +134,11 @@
 
             }
 
+            &.current-day {
+              background-color: blue;
+              color: white;
+            }
+
             &.disabled-day {
               color: #8f8f8e;
             }

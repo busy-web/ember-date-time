@@ -59,7 +59,11 @@
                         {{#if day.isDisabled}}
                             <td class="disabled-day">{{formatDay day}}</td>
                         {{else}}
-                            <td class="valid-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
+                            {{#if day.isCurrentDay}}
+                                <td class="valid-day current-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
+                            {{else}}
+                                <td class="valid-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
+                            {{/if}}
                         {{/if}}
                     {{else}}
                         <td class="invalid-day"></td>

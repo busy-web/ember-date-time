@@ -29,12 +29,9 @@ export default Ember.Component.extend({
 
             this.set('timestamp', back);
         }
-        // let min = ((moment().subtract('days', 1).subtract('hours', 2).subtract('minutes', 10)).unix()) * 1000;
-        let max = ((moment().add('days', 1).subtract('hours', 6).subtract('minutes', 30)).unix()) * 1000;
 
-        // this.set('minDate', min);
-        this.set('maxDate', max);
-
+        let maxDate = moment().add('minutes', 30);
+        this.set('maxDate', maxDate);
 
         var time = this.get('timestamp');
         var momentObj = moment(time);
@@ -73,7 +70,6 @@ export default Ember.Component.extend({
         let time = this.get('timestamp');
         let momentObj = moment(time);
         let newFormat = momentObj.format('MMM DD, YYYY hh:mm A');
-        console.log('here', newFormat);
         this.set('datetime', newFormat);
     }),
 

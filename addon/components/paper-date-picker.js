@@ -20,6 +20,7 @@ export default Ember.Component.extend({
     nextMonthYear: null,
 
     daysArray: null,
+    completeDaysArray: null,
     completeArray: null,
     groupedArray: null,
 
@@ -55,15 +56,47 @@ export default Ember.Component.extend({
         let lastDay = current.clone().endOf('month').hour(current.hour()).minute(current.minute());
         let currentDay = firstDay;
 
-        let minDate = moment(this.get('minDate'));
-        let maxDate = moment(this.get('maxDate'));
+        let minDate = this.get('minDate');
+        let maxDate = this.get('maxDate');
 
         while (currentDay.isBefore(lastDay)) {
             if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
             {
-                if (!Ember.isNone(minDate))
+                if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
                 {
-                    if (!currentDay.isBefore(minDate) && !currentDay.isAfter(maxDate))
+                    if (!currentDay.isBefore(moment(minDate)))
+                    {
+                        currentDay.isDisabled = false;
+                        daysArray.pushObject(currentDay);
+                        currentDay = currentDay.clone().add('days', 1);
+                    }
+                    else
+                    {
+                        currentDay.isDisabled = true;
+                        daysArray.pushObject(currentDay);
+                        currentDay = currentDay.clone().add('days', 1);
+                    }
+                }
+
+                if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
+                {
+                    if (!currentDay.isAfter(moment(maxDate)))
+                    {
+                        currentDay.isDisabled = false;
+                        daysArray.pushObject(currentDay);
+                        currentDay = currentDay.clone().add('days', 1);
+                    }
+                    else
+                    {
+                        currentDay.isDisabled = true;
+                        daysArray.pushObject(currentDay);
+                        currentDay = currentDay.clone().add('days', 1);
+                    }
+                }
+
+                if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
+                {
+                    if (!currentDay.isBefore(moment(minDate)) && !currentDay.isAfter(moment(maxDate)))
                     {
                         currentDay.isDisabled = false;
                         daysArray.pushObject(currentDay);
@@ -84,16 +117,47 @@ export default Ember.Component.extend({
                 currentDay = currentDay.clone().add('days', 1);
             }
         }
-
         this.set('daysArray', daysArray);
     })),
+
+    /**
+     * sets active to the current active day
+     *
+     * @public
+     */
+    currentDayOnCalender: Ember.observer('daysArray', function()
+    {
+        let completeDaysArray = [];
+        let list = this.get('daysArray');
+        let timestamp = moment(this.get('timestamp'));
+
+        list.forEach((item) => {
+            let startItem = item.clone();
+            let endItem = item.clone().endOf('day');
+            let startOfDay = startItem.startOf('day');
+            let endOfDay = endItem.endOf('day');
+
+            if (timestamp.isBetween(startOfDay, endOfDay))
+            {
+                item.isCurrentDay = true;
+                completeDaysArray.push(item);
+            }
+            else
+            {
+                item.isCurrentDay = false;
+                completeDaysArray.push(item);
+            }
+        });
+
+        this.set('completeDaysArray', completeDaysArray);
+    }),
 
     /**
      * builds an array of days in a month, starting at sunday
      *
      * @public
      */
-    buildCompleteArray: Ember.observer('daysArray', function()
+    buildCompleteArray: Ember.observer('completeDaysArray', function()
     {
         let nullHeadLength = 0;
         let monthArrayLength = 42;

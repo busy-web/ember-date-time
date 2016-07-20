@@ -835,6 +835,7 @@ export default Ember.Component.extend(
             let isForward = endY < (slope*endX);
 
             let last2 = parseInt(_this.formatHourStrings(strings.text));
+            console.log(angle);
 
             if (last2 <= 6 || last2 === 12)
             {
@@ -959,6 +960,7 @@ export default Ember.Component.extend(
             let angle = _this.angle(endX, endY, startX, startY);
 
             let last2 = parseInt(minute.slice(-2));
+
             if (last2 <= 30 || last2 === 0)
             {
                 angle = isForward ? angle : -angle;

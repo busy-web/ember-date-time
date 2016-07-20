@@ -10,7 +10,7 @@ test('it renders', function(assert) {
   // Handle any actions with this.on('myAction', function(val) { ... });
   this.on('dayClicked', function(day) {console.log(day);});
 
-  this.render(hbs`{{paper-date-picker}}`);
+  // this.render(hbs`{{paper-date-picker}}`);
 
   assert.equal(this.$().text().trim(), '');
 
