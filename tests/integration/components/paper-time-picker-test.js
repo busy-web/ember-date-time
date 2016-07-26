@@ -9,16 +9,14 @@ test('it renders', function(assert) {
   // Set any properties with this.set('myProperty', 'value');
   // Handle any actions with this.on('myAction', function(val) { ... });
 
-  this.render(hbs`{{paper-time-picker}}`);
+  this.render(hbs`{{complete-time-picker}}`);
 
-  assert.equal(this.$().text().trim(), '');
+  assert.equal(this.$('.hours-header').hasClass('active'), true);
+  assert.equal(this.$('.minutes-header').hasClass('inactive'), true);
 
-  // Template block usage:
-  this.render(hbs`
-    {{#paper-time-picker}}
-      template block text
-    {{/paper-time-picker}}
-  `);
+  this.$('.minutes-header').click();
 
-  assert.equal(this.$().text().trim(), 'template block text');
+  assert.equal(this.$('.hours-header').hasClass('inactive'), true);
+  assert.equal(this.$('.minutes-header').hasClass('active'), true);
+
 });

@@ -1,5 +1,6 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
+import moment from 'moment';
 
 moduleForComponent('complete-time-picker', 'Integration | Component | complete time picker', {
   integration: true
@@ -8,17 +9,14 @@ moduleForComponent('complete-time-picker', 'Integration | Component | complete t
 test('it renders', function(assert) {
   // Set any properties with this.set('myProperty', 'value');
   // Handle any actions with this.on('myAction', function(val) { ... });
-
   this.render(hbs`{{complete-time-picker}}`);
 
-  assert.equal(this.$().text().trim(), '');
+  let date = moment().format('MMM DD, YYYY');
+  let time = moment().format('hh:mm A');
 
-  // Template block usage:
-  this.render(hbs`
-    {{#complete-time-picker}}
-      template block text
-    {{/complete-time-picker}}
-  `);
+  assert.equal(this.$('#current-date-date').text(), date);
 
-  assert.equal(this.$().text().trim(), 'template block text');
+  this.$('#current-date-date').click();
+
+  assert.equal(this.$('#current-date-time').text(), time);
 });
