@@ -1,29 +1,144 @@
+/**
+ * @module Components
+ *
+ */
 import Ember from 'ember';
 import moment from 'moment';
 import layout from '../templates/components/paper-date-picker';
 
+/**
+ * `Component/PaperDatePicker`
+ *
+ * @class PaperDatePicker
+ * @namespace Components
+ * @extends Ember.Component
+ */
 export default Ember.Component.extend({
+
+    /**
+     * @private
+     * @property classNames
+     * @type String
+     * @default paper-date-picker
+     */
     classNames: ['paper-date-picker'],
     layout: layout,
 
+    /**
+     * timestamp that is passed in when using date picker
+     *
+     * @private
+     * @property timestamp
+     * @type Number
+     */
     timestamp: null,
+
+    /**
+     * timestamp that controls the dates for the calender
+     *
+     * @private
+     * @property calenderTimestamp
+     * @type Number
+     */
     calenderTimestamp: null,
 
+    /**
+     * can be passed in so a date before the minDate cannot be selected
+     *
+     * @private
+     * @property minDate
+     * @type Number
+     * @optional
+     */
     minDate: null,
+
+    /**
+     * can be passed in so a date after the maxDate cannot be selected
+     *
+     * @private
+     * @property maxDate
+     * @type Number
+     * @optional
+     */
     maxDate: null,
 
+    /**
+     * day of the month shown on the calender header - based off timestamp
+     *
+     * @private
+     * @property day
+     * @type String
+     */
     day: null,
+
+    /**
+     * month of year shown on the calender header - based off timestamp
+     *
+     * @private
+     * @property month
+     * @type String
+     */
     month: null,
+
+    /**
+     * year shown on the calender header - based off timestamp
+     *
+     * @private
+     * @property year
+     * @type String
+     */
     year: null,
 
+    /**
+     * month + year string - based off calenderTimestamp
+     *
+     * @private
+     * @property monthYear
+     * @type String
+     */
     monthYear: null,
-    nextMonthYear: null,
 
+    /**
+     * array of all days in the current month of calenderTimestamp
+     *
+     * @private
+     * @property daysArray
+     * @type Array
+     */
     daysArray: null,
+
+    /**
+     * based on daysArray, Adds blank days to the front and back of array according to starting day of month
+     *
+     * @private
+     * @property completeDaysArray
+     * @type Array
+     */
     completeDaysArray: null,
+
+    /**
+     * based on completeDaysArray, Adds current day and minDate - maxDate properties
+     *
+     * @private
+     * @property completeArray
+     * @type Array
+     */
     completeArray: null,
+
+    /**
+     * based on completeArray, groups days into 6 week arrays
+     *
+     * @private
+     * @property groupedArray
+     * @type Array
+     */
     groupedArray: null,
 
+    /**
+     * @private
+     * @method init
+     * @constructor
+     */
     init: function()
     {
         this._super();
@@ -33,7 +148,8 @@ export default Ember.Component.extend({
     /**
      * sets the calenderTimestamp to the timestamp
      *
-     * @public
+     * @private
+     * @method resetCalenderTimestamp
      */
     resetCalenderTimestamp: Ember.observer('timestamp', function()
     {
@@ -45,7 +161,8 @@ export default Ember.Component.extend({
     /**
      * makes moment objects for each day in month, disables them if they exceed max/min date
      *
-     * @public
+     * @private
+     * @method buildDaysArrayForMonth
      */
     buildDaysArrayForMonth: Ember.on('init', Ember.observer('calenderTimestamp', function() {
 
@@ -123,7 +240,8 @@ export default Ember.Component.extend({
     /**
      * sets active to the current active day
      *
-     * @public
+     * @private
+     * @method currentDayOnCalender
      */
     currentDayOnCalender: Ember.observer('daysArray', function()
     {
@@ -155,7 +273,8 @@ export default Ember.Component.extend({
     /**
      * builds an array of days in a month, starting at sunday
      *
-     * @public
+     * @private
+     * @method buildCompleteArray
      */
     buildCompleteArray: Ember.observer('completeDaysArray', function()
     {
@@ -186,10 +305,11 @@ export default Ember.Component.extend({
         this.set('completeArray', completeArray);
     }),
 
-    /**
+     /**
      * groups days into week objects
      *
-     * @public
+     * @private
+     * @method groupByWeeks
      */
     groupByWeeks: Ember.observer('completeArray', function()
     {
@@ -206,6 +326,15 @@ export default Ember.Component.extend({
         this.set('groupedArray', grouped);
     }),
 
+    /**
+     * puts days into week objects
+     *
+     * @private
+     * @method inRange
+     * @param lower {number} first number in week
+     * @param upper {number} last number in week
+     * @return {boolean} true if day is in week, otherwise false
+     */
     inRange: function(lower, upper)
     {
         return function (each, index) {
@@ -214,74 +343,43 @@ export default Ember.Component.extend({
     },
 
     /**
-     * observes timestamp and sets the dayOfWeek field
+     * observes timestamp and sets the header fields
      *
-     * @public
+     * @private
+     * @method calenderHeaderValues
      */
-    dayOfWeekObserver: Ember.on('init', Ember.observer('timestamp', function() {
-        let time = this.get('timestamp');
-        let momentObj = moment(time);
-        let newFormat = momentObj.format('dddd');
+    calenderHeaderValues: Ember.on('init', Ember.observer('timestamp', function() {
+        let time = moment(this.get('timestamp'));
+        let year = time.format('YYYY');
+        let month = (time.format('MMM')).toUpperCase();
+        let day = time.format('DD');
+        let dayOfWeek = time.format('dddd');
 
-        this.set('dayOfWeek', newFormat);
+        this.set('year', year);
+        this.set('month', month);
+        this.set('day', day);
+        this.set('dayOfWeek', dayOfWeek);
     })),
 
     /**
-     * observes timestamp and sets the day field
+     * observes calenderTimestamp and sets the monthYear field
      *
-     * @public
-     */
-    dayObserver: Ember.on('init', Ember.observer('timestamp', function() {
-        let time = this.get('timestamp');
-        let momentObj = moment(time);
-        let newFormat = momentObj.format('DD');
-
-        this.set('day', newFormat);
-    })),
-
-    /**
-     * observes timestamp and sets the month field
-     *
-     * @public
-     */
-    monthObserver: Ember.on('init', Ember.observer('timestamp', function() {
-        let time = this.get('timestamp');
-        let momentObj = moment(time);
-        let newFormat = (momentObj.format('MMM')).toUpperCase();
-
-        this.set('month', newFormat);
-    })),
-
-    /**
-     * observes timestamp and sets the year field
-     *
-     * @public
-     */
-    yearObserver: Ember.on('init', Ember.observer('timestamp', function() {
-        let time = this.get('timestamp');
-        let momentObj = moment(time);
-        let newFormat = momentObj.format('YYYY');
-
-        this.set('year', newFormat);
-    })),
-
-    /**
-     * observes timestamp and sets the monthYear field
-     *
-     * @public
+     * @private
+     * @method monthYearObserver
      */
     monthYearObserver: Ember.on('init', Ember.observer('calenderTimestamp', function() {
-        let time = this.get('calenderTimestamp');
-        let momentObj = moment(time);
-        let newFormat = momentObj.format('MMMM YYYY');
+        let time = moment(this.get('calenderTimestamp'));
+        let newFormat = time.format('MMMM YYYY');
 
         this.set('monthYear', newFormat);
     })),
 
     /**
-     * converts moment object to timestamp and sets it to the global timestamp
+     * receives a moment object and sets it to timestamp
      *
-     * @public
+     * @private
+     * @method setTimestamp
+     * @param moment {object} a moment object
      */
     setTimestamp: function(moment)
     {
@@ -290,9 +388,11 @@ export default Ember.Component.extend({
     },
 
     /**
-     * converts moment object to timestamp and sets it to calenderTimestamp
+     * receives a moment object and sets it to calenderTimestamp
      *
-     * @public
+     * @private
+     * @method setCalenderTimestamp
+     * @param moment {object} a moment object
      */
     setCalenderTimestamp: function(moment)
     {
@@ -305,7 +405,8 @@ export default Ember.Component.extend({
         /**
          * sets the timestamp to the clicked day
          *
-         * @public
+         * @param day {object} moment object of the clicked day
+         * @event dayClicked
          */
         dayClicked(day)
         {
@@ -324,7 +425,7 @@ export default Ember.Component.extend({
         /**
          * subtracts 1 month to the calenderTimestamp
          *
-         * @public
+         * @event subtractMonth
          */
         subtractMonth()
         {
@@ -337,7 +438,7 @@ export default Ember.Component.extend({
         /**
          * adds 1 month to the calenderTimestamp
          *
-         * @public
+         * @event addMonth
          */
         addMonth()
         {

@@ -1,0 +1,21 @@
+{
+	"url": "/",
+	"logo": "http://localhost:4200/images/busybusylogo-gray.png",
+	"options": {
+		"linkNatives": true,
+		"selleck": true,
+		"markdown": true,
+		"paths": [
+			"./app"
+		],
+		"external": {
+			"data": [{
+				"base": "http://emberjs.com/api/",
+				"json": "http://builds.emberjs.com/release/ember-docs.json"
+			},{
+				"base": "http://emberjs.com/api/data/",
+				"json": "http://builds.emberjs.com/release/ember-data-docs.json"
+			}]
+		}
+	}
+}
