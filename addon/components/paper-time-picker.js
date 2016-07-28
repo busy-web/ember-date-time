@@ -55,26 +55,111 @@ export default Ember.Component.extend(
      */
     maxDate: null,
 
+    /**
+     * group of snap svg elements
+     *
+     * @private
+     * @property lastGroup
+     * @type Object
+     */
     lastGroup: null,
+
+    /**
+     * last active minute
+     *
+     * @private
+     * @property lastMinute
+     * @type String
+     */
     lastMinute: null,
 
+    /**
+     * element id for text portion of last active hour
+     *
+     * @private
+     * @property lastHourText
+     * @type String
+     */
     lastHourText: null,
+
+    /**
+     * element id for line portion of last active hour
+     *
+     * @private
+     * @property lastHourLine
+     * @type String
+     */
     lastHourLine: null,
+
+    /**
+     * element id for circle portion of last active hour
+     *
+     * @private
+     * @property lastHourCircle
+     * @type String
+     */
     lastHourCircle: null,
 
+    /**
+     * element id for text portion of last active minute
+     *
+     * @private
+     * @property lastMinuteText
+     * @type String
+     */
     lastMinuteText: null,
+
+    /**
+     * element id for line portion of last active minute
+     *
+     * @private
+     * @property lastMinuteLine
+     * @type String
+     */
     lastMinuteLine: null,
+
+    /**
+     * element id for circle portion of last active minute
+     *
+     * @private
+     * @property lastMinuteCircle
+     * @type String
+     */
     lastMinuteCircle: null,
 
+    /**
+     * current hour of timestamp displayed in clock header
+     *
+     * @private
+     * @property hours
+     * @type String
+     */
     hours: null,
+
+    /**
+     * current minute of timestamp displayed in clock header
+     *
+     * @private
+     * @property minutes
+     * @type String
+     */
     minutes: null,
 
+    /**
+     * current date of timestamp displayed in clock footer
+     *
+     * @private
+     * @property currentDate
+     * @type String
+     */
     currentDate: null,
 
     /**
      * hides and shows the correct elements once the svgs are inserted
      *
-     * @public
+     * @private
+     * @method didInsertElement
+     * @constructor
      */
     didInsertElement: function()
     {
@@ -98,13 +183,14 @@ export default Ember.Component.extend(
     /**
      * initially sets the clocks based on the passed time
      *
-     * @public
+     * @private
+     * @method setUpClock
      */
     setUpClock: Ember.on('init', Ember.observer('timestamp', function()
     {
         if(!Ember.isNone(this.get('timestamp')))
         {
-            let currentHour = this.currentHourHeader();
+            let currentHour = this.formatHourStrings(this.currentHour());
             let currentMinute = this.currentMinute();
             let currentDate = this.currentDateFormat();
 
@@ -117,7 +203,8 @@ export default Ember.Component.extend(
     /**
      * formats date in bottom left corner
      *
-     * @public
+     * @private
+     * @method clickableDate
      */
     clickableDate: Ember.observer('timestamp', function()
     {
@@ -130,7 +217,8 @@ export default Ember.Component.extend(
     /**
      * applies and removes correct classes to AM PM buttons
      *
-     * @public
+     * @private
+     * @method observesAmPm
      */
     observesAmPm: Ember.observer('timestamp', function()
     {
@@ -155,7 +243,8 @@ export default Ember.Component.extend(
     /**
      * checks for min/max dates and calls setHourDisabled()
      *
-     * @public
+     * @private
+     * @method minMaxHourHandler
      */
     minMaxHourHandler: Ember.observer('timestamp', function()
     {
@@ -180,7 +269,10 @@ export default Ember.Component.extend(
     /**
      * makes hours disabled if they are exceeding min/max dates
      *
-     * @public
+     * @private
+     * @method setHourDisabled
+     * @param list {array} list of hours in given meridian
+     * @param AmPm {string} AM or PM
      */
     setHourDisabled: function(list, AmPm)
     {
@@ -237,7 +329,8 @@ export default Ember.Component.extend(
     /**
      * checks for min/max dates and calls setMinuteDisabled()
      *
-     * @public
+     * @private
+     * @method minMaxMinuteHandler
      */
     minMaxMinuteHandler: Ember.observer('timestamp', function()
     {
@@ -276,9 +369,12 @@ export default Ember.Component.extend(
     /**
      * makes minutes disabled if they are exceeding min/max dates
      *
-     * @public
+     * @private
+     * @method setMinuteDisabled
+     * @param oldMinute {string} minute to be tested
+     * @param newMinute {string} minute from the timestamp
      */
-    setMinuteDisabled: function(item, newMinute)
+    setMinuteDisabled: function(oldMinute, newMinute)
     {
         let clock = new Snap('#clock-minutes-svg');
 
@@ -289,11 +385,11 @@ export default Ember.Component.extend(
         {
             if (newMinute.isBefore(moment(minDate)))
             {
-                if (!Ember.isNone(clock.select('#minText' + item)))
+                if (!Ember.isNone(clock.select('#minText' + oldMinute)))
                 {
-                    clock.select('#minText' + item).addClass('disabled-minute');
+                    clock.select('#minText' + oldMinute).addClass('disabled-minute');
                 }
-                clock.select('#sectionMin' + item).addClass('disabled-section');
+                clock.select('#sectionMin' + oldMinute).addClass('disabled-section');
             }
         }
 
@@ -301,11 +397,11 @@ export default Ember.Component.extend(
         {
             if (newMinute.isAfter(moment(maxDate)))
             {
-                if (!Ember.isNone(clock.select('#minText' + item)))
+                if (!Ember.isNone(clock.select('#minText' + oldMinute)))
                 {
-                    clock.select('#minText' + item).addClass('disabled-minute');
+                    clock.select('#minText' + oldMinute).addClass('disabled-minute');
                 }
-                clock.select('#sectionMin' + item).addClass('disabled-section');
+                clock.select('#sectionMin' + oldMinute).addClass('disabled-section');
             }
         }
 
@@ -313,11 +409,11 @@ export default Ember.Component.extend(
         {
             if (newMinute.isBefore(moment(minDate)) || newMinute.isAfter(moment(maxDate)))
             {
-                if (!Ember.isNone(clock.select('#minText' + item)))
+                if (!Ember.isNone(clock.select('#minText' + oldMinute)))
                 {
-                    clock.select('#minText' + item).addClass('disabled-minute');
+                    clock.select('#minText' + oldMinute).addClass('disabled-minute');
                 }
-                clock.select('#sectionMin' + item).addClass('disabled-section');
+                clock.select('#sectionMin' + oldMinute).addClass('disabled-section');
             }
         }
     },
@@ -325,7 +421,8 @@ export default Ember.Component.extend(
     /**
      * remove initial circles and lines for hours clock
      *
-     * @public
+     * @private
+     * @method removeInitialHours
      */
     removeInitialHours: function()
     {
@@ -344,7 +441,8 @@ export default Ember.Component.extend(
     /**
      * remove initial circles and lines for minutes clock
      *
-     * @public
+     * @private
+     * @method removeInitialMinutes
      */
     removeInitialMinutes: function()
     {
@@ -368,7 +466,9 @@ export default Ember.Component.extend(
     /**
      * removes the last active hour and displays the now active one
      *
-     * @public
+     * @private
+     * @method removeLastActiveHour
+     * @param hour {string} new active hour
      */
     removeLastActiveHour: function(hour)
     {
@@ -391,7 +491,9 @@ export default Ember.Component.extend(
     /**
      * sets the new minute to active, as well as making the last minute not active
      *
-     * @public
+     * @private
+     * @method removeLastActiveMinute
+     * @param minute {string} new active minute
      */
     removeLastActiveMinute: function(minute)
     {
@@ -422,7 +524,9 @@ export default Ember.Component.extend(
     /**
      * converts moment object to a unix timestamp, and sets that to the global timestamp
      *
-     * @public
+     * @private
+     * @method convertToTimestamp
+     * @param momentObject {object} moment object that will be the new timestamp
      */
     convertToTimestamp: function(momentObject)
     {
@@ -433,7 +537,9 @@ export default Ember.Component.extend(
     /**
      * returns the hour of the current timestamp
      *
-     * @public
+     * @private
+     * @method currentHour
+     * @return {string} hour of the current timestamp
      */
     currentHour: function()
     {
@@ -444,22 +550,11 @@ export default Ember.Component.extend(
     },
 
     /**
-     * returns the hour of the current timestamp for the header
-     *
-     * @public
-     */
-    currentHourHeader: function()
-    {
-        let time = moment(this.get('timestamp'));
-        let hour = ('0' + (time.hour() % 12)).slice(-2);
-        hour = hour === '00' ? '12' : hour;
-        return hour;
-    },
-
-    /**
      * returns the minute of the current timestamp
      *
-     * @public
+     * @private
+     * @method currentMinute
+     * @return {string} minute of the current timestamp
      */
     currentMinute: function()
     {
@@ -472,7 +567,9 @@ export default Ember.Component.extend(
     /**
      * returns the date of the current timestamp
      *
-     * @public
+     * @private
+     * @method getMinuteByDegree
+     * @return {string} sting (date) of current timestamp
      */
     currentDateFormat: function()
     {
@@ -484,7 +581,10 @@ export default Ember.Component.extend(
     /**
      * sets the correct hour based on the rotated degrees on the hour drag
      *
-     * @public
+     * @private
+     * @method getHourByDegree
+     * @param offset {number} difference of point 1 to point 2 on 360 degree axis
+     * @param degree {number} degree from point 1 to point 2
      */
     getHourByDegree: function(offset, degree)
     {
@@ -504,7 +604,10 @@ export default Ember.Component.extend(
     /**
      * sets the correct minute based on the rotated degrees on the minute drag
      *
-     * @public
+     * @private
+     * @method getMinuteByDegree
+     * @param offset {number} difference of point 1 to point 2 on 360 degree axis
+     * @param degree {number} degree from point 1 to point 2
      */
     getMinuteByDegree: function(offset, degree)
     {
@@ -527,7 +630,10 @@ export default Ember.Component.extend(
     /**
      * returns true if the minute is a multiple of five
      *
-     * @public
+     * @private
+     * @method minuteModFive
+     * @param minute {number} minute to check if multiple of 5
+     * @return {boolean} returns true if minute is a multiple of 5
      */
     minuteModFive: function(minute)
     {
@@ -542,29 +648,51 @@ export default Ember.Component.extend(
     },
 
     /**
-     * returns false if the minute exceeds min or max date
+     * returns true if the minute exceeds min or max date
      *
-     * @public
+     * @private
+     * @method minuteOverMaxMin
+     * @param minute {number} minute to check if exceeding min/max dates
+     * @return {boolean} returns true if the hour exceeds min or max date
      */
     minuteOverMaxMin: function(minute)
     {
         let time = moment(this.get('timestamp'));
         let setMin = time.minute(parseInt(minute));
 
-        if (setMin.isBefore(this.get('minDate')) || setMin.isAfter(this.get('maxDate')))
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
+
+        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
         {
-            return false;
+            if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
+            {
+                return !setMin.isAfter(maxDate);
+            }
+
+            if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
+            {
+                return !setMin.isBefore(minDate);
+            }
+
+            if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
+            {
+                return setMin.isBetween(minDate, maxDate);
+            }
         }
         else
         {
-            return true;
+            return false;
         }
     },
 
     /**
-     * returns false if the hour exceeds min or max date
+     * returns true if the hour exceeds min or max date
      *
-     * @public
+     * @private
+     * @method hourOverMaxMin
+     * @param hour {number} hour to check if exceeding min/max dates
+     * @return {boolean} returns true if the hour exceeds min or max date
      */
     hourOverMaxMin: function(hour)
     {
@@ -576,7 +704,6 @@ export default Ember.Component.extend(
 
         let maxDate = this.get('maxDate');
         let minDate = this.get('minDate');
-
 
         if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
         {
@@ -624,7 +751,9 @@ export default Ember.Component.extend(
     /**
      * returns true if the set timestamp is AM
      *
-     * @public
+     * @private
+     * @method timeIsAm
+     * @return {boolean}
      */
     timeIsAm: function()
     {
@@ -642,7 +771,10 @@ export default Ember.Component.extend(
     /**
      * returns the minute passed in - formatted correctly
      *
-     * @public
+     * @private
+     * @method formatMinuteStrings
+     * @param minute {number} minute you want string of
+     * @return {string} minute as string
      */
     formatMinuteStrings: function(minute)
     {
@@ -659,7 +791,10 @@ export default Ember.Component.extend(
     /**
      * returns the hour passed in - formatted correctly
      *
-     * @public
+     * @private
+     * @method formatHourStrings
+     * @param hour {number} hour you want string of
+     * @return {string} hour as string
      */
     formatHourStrings: function(hour)
     {
@@ -676,7 +811,10 @@ export default Ember.Component.extend(
     /**
      * formats string to an integer
      *
-     * @public
+     * @private
+     * @method stringToInteger
+     * @param string {string} string you want integer of
+     * @return {number} passed in string as integer
      */
     stringToInteger: function(string)
     {
@@ -687,7 +825,10 @@ export default Ember.Component.extend(
     /**
      * returns object with names of all hour strings
      *
-     * @public
+     * @private
+     * @method hourStrings
+     * @param hour {number} hour you want strings of
+     * @return {object} all passed in hour strings
      */
     hourStrings: function(hour)
     {
@@ -701,7 +842,10 @@ export default Ember.Component.extend(
     /**
      * returns object with names of all minute strings
      *
-     * @public
+     * @private
+     * @method minuteStrings
+     * @param minute {string} minute you want strings of
+     * @return {object} all passed in minute strings
      */
     minuteStrings: function(minute)
     {
@@ -715,7 +859,9 @@ export default Ember.Component.extend(
     /**
      * sets the timestamp to be the passed minute
      *
-     * @public
+     * @private
+     * @method setMinuteToTimestamp
+     * @param minute {number} minute to be set to timestamp
      */
     setMinuteToTimestamp: function(minute)
     {
@@ -730,41 +876,49 @@ export default Ember.Component.extend(
     /**
      * removes the hour that was passed in from the clock
      *
-     * @public
+     * @private
+     * @method removeHour
+     * @param hour {string} hour to remove from clock
      */
     removeHour: function(hour)
     {
+        let strings = this.hourStrings(hour);
         let clock = new Snap('#clocks-hour-svg');
         let bigCircle = clock.select('#bigCircle');
 
-        clock.select('#hour' + hour).removeClass('interiorWhite');
-        clock.select('#line' + hour).insertBefore(bigCircle);
-        clock.select('#circle' + hour).insertBefore(bigCircle);
+        clock.select('#' + strings.text).removeClass('interiorWhite');
+        clock.select('#' + strings.line).insertBefore(bigCircle);
+        clock.select('#' + strings.circle).insertBefore(bigCircle);
     },
 
     /**
      * removes the minute that was passed in from the clock
      *
-     * @public
+     * @private
+     * @method removeMinute
+     * @param minute {string} minute to remove from clock
      */
     removeMinute: function(minute)
     {
+        let strings = this.minuteStrings(minute);
         let clock = new Snap('#clock-minutes-svg');
         let bigCircle = clock.select('#bigCircleMinutes');
 
         if (!Ember.isNone(clock.select('#minText' + minute)))
         {
-            clock.select('#minText' + minute).removeClass('interiorWhite');
+            clock.select('#' + strings.text).removeClass('interiorWhite');
         }
 
-        clock.select('#minLine' + minute).insertBefore(bigCircle);
-        clock.select('#minCircle' + minute).insertBefore(bigCircle);
+        clock.select('#' + strings.line).insertBefore(bigCircle);
+        clock.select('#' + strings.circle).insertBefore(bigCircle);
     },
 
     /**
      * activates hour on the clock
      *
-     * @public
+     * @private
+     * @method hourTextActivate
+     * @param hour {string} new active hour
      */
     hourTextActivate: function(hour)
     {
@@ -780,7 +934,9 @@ export default Ember.Component.extend(
     /**
      * activates minute with text on the clock
      *
-     * @public
+     * @private
+     * @method minuteTextActivate
+     * @param minute {string} new active minute
      */
     minuteTextActivate: function(minute)
     {
@@ -796,7 +952,9 @@ export default Ember.Component.extend(
     /**
      * activates minute on the clock that doesn't have text
      *
-     * @public
+     * @private
+     * @method minuteSectionActivate
+     * @param minute {string} new active minute
      */
     minuteSectionActivate: function(minute)
     {
@@ -810,7 +968,13 @@ export default Ember.Component.extend(
     /**
      * gets the angle at which the drag is taking place
      *
-     * @public
+     * @private
+     * @method angle
+     * @param x {number} point 1 x value
+     * @param y {number} point 1 y value
+     * @param x2 {number} point 2 x value
+     * @param y2 {number} point 2 y value
+     * @return {number} angle from point 1 to point 2
      */
     angle: function(x, y, x2, y2)
     {
@@ -825,6 +989,8 @@ export default Ember.Component.extend(
      * handles all the function events for dragging on the hours clock
      * newDrag must contain start, move and stop functions within it
      *
+     * @private
+     * @method newDrag
      * @param hour {string} hour thats being dragged
      * @event newDrag
      */
@@ -922,6 +1088,8 @@ export default Ember.Component.extend(
     /**
      * sets the dragged hour to the global timestamp
      *
+     * @private
+     * @method postDragHours
      * @param hour {string} hour to be set to timestamp
      * @event postDragHours
      */
@@ -949,6 +1117,8 @@ export default Ember.Component.extend(
      * handles all the function events for dragging on the minutes clock
      * minutesDrag must contain start, move and stop functions within it
      *
+     * @private
+     * @method minutesDrag
      * @param minute {string} minute thats being dragged
      * @event minutesDrag
      */
