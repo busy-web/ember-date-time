@@ -1,21 +1,59 @@
+/**
+ * @module Components
+ *
+ */
 import Ember from 'ember';
 import layout from '../templates/components/paper-time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
 import moment from 'moment';
 
-const center_x = 104.75;
-const center_y = 105;
-
+/**
+ * `Component/PaperTimePicker`
+ *
+ * @class PaperTimePicker
+ * @namespace Components
+ * @extends Ember.Component
+ */
 export default Ember.Component.extend(
 {
+    /**
+     * @private
+     * @property classNames
+     * @type String
+     * @default paper-time-picker
+     */
     classNames: ['paper-time-picker'],
     layout: layout,
 
+    /**
+     * timestamp that is passed in when using date picker
+     *
+     * @private
+     * @property timestamp
+     * @type Number
+     */
     timestamp: null,
 
-    maxDate: null,
+    /**
+     * can be passed in so a date before the minDate cannot be selected
+     *
+     * @private
+     * @property minDate
+     * @type Number
+     * @optional
+     */
     minDate: null,
+
+    /**
+     * can be passed in so a date after the maxDate cannot be selected
+     *
+     * @private
+     * @property maxDate
+     * @type Number
+     * @optional
+     */
+    maxDate: null,
 
     lastGroup: null,
     lastMinute: null,
@@ -787,7 +825,8 @@ export default Ember.Component.extend(
      * handles all the function events for dragging on the hours clock
      * newDrag must contain start, move and stop functions within it
      *
-     * @public
+     * @param hour {string} hour thats being dragged
+     * @event newDrag
      */
     newDrag: function(hour)
     {
@@ -798,6 +837,9 @@ export default Ember.Component.extend(
         let curHour = clock.select('#' + strings.text);
         let currentAngle = null;
         let newHour = null;
+
+        let center_x = 104.75;
+        let center_y = 105;
 
         /**
          * allows for the hours group to start being dragged
@@ -828,9 +870,6 @@ export default Ember.Component.extend(
             let isForward = endY < (slope*endX);
 
             let last2 = parseInt(_this.formatHourStrings(strings.text));
-            console.log(isForward, angle);
-            console.log('startX', startX, 'startY', startY, 'endX', endX, 'endY', endY);
-            console.log(last2);
 
             if (last2 <= 6 || last2 === 12)
             {
@@ -883,7 +922,8 @@ export default Ember.Component.extend(
     /**
      * sets the dragged hour to the global timestamp
      *
-     * @public
+     * @param hour {string} hour to be set to timestamp
+     * @event postDragHours
      */
     postDragHours(hour)
     {
@@ -909,7 +949,8 @@ export default Ember.Component.extend(
      * handles all the function events for dragging on the minutes clock
      * minutesDrag must contain start, move and stop functions within it
      *
-     * @public
+     * @param minute {string} minute thats being dragged
+     * @event minutesDrag
      */
     minutesDrag: function(minute)
     {
@@ -921,6 +962,9 @@ export default Ember.Component.extend(
 
         let currentAngle = null;
         let newMinute = null;
+
+        let center_x = 104.75;
+        let center_y = 105;
 
         /**
          * allows for the minutes group to start being dragged
@@ -1016,7 +1060,8 @@ export default Ember.Component.extend(
         /**
          * sets the clicked hour to active and makes the active hour draggable
          *
-         * @public
+         * @param hour {string} hour clicked on clock
+         * @event clickHour
          */
         clickHour: function(hour)
         {
@@ -1037,22 +1082,12 @@ export default Ember.Component.extend(
         },
 
         /**
-         * handles minute text being clicked
+         * handles clicking on minutes
          *
-         * @public
+         * @param minute {string} minute clicked on clock
+         * @event minuteClicked
          */
-        clickMin: function(minute)
-        {
-            this.setMinuteToTimestamp(this.stringToInteger(minute));
-            this.removeLastActiveMinute(minute);
-        },
-
-        /**
-         * handles clicking on minutes that are not intervals of 5
-         *
-         * @public
-         */
-        minuteSectionClicked: function(minute)
+        minuteClicked: function(minute)
         {
             this.setMinuteToTimestamp(this.stringToInteger(minute));
             this.removeLastActiveMinute(this.formatMinuteStrings(minute));
@@ -1061,7 +1096,7 @@ export default Ember.Component.extend(
         /**
          * handles clicking AM, wont allow if it goes under min date
          *
-         * @public
+         * @event amClicked
          */
         amClicked: function()
         {
@@ -1087,7 +1122,7 @@ export default Ember.Component.extend(
         /**
          * handles clicking PM, wont allow if it goes over max date
          *
-         * @public
+         * @event pmClicked
          */
         pmClicked: function()
         {
@@ -1113,7 +1148,7 @@ export default Ember.Component.extend(
         /**
          * handles clicking the hour in the header
          *
-         * @public
+         * @event hourHeaderClicked
          */
         hourHeaderClicked: function()
         {
@@ -1139,7 +1174,7 @@ export default Ember.Component.extend(
         /**
          * handles clicking the minute in the header
          *
-         * @public
+         * @event minuteHeaderClicked
          */
         minuteHeaderClicked: function()
         {
