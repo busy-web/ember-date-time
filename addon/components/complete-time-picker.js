@@ -29,11 +29,11 @@ export default Ember.Component.extend({
 
             this.set('timestamp', back);
         }
-        //
+
         // let maxDate = moment().add('minutes', 30);
-        // let minDate = moment().subtract('minutes', 5);
-        //
-        // this.set('minDate', minDate);
+        let minDate = moment().subtract('minutes', 5);
+
+        this.set('minDate', minDate);
         // this.set('maxDate', maxDate);
 
         var time = this.get('timestamp');

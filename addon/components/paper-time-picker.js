@@ -590,7 +590,7 @@ export default Ember.Component.extend(
     {
         let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
         let formatHour = this.formatHourStrings(hour);
-
+        
         if (this.hourOverMaxMin(formatHour))
         {
             this.removeLastActiveHour(formatHour);
@@ -623,6 +623,7 @@ export default Ember.Component.extend(
         }
         else
         {
+
             this.removeLastActiveMinute(formatOldMinute);
         }
     },
@@ -648,7 +649,7 @@ export default Ember.Component.extend(
     },
 
     /**
-     * returns true if the minute exceeds min or max date
+     * returns false if the minute exceeds min or max date
      *
      * @private
      * @method minuteOverMaxMin
@@ -682,12 +683,12 @@ export default Ember.Component.extend(
         }
         else
         {
-            return false;
+            return true;
         }
     },
 
     /**
-     * returns true if the hour exceeds min or max date
+     * returns false if the hour exceeds min or max date
      *
      * @private
      * @method hourOverMaxMin
@@ -744,7 +745,7 @@ export default Ember.Component.extend(
         }
         else
         {
-            return false;
+            return true;
         }
     },
 
