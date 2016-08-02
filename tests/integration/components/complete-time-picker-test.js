@@ -7,16 +7,25 @@ moduleForComponent('complete-time-picker', 'Integration | Component | complete t
 });
 
 test('it renders', function(assert) {
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
-  this.render(hbs`{{complete-time-picker}}`);
 
-  let date = moment().format('MMM DD, YYYY');
-  let time = moment().format('hh:mm A');
+    this.set('timestamp', moment());
 
-  assert.equal(this.$('#current-date-date').text(), date);
+    this.render(hbs`{{complete-time-picker timestamp=timestamp}}`);
 
-  this.$('#current-date-date').click();
+    assert.ok(this.$().text().trim());
+});
 
-  assert.equal(this.$('#current-date-time').text(), time);
+test('toggle from clock to calender and back', function(assert) {
+
+    this.set('timestamp', moment());
+    let time = this.get('timestamp').format('hh:mm A');
+    let date = this.get('timestamp').format('MMM DD, YYYY');
+
+    this.render(hbs`{{complete-time-picker timestamp=timestamp}}`);
+
+    this.$('.current-date').click();
+    assert.equal(this.$('.current-date').text(), time);
+
+    this.$('.current-date').click();
+    assert.equal(this.$('.current-date').text(), date);
 });

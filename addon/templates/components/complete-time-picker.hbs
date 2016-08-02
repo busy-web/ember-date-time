@@ -12,11 +12,11 @@
     <div class="picker-footer">
 
         {{#if isClock}}
-            <div id="current-date-date" class="currentDate" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
+            <div class="current-date" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
         {{/if}}
 
         {{#if isCalender}}
-            <div id="current-date-time" class="currentDate" {{action 'togglePicker' 'isCalender'}}>{{currentTime}}</div>
+            <div class="current-date" {{action 'togglePicker' 'isCalender'}}>{{currentTime}}</div>
         {{/if}}
     </div>
 
