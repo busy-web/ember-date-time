@@ -170,13 +170,13 @@ export default Ember.Component.extend(
 
         if(this.timeIsAm())
         {
-            Ember.$('.am').addClass('am-active');
-            Ember.$('.pm').addClass('pm-inactive');
+            Ember.$('.am-button').addClass('am-active');
+            Ember.$('.pm-button').addClass('pm-inactive');
         }
         else
         {
-            Ember.$('.pm').addClass('pm-active');
-            Ember.$('.am').addClass('am-inactive');
+            Ember.$('.pm-button').addClass('pm-active');
+            Ember.$('.am-button').addClass('am-inactive');
         }
     },
 
@@ -190,7 +190,7 @@ export default Ember.Component.extend(
     {
         if(!Ember.isNone(this.get('timestamp')))
         {
-            let currentHour = this.formatHourStrings(this.currentHour());
+            let currentHour = this.formatHourHeader(this.currentHour());
             let currentMinute = this.currentMinute();
             let currentDate = this.currentDateFormat();
 
@@ -224,19 +224,19 @@ export default Ember.Component.extend(
     {
         if(this.timeIsAm())
         {
-            Ember.$('.am').removeClass('am-inactive');
-            Ember.$('.am').addClass('am-active');
+            Ember.$('.am-button').removeClass('am-inactive');
+            Ember.$('.am-button').addClass('am-active');
 
-            Ember.$('.pm').removeClass('pm-active');
-            Ember.$('.pm').addClass('pm-inactive');
+            Ember.$('.pm-button').removeClass('pm-active');
+            Ember.$('.pm-button').addClass('pm-inactive');
         }
         else
         {
-            Ember.$('.pm').removeClass('pm-inactive');
-            Ember.$('.pm').addClass('pm-active');
+            Ember.$('.pm-button').removeClass('pm-inactive');
+            Ember.$('.pm-button').addClass('pm-active');
 
-            Ember.$('.am').addClass('am-inactive');
-            Ember.$('.am').removeClass('am-active');
+            Ember.$('.am-button').addClass('am-inactive');
+            Ember.$('.am-button').removeClass('am-active');
         }
     }),
 
@@ -590,7 +590,7 @@ export default Ember.Component.extend(
     {
         let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
         let formatHour = this.formatHourStrings(hour);
-        
+
         if (this.hourOverMaxMin(formatHour))
         {
             this.removeLastActiveHour(formatHour);
@@ -786,6 +786,26 @@ export default Ember.Component.extend(
         else
         {
             return '00';
+        }
+    },
+
+    /**
+     * returns the hour passed in for the header
+     *
+     * @private
+     * @method formatHourHeader
+     * @param hour {number} hour you want string of
+     * @return {string} hour as string
+     */
+    formatHourHeader: function(hour)
+    {
+        if (parseInt(hour) !== 0)
+        {
+            return ('0' + hour).slice(-2);
+        }
+        else
+        {
+            return '12';
         }
     },
 
