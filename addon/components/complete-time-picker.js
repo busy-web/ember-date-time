@@ -98,13 +98,6 @@ export default Ember.Component.extend({
     init: function()
     {
         this._super();
-        if (Ember.isNone(this.get('timestamp')))
-        {
-            let now = moment();
-            let back = now.unix() * 1000;
-
-            this.set('timestamp', back);
-        }
 
         let time = this.get('timestamp');
         let momentObj = moment(time);
