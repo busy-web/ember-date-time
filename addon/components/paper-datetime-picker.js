@@ -1,3 +1,10 @@
+//
+//
+//TODO: Comment this and clean it up. Then I will give you more comments on this one.
+//
+//
+
+
 import Ember from 'ember';
 import layout from '../templates/components/paper-datetime-picker';
 import moment from 'moment';

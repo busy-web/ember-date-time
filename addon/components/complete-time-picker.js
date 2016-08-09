@@ -99,10 +99,15 @@ export default Ember.Component.extend({
     {
         this._super();
 
+		// TODO:
+		//
+		// This code is a repeated 3 times in this file.
+		// This should be moved to one observer function and then
+		// call that method on init so that it can be set initially.
         let time = this.get('timestamp');
         let momentObj = moment(time);
 
-        let currentDate = momentObj.format('MMM DD, YYYY');
+		let currentDate = momentObj.format('MMM DD, YYYY');
         this.set('currentDate', currentDate);
 
         let currentTime = momentObj.format('hh:mm A');
@@ -117,6 +122,39 @@ export default Ember.Component.extend({
      */
     observesCurrentDate: Ember.observer('timestamp', function()
     {
+		// TODO:
+		//
+		// There should be some check in place here to make sure that
+		// this.get('timestamp') is a number before you pass it to moment and
+		// expect that it will work out okay. The folowing code would check if the
+		// timestamp is set and set to the proper type then convert it to moment and finally
+		// check if it got a valid moment date from the timestamp. If timestamp is meant to be
+		// required then remove the if statement and remove the Ember.isNone from the first assert.
+		//
+		// this could change to:
+		// ```
+		// // assert timestamp is a number or timestamp is null or undefined
+		// Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
+		//
+		// // set time to a moment date incase
+		// // the timestamp is null or undefined.
+		// let time = moment();
+		//
+		// // if timestamp is set.
+		// if (!Ember.isNone(this.get('timestamp'))) {
+		//	 // convert the timestamp to a moment date
+		//	 time = moment(this.get('timestamp'));
+		//
+		//	 // assert the moment date is a valid date
+		//	 Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(time) && time.isValid());
+		// }
+		//
+		// // set the currentDate
+		// this.set('currentDate', time.format('MMM DD, YYYY'));
+		//
+		// // set the currentTime
+		// this.set('currentTime', time.format('hh:mm A'));
+		// ```
         let time = moment(this.get('timestamp'));
         let newFormat = time.format('MMM DD, YYYY');
 
@@ -131,6 +169,10 @@ export default Ember.Component.extend({
      */
     observesCurrentTime: Ember.observer('timestamp', function()
     {
+		// TODO:
+		// These variables are never changed after they are set
+		// so these should be set to const instead of let.
+		//
         let time = moment(this.get('timestamp'));
         let newFormat = time.format('hh:mm A');
 
@@ -146,6 +188,16 @@ export default Ember.Component.extend({
          */
         togglePicker: function(current)
         {
+			// TODO:
+			//
+			// this is fine the way its wriiten but I just wanted to give
+			// you another ooption here. Instead of the if else here thes could be wriiten
+			// without that with just:
+			//  ```
+			//  const isClock = (current === 'isClock');
+			//  this.set('isClock', isClock);
+			//  this.set('isCalender', !isClock);
+			//  ```
             if (current === 'isClock')
             {
                 this.set('isClock', false);

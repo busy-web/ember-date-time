@@ -8,6 +8,17 @@ import Snap from 'snap-svg';
 import mina from 'mina';
 import moment from 'moment';
 
+// TODO:
+//
+// This class has lots of single operation methods that could be made into an easily tested utils class
+// that could also be reused in other classes should there be a need.
+//
+// These all need:
+//  - validation for the input and return values
+//  - unit tests to validate the input is rejected when passed wrong data
+//  - unit tests to validate the input returns validated data from the function
+//  - unit tests for any other obvious functionality that should be tested.
+
 /**
  * `Component/PaperTimePicker`
  *
@@ -522,6 +533,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * converts moment object to a unix timestamp, and sets that to the global timestamp
      *
      * @private
@@ -535,6 +548,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns the hour of the current timestamp
      *
      * @private
@@ -550,6 +565,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns the minute of the current timestamp
      *
      * @private
@@ -565,6 +582,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns the date of the current timestamp
      *
      * @private
@@ -579,6 +598,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * sets the correct hour based on the rotated degrees on the hour drag
      *
      * @private
@@ -602,6 +623,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * sets the correct minute based on the rotated degrees on the minute drag
      *
      * @private
@@ -629,6 +652,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns true if the minute is a multiple of five
      *
      * @private
@@ -649,6 +674,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns false if the minute exceeds min or max date
      *
      * @private
@@ -688,6 +715,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns false if the hour exceeds min or max date
      *
      * @private
@@ -750,6 +779,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns true if the set timestamp is AM
      *
      * @private
@@ -770,6 +801,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns the minute passed in - formatted correctly
      *
      * @private
@@ -790,6 +823,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns the hour passed in for the header
      *
      * @private
@@ -810,6 +845,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns the hour passed in - formatted correctly
      *
      * @private
@@ -830,6 +867,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * formats string to an integer
      *
      * @private
@@ -844,6 +883,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns object with names of all hour strings
      *
      * @private
@@ -861,6 +902,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * returns object with names of all minute strings
      *
      * @private
@@ -878,6 +921,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * sets the timestamp to be the passed minute
      *
      * @private
@@ -895,6 +940,10 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: Anything using this snap library should
+	 * be converted to some util that gets called from within this
+	 * class.
+	 *
      * removes the hour that was passed in from the clock
      *
      * @private
@@ -913,6 +962,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: Add to snap util class
+	 *
      * removes the minute that was passed in from the clock
      *
      * @private
@@ -935,6 +986,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: Add to snap util class
+	 *
      * activates hour on the clock
      *
      * @private
@@ -953,6 +1006,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: Add to snap util class
+	 *
      * activates minute with text on the clock
      *
      * @private
@@ -971,6 +1026,8 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: Add to snap util class
+	 *
      * activates minute on the clock that doesn't have text
      *
      * @private
@@ -987,6 +1044,10 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: this would be a great angle calculation util class
+	 * also this needs to have a unit test
+	 *
+	 *
      * gets the angle at which the drag is taking place
      *
      * @private
@@ -1007,6 +1068,11 @@ export default Ember.Component.extend(
     },
 
     /**
+	 * TODO: This is doing a lot see if you can take some of this functionality
+	 * out and move it to some kind of utils methods.
+	 * Also this needs to be unit tested.
+	 *
+	 *
      * handles all the function events for dragging on the hours clock
      * newDrag must contain start, move and stop functions within it
      *

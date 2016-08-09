@@ -142,6 +142,10 @@ export default Ember.Component.extend({
     init: function()
     {
         this._super();
+
+		// TODO:
+		//
+		// this is also repeated code. you should call this.resetCalenderTimestamp() instead.
         this.set('calenderTimestamp', this.get('timestamp'));
     },
 
@@ -153,12 +157,23 @@ export default Ember.Component.extend({
      */
     resetCalenderTimestamp: Ember.observer('timestamp', function()
     {
+		// TODO:
+		//
+		// what would happen if timestamp is null or undefined
+		// or if the timestamp was set to some other type like a string or object.
+		// this should be checked and and error thrown if the input is bad.
         let time = this.get('timestamp');
 
         this.set('calenderTimestamp', time);
     }),
 
     /**
+	 * TODO:
+	 * You are overriding init and listening for a init event callback. Pick one or the other
+	 * and sperate logic that is happening in here into its own function that gets called on init.
+	 *
+	 *
+	 *
      * makes moment objects for each day in month, disables them if they exceed max/min date
      *
      * @private
@@ -166,6 +181,10 @@ export default Ember.Component.extend({
      */
     buildDaysArrayForMonth: Ember.on('init', Ember.observer('calenderTimestamp', function() {
 
+		// TODO:
+		//
+		// this moment object needs to be validated that it was set to
+		// an actual date. Also this looks like it should be `const` instead of `let`.
         let current = moment(this.get('calenderTimestamp'));
 
         let daysArray = Ember.A();
@@ -176,6 +195,11 @@ export default Ember.Component.extend({
         let minDate = this.get('minDate');
         let maxDate = this.get('maxDate');
 
+		// TODO:
+		//
+		// Looks like lots of repeated code here.
+		//
+		// Refactor this code, it looks like this could be handled in one if else statement.
         while (currentDay.isBefore(lastDay)) {
             if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
             {
@@ -234,6 +258,17 @@ export default Ember.Component.extend({
                 currentDay = currentDay.clone().add('days', 1);
             }
         }
+
+		// TODO:
+		//
+		// daysArray is never used in the template or enywhere
+		// else in this code except for the next function. The next function
+		// should not observe daysArray. It should be passed to currentDayOnCalender
+		// and the observer should be eliminated. Observers useful for when a variable
+		// changes that you have no control over and you need to take action based on that change.
+		//
+		// Observers slow down the application though and should only be used when you need to use them.
+		// This is an abuse of the observer here, and should be fixed.
         this.set('daysArray', daysArray);
     })),
 
@@ -245,13 +280,22 @@ export default Ember.Component.extend({
      */
     currentDayOnCalender: Ember.observer('daysArray', function()
     {
+		// TODO:
+		// make sure the list is an actual array before you loop through it.
+		//
+		// validate the timestamp is a number and that the moment object is a valid moment date
+		// Also timestamp is a terrible name for a moment object. This could get confusing when trying
+		// to figure out what you are using timestamp for in different places within this class.
+		// Most of the time i think timestamp represents a unix number value, but sometimes its represents
+		// a moment date!??
+		//
         let completeDaysArray = [];
         let list = this.get('daysArray');
         let timestamp = moment(this.get('timestamp'));
 
         list.forEach((item) => {
             let startItem = item.clone();
-            let endItem = item.clone().endOf('day');
+            let endItem = item.clone().endOf('day'); // TODO: this looks like an error. The variable is called endItem and its set to the endOfDay then there is an endOfDay variable set to the same thing. Why is that needed????
             let startOfDay = startItem.startOf('day');
             let endOfDay = endItem.endOf('day');
 
@@ -267,6 +311,11 @@ export default Ember.Component.extend({
             }
         });
 
+		// TODO:
+		//
+		// this is the same case as the daysArray and currentDayOnCalender
+		// this should just be passed to buildCompleteArray.
+		//
         this.set('completeDaysArray', completeDaysArray);
     }),
 
@@ -327,6 +376,13 @@ export default Ember.Component.extend({
     }),
 
     /**
+	 * TODO:
+	 * Components can also have a unit test that you can
+	 * generate with ember generate. This is a good function to test in a unit
+	 * test environment where you pass in values and test that the return value is
+	 * correct. This function should also validate the input to make sure
+	 * it is the input it expects.
+	 *
      * puts days into week objects
      *
      * @private
@@ -337,18 +393,34 @@ export default Ember.Component.extend({
      */
     inRange: function(lower, upper)
     {
+		// TODO:
+		//
+		// validate lower and upper to make sure they are numbers
         return function (each, index) {
+
+			// TODO:
+			//
+			// if this can be validated then it should be as well.
             return (index >= lower && index < upper);
         };
     },
 
     /**
+	 * TODO: Call this from init instead of the on event.
+	 *
+	 *
      * observes timestamp and sets the header fields
      *
      * @private
      * @method calenderHeaderValues
      */
     calenderHeaderValues: Ember.on('init', Ember.observer('timestamp', function() {
+		// TODO:
+		//
+		// these are const not let and all except time can be put
+		// into this.set('', ) instead of being declared first.
+		//
+		// timestamp and moment should be validated here as well.
         let time = moment(this.get('timestamp'));
         let year = time.format('YYYY');
         let month = (time.format('MMM')).toUpperCase();
@@ -362,12 +434,17 @@ export default Ember.Component.extend({
     })),
 
     /**
+	 * TODO: Call this from init instead of the on event.
+	 *
      * observes calenderTimestamp and sets the monthYear field
      *
      * @private
      * @method monthYearObserver
      */
     monthYearObserver: Ember.on('init', Ember.observer('calenderTimestamp', function() {
+		// TODO:
+		//
+		// validate calenderTimestamp and moment here.
         let time = moment(this.get('calenderTimestamp'));
         let newFormat = time.format('MMMM YYYY');
 
@@ -375,6 +452,8 @@ export default Ember.Component.extend({
     })),
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * receives a moment object and sets it to timestamp
      *
      * @private
@@ -388,6 +467,8 @@ export default Ember.Component.extend({
     },
 
     /**
+	 * TODO: This is another good unit test function
+	 *
      * receives a moment object and sets it to calenderTimestamp
      *
      * @private
