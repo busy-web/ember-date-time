@@ -26,6 +26,8 @@ export default Ember.Component.extend({
     timestampMonths: null,
     timestampYears: null,
 
+    showInTimeClock: true,
+
     init: function()
     {
         this._super();

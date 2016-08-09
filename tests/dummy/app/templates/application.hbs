@@ -1,52 +1,52 @@
 
 <!--
-	This file will be used for developers to see how to use this addon. Refer to the
-	busy-componets addon to see how to make this addon serve a useful documeted usecase
-	for this addon. This should be used to showcase the different use cases for this
-	addon. Show examples of useing the date-picker with different passed in properties and
-	different ways of using this date picker. Like with min and max dates, or just a plain simple use case
-	where only the basics are passed to the picker. And give clear explanations to tell people what and how you
-	are supposed to use these components.
+  This file will be used for developers to see how to use this addon. Refer to the
+  busy-componets addon to see how to make this addon serve a useful documeted usecase
+  for this addon. This should be used to showcase the different use cases for this
+  addon. Show examples of useing the date-picker with different passed in properties and
+  different ways of using this date picker. Like with min and max dates, or just a plain simple use case
+  where only the basics are passed to the picker. And give clear explanations to tell people what and how you
+  are supposed to use these components.
 
-	This component should follow the paper design for anyone else trying to use this component. It also
-	should provide a clear and easy override in the sass for changing colors and fonts.
+  This component should follow the paper design for anyone else trying to use this component. It also
+  should provide a clear and easy override in the sass for changing colors and fonts.
 
-	None of these comonents provide any info on what parameters it expects.
+  None of these comonents provide any info on what parameters it expects.
 
-	Not sure if this is the actual date picker I should use if
-	I were to use this addon.
+  Not sure if this is the actual date picker I should use if
+  I were to use this addon.
 
-	Componets for private use should be seperated into their own folder so
-	users of this addon are not confused as to what to use. There should
-	be a main Component or main Componets that are in the base directory of comonents
-	then there should be a folder for other components that the public should not be using.
+  Componets for private use should be seperated into their own folder so
+  users of this addon are not confused as to what to use. There should
+  be a main Component or main Componets that are in the base directory of comonents
+  then there should be a folder for other components that the public should not be using.
 
-	like:
-	addon/components -> // these should be components that a user of this addon can use in there project.
-		paper-date-picker // picker for selecting dates
-		paper-time-picker // picker for sellecting time
-		paper-datetime-picker // picker for selectin dates and time.
+  like:
+  addon/components -> // these should be components that a user of this addon can use in there project.
+    paper-date-picker // picker for selecting dates
+    paper-time-picker // picker for sellecting time
+    paper-datetime-picker // picker for selectin dates and time.
 
-	addon/components/interfaces -> // these are components that this addon uses internally.
-		date-selector // interface for rendering the date selector
-		time-selector // inteface for rendering the time selector
-		picker-display-input // interface for displaying the date time and for opening and closing the date and time interfaces.
+  addon/components/interfaces -> // these are components that this addon uses internally.
+    date-selector // interface for rendering the date selector
+    time-selector // inteface for rendering the time selector
+    picker-display-input // interface for displaying the date time and for opening and closing the date and time interfaces.
 
 -->
 
 <!-- this should be renamed to reflect the name of this addon library. like paper-datetime-picker -->
-{{complete-time-picker}}
+{{!-- {{interfaces/combined-picker}} --}}
 
 <!-- Not sure if this or the one above is the main component for this library -->
 {{paper-datetime-picker}}
 
 
 <!--
-	These both look like helper componets for the main one above. Refer to the above directory structure
-	if these should not be used by this addons users.
+  These both look like helper componets for the main one above. Refer to the above directory structure
+  if these should not be used by this addons users.
 -->
 <!-- this is rendering a componet that looks like it has no use to any user of this addon. -->
-{{paper-time-picker}}
+{{!-- {{interfaces/time-picker}} --}}
 
 <!-- this is throwing an error when I dont set the day field but it doesnt tell me what I should set it to? -->
-{{paper-date-picker}}
+{{!-- {{interfaces/date-picker}} --}}
