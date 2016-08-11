@@ -37,6 +37,8 @@ export default Ember.Component.extend({
             let now = moment();
             let back = now.unix() * 1000;
             this.set('timestamp', back);
+            this.set('minDate', moment().subtract('hours', '2').subtract('minutes', '22').unix() * 1000);
+            this.set('maxDate', moment().add('hours', '2').add('minutes', '22').unix() * 1000);
         }
     },
 
