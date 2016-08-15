@@ -23,6 +23,8 @@ export default TimePicker.reopenClass(
    */
   formatHourHeader: function(hour)
   {
+    Ember.assert("formatHourHeader param must be a string or integer", typeof hour === 'string' || typeof hour === 'number');
+
     if (parseInt(hour) !== 0)
     {
       return ('0' + hour).slice(-2);
@@ -43,6 +45,8 @@ export default TimePicker.reopenClass(
    */
   formatMinuteStrings: function(minute)
   {
+    Ember.assert("formatMinuteStrings param must be a string or integer", typeof minute === 'string' || typeof minute === 'number');
+
     if (parseInt(minute) !== 60)
     {
       return ('0' + minute).slice(-2);
@@ -63,6 +67,8 @@ export default TimePicker.reopenClass(
    */
   formatHourStrings: function(hour)
   {
+    Ember.assert("formatHourStrings param must be a string or integer", typeof hour === 'string' || typeof hour === 'number');
+
     if (parseInt(hour) !== 12)
     {
       return ('0' + hour).slice(-2);
@@ -83,6 +89,8 @@ export default TimePicker.reopenClass(
    */
   stringToInteger: function(string)
   {
+    Ember.assert("stringToInteger param must be a string", typeof string === 'string');
+
     let min = string.slice(-2);
     return parseInt(min);
   },
@@ -97,6 +105,8 @@ export default TimePicker.reopenClass(
    */
   hourStrings: function(hour)
   {
+    Ember.assert("hourStrings param must be a string or integer", typeof hour === 'string' || typeof hour === 'number');
+
     return {
       text: 'hour' + hour,
       line: 'line' + hour,
@@ -114,6 +124,8 @@ export default TimePicker.reopenClass(
    */
   minuteStrings: function(minute)
   {
+    Ember.assert("minuteStrings param must be a string or integer", typeof minute === 'string' || typeof minute === 'number');
+
     return {
       text: 'minText' + minute,
       line: 'minLine' + minute,
@@ -131,7 +143,9 @@ export default TimePicker.reopenClass(
    */
   minuteModFive: function(minute)
   {
-    if (parseInt(minute) % 5 === 0)
+    Ember.assert("minuteModFive param must be a string or integer", typeof minute === 'string' || typeof minute === 'number');
+
+    if (minute % 5 === 0)
     {
       return true;
     }
@@ -171,6 +185,8 @@ export default TimePicker.reopenClass(
    */
   currentHour: function(timestamp)
   {
+    Ember.assert("currentHour param must be a timestamp integer or timestamp string", moment(timestamp).isValid() === true);
+
     let time = moment(timestamp);
     let hour = ('0' + (time.hour() % 12)).slice(-2);
 
@@ -187,6 +203,8 @@ export default TimePicker.reopenClass(
    */
   currentMinute: function(timestamp)
   {
+    Ember.assert("currentMinute param must be a timestamp integer or timestamp string", moment(timestamp).isValid() === true);
+
     let time = moment(timestamp);
     let minute = time.minute();
 
@@ -203,6 +221,8 @@ export default TimePicker.reopenClass(
    */
   currentDateFormat: function(timestamp)
   {
+    Ember.assert("currentDateFormat param must be a timestamp integer or timestamp string", moment(timestamp).isValid() === true);
+
     let time = moment(timestamp);
 
     return time.format('MMM DD, YYYY');
@@ -218,15 +238,17 @@ export default TimePicker.reopenClass(
    */
   timeIsAm: function(timestamp)
   {
-      let time = moment(timestamp);
-      if (time.format('A') === 'AM')
-      {
-          return true;
-      }
-      else
-      {
-          return false;
-      }
+    Ember.assert("timeIsAm param must be a timestamp integer or timestamp string", moment(timestamp).isValid() === true);
+
+    let time = moment(timestamp);
+    if (time.format('A') === 'AM')
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
   },
 
 });

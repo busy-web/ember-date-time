@@ -306,7 +306,7 @@ export default Ember.Component.extend(
           {
               clockHour = TimePicker.formatMinuteStrings((parseInt(hour) - 12));
           }
-          
+
           clock.select('#hour' + clockHour).removeClass('disabled-hour');
 
           let newHour = timestamp.hour(hour);

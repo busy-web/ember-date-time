@@ -5,6 +5,6 @@ module('Unit | Utility | snap utils');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = snapUtils();
+  let result = snapUtils.create();
   assert.ok(result);
 });
