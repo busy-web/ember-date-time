@@ -22,11 +22,14 @@ test('set timestamp', function(assert) {
   const args = {'timestamp': time};
 
   let component = this.subject(args);
-
   let newTimestamp = moment().add('1', 'days');
+
   component.setTimestamp(newTimestamp);
 
   assert.equal(component.get('timestamp'), newTimestamp.unix() * 1000);
+
+  assert.throws(() => { component.setTimestamp('test'); }, /setTimestamp param must be a timestamp integer or timestamp string/, 'setTimestamp only takes timestamp integers and strings');
+
 });
 
 test('set calender date', function(assert) {
@@ -35,9 +38,11 @@ test('set calender date', function(assert) {
   const args = {'timestamp': time};
 
   let component = this.subject(args);
-
   let newTimestamp = moment().add('6', 'days');
+
   component.setCalenderDate(newTimestamp);
 
   assert.equal(component.get('calenderDate'), newTimestamp.unix() * 1000);
+
+  assert.throws(() => { component.setCalenderDate('test'); }, /setCalenderDate param must be a timestamp integer or timestamp string/, 'setCalenderDate only takes timestamp integers and strings');
 });

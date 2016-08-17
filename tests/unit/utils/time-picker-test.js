@@ -40,14 +40,14 @@ test('test formatHourStrings', function(assert) {
   assert.throws(() => { TimePicker.formatHourStrings(['test', true]); }, /formatHourStrings param must be a string or integer/, 'formatHourStrings only takes integers or strings');
 });
 
-test('test stringToInteger', function(assert) {
-  const randInt =  Math.floor(Math.random() * (99 - 0 + 1)) + 0;
+test('test stringToSlicedInteger', function(assert) {
+  const randInt = ('0' +  (Math.floor(Math.random() * (99 - 0 + 1)) + 0)).slice(-2);
   const randString = '123456789' + randInt;
-  const integer = TimePicker.stringToInteger(randString);
+  const integer = TimePicker.stringToSlicedInteger(randString);
 
   assert.equal(randInt, integer);
 
-  assert.throws(() => { TimePicker.stringToInteger(1000); }, /stringToInteger param must be a string/, 'stringToInteger only takes strings');
+  assert.throws(() => { TimePicker.stringToSlicedInteger(1000); }, /stringToSlicedInteger param must be a string/, 'stringToSlicedInteger only takes strings');
 });
 
 test('test hourStrings', function(assert) {

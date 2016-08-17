@@ -1,79 +1,137 @@
-//
-//
-//TODO: Comment this and clean it up. Then I will give you more comments on this one.
-//
-//
-
-
+/**
+ * @module Components
+ *
+ */
 import Ember from 'ember';
 import layout from '../templates/components/paper-datetime-picker';
 import moment from 'moment';
 
+/**
+ * `Component/paper-datetime-picker`
+ *
+ * @class PaperDatetimePicker
+ * @namespace Components
+ * @extends Ember.Component
+ */
 export default Ember.Component.extend({
+  /**
+   * @private
+   * @property classNames
+   * @type String
+   * @default paper-datetime-picker
+   */
+  classNames: ['paper-datetime-picker'],
+  layout: layout,
 
-    classNames: ['paper-datetime-picker'],
-    layout: layout,
+  /**
+   * timestamp that is passed in when using paper-datetime-picker
+   *
+   * @private
+   * @property timestamp
+   * @type Number
+   */
+  timestamp: null,
 
-    timestamp: null,
+  /**
+   * can be passed in so a date after the maxDate cannot be selected
+   *
+   * @private
+   * @property maxDate
+   * @type Number
+   * @optional
+   */
+  maxDate: null,
 
-    maxDate: null,
-    minDate: null,
+  /**
+   * can be passed in so a date before the minDate cannot be selected
+   *
+   * @private
+   * @property minDate
+   * @type Number
+   * @optional
+   */
+  minDate: null,
 
-    timestampMeridian: null,
-    timestampMinutes: null,
-    timestampHours: null,
-    timestampDays: null,
-    timestampMonths: null,
-    timestampYears: null,
+  /**
+   * Merdian (AM/PM) that is shown in the input bar
+   *
+   * @private
+   * @property timestampMeridian
+   * @type String
+   */
+  timestampMeridian: null,
 
-    showInTimeClock: true,
+  /**
+   * minutes that are shown in the input bar
+   *
+   * @private
+   * @property timestampMinutes
+   * @type String
+   */
+  timestampMinutes: null,
 
-    init: function()
+  /**
+   * hours that are shown in the input bar
+   *
+   * @private
+   * @property timestampHours
+   * @type String
+   */
+  timestampHours: null,
+
+  /**
+   * days that are shown in the input bar
+   *
+   * @private
+   * @property timestampDays
+   * @type String
+   */
+  timestampDays: null,
+
+  /**
+   * months that are shown in the input bar
+   *
+   * @private
+   * @property timestampMonths
+   * @type String
+   */
+  timestampMonths: null,
+
+  /**
+   * years that are shown in the input bar
+   *
+   * @private
+   * @property timestampYears
+   * @type String
+   */
+  timestampYears: null,
+
+  showDialog: true,
+
+  init: function()
+  {
+    this._super();
+
+    if (Ember.isNone(this.get('timestamp')))
     {
-        this._super();
-
-        if (Ember.isNone(this.get('timestamp')))
-        {
-            let now = moment();
-            let back = now.unix() * 1000;
-            this.set('timestamp', back);
-            this.set('minDate', moment().subtract('hours', '2').subtract('minutes', '22').unix() * 1000);
-            this.set('maxDate', moment().add('hours', '2').add('minutes', '22').unix() * 1000);
-        }
-    },
-
-    setupInitialValues: Ember.on('init', Ember.observer('timestamp', function() {
-        let time = moment(this.get('timestamp'));
-        let meridianFormat = time.format('A');
-        let minutesFormat = time.format('mm');
-        let hoursFormat = time.format('hh');
-        let daysFormat = time.format('DD');
-        let monthsFormat = time.format('MM');
-        let yearsFormat = time.format('YYYY');
-
-        this.set('timestampMeridian', meridianFormat);
-        this.set('timestampMinutes', minutesFormat);
-        this.set('timestampHours', hoursFormat);
-        this.set('timestampDays', daysFormat);
-        this.set('timestampMonths', monthsFormat);
-        this.set('timestampYears', yearsFormat);
-    })),
+      let now = moment();
+      let back = now.unix() * 1000;
+      this.set('timestamp', back);
+      this.set('minDate', moment().subtract('hours', '2').subtract('minutes', '22').unix() * 1000);
+      this.set('maxDate', moment().add('hours', '2').add('minutes', '22').unix() * 1000);
+    }
+    this.updateInputValues();
+  },
 
     updateInputValues: Ember.observer('timestamp', function() {
-        let time = moment(this.get('timestamp'));
-        let meridianFormat = time.format('A');
-        let minutesFormat = time.format('mm');
-        let hoursFormat = time.format('hh');
-        let daysFormat = time.format('DD');
-        let monthsFormat = time.format('MM');
-        let yearsFormat = time.format('YYYY');
+      const time = moment(this.get('timestamp'));
 
-        this.set('timestampMeridian', meridianFormat);
-        this.set('timestampMinutes', minutesFormat);
-        this.set('timestampHours', hoursFormat);
-        this.set('timestampDays', daysFormat);
-        this.set('timestampMonths', monthsFormat);
-        this.set('timestampYears', yearsFormat);
+      this.set('timestampMeridian', time.format('A'));
+      this.set('timestampMinutes', time.format('mm'));
+      this.set('timestampHours', time.format('hh'));
+      this.set('timestampDays', time.format('DD'));
+      this.set('timestampMonths', time.format('MM'));
+      this.set('timestampYears', time.format('YYYY'));
     }),
 
     setTimestamp: function(moment)
@@ -165,7 +223,7 @@ export default Ember.Component.extend({
 
             if (code === 38)
             {
-                if (time.hour() + 1 >= 12)
+                if (((time.hour() + 1) % 12) >= 12)
                 {
                     object = time.subtract(11, 'hours');
                     if (!object.isBefore(moment(this.get('minDate'))))

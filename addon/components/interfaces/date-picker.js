@@ -335,7 +335,7 @@ export default Ember.Component.extend({
     Ember.assert("lower and upper must be numbers", typeof lower === 'number' || typeof upper === 'number');
 
     return function (each, index) {
-      
+
       return (index >= lower && index < upper);
     };
 
@@ -348,9 +348,11 @@ export default Ember.Component.extend({
    * @method setTimestamp
    * @param moment {object} moment object
    */
-  setTimestamp: function(moment)
+  setTimestamp: function(momentObject)
   {
-    const reverse = moment.unix() * 1000;
+    Ember.assert("setTimestamp param must be a timestamp integer or timestamp string", moment(momentObject).isValid() === true);
+
+    const reverse = momentObject.unix() * 1000;
     this.set('timestamp', reverse);
   },
 
@@ -361,9 +363,11 @@ export default Ember.Component.extend({
    * @method setCalenderTimestamp
    * @param moment {object} moment object
    */
-  setCalenderDate: function(moment)
+  setCalenderDate: function(momentObject)
   {
-    const reverse = moment.unix() * 1000;
+    Ember.assert("setCalenderDate param must be a timestamp integer or timestamp string", moment(momentObject).isValid() === true);
+
+    const reverse = momentObject.unix() * 1000;
     this.set('calenderDate', reverse);
   },
 

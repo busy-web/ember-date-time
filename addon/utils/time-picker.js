@@ -83,13 +83,13 @@ export default TimePicker.reopenClass(
    * formats string to an integer
    *
    * @private
-   * @method stringToInteger
+   * @method stringToSlicedInteger
    * @param string {string} string you want integer of
    * @return {number} passed in string as integer
    */
-  stringToInteger: function(string)
+  stringToSlicedInteger: function(string)
   {
-    Ember.assert("stringToInteger param must be a string", typeof string === 'string');
+    Ember.assert("stringToSlicedInteger param must be a string", typeof string === 'string');
 
     let min = string.slice(-2);
     return parseInt(min);

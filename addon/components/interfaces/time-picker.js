@@ -9,18 +9,6 @@ import moment from 'moment';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
 
-
-// TODO:
-//
-// This class has lots of single operation methods that could be made into an easily tested utils class
-// that could also be reused in other classes should there be a need.
-//
-// These all need:
-//  - validation for the input and return values
-//  - unit tests to validate the input is rejected when passed wrong data
-//  - unit tests to validate the input returns validated data from the function
-//  - unit tests for any other obvious functionality that should be tested.
-
 /**
  * `Component/TimePicker`
  *
@@ -430,6 +418,18 @@ export default Ember.Component.extend(
     },
 
     /**
+     * keeps the clock hands up to date with the current timestamp
+     *
+     * @private
+     * @method updateClockHands
+     */
+    updateClockHands: Ember.observer('timestamp', function()
+    {
+      this.removeLastActiveMinute(TimePicker.formatMinuteStrings(TimePicker.currentMinute(this.get('timestamp'))));
+      this.removeLastActiveHour(TimePicker.formatHourStrings(TimePicker.currentHour(this.get('timestamp'))));
+    }),
+
+    /**
      * removes the last active hour and displays the now active one
      *
      * @private
@@ -672,12 +672,14 @@ export default Ember.Component.extend(
      */
     setMinuteToTimestamp: function(minute)
     {
-        let time = this.get('timestamp');
-        let momentObj = moment(time);
-        let newTime = momentObj.minutes(minute);
-        let reverseConversion = newTime.unix() * 1000;
+      Ember.assert("setMinuteToTimestamp param must be an integer", typeof minute === 'number');
 
-        this.set('timestamp', reverseConversion);
+      let time = this.get('timestamp');
+      let momentObj = moment(time);
+      let newTime = momentObj.minutes(minute);
+      let reverseConversion = newTime.unix() * 1000;
+
+      this.set('timestamp', reverseConversion);
     },
 
     /**
@@ -795,19 +797,19 @@ export default Ember.Component.extend(
      */
     postDragHours(hour)
     {
-      if (parseInt(TimePicker.currentHour(this.get('timestamp'))) !== TimePicker.stringToInteger(hour))
+      if (parseInt(TimePicker.currentHour(this.get('timestamp'))) !== TimePicker.stringToSlicedInteger(hour))
       {
         let timestamp = moment(this.get('timestamp'));
         let setHour = null;
 
         if (TimePicker.timeIsAm(this.get('timestamp')))
         {
-          setHour = timestamp.hour(TimePicker.stringToInteger(hour));
+          setHour = timestamp.hour(TimePicker.stringToSlicedInteger(hour));
           this.convertToTimestamp(setHour);
         }
         else
         {
-          setHour = timestamp.hour(TimePicker.stringToInteger(hour) + 12);
+          setHour = timestamp.hour(TimePicker.stringToSlicedInteger(hour) + 12);
           this.convertToTimestamp(setHour);
         }
       }
@@ -841,7 +843,7 @@ export default Ember.Component.extend(
          */
         let start = function() {
             this.data('origTransform', this.transform().local );
-            if(TimePicker.minuteModFive(TimePicker.stringToInteger(minute)))
+            if(TimePicker.minuteModFive(TimePicker.stringToSlicedInteger(minute)))
             {
                 curMinute.remove();
                 curMinute.appendTo(clock);
@@ -939,12 +941,12 @@ export default Ember.Component.extend(
 
             if (TimePicker.timeIsAm(this.get('timestamp')))
             {
-                let setHour = timestamp.hour(TimePicker.stringToInteger(hour));
+                let setHour = timestamp.hour(TimePicker.stringToSlicedInteger(hour));
                 this.convertToTimestamp(setHour);
             }
             else
             {
-                let setHour2 = timestamp.hour(TimePicker.stringToInteger(hour) + 12);
+                let setHour2 = timestamp.hour(TimePicker.stringToSlicedInteger(hour) + 12);
                 this.convertToTimestamp(setHour2);
             }
 
@@ -959,7 +961,7 @@ export default Ember.Component.extend(
          */
         minuteClicked: function(minute)
         {
-            this.setMinuteToTimestamp(TimePicker.stringToInteger(minute));
+            this.setMinuteToTimestamp(TimePicker.stringToSlicedInteger(minute));
             this.removeLastActiveMinute(TimePicker.formatMinuteStrings(minute));
         },
 
