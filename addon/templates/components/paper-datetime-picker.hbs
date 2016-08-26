@@ -25,7 +25,7 @@
                     {{input type="text" class="minute" maxlength="2" value=timestampMinutes  key-down=(action 'keyUpDownMinutes') focus-in=(action 'focusInput' 'openClockMinutes')}}
                 </div>
                 <div class="merideanContainer">
-                    {{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-down=(action 'clockInMeridianKeyDown') focus-in=(action 'focusInput' 'openClockHours')}}
+                    {{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-down=(action 'meridianKeyHandler') focus-in=(action 'focusInput' 'openClockHours')}}
                 </div>
             </div>
         </div>

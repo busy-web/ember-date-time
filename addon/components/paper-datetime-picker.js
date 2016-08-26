@@ -106,214 +106,293 @@ export default Ember.Component.extend({
    */
   timestampYears: null,
 
+  /**
+   * bool for if the dialog is being shown or not
+   *
+   * @private
+   * @property showDialog
+   * @type bool
+   */
   showDialog: true,
 
+  /**
+   * checks if timestamp is valid calls updateInputValues
+   *
+   * @private
+   * @method init
+   * @constructor
+   */
   init: function()
   {
     this._super();
 
-    if (Ember.isNone(this.get('timestamp')))
+    if (!Ember.isNone(this.get('minDate')))
     {
-      let now = moment();
-      let back = now.unix() * 1000;
-      this.set('timestamp', back);
-      this.set('minDate', moment().subtract('hours', '2').subtract('minutes', '22').unix() * 1000);
-      this.set('maxDate', moment().add('hours', '2').add('minutes', '22').unix() * 1000);
+      if (!moment(this.get('minDate')).isValid() || !moment.isMoment(moment(this.get('minDate'))) || typeof this.get('minDate') !== 'number')
+      {
+          Ember.assert("mindate must be a valid unix timestamp");
+      }
     }
-    this.updateInputValues();
+
+    if (!Ember.isNone(this.get('maxDate')))
+    {
+      if (!moment(this.get('maxDate')).isValid() || !moment.isMoment(moment(this.get('maxDate'))) || typeof this.get('maxDate') !== 'number')
+      {
+          Ember.assert("maxDate must be a valid unix timestamp");
+      }
+    }
+
+    let time = moment(this.get('timestamp'));
+    if (!Ember.isNone(this.get('timestamp')))
+    {
+      if (moment.isMoment(time) && time.isValid())
+      {
+        this.updateInputValues();
+      }
+      else
+      {
+        Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
+      }
+    }
+    else
+    {
+      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
+    }
   },
 
-    updateInputValues: Ember.observer('timestamp', function() {
-      const time = moment(this.get('timestamp'));
+  /**
+   * observes the timestamp and updates the input values accordingly
+   *
+   * @private
+   * @method updateInputValues
+   */
+  updateInputValues: Ember.observer('timestamp', function() {
+    const time = moment(this.get('timestamp'));
 
-      this.set('timestampMeridian', time.format('A'));
-      this.set('timestampMinutes', time.format('mm'));
-      this.set('timestampHours', time.format('hh'));
-      this.set('timestampDays', time.format('DD'));
-      this.set('timestampMonths', time.format('MM'));
-      this.set('timestampYears', time.format('YYYY'));
-    }),
+    this.set('timestampMeridian', time.format('A'));
+    this.set('timestampMinutes', time.format('mm'));
+    this.set('timestampHours', time.format('hh'));
+    this.set('timestampDays', time.format('DD'));
+    this.set('timestampMonths', time.format('MM'));
+    this.set('timestampYears', time.format('YYYY'));
+  }),
 
-    setTimestamp: function(moment)
-    {
-        let reverse = moment.unix() * 1000;
-        this.set('timestamp', reverse);
-    },
+  /**
+   * receives a moment object and sets it to timestamp
+   *
+   * @private
+   * @method setTimestamp
+   * @param moment {object} moment object
+   */
+  setTimestamp: function(moment)
+  {
+      let reverse = moment.unix() * 1000;
+      this.set('timestamp', reverse);
+  },
 
-    onlyAllowArrows: function(event)
-    {
-        var key = event.keyCode || event.which;
+  /**
+   * only allows up and down arrows and tabs to be affected
+   *
+   * @private
+   * @method onlyAllowArrows
+   * @param {event} key press event
+   */
+  onlyAllowArrows: function(event)
+  {
+      var key = event.keyCode || event.which;
 
-        if (key === 38 || key === 40 || key === 9)
-        {
-            return true;
-        }
-        else
-        {
-            event.returnValue = false;
-            if(event.preventDefault)
-            {
-                event.preventDefault();
-            }
-        }
-    },
+      if (key === 38 || key === 40 || key === 9)
+      {
+          return true;
+      }
+      else
+      {
+          event.returnValue = false;
+          if(event.preventDefault)
+          {
+              event.preventDefault();
+          }
+      }
+  },
 
-    actions: {
+  actions: {
 
-        focusInput: function(action)
-        {
-            console.log(action);
-        },
+      focusInput: function(action)
+      {
+          //need to open and close dialog according to what input is active
+          console.log(action);
+      },
 
-        keyUpDownMinutes: function()
-        {
-            let time = moment(this.get('timestamp'));
-            let object = null;
-            let code = event.keyCode || event.which;
+      /**
+       * handles up and down arrows pressed while in the minutes input fields
+       *
+       * @event keyUpDownHours
+       */
+      keyUpDownMinutes: function()
+      {
+          let time = moment(this.get('timestamp'));
+          let object = null;
+          let code = event.keyCode || event.which;
 
-            this.onlyAllowArrows(event);
+          this.onlyAllowArrows(event);
 
-            if (code === 38)
-            {
-                if (time.minutes() + 1 >= 60)
-                {
-                    object = time.subtract(59, 'minutes');
-                    if (!object.isBefore(moment(this.get('minDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-                else
-                {
-                    object = time.add(1, 'minutes');
-                    if (!object.isAfter(moment(this.get('maxDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-            }
-            if (code === 40)
-            {
-                if (time.minutes() - 1 < 0)
-                {
-                    object = time.add(59, 'minutes');
-                    if (!object.isAfter(moment(this.get('maxDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-                else
-                {
-                    object = time.subtract(1, 'minutes');
-                    if (!object.isBefore(moment(this.get('minDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-            }
-        },
+          if (code === 38)
+          {
+              if (time.minutes() + 1 >= 60)
+              {
+                  object = time.subtract(59, 'minutes');
+                  if (!object.isBefore(moment(this.get('minDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+              else
+              {
+                  object = time.add(1, 'minutes');
+                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+          }
+          if (code === 40)
+          {
+              if (time.minutes() - 1 < 0)
+              {
+                  object = time.add(59, 'minutes');
+                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+              else
+              {
+                  object = time.subtract(1, 'minutes');
+                  if (!object.isBefore(moment(this.get('minDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+          }
+      },
 
-        keyUpDownHours: function()
-        {
-            let time = moment(this.get('timestamp'));
-            let object = null;
-            let code = event.keyCode || event.which;
+      /**
+       * handles up and down arrows pressed while in the hours input fields
+       *
+       * @event keyUpDownHours
+       */
+      keyUpDownHours: function()
+      {
+          let time = moment(this.get('timestamp'));
+          let object = null;
+          let code = event.keyCode || event.which;
 
-            this.onlyAllowArrows(event);
+          this.onlyAllowArrows(event);
 
-            if (code === 38)
-            {
-                if (((time.hour() + 1) % 12) >= 12)
-                {
-                    object = time.subtract(11, 'hours');
-                    if (!object.isBefore(moment(this.get('minDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-                else
-                {
-                    object = time.add(1, 'hours');
-                    if (!object.isAfter(moment(this.get('maxDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-            }
-            if (code === 40)
-            {
-                if (time.hour() - 1 < 0)
-                {
-                    object = time.add(11, 'hours');
-                    if (!object.isAfter(moment(this.get('maxDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-                else
-                {
-                    object = time.subtract(1, 'hours');
-                    if (!object.isBefore(moment(this.get('minDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-            }
-        },
+          if (code === 38)
+          {
+              if (((time.hour() + 1) % 12) >= 12)
+              {
+                  object = time.subtract(11, 'hours');
+                  if (!object.isBefore(moment(this.get('minDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+              else
+              {
+                  object = time.add(1, 'hours');
+                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+          }
+          if (code === 40)
+          {
+              if (time.hour() - 1 < 0)
+              {
+                  object = time.add(11, 'hours');
+                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+              else
+              {
+                  object = time.subtract(1, 'hours');
+                  if (!object.isBefore(moment(this.get('minDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+          }
+      },
 
-        keyUpDownHandler: function(period)
-        {
-            let time = moment(this.get('timestamp'));
-            let object = null;
-            let code = event.keyCode || event.which;
+      /**
+       * handles up and down arrows pressed while in the days, months, or years input fields
+       *
+       * @param {string} 'days', 'years,', or 'months'
+       * @event keyUpDownHandler
+       */
+      keyUpDownHandler: function(period)
+      {
+          let time = moment(this.get('timestamp'));
+          let object = null;
+          let code = event.keyCode || event.which;
 
-            this.onlyAllowArrows(event);
+          this.onlyAllowArrows(event);
 
-            if (code === 38)
-            {
-                object = time.add(1, period);
-                if (!object.isAfter(moment(this.get('maxDate'))))
-                {
-                    this.setTimestamp(object);
-                }
-            }
-            if (code === 40)
-            {
-                object = time.subtract(1, period);
-                if (!object.isBefore(moment(this.get('minDate'))))
-                {
-                    this.setTimestamp(object);
-                }
-            }
-        },
+          if (code === 38)
+          {
+              object = time.add(1, period);
+              if (!object.isAfter(moment(this.get('maxDate'))))
+              {
+                  this.setTimestamp(object);
+              }
+          }
+          if (code === 40)
+          {
+              object = time.subtract(1, period);
+              if (!object.isBefore(moment(this.get('minDate'))))
+              {
+                  this.setTimestamp(object);
+              }
+          }
+      },
 
-        clockInMeridianKeyDown: function()
-        {
-            let time = moment(this.get('timestamp'));
-            let object = null;
-            let code = event.keyCode || event.which;
+      /**
+       * handles up and down arrows pressed while in the meridian input fields
+       *
+       * @event meridianKeyHandler
+       */
+      meridianKeyHandler: function()
+      {
+          let time = moment(this.get('timestamp'));
+          let object = null;
+          let code = event.keyCode || event.which;
 
-            this.onlyAllowArrows(event);
+          this.onlyAllowArrows(event);
 
-            if (code === 38 || code === 40)
-            {
-                if (time.format('A') === 'AM')
-                {
-                    object = time.add(12, 'hours');
-                    if (!object.isAfter(moment(this.get('maxDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-                else
-                {
-                    object = time.subtract(12, 'hours');
-                    if (!object.isBefore(moment(this.get('minDate'))))
-                    {
-                        this.setTimestamp(object);
-                    }
-                }
-            }
-        },
-    }
+          if (code === 38 || code === 40)
+          {
+              if (time.format('A') === 'AM')
+              {
+                  object = time.add(12, 'hours');
+                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+              else
+              {
+                  object = time.subtract(12, 'hours');
+                  if (!object.isBefore(moment(this.get('minDate'))))
+                  {
+                      this.setTimestamp(object);
+                  }
+              }
+          }
+      },
+  }
 });
