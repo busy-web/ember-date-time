@@ -604,8 +604,6 @@ export default Ember.Component.extend(
     },
 
     /**
-   * TODO: This is another good unit test function
-   *
      * returns false if the minute exceeds min or max date
      *
      * @private
@@ -615,38 +613,32 @@ export default Ember.Component.extend(
      */
     minuteOverMaxMin: function(minute)
     {
-        let time = moment(this.get('timestamp'));
-        let setMin = time.minute(parseInt(minute));
+      Ember.assert("minuteOverMaxMin param must be an integer or string", typeof minute === 'number'|| typeof minute === 'string');
 
-        let maxDate = this.get('maxDate');
-        let minDate = this.get('minDate');
+      let time = moment(this.get('timestamp'));
+      let setMin = time.minute(parseInt(minute));
 
-        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
+      let maxDate = this.get('maxDate');
+      let minDate = this.get('minDate');
+
+      if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
+      {
+        if (!setMin.isBefore(moment(minDate)) && !setMin.isAfter(moment(maxDate)))
         {
-          if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
-          {
-            return !setMin.isAfter(maxDate);
-          }
-
-          if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
-          {
-            return !setMin.isBefore(minDate);
-          }
-
-          if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
-          {
-            return setMin.isBetween(minDate, maxDate);
-          }
+          return true;
         }
         else
         {
-            return true;
+          return false;
         }
+      }
+      else
+      {
+        return true;
+      }
     },
 
     /**
-   * TODO: This is another good unit test function
-   *
      * returns false if the hour exceeds min or max date
      *
      * @private
@@ -656,56 +648,46 @@ export default Ember.Component.extend(
      */
     hourOverMaxMin: function(hour)
     {
-        let timeAm = moment(this.get('timestamp'));
-        let setAm = timeAm.hour(parseInt(hour));
+      Ember.assert("hourOverMaxMin param must be an integer or string", typeof hour === 'number' || typeof hour === 'string');
 
-        let timePm = moment(this.get('timestamp'));
-        let setPm = timePm.hour(parseInt(hour) + 12);
+      let timeAm = moment(this.get('timestamp'));
+      let setAm = timeAm.hour(parseInt(hour));
 
-        let maxDate = this.get('maxDate');
-        let minDate = this.get('minDate');
+      let timePm = moment(this.get('timestamp'));
+      let setPm = timePm.hour(parseInt(hour) + 12);
 
-        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
+      let maxDate = this.get('maxDate');
+      let minDate = this.get('minDate');
+
+      if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
+      {
+        if (TimePicker.timeIsAm(this.get('timestamp')))
         {
-          if (TimePicker.timeIsAm(this.get('timestamp')))
+          if (!setAm.isBefore(moment(minDate)) && !setAm.isAfter(moment(maxDate)))
           {
-            if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
-            {
-              return !setAm.isAfter(maxDate);
-            }
-
-            if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
-            {
-              return !setAm.isBefore(minDate);
-            }
-
-            if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
-            {
-              return setAm.isBetween(minDate, maxDate);
-            }
+            return true;
           }
           else
           {
-            if (Ember.isNone(minDate) && !Ember.isNone(maxDate))
-            {
-              return !setPm.isAfter(maxDate);
-            }
-
-            if (!Ember.isNone(minDate) && Ember.isNone(maxDate))
-            {
-              return !setPm.isBefore(minDate);
-            }
-
-            if (!Ember.isNone(minDate) && !Ember.isNone(maxDate))
-            {
-              return setPm.isBetween(minDate, maxDate);
-            }
+            return false;
           }
         }
         else
         {
+          if (!setPm.isBefore(moment(minDate)) && !setPm.isAfter(moment(maxDate)))
+          {
             return true;
+          }
+          else
+          {
+            return false;
+          }
         }
+      }
+      else
+      {
+          return true;
+      }
     },
 
     /**
