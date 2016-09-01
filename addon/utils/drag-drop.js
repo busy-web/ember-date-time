@@ -12,6 +12,17 @@ const DragDrop = Ember.Object.extend();
   */
 export default DragDrop.reopenClass(
 {
+  /**
+   * returns the x,y coordinates of starting and ending points relative to center_point
+   *
+   * @private
+   * @method angleValues
+   * @param dx {number}
+   * @param dy {number}
+   * @param x {number}
+   * @param y {string}
+   * @return {object} starting and ending x,y points
+   */
   angleValues: function(dx,dy,x,y, center_point)
   {
     let coordinates = center_point[0].getBoundingClientRect();
@@ -28,6 +39,16 @@ export default DragDrop.reopenClass(
     };
   },
 
+  /**
+   * returns the new angle
+   *
+   * @private
+   * @method dragDirection
+   * @param angle {number}
+   * @param points {object} return value of angleValues
+   * @param unit {string} last active minute/hour
+   * @return angle {number} new angle
+   */
   dragDirection: function(angle, points, unit)
   {
     let slope = (points.startY/points.startX);
@@ -60,6 +81,14 @@ export default DragDrop.reopenClass(
     return angle;
   },
 
+  /**
+   * returns the new hour or minute after being dragged
+   *
+   * @private
+   * @method getNewValue
+   * @param direction {number}
+   * @return {number} new minute or hour post drag
+   */
   getNewValue: function(direction)
   {
     let anglePositive = direction > 0;
