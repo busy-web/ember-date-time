@@ -7,6 +7,7 @@ import layout from '../../templates/components/interfaces/time-picker';
 import Snap from 'snap-svg';
 import moment from 'moment';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
+import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
 
 /**
@@ -709,11 +710,6 @@ export default Ember.Component.extend(
     },
 
     /**
-   * TODO: This is doing a lot see if you can take some of this functionality
-   * out and move it to some kind of utils methods.
-   * Also this needs to be unit tested.
-   *
-   *
      * handles all the function events for dragging on the hours clock
      * newDrag must contain start, move and stop functions within it
      *
@@ -741,10 +737,10 @@ export default Ember.Component.extend(
          * allows for the hours group to start being dragged
          */
         let start = function() {
-            this.data('origTransform', this.transform().local );
-            curHour.remove();
-            curHour.appendTo(clock);
-            curHour.removeClass('interiorWhite');
+          this.data('origTransform', this.transform().local );
+          curHour.remove();
+          curHour.appendTo(clock);
+          curHour.removeClass('interiorWhite');
         };
 
         /**
@@ -752,43 +748,18 @@ export default Ember.Component.extend(
          */
         let move = function(dx,dy,x,y) {
 
-            let center_point = Ember.$('#centerPointHour');
-            let coordinates = center_point[0].getBoundingClientRect();
+          let points = DragDrop.angleValues(dx,dy,x,y, Ember.$('#centerPointHour'));
 
-            let endX = x - (coordinates.left + 3);
-            let endY = -(y - (coordinates.top - 3));
-            let startX = endX - dx;
-            let startY = endY + dy;
+          let angle = TimePicker.angle(points.endX, points.endY, points.startX, points.startY);
 
-            let angle = TimePicker.angle(endX, endY, startX, startY);
+          let direction = DragDrop.dragDirection(angle, points, strings.text);
 
-            let slope = (startY/startX);
-            let isForward = endY < (slope*endX);
+          this.attr({
+            transform: ('r' + direction + ', ' + center_x + ',' + center_y)
+          });
 
-            let last2 = parseInt(TimePicker.formatHourStrings(strings.text));
-
-            if (last2 <= 6 || last2 === 12)
-            {
-                angle = isForward ? angle : -angle;
-            }
-            else
-            {
-                angle = isForward ? -angle : angle;
-            }
-
-            this.attr({
-                transform: ('r' + angle + ', ' + center_x + ',' + center_y)
-            });
-
-            let lastHour = _this.get('lastHourCircle');
-            let actualHour = parseInt(lastHour.slice(-2));
-            currentAngle = actualHour * 30;
-
-            let anglePositive = angle > 0;
-            let over180 = 180 + Math.abs((180 - Math.abs(angle)));
-
-            newHour = anglePositive ? angle : over180;
-
+          currentAngle = TimePicker.stringToSlicedInteger(_this.get('lastHourCircle')) * 30;
+          newHour = DragDrop.getNewValue(direction);
         };
 
         /**
@@ -798,7 +769,7 @@ export default Ember.Component.extend(
             _this.getHourByDegree(currentAngle, newHour);
         };
 
-        _this.postDragHours(strings.text);
+        _this.postDragHours(strings);
 
         if (!Ember.isNone(this.get('lastGroup')))
         {
@@ -824,21 +795,21 @@ export default Ember.Component.extend(
      * @param hour {string} hour to be set to timestamp
      * @event postDragHours
      */
-    postDragHours(hour)
+    postDragHours(strings)
     {
-      if (parseInt(TimePicker.currentHour(this.get('timestamp'))) !== TimePicker.stringToSlicedInteger(hour))
+      if (parseInt(TimePicker.currentHour(this.get('timestamp'))) !== TimePicker.stringToSlicedInteger(strings.text))
       {
         let timestamp = moment(this.get('timestamp'));
         let setHour = null;
 
         if (TimePicker.timeIsAm(this.get('timestamp')))
         {
-          setHour = timestamp.hour(TimePicker.stringToSlicedInteger(hour));
+          setHour = timestamp.hour(TimePicker.stringToSlicedInteger(strings.text));
           this.convertToTimestamp(setHour);
         }
         else
         {
-          setHour = timestamp.hour(TimePicker.stringToSlicedInteger(hour) + 12);
+          setHour = timestamp.hour(TimePicker.stringToSlicedInteger(strings.text) + 12);
           this.convertToTimestamp(setHour);
         }
       }
@@ -887,40 +858,18 @@ export default Ember.Component.extend(
          */
         let move = function(dx,dy,x,y) {
 
-            let center_point = Ember.$('#centerPointMinutes');
-            let coordinates = center_point[0].getBoundingClientRect();
+          let points = DragDrop.angleValues(dx,dy,x,y, Ember.$('#centerPointMinutes'));
 
-            let endX = x - (coordinates.left + 3);
-            let endY = -(y - (coordinates.top - 3));
+          let angle = TimePicker.angle(points.endX, points.endY, points.startX, points.startY);
 
-            let startX = endX - dx;
-            let startY = endY + dy;
+          let direction = DragDrop.dragDirection(angle, points, strings.text);
 
-            let slope = (startY/startX);
-            let isForward = endY < (slope*endX);
+          this.attr({
+              transform: ('r' + direction + ', ' + center_x + ',' + center_y)
+          });
 
-            let angle = TimePicker.angle(endX, endY, startX, startY);
-
-            let last2 = parseInt(minute.slice(-2));
-
-            if (last2 <= 30 || last2 === 0)
-            {
-                angle = isForward ? angle : -angle;
-            }
-            else {
-                angle = isForward ? -angle : angle;
-            }
-            this.attr({
-                transform: ('r' + angle + ', ' + center_x + ',' + center_y)
-            });
-
-            let lastMinute = _this.get('lastMinuteCircle');
-            let actualMinute = parseInt(lastMinute.slice(-2));
-            currentAngle = actualMinute * 6;
-
-            let anglePositive = angle > 0;
-            let over180 = 180 + Math.abs((180 - Math.abs(angle)));
-            newMinute = anglePositive ? angle : over180;
+          currentAngle = TimePicker.stringToSlicedInteger(_this.get('lastMinuteCircle')) * 6;
+          newMinute = DragDrop.getNewValue(direction);
         };
 
         /**
@@ -929,7 +878,7 @@ export default Ember.Component.extend(
         let stop = function() {
             _this.getMinuteByDegree(currentAngle, newMinute);
         };
-
+        
         if (!Ember.isNone(this.get('lastMinute')))
         {
             let undragPrevious = this.get('lastMinute');

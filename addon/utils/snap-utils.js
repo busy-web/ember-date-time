@@ -9,7 +9,7 @@ import mina from 'mina';
 
 const SnapUtils = Ember.Object.extend();
  /**
-  * `Util/TimePicker`
+  * `Util/SnapUtils`
   *
   */
 export default SnapUtils.reopenClass(

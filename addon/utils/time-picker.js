@@ -91,8 +91,8 @@ export default TimePicker.reopenClass(
   {
     Ember.assert("stringToSlicedInteger param must be a string", typeof string === 'string');
 
-    let min = string.slice(-2);
-    return parseInt(min);
+    let int = string.slice(-2);
+    return parseInt(int);
   },
 
   /**
