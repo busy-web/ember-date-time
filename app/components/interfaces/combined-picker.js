@@ -1,0 +1,1 @@
+export { default } from 'ember-paper-time-picker/components/interfaces/combined-picker';

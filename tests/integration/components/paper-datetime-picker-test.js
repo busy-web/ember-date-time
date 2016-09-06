@@ -1,24 +1,17 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
+import moment from 'moment';
 
 moduleForComponent('paper-datetime-picker', 'Integration | Component | paper datetime picker', {
   integration: true
 });
 
 test('it renders', function(assert) {
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
 
-  this.render(hbs`{{paper-datetime-picker}}`);
+  this.set('timestamp', moment().unix() * 1000);
 
-  assert.equal(this.$().text().trim(), '');
+  this.render(hbs`{{paper-datetime-picker timestamp=timestamp}}`);
 
-  // Template block usage:
-  this.render(hbs`
-    {{#paper-datetime-picker}}
-      template block text
-    {{/paper-datetime-picker}}
-  `);
+  assert.ok(this.$().text().trim());
 
-  assert.equal(this.$().text().trim(), 'template block text');
 });

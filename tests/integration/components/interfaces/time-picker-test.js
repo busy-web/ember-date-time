@@ -2,7 +2,7 @@ import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
 
-moduleForComponent('paper-time-picker', 'Integration | Component | paper time picker', {
+moduleForComponent('interfaces/time-picker', 'Integration | Component | time picker', {
   integration: true
 });
 
@@ -10,7 +10,7 @@ test('it renders', function(assert) {
 
   this.set('timestamp', moment());
 
-  this.render(hbs`{{paper-time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   assert.ok(this.$().text().trim());
 });
@@ -19,7 +19,7 @@ test('changes from hours to minutes', function(assert) {
 
   this.set('timestamp', moment());
 
-  this.render(hbs`{{paper-time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   assert.equal(this.$('.hours-header').hasClass('active'), true);
   assert.equal(this.$('.minutes-header').hasClass('inactive'), true);
@@ -34,7 +34,7 @@ test('changes from hours to minutes', function(assert) {
 test('changes from pm to am and back', function(assert) {
 
   this.set('timestamp', moment());
-  this.render(hbs`{{paper-time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   if (this.get('timestamp').format('A') === 'AM')
   {
@@ -61,7 +61,7 @@ test('changes from pm to am and back', function(assert) {
 test('test hour and minute headers', function(assert) {
 
   this.set('timestamp', moment());
-  this.render(hbs`{{paper-time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   let hour = this.get('timestamp').hour();
   let minute = this.get('timestamp').minute();
@@ -76,7 +76,7 @@ test('test hour and minute headers', function(assert) {
 test('click random minute sectionMin', function(assert) {
 
   this.set('timestamp', moment());
-  this.render(hbs`{{paper-time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   let randomSection = ('0' + Math.round(Math.random() * (60 - 1) + 1)).slice(-2);
   let id = '#sectionMin' + randomSection;
@@ -89,7 +89,7 @@ test('click random minute sectionMin', function(assert) {
 test('click random hour', function(assert) {
 
   this.set('timestamp', moment());
-  this.render(hbs`{{paper-time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   let randomHour = ('0' + Math.round(Math.random() * (12 - 1) + 1)).slice(-2);
   let id = '#hour' + randomHour;

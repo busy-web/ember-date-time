@@ -49,23 +49,23 @@
             </tr>
 
         {{#each groupedArray as |week|}}
-            <tr>
-                {{#each week as |day|}}
-                    {{#if day}}
-                        {{#if day.isDisabled}}
-                            <td class="disabled-day">{{formatDay day}}</td>
-                        {{else}}
-                            {{#if day.isCurrentDay}}
-                                <td class="valid-day current-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
-                            {{else}}
-                                <td class="valid-day" {{action "dayClicked" day}}>{{formatDay day}}</td>
-                            {{/if}}
-                        {{/if}}
+          <tr>
+            {{#each week as |day|}}
+                {{#if day}}
+                    {{#if day.isDisabled}}
+                        <td class="disabled-day">{{day.dayOfMonth}}</td>
                     {{else}}
-                        <td class="invalid-day"></td>
+                        {{#if day.isCurrentDay}}
+                            <td class="valid-day current-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
+                        {{else}}
+                            <td class="valid-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
+                        {{/if}}
                     {{/if}}
-                {{/each}}
-            </tr>
+                {{else}}
+                    <td class="invalid-day"></td>
+                {{/if}}
+            {{/each}}
+          </tr>
         {{/each}}
 
         </table>

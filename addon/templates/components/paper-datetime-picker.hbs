@@ -1,37 +1,38 @@
+
 <div class="paper-datetime-picker">
     <div class="inputContainer">
 
         <div class="inputBody">
             <div class="inputInDate">
                 <div class="monthContainer">
-                    {{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'openCalender')}}
+                    {{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput')}}
                 </div>
                 <div class="monthSlash">/</div>
                 <div class="dayContainer">
-                    {{input class="day" type="text" maxlength="2" value=timestampDays key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'openCalender')}}
+                    {{input class="day" type="text" maxlength="2" value=timestampDays key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput')}}
                 </div>
                 <div class="daySlash">/</div>
                 <div class="yearContainer">
-                    {{input class="year" type="text" maxlength="4" value=timestampYears key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'openCalender')}}
+                    {{input class="year" type="text" maxlength="4" value=timestampYears key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput')}}
                 </div>
             </div>
 
             <div class="inputInTime">
                 <div class="hourContainer">
-                    {{input type="text" class="hour" maxlength="2" value=timestampHours  key-down=(action 'keyUpDownHours') focus-in=(action 'focusInput' 'openClockHours')}}
+                    {{input type="text" class="hour" maxlength="2" value=timestampHours  key-down=(action 'keyUpDownHours') focus-in=(action 'focusInput')}}
                 </div>
                 <div class="timeColon">:</div>
                 <div class="minuteContainer">
-                    {{input type="text" class="minute" maxlength="2" value=timestampMinutes  key-down=(action 'keyUpDownMinutes') focus-in=(action 'focusInput' 'openClockMinutes')}}
+                    {{input type="text" class="minute" maxlength="2" value=timestampMinutes  key-down=(action 'keyUpDownMinutes') focus-in=(action 'focusInput')}}
                 </div>
                 <div class="merideanContainer">
-                    {{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-down=(action 'clockInMeridianKeyDown') focus-in=(action 'focusInput' 'openClockHours')}}
+                    {{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-down=(action 'meridianKeyHandler') focus-in=(action 'focusInput')}}
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{{#if showInTimeClock}}
-    {{complete-time-picker timestamp=timestamp maxDate=maxDate minDate=minDate}}
+{{#if showDialog}}
+    {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate}}
 {{/if}}
