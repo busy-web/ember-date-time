@@ -255,11 +255,13 @@ export default Ember.Component.extend({
       if (currentTime.isBetween(startOfDay, endOfDay))
       {
         item.isCurrentDay = true;
+        item.dayOfMonth = item.date();
         completeDaysArray.push(item);
       }
       else
       {
         item.isCurrentDay = false;
+        item.dayOfMonth = item.date();
         completeDaysArray.push(item);
       }
     });

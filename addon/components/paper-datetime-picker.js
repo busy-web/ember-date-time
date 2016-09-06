@@ -113,7 +113,7 @@ export default Ember.Component.extend({
    * @property showDialog
    * @type bool
    */
-  showDialog: true,
+  showDialog: false,
 
   /**
    * checks if timestamp is valid calls updateInputValues
@@ -217,10 +217,9 @@ export default Ember.Component.extend({
 
   actions: {
 
-      focusInput: function(action)
+      focusInput: function()
       {
-          //need to open and close dialog according to what input is active
-          console.log(action);
+          this.set('showDialog', true);
       },
 
       /**

@@ -2,7 +2,6 @@ import { moduleForComponent, test } from 'ember-qunit';
 import moment from 'moment';
 
 moduleForComponent('interfaces/date-picker', 'Unit | Component | interfaces/date picker', {
-  needs: ['helper:format-day'],
   unit: true
 });
 
