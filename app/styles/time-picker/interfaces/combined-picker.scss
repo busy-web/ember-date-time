@@ -1,8 +1,9 @@
 
 .combined-picker {
-  // height: 330px;
   width: 250px;
-  border: 1px solid black;
+  -moz-box-shadow: 0 0 5px #ccc;
+  -webkit-box-shadow: 0 0 5px #ccc;
+  box-shadow: 0 0 5px #8f8f8e;
 
   & > div.picker-container {
 
