@@ -57,7 +57,7 @@ export default Ember.Component.extend({
    * boolean based on if the clock or calender is showing
    *
    * @private
-   * @property isClock
+   * @property isClockHour
    * @type Boolean
    */
   isClock: true,
@@ -90,6 +90,24 @@ export default Ember.Component.extend({
   currentTime: null,
 
   /**
+   * string of the new active element on the picker
+   *
+   * @private
+   * @property activeSection
+   * @type string
+   */
+  activeSection: null,
+
+  /**
+   * if hour or minutes are active
+   *
+   * @private
+   * @property minuteOrHour
+   * @type string
+   */
+  minuteOrHour: null,
+
+  /**
    * sets currentTime and currentDate, sets a timestamp to now if a timestamp wasnt passed in
    * @private
    * @method init
@@ -98,8 +116,32 @@ export default Ember.Component.extend({
   init: function()
   {
     this._super();
+    this.observeActiveSection();
     this.observesDateTime();
   },
+
+  observeActiveSection: Ember.observer('activeSection', function()
+  {
+    const section = this.get('activeSection');
+
+    if (section === 'year' || section === 'month' || section === 'day')
+    {
+      this.set('isClock', false);
+      this.set('isCalender', true);
+    }
+    if (section === 'hour' || section === 'meridian')
+    {
+      this.set('isClock', true);
+      this.set('minuteOrHour', 'hour');
+      this.set('isCalender', false);
+    }
+    if (section === 'minute')
+    {
+      this.set('isClock', true);
+      this.set('minuteOrHour', 'minute');
+      this.set('isCalender', false);
+    }
+  }),
 
   /**
    * sets/resets currentDate whenever timestamp changes

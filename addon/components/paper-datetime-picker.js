@@ -110,10 +110,29 @@ export default Ember.Component.extend({
    * bool for if the dialog is being shown or not
    *
    * @private
-   * @property showDialog
+   * @property showDialogTop
    * @type bool
    */
-  showDialog: false,
+  showDialogTop: false,
+
+  /**
+   * bool for if the dialog is being shown or not
+   *
+   * @private
+   * @property showDialogBottom
+   * @type bool
+   */
+  showDialogBottom: false,
+
+  /**
+   * string of the new active element on the picker
+   *
+   * @private
+   * @property activeSection
+   * @type string
+   */
+  activeSection: null,
+
 
   /**
    * checks if timestamp is valid calls updateInputValues
@@ -217,9 +236,25 @@ export default Ember.Component.extend({
 
   actions: {
 
-      focusInput: function()
+      focusInput: function(active)
       {
-          this.set('showDialog', true);
+        let scrollTop = Ember.$(window).scrollTop();
+        let elementOffsetTop = Ember.$('.paper-datetime-picker').offset().top;
+        let distanceTop = (elementOffsetTop - scrollTop);
+        let distanceBottom = Ember.$(document).height() - Ember.$('.paper-datetime-picker').offset().top - Ember.$('.paper-datetime-picker').height();
+
+        this.set('activeSection', active);
+        
+        if (distanceTop > distanceBottom)
+        {
+          this.set('showDialogBottom', false);
+          this.set('showDialogTop', true);
+        }
+        else
+        {
+          this.set('showDialogTop', false);
+          this.set('showDialogBottom', true);
+        }
       },
 
       /**

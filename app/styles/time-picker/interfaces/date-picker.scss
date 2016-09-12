@@ -1,11 +1,14 @@
 
 .date-picker {
-    height: 340px;
+    height: 350px;
     width: 250px;
 
   & > div.calender-container {
 
     & > div.header-container {
+      background-color: #f2f2f2;
+      height: 160px;
+      border-bottom: 1px solid #8f8f8e;
 
       & > div.day-of-week {
         padding-top: 10px;

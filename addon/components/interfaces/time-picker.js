@@ -157,6 +157,15 @@ export default Ember.Component.extend(
     currentDate: null,
 
     /**
+     * if hour or minutes are active
+     *
+     * @private
+     * @property minuteOrHour
+     * @type string
+     */
+    minuteOrHour: null,
+
+    /**
      * checks to see if the current state of the component is DOM editable
      *
      * @private
@@ -183,6 +192,7 @@ export default Ember.Component.extend(
 
         this.removeInitialHours();
         this.removeInitialMinutes();
+        this.observeMinuteOrHour();
 
         if(TimePicker.timeIsAm(this.get('timestamp')))
         {
@@ -194,8 +204,21 @@ export default Ember.Component.extend(
           Ember.$('.pm-button').addClass('pm-active');
           Ember.$('.am-button').addClass('am-inactive');
         }
+
       }
     },
+
+    observeMinuteOrHour: Ember.observer('minuteOrHour', function()
+    {
+      if(this.get('minuteOrHour') === 'minute')
+      {
+        this.send('minuteHeaderClicked');
+      }
+      if(this.get('minuteOrHour') === 'hour')
+      {
+        this.send('hourHeaderClicked');
+      }
+    }),
 
     /**
      * initially sets the clocks based on the passed time
@@ -878,7 +901,7 @@ export default Ember.Component.extend(
         let stop = function() {
             _this.getMinuteByDegree(currentAngle, newMinute);
         };
-        
+
         if (!Ember.isNone(this.get('lastMinute')))
         {
             let undragPrevious = this.get('lastMinute');
