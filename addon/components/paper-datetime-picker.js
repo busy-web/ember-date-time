@@ -133,6 +133,14 @@ export default Ember.Component.extend({
    */
   activeSection: null,
 
+  /**
+   * value changes if the active section is changed to a different value or the SAME value
+   *
+   * @private
+   * @property updateActive
+   * @type Boolean
+   */
+  updateActive: true,
 
   /**
    * checks if timestamp is valid calls updateInputValues
@@ -236,25 +244,34 @@ export default Ember.Component.extend({
 
   actions: {
 
+      /**
+       * figures out if the dialog should go above or below the input and changes updateActive so combined-picker can make the correct changes
+       *
+       * @param active {string} string of which input field was selected
+       * @event focusInput
+       */
       focusInput: function(active)
       {
+        let activeState = this.get('updateActive');
         let scrollTop = Ember.$(window).scrollTop();
         let elementOffsetTop = Ember.$('.paper-datetime-picker').offset().top;
         let distanceTop = (elementOffsetTop - scrollTop);
         let distanceBottom = Ember.$(document).height() - Ember.$('.paper-datetime-picker').offset().top - Ember.$('.paper-datetime-picker').height();
 
-        this.set('activeSection', active);
-        
         if (distanceTop > distanceBottom)
         {
           this.set('showDialogBottom', false);
           this.set('showDialogTop', true);
+          this.set('updateActive', !activeState);
         }
         else
         {
           this.set('showDialogTop', false);
           this.set('showDialogBottom', true);
+          this.set('updateActive',  !activeState);
         }
+
+        this.set('activeSection', active);
       },
 
       /**

@@ -11,11 +11,35 @@
     & > div.picker-footer {
 
       & > div.current-date {
+        display: inline-block;
         margin-left: 15px;
         height: 30px;
         margin-top: 15px;
         cursor: pointer;
         color: #8f8f8e;
+        font-size: 12px;
+      }
+
+      & > div.cancel {
+        display: inline-block;
+        margin-right: 20px;
+        height: 30px;
+        margin-top: 15px;
+        cursor: pointer;
+        color: #8f8f8e;
+        font-size: 12px;
+        float: right;
+      }
+
+      & > div.ok {
+        display: inline-block;
+        float: right;
+        margin-right: 20px;
+        height: 30px;
+        margin-top: 15px;
+        cursor: pointer;
+        color: #8f8f8e;
+        font-size: 12px;
       }
     }
   }

@@ -108,6 +108,33 @@ export default Ember.Component.extend({
   minuteOrHour: null,
 
   /**
+   * if they cancel the change this is the timestamp the picker will revert back to
+   *
+   * @private
+   * @property backupTimestamp
+   * @type Number
+   */
+  backupTimestamp: null,
+
+  /**
+   * the last active section that was open in the pickers
+   *
+   * @private
+   * @property lastActiveSection
+   * @type String
+   */
+  lastActiveSection: null,
+
+  /**
+   * variable that is changed in multiple places, used to keep timepicker from opening more than once
+   *
+   * @private
+   * @property openOnce
+   * @type Number
+   */
+  openOnce: 0,
+
+  /**
    * sets currentTime and currentDate, sets a timestamp to now if a timestamp wasnt passed in
    * @private
    * @method init
@@ -118,28 +145,51 @@ export default Ember.Component.extend({
     this._super();
     this.observeActiveSection();
     this.observesDateTime();
+
+    this.set('backupTimestamp', this.get('timestamp'));
   },
 
-  observeActiveSection: Ember.observer('activeSection', function()
+  /**
+   * opens/closes the correct dialogs based on the inputs clicked on/ focused on
+   *
+   * @private
+   * @method observeActiveSection
+   */
+  observeActiveSection: Ember.observer('updateActive', function()
   {
     const section = this.get('activeSection');
 
-    if (section === 'year' || section === 'month' || section === 'day')
+    if (section !== this.get('lastActiveSection'))
     {
-      this.set('isClock', false);
-      this.set('isCalender', true);
+      this.set('openOnce', 0);
     }
-    if (section === 'hour' || section === 'meridian')
+    if (this.get('isClock') === false && this.get('isCalender') === false)
     {
-      this.set('isClock', true);
-      this.set('minuteOrHour', 'hour');
-      this.set('isCalender', false);
+      this.set('openOnce', 0);
     }
-    if (section === 'minute')
+
+    if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1)
     {
-      this.set('isClock', true);
-      this.set('minuteOrHour', 'minute');
-      this.set('isCalender', false);
+      if (section === 'year' || section === 'month' || section === 'day')
+      {
+        this.set('isClock', false);
+        this.set('isCalender', true);
+      }
+      if (section === 'hour' || section === 'meridean')
+      {
+        this.set('isClock', true);
+        this.set('minuteOrHour', 'hour');
+        this.set('isCalender', false);
+      }
+      if (section === 'minute')
+      {
+        this.set('isClock', true);
+        this.set('minuteOrHour', 'minute');
+        this.set('isCalender', false);
+      }
+
+      this.set('lastActiveSection', section);
+      this.set('openOnce', this.get('openOnce') + 1);
     }
   }),
 
@@ -177,6 +227,32 @@ export default Ember.Component.extend({
      const isClock = (current === 'isClock');
      this.set('isClock', !isClock);
      this.set('isCalender', isClock);
-    }
+     this.set('openOnce', 0);
+   },
+
+   /**
+    * closes all dialogs
+    *
+    * @event togglePicker
+    */
+   close: function()
+   {
+     this.set('isClock', false);
+     this.set('isCalender', false);
+     this.set('openOnce', 0);
+   },
+
+   /**
+    * closes all dialogs and resets the timestamp
+    *
+    * @event togglePicker
+    */
+   cancel: function()
+   {
+     this.set('timestamp', this.get('backupTimestamp'));
+     this.set('isClock', false);
+     this.set('isCalender', false);
+     this.set('openOnce', 0);
+   }
   }
 });

@@ -13,11 +13,17 @@
 
         {{#if isClock}}
             <div class="current-date" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
+            <div class="ok" {{action 'close'}}>OK</div>
+            <div class="cancel" {{action 'cancel'}}>Cancel</div>
         {{/if}}
 
         {{#if isCalender}}
             <div class="current-date" {{action 'togglePicker' 'isCalender'}}>{{currentTime}}</div>
+            <div class="ok" {{action 'close'}}>OK</div>
+            <div class="cancel" {{action 'cancel'}}>Cancel</div>
         {{/if}}
+
+
     </div>
 
 </div>
