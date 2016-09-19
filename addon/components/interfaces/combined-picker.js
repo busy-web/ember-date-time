@@ -258,7 +258,6 @@ export default Ember.Component.extend({
     */
    close: function()
    {
-     console.log('here');
      this.set('isClock', false);
      this.set('isCalender', false);
      this.set('openOnce', 0);
