@@ -149,6 +149,27 @@ export default Ember.Component.extend({
     this.set('backupTimestamp', this.get('timestamp'));
   },
 
+  didInsertElement()
+  {
+    let _this = this;
+
+    let handleClick = function(evt) {
+
+      var el = Ember.$(evt.target);
+
+      if(el.attr('class') === 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0)
+      {
+        if(!el.hasClass('keepOpen'))
+        {
+          _this.send('close');
+        }
+      }
+    };
+
+    const registerClick = () => Ember.$(document).on('click', handleClick);
+    setTimeout(registerClick);
+  },
+
   /**
    * opens/closes the correct dialogs based on the inputs clicked on/ focused on
    *
@@ -237,6 +258,7 @@ export default Ember.Component.extend({
     */
    close: function()
    {
+     console.log('here');
      this.set('isClock', false);
      this.set('isCalender', false);
      this.set('openOnce', 0);
