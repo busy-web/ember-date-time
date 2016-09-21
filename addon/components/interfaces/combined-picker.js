@@ -149,6 +149,12 @@ export default Ember.Component.extend({
     this.set('backupTimestamp', this.get('timestamp'));
   },
 
+  /**
+   * sets up the click handler to close the dialogs if anything outside is clicked
+   * @private
+   * @method didInsertElement
+   * @constructor
+   */
   didInsertElement()
   {
     let _this = this;
@@ -212,6 +218,8 @@ export default Ember.Component.extend({
       this.set('lastActiveSection', section);
       this.set('openOnce', this.get('openOnce') + 1);
     }
+
+    this.changeDialogHeight();
   }),
 
   /**
@@ -236,6 +244,46 @@ export default Ember.Component.extend({
     this.set('currentTime', time.format('hh:mm A'));
   }),
 
+  /**
+   * sets the correct classes depending on which section is active
+   *
+   * @private
+   * @method changeDialogHeight
+   */
+  changeDialogHeight: function()
+  {
+    const isClock = this.get('isClock');
+    if (isClock)
+    {
+      Ember.$('.bottom-dialog-container').removeClass('calHeight');
+      Ember.$('.top-dialog-container').removeClass('calHeight');
+
+      Ember.$('.bottom-dialog-container').addClass('timeHeight');
+      Ember.$('.top-dialog-container').addClass('timeHeight');
+    }
+
+    if (!isClock)
+    {
+      Ember.$('.bottom-dialog-container').removeClass('timeHeight');
+      Ember.$('.top-dialog-container').removeClass('timeHeight');
+
+      Ember.$('.bottom-dialog-container').addClass('calHeight');
+      Ember.$('.top-dialog-container').addClass('calHeight');
+    }
+  },
+
+  /**
+   * completely removes the pickers containers
+   *
+   * @private
+   * @method removeContainer
+   */
+  removeContainer: function()
+  {
+    Ember.$('.bottom-dialog-container').addClass('removeDisplay');
+    Ember.$('.top-dialog-container').addClass('removeDisplay');
+  },
+
   actions: {
 
     /**
@@ -249,6 +297,8 @@ export default Ember.Component.extend({
      this.set('isClock', !isClock);
      this.set('isCalender', isClock);
      this.set('openOnce', 0);
+
+     this.changeDialogHeight();
    },
 
    /**
@@ -258,6 +308,9 @@ export default Ember.Component.extend({
     */
    close: function()
    {
+     this.removeContainer();
+
+     this.set('backupTimestamp', this.get('timestamp'));
      this.set('isClock', false);
      this.set('isCalender', false);
      this.set('openOnce', 0);
@@ -270,6 +323,8 @@ export default Ember.Component.extend({
     */
    cancel: function()
    {
+     this.removeContainer();
+
      this.set('timestamp', this.get('backupTimestamp'));
      this.set('isClock', false);
      this.set('isCalender', false);

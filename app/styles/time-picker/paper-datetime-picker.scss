@@ -224,6 +224,20 @@
         background-color: white;
         bottom: 50px;
         left: 25px;
+        z-index: 50;
+        display: block;
+
+        &.removeDisplay {
+          display: none;
+        }
+
+        &.calHeight {
+          height: 400px;
+        }
+
+        &.timeHeight {
+          height: 330px;
+        }
       }
 
       & > div.bottom-dialog-container {
@@ -231,6 +245,36 @@
         background-color: white;
         top: 50px;
         left: 25px;
+        z-index: 50;
+        display: block;
+
+        &.removeDisplay {
+          display: none;
+        }
+
+        &.calHeight {
+          height: 400px;
+        }
+
+        &.timeHeight {
+          height: 330px;
+        }
       }
     }
+}
+
+@media only screen and (max-width: 500px) {
+  div.top-dialog-container {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  div.bottom-dialog-container {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
 }

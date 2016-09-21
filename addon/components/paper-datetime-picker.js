@@ -242,6 +242,19 @@ export default Ember.Component.extend({
       }
   },
 
+  /**
+   * removes display none from the dialog containers
+   *
+   * @private
+   * @method addContainer
+   */
+  addContainer: function()
+  {
+    Ember.$('.bottom-dialog-container').removeClass('removeDisplay');
+    Ember.$('.top-dialog-container').removeClass('removeDisplay');
+  },
+
+
   actions: {
 
       /**
@@ -272,6 +285,7 @@ export default Ember.Component.extend({
         }
 
         this.set('activeSection', active);
+        this.addContainer();
       },
 
       /**
