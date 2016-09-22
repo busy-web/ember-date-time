@@ -167,7 +167,10 @@ export default Ember.Component.extend({
       {
         if(!el.hasClass('keepOpen'))
         {
-          _this.send('close');
+          if(_this.get('isClock') === true || _this.get('isCalender') === true)
+          {
+            _this.send('close');
+          }
         }
       }
     };
@@ -308,9 +311,9 @@ export default Ember.Component.extend({
     */
    close: function()
    {
+     this.set('backupTimestamp', this.get('timestamp'));
      this.removeContainer();
 
-     this.set('backupTimestamp', this.get('timestamp'));
      this.set('isClock', false);
      this.set('isCalender', false);
      this.set('openOnce', 0);
@@ -323,9 +326,9 @@ export default Ember.Component.extend({
     */
    cancel: function()
    {
+     this.set('timestamp', this.get('backupTimestamp'));
      this.removeContainer();
 
-     this.set('timestamp', this.get('backupTimestamp'));
      this.set('isClock', false);
      this.set('isCalender', false);
      this.set('openOnce', 0);
