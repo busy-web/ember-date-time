@@ -143,6 +143,15 @@ export default Ember.Component.extend({
   updateActive: true,
 
   /**
+   * value shared with combined picker to destroy both dialogs when closed
+   *
+   * @private
+   * @property destroyElements
+   * @type Boolean
+   */
+  destroyElements: false,
+
+  /**
    * checks if timestamp is valid calls updateInputValues
    *
    * @private
@@ -202,6 +211,21 @@ export default Ember.Component.extend({
     this.set('timestampDays', time.format('DD'));
     this.set('timestampMonths', time.format('MM'));
     this.set('timestampYears', time.format('YYYY'));
+  }),
+
+  /**
+   * observes the destroyElements value shared with combined picker and destroys both dialogs if set to true
+   *
+   * @private
+   * @method updateInputValues
+   */
+  destroyOnChange: Ember.observer('destroyElements', function()
+  {
+    if (this.get('destroyElements'))
+    {
+      this.set('showDialogTop', false);
+      this.set('showDialogBottom', false);
+    }
   }),
 
   /**
@@ -284,6 +308,7 @@ export default Ember.Component.extend({
           this.set('updateActive',  !activeState);
         }
 
+        this.set('destroyElements', false);
         this.set('activeSection', active);
         this.addContainer();
       },

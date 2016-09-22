@@ -153,31 +153,44 @@ export default Ember.Component.extend({
    * sets up the click handler to close the dialogs if anything outside is clicked
    * @private
    * @method didInsertElement
-   * @constructor
    */
-  didInsertElement()
+  onOpen: Ember.on('didInsertElement', function()
   {
-    let _this = this;
+    if (this.get('isClock') === true || this.get('isCalender') === true)
+    {
+      let _this = this;
 
-    let handleClick = function(evt) {
+      let modal = Ember.$(document);
 
-      var el = Ember.$(evt.target);
+      modal.bind('click.paper-datetime-picker', (evt) => {
 
-      if(el.attr('class') === 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0)
-      {
-        if(!el.hasClass('keepOpen'))
+        var el = Ember.$(evt.target);
+
+        if(el.attr('class') === 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0)
         {
-          if(_this.get('isClock') === true || _this.get('isCalender') === true)
+          if(!el.hasClass('keepOpen'))
           {
-            _this.send('close');
+            if(_this.get('isClock') === true || _this.get('isCalender') === true)
+            {
+              _this.set('destroyElements', true);
+              _this.send('close');
+            }
           }
         }
-      }
-    };
+      });
+    }
+  }),
 
-    const registerClick = () => Ember.$(document).on('click', handleClick);
-    setTimeout(registerClick);
-  },
+  /**
+   * removes the click handler to close the dialogs if anything outside is clicked
+   * @private
+   * @method removeClick
+   */
+  onClose: Ember.on('willDestroyElement', function()
+  {
+    let modal = Ember.$(document);
+    modal.unbind('click.paper-datetime-picker');
+  }),
 
   /**
    * opens/closes the correct dialogs based on the inputs clicked on/ focused on
