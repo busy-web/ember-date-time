@@ -10,15 +10,15 @@
 
     <div class="inputInDate">
       <div class="monthContainer">
-          {{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'month') click=(action 'focusInput' 'month')}}
+          {{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-up=(action 'resetKeyUp') key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'month') click=(action 'focusInput' 'month')}}
       </div>
       <div class="monthSlash">/</div>
       <div class="dayContainer">
-          {{input class="day" type="text" maxlength="2" value=timestampDays key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'day') click=(action 'focusInput' 'day')}}
+          {{input class="day" type="text" maxlength="2" value=timestampDays key-up=(action 'resetKeyUp') key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'day') click=(action 'focusInput' 'day')}}
       </div>
       <div class="daySlash">/</div>
       <div class="yearContainer">
-          {{input class="year" type="text" maxlength="4" value=timestampYears key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'year') click=(action 'focusInput' 'year')}}
+          {{input class="year" type="text" maxlength="4" value=timestampYears key-up=(action 'resetKeyUp') key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'year') click=(action 'focusInput' 'year')}}
       </div>
   </div>
 

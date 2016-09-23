@@ -37,6 +37,7 @@
                     padding: 0;
                     border: none;
                     color: #727272;
+                    box-shadow: none !important;
                 }
 
                 & > input.month:focus {
@@ -61,6 +62,7 @@
                     margin-left: 1.5px;
                     margin-right: 1.5px;
                     color: #727272;
+                    box-shadow: none !important;
                 }
 
                 & > input.day:focus {
@@ -83,6 +85,7 @@
                     border: none;
                     margin-left: 3px;
                     color: #727272;
+                    box-shadow: none !important;
                 }
 
                 & > input.year:focus {
@@ -142,6 +145,7 @@
                     padding: 0;
                     border: none;
                     color: #727272;
+                    box-shadow: none !important;
                 }
 
                 & > input.hour:focus {
@@ -165,6 +169,7 @@
                     padding: 0;
                     border: none;
                     color: #727272;
+                    box-shadow: none !important;
                 }
 
                 & > input.minute:focus {
@@ -189,6 +194,7 @@
                     padding: 0;
                     border: none;
                     color: #727272;
+                    box-shadow: none !important;
                 }
 
                 & > input.am-pm:focus {

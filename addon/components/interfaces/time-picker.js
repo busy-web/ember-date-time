@@ -25,7 +25,7 @@ export default Ember.Component.extend(
      * @type String
      * @default time-picker
      */
-    classNames: ['time-picker'],
+    classNames: ['paper-time-picker'],
     layout: layout,
 
     /**

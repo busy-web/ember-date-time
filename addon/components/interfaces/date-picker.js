@@ -21,7 +21,7 @@ export default Ember.Component.extend({
    * @type String
    * @default date-picker
    */
-  classNames: ['date-picker'],
+  classNames: ['paper-date-picker'],
   layout: layout,
 
   /**

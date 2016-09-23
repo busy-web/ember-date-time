@@ -152,6 +152,15 @@ export default Ember.Component.extend({
   destroyElements: false,
 
   /**
+   * value thats used to only allow one action to be sent each keyup/heydown for calender
+   *
+   * @private
+   * @property keyHasGoneUp
+   * @type Boolean
+   */
+  keyHasGoneUp: true,
+
+  /**
    * checks if timestamp is valid calls updateInputValues
    *
    * @private
@@ -252,8 +261,9 @@ export default Ember.Component.extend({
   {
       var key = event.keyCode || event.which;
 
-      if (key === 38 || key === 40 || key === 9)
+      if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9)
       {
+        console.log('true');
           return true;
       }
       else
@@ -326,7 +336,7 @@ export default Ember.Component.extend({
 
           this.onlyAllowArrows(event);
 
-          if (code === 38)
+          if (code === 38 || code === 39)
           {
               if (time.minutes() + 1 >= 60)
               {
@@ -345,7 +355,7 @@ export default Ember.Component.extend({
                   }
               }
           }
-          if (code === 40)
+          if (code ===37 || code === 40)
           {
               if (time.minutes() - 1 < 0)
               {
@@ -379,7 +389,7 @@ export default Ember.Component.extend({
 
           this.onlyAllowArrows(event);
 
-          if (code === 38)
+          if (code === 38 || code === 39)
           {
               if (((time.hour() + 1) % 12) >= 12)
               {
@@ -398,7 +408,7 @@ export default Ember.Component.extend({
                   }
               }
           }
-          if (code === 40)
+          if (code ===37 || code === 40)
           {
               if (time.hour() - 1 < 0)
               {
@@ -433,22 +443,36 @@ export default Ember.Component.extend({
 
           this.onlyAllowArrows(event);
 
-          if (code === 38)
+          if (this.get('keyHasGoneUp') === true)
           {
-              object = time.add(1, period);
-              if (!object.isAfter(moment(this.get('maxDate'))))
-              {
-                  this.setTimestamp(object);
-              }
+            if (code === 38 || code === 39)
+            {
+                object = time.add(1, period);
+                if (!object.isAfter(moment(this.get('maxDate'))))
+                {
+                    this.setTimestamp(object);
+                }
+            }
+            if (code === 37 || code === 40)
+            {
+                object = time.subtract(1, period);
+                if (!object.isBefore(moment(this.get('minDate'))))
+                {
+                    this.setTimestamp(object);
+                }
+            }
+            this.set('keyHasGoneUp', false);
           }
-          if (code === 40)
-          {
-              object = time.subtract(1, period);
-              if (!object.isBefore(moment(this.get('minDate'))))
-              {
-                  this.setTimestamp(object);
-              }
-          }
+      },
+
+      /**
+       * allows keyup/keydown handlers to work for calender inputs
+       *
+       * @event resetKeyUp
+       */
+      resetKeyUp: function()
+      {
+        this.set('keyHasGoneUp', true);
       },
 
       /**
@@ -464,7 +488,7 @@ export default Ember.Component.extend({
 
           this.onlyAllowArrows(event);
 
-          if (code === 38 || code === 40)
+          if (code ===37 || code === 38 || code === 39 || code === 40)
           {
               if (time.format('A') === 'AM')
               {
