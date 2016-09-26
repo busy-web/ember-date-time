@@ -35,6 +35,8 @@
       </div>
   </div>
 
+  <div class="right-padding"{{action 'focusInput' 'hour'}}></div>
+
   <div class="bottom-dialog-container">
     {{#if showDialogBottom}}
         {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements}}

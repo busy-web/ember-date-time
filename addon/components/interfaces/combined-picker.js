@@ -159,8 +159,8 @@ export default Ember.Component.extend({
     if (this.get('isClock') === true || this.get('isCalender') === true)
     {
       let _this = this;
-
       let modal = Ember.$(document);
+      this.set('destroyElements', false);
 
       modal.bind('click.paper-datetime-picker', (evt) => {
 
@@ -178,6 +178,22 @@ export default Ember.Component.extend({
           }
         }
       });
+
+      modal.bind('keyup.paper-datetime-picker', (e) => {
+
+        let key = e.which;
+        // console.log('key: ', key);
+        if (key === 27)
+        {
+          _this.set('destroyElements', true);
+          _this.send('cancel');
+        }
+        // if (key === 13)
+        // {
+        //   _this.set('destroyElements', true);
+        //   _this.send('close');
+        // }
+      });
     }
   }),
 
@@ -190,6 +206,7 @@ export default Ember.Component.extend({
   {
     let modal = Ember.$(document);
     modal.unbind('click.paper-datetime-picker');
+    modal.unbind('keyup.paper-datetime-picker');
   }),
 
   /**

@@ -11,6 +11,7 @@
         height: 32px;
         float: left;
         position: relative;
+        cursor: pointer;
 
         & > div.inputInDate {
           float: left;
@@ -118,6 +119,11 @@
             }
         }
 
+        & > div.right-padding {
+           height: 100%;
+           width: calc(100% - 250px);
+           float: left;
+        }
 
         & > div.inputInTime {
             float: left;

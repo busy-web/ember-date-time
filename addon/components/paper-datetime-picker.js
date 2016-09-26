@@ -263,15 +263,15 @@ export default Ember.Component.extend({
 
       if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9)
       {
-        console.log('true');
           return true;
       }
+
       else
       {
           event.returnValue = false;
           if(event.preventDefault)
           {
-              event.preventDefault();
+            event.preventDefault();
           }
       }
   },
@@ -320,6 +320,7 @@ export default Ember.Component.extend({
 
         this.set('destroyElements', false);
         this.set('activeSection', active);
+
         this.addContainer();
       },
 
@@ -355,7 +356,7 @@ export default Ember.Component.extend({
                   }
               }
           }
-          if (code ===37 || code === 40)
+          if (code === 37 || code === 40)
           {
               if (time.minutes() - 1 < 0)
               {
