@@ -23,11 +23,11 @@ test('check calender values', function(assert) {
 
   assert.equal(this.$('.day-of-week').text().trim(), moment(this.get('timestamp')).format('dddd'));
 
-  assert.equal(this.$('.month').text().trim(), moment(this.get('timestamp')).format('MMM').toUpperCase());
+  assert.equal(this.$('.date-picker-header-month').text().trim(), moment(this.get('timestamp')).format('MMM').toUpperCase());
 
-  assert.equal(this.$('.day-of-month').text().trim(), moment(this.get('timestamp')).format('DD'));
+  assert.equal(this.$('.date-picker-header-day').text().trim(), moment(this.get('timestamp')).format('DD'));
 
-  assert.equal(this.$('.year').text().trim(), moment(this.get('timestamp')).format('YYYY'));
+  assert.equal(this.$('.date-picker-header-year').text().trim(), moment(this.get('timestamp')).format('YYYY'));
 
   assert.equal(this.$('.month-year').text().trim(), moment(this.get('timestamp')).format('MMM YYYY'));
 });

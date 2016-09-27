@@ -7,17 +7,15 @@
 
         <div class="month-container">
 
-
-            <div class="month">{{month}}</div>
-
+            <div class="date-picker-header-month {{monthActive}}">{{month}}</div>
 
         </div>
 
-        <div class="day-of-month">{{day}}</div>
+        <div class="date-picker-header-day {{dayActive}}">{{day}}</div>
 
         <div class="year-container">
 
-            <div class="year">{{year}}</div>
+            <div class="date-picker-header-year {{yearActive}}">{{year}}</div>
 
         </div>
 
@@ -29,7 +27,7 @@
 
             <div class="subtract-month" {{action "subtractMonth"}}></div>
 
-            <div class="month-year">{{monthYear}}</div>
+            <div class="month-year {{monthYearActive}}">{{monthYear}}</div>
 
             <div class="add-month" {{action "addMonth"}}></div>
 

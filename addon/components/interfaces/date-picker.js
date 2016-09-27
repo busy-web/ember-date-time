@@ -134,6 +134,12 @@ export default Ember.Component.extend({
    */
   groupedArray: null,
 
+  monthActive: null,
+  dayActive: null,
+  yearActive: null,
+  monthYearActive: null,
+
+
   /**
    * @private
    * @method init
@@ -144,6 +150,7 @@ export default Ember.Component.extend({
     this._super();
     this.resetCalenderDate();
     this.keepCalenderUpdated();
+    this.updateActiveSection();
   },
 
   /**
@@ -172,6 +179,48 @@ export default Ember.Component.extend({
     else
     {
       Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(time) && time.isValid());
+    }
+  }),
+
+  /**
+   * updates to the new active header  (day, month, or year)
+   *
+   * @private
+   * @method updateActiveSection
+   */
+  updateActiveSection: Ember.observer('calenderActiveSection', function()
+  {
+    let section = this.get('calenderActiveSection');
+
+    if (section === 'day')
+    {
+      this.set('dayActive', 'active');
+      this.set('monthActive', null);
+      this.set('yearActive', null);
+      this.set('monthYearActive', null);
+    }
+    if (section === 'month')
+    {
+      this.set('monthActive', 'active');
+      this.set('dayActive', null);
+      this.set('yearActive', null);
+      this.set('monthYearActive', null);
+
+    }
+    if (section === 'year')
+    {
+      this.set('yearActive', 'active');
+      this.set('monthActive', null);
+      this.set('dayActive', null);
+      this.set('monthYearActive', null);
+    }
+
+    if (section === 'month-year')
+    {
+      this.set('monthYearActive', 'active');
+      this.set('monthActive', null);
+      this.set('dayActive', null);
+      this.set('yearActive', null);
     }
   }),
 
@@ -406,6 +455,7 @@ export default Ember.Component.extend({
       let subtract = timestamp.subtract('1', 'months');
 
       this.setCalenderDate(subtract);
+      this.set('calenderActiveSection', 'month-year');
     },
 
     /**
@@ -419,6 +469,7 @@ export default Ember.Component.extend({
       let add = timestamp.add('1', 'months');
 
       this.setCalenderDate(add);
+      this.set('calenderActiveSection', 'month-year');
     }
   }
 });

@@ -108,6 +108,15 @@ export default Ember.Component.extend({
   minuteOrHour: null,
 
   /**
+   * active input for calender dialog
+   *
+   * @private
+   * @property calenderActiveSection
+   * @type string
+   */
+  calenderActiveSection: null,
+
+  /**
    * if they cancel the change this is the timestamp the picker will revert back to
    *
    * @private
@@ -253,6 +262,17 @@ export default Ember.Component.extend({
     }
 
     this.changeDialogHeight();
+  }),
+
+  /**
+   * refreshes calenderActiveSection
+   *
+   * @private
+   * @method refreshCalenderActiveSection
+   */
+  refreshCalenderActiveSection: Ember.observer('updateActive', function()
+  {
+    this.set('calenderActiveSection', this.get('activeSection'));
   }),
 
   /**
