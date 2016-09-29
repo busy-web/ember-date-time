@@ -261,9 +261,15 @@ export default Ember.Component.extend({
   {
       var key = event.keyCode || event.which;
 
+      if (key === 13)
+      {
+        this.set('showDialogTop', false);
+        this.set('showDialogBottom', false);
+      }
+
       if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9)
       {
-          return true;
+        return true;
       }
 
       else

@@ -134,9 +134,40 @@ export default Ember.Component.extend({
    */
   groupedArray: null,
 
+  /**
+   * becomes string 'active' (binded to classes in template) if monthActive is active
+   *
+   * @private
+   * @property monthActive
+   * @type String
+   */
   monthActive: null,
+
+  /**
+   * becomes string 'active' (binded to classes in template) if dayActive is active
+   *
+   * @private
+   * @property monthActive
+   * @type dayActive
+   */
   dayActive: null,
+
+  /**
+   * becomes string 'active' (binded to classes in template) if yearActive is active
+   *
+   * @private
+   * @property yearActive
+   * @type String
+   */
   yearActive: null,
+
+  /**
+   * becomes string 'active' (binded to classes in template) if monthYearActive is active
+   *
+   * @private
+   * @property monthYearActive
+   * @type String
+   */
   monthYearActive: null,
 
 

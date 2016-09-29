@@ -114,7 +114,13 @@
                 margin-right: 2px;
                 color: #727272;
             }
+            & > div.date-right-padding {
+              height: 100%;
+              width: calc(100% - 118px);
+              float: left;
+            }
         }
+
 
         & > div.right-padding {
            height: 100%;

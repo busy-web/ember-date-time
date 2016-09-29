@@ -191,17 +191,16 @@ export default Ember.Component.extend({
       modal.bind('keyup.paper-datetime-picker', (e) => {
 
         let key = e.which;
-        // console.log('key: ', key);
         if (key === 27)
         {
           _this.set('destroyElements', true);
           _this.send('cancel');
         }
-        // if (key === 13)
-        // {
-        //   _this.set('destroyElements', true);
-        //   _this.send('close');
-        // }
+        if (key === 13)
+        {
+          _this.set('destroyElements', true);
+          _this.send('close');
+        }
       });
     }
   }),
