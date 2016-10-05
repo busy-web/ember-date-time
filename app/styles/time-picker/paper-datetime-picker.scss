@@ -12,6 +12,10 @@
         float: left;
         position: relative;
 
+        &.invalid {
+          border-color: #b7220f !important;
+        }
+
         & > div.inputInDate {
           float: left;
             vertical-align: top;

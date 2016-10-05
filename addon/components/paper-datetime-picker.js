@@ -53,6 +53,16 @@ export default Ember.Component.extend({
   minDate: null,
 
   /**
+   * can be passed in to give the input an initial class
+   *
+   * @private
+   * @property class
+   * @type String
+   * @optional
+   */
+  class: null,
+
+  /**
    * Merdian (AM/PM) that is shown in the input bar
    *
    * @private
