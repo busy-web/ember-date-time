@@ -5,6 +5,7 @@
 import Ember from 'ember';
 import layout from '../templates/components/paper-datetime-picker';
 import moment from 'moment';
+import Time from 'busy-utils/time';
 
 /**
  * `Component/paper-datetime-picker`
@@ -61,6 +62,16 @@ export default Ember.Component.extend({
    * @optional
    */
   class: null,
+
+  /**
+   * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
+   *
+   * @private
+   * @property isMilliseconds
+   * @type boolean
+   * @optional
+   */
+  isMilliseconds: false,
 
   /**
    * Merdian (AM/PM) that is shown in the input bar
@@ -213,6 +224,11 @@ export default Ember.Component.extend({
     {
       Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
     }
+
+    if (typeof this.get('isMilliseconds') !== 'boolean')
+    {
+      Ember.assert("isMilliseconds must be a boolean'");
+    }
   },
 
   /**
@@ -222,7 +238,17 @@ export default Ember.Component.extend({
    * @method updateInputValues
    */
   updateInputValues: Ember.observer('timestamp', function() {
-    const time = moment(this.get('timestamp'));
+
+    let time;
+
+    if (this.get('isMilliseconds'))
+    {
+      time = moment(this.get('timestamp'));
+    }
+    else
+    {
+      time = Time.date(this.get('timestamp'));
+    }
 
     this.set('timestampMeridian', time.format('A'));
     this.set('timestampMinutes', time.format('mm'));
@@ -256,8 +282,16 @@ export default Ember.Component.extend({
    */
   setTimestamp: function(moment)
   {
-      let reverse = moment.unix() * 1000;
+    if (this.get('isMilliseconds'))
+    {
+      let reverse = Time.timestamp(moment);
       this.set('timestamp', reverse);
+    }
+    else
+    {
+      let reverse = moment.unix();
+      this.set('timestamp', reverse);
+    }
   },
 
   /**
@@ -304,6 +338,38 @@ export default Ember.Component.extend({
     Ember.$('.top-dialog-container').removeClass('removeDisplay');
   },
 
+  /**
+   * returns the correct moment objects, depending on if the timestamps are milliseconds or not
+   *
+   * @private
+   * @method addContainer
+   * @return object
+   */
+
+  getCorrectMomentObjects: function()
+  {
+    let time, minDate, maxDate;
+
+    if (this.get('isMilliseconds'))
+    {
+      time = moment(this.get('timestamp'));
+      minDate = moment(this.get('minDate'));
+      maxDate = moment(this.get('maxDate'));
+    }
+    else
+    {
+      time = Time.date(this.get('timestamp'));
+      minDate = Time.date(this.get('minDate'));
+      maxDate = Time.date(this.get('maxDate'));
+    }
+
+    return {
+      'time': time,
+      'minDate': minDate,
+      'maxDate': maxDate
+    };
+
+  },
 
   actions: {
 
@@ -347,7 +413,7 @@ export default Ember.Component.extend({
        */
       keyUpDownMinutes: function()
       {
-          let time = moment(this.get('timestamp'));
+          let timestamps = this.getCorrectMomentObjects();
           let object = null;
           let code = event.keyCode || event.which;
 
@@ -355,18 +421,18 @@ export default Ember.Component.extend({
 
           if (code === 38 || code === 39)
           {
-              if (time.minutes() + 1 >= 60)
+              if (timestamps.time.minutes() + 1 >= 60)
               {
-                  object = time.subtract(59, 'minutes');
-                  if (!object.isBefore(moment(this.get('minDate'))))
+                  object = timestamps.time.subtract(59, 'minutes');
+                  if (!object.isBefore(timestamps.minDate))
                   {
                       this.setTimestamp(object);
                   }
               }
               else
               {
-                  object = time.add(1, 'minutes');
-                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  object = timestamps.time.add(1, 'minutes');
+                  if (!object.isAfter(timestamps.maxDate))
                   {
                       this.setTimestamp(object);
                   }
@@ -374,18 +440,18 @@ export default Ember.Component.extend({
           }
           if (code === 37 || code === 40)
           {
-              if (time.minutes() - 1 < 0)
+              if (timestamps.time.minutes() - 1 < 0)
               {
-                  object = time.add(59, 'minutes');
-                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  object = timestamps.time.add(59, 'minutes');
+                  if (!object.isAfter(timestamps.maxDate))
                   {
                       this.setTimestamp(object);
                   }
               }
               else
               {
-                  object = time.subtract(1, 'minutes');
-                  if (!object.isBefore(moment(this.get('minDate'))))
+                  object = timestamps.time.subtract(1, 'minutes');
+                  if (!object.isBefore(timestamps.minDate))
                   {
                       this.setTimestamp(object);
                   }
@@ -400,7 +466,7 @@ export default Ember.Component.extend({
        */
       keyUpDownHours: function()
       {
-          let time = moment(this.get('timestamp'));
+          let timestamps = this.getCorrectMomentObjects();
           let object = null;
           let code = event.keyCode || event.which;
 
@@ -408,18 +474,18 @@ export default Ember.Component.extend({
 
           if (code === 38 || code === 39)
           {
-              if (((time.hour() + 1) % 12) >= 12)
+              if (((timestamps.time.hour() + 1) % 12) >= 12)
               {
-                  object = time.subtract(11, 'hours');
-                  if (!object.isBefore(moment(this.get('minDate'))))
+                  object = timestamps.time.subtract(11, 'hours');
+                  if (!object.isBefore(timestamps.minDate))
                   {
                       this.setTimestamp(object);
                   }
               }
               else
               {
-                  object = time.add(1, 'hours');
-                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  object = timestamps.time.add(1, 'hours');
+                  if (!object.isAfter(timestamps.maxDate))
                   {
                       this.setTimestamp(object);
                   }
@@ -427,18 +493,18 @@ export default Ember.Component.extend({
           }
           if (code ===37 || code === 40)
           {
-              if (time.hour() - 1 < 0)
+              if (timestamps.time.hour() - 1 < 0)
               {
-                  object = time.add(11, 'hours');
-                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  object = timestamps.time.add(11, 'hours');
+                  if (!object.isAfter(timestamps.maxDate))
                   {
                       this.setTimestamp(object);
                   }
               }
               else
               {
-                  object = time.subtract(1, 'hours');
-                  if (!object.isBefore(moment(this.get('minDate'))))
+                  object = timestamps.time.subtract(1, 'hours');
+                  if (!object.isBefore(timestamps.minDate))
                   {
                       this.setTimestamp(object);
                   }
@@ -454,7 +520,7 @@ export default Ember.Component.extend({
        */
       keyUpDownHandler: function(period)
       {
-          let time = moment(this.get('timestamp'));
+          let timestamps = this.getCorrectMomentObjects();
           let object = null;
           let code = event.keyCode || event.which;
 
@@ -464,16 +530,16 @@ export default Ember.Component.extend({
           {
             if (code === 38 || code === 39)
             {
-                object = time.add(1, period);
-                if (!object.isAfter(moment(this.get('maxDate'))))
+                object = timestamps.time.add(1, period);
+                if (!object.isAfter(timestamps.maxDate))
                 {
                     this.setTimestamp(object);
                 }
             }
             if (code === 37 || code === 40)
             {
-                object = time.subtract(1, period);
-                if (!object.isBefore(moment(this.get('minDate'))))
+                object = timestamps.time.subtract(1, period);
+                if (!object.isBefore(timestamps.minDate))
                 {
                     this.setTimestamp(object);
                 }
@@ -499,7 +565,7 @@ export default Ember.Component.extend({
        */
       meridianKeyHandler: function()
       {
-          let time = moment(this.get('timestamp'));
+          let timestamps = this.getCorrectMomentObjects();
           let object = null;
           let code = event.keyCode || event.which;
 
@@ -507,18 +573,18 @@ export default Ember.Component.extend({
 
           if (code ===37 || code === 38 || code === 39 || code === 40)
           {
-              if (time.format('A') === 'AM')
+              if (timestamps.time.format('A') === 'AM')
               {
-                  object = time.add(12, 'hours');
-                  if (!object.isAfter(moment(this.get('maxDate'))))
+                  object = timestamps.time.add(12, 'hours');
+                  if (!object.isAfter(timestamps.maxDate))
                   {
                       this.setTimestamp(object);
                   }
               }
               else
               {
-                  object = time.subtract(12, 'hours');
-                  if (!object.isBefore(moment(this.get('minDate'))))
+                  object = timestamps.time.subtract(12, 'hours');
+                  if (!object.isBefore(timestamps.minDate))
                   {
                       this.setTimestamp(object);
                   }
