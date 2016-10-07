@@ -18,8 +18,9 @@ test('it renders', function(assert) {
 test('changes from hours to minutes', function(assert) {
 
   this.set('timestamp', moment());
+  this.set('minuteOrHour', 'hour');
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour}}`);
 
   assert.equal(this.$('.hours-header').hasClass('active'), true);
   assert.equal(this.$('.minutes-header').hasClass('inactive'), true);
@@ -34,7 +35,9 @@ test('changes from hours to minutes', function(assert) {
 test('changes from pm to am and back', function(assert) {
 
   this.set('timestamp', moment());
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
+  this.set('minuteOrHour', 'hour');
+
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour}}`);
 
   if (this.get('timestamp').format('A') === 'AM')
   {
@@ -76,7 +79,9 @@ test('test hour and minute headers', function(assert) {
 test('click random minute sectionMin', function(assert) {
 
   this.set('timestamp', moment());
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
+  this.set('minuteOrHour', 'minute');
+
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour}}`);
 
   let randomSection = ('0' + Math.round(Math.random() * (60 - 1) + 1)).slice(-2);
   let id = '#sectionMin' + randomSection;
@@ -84,17 +89,4 @@ test('click random minute sectionMin', function(assert) {
   this.$(id).click();
 
   assert.equal(this.$('.minutes-header').text().trim(), randomSection);
-});
-
-test('click random hour', function(assert) {
-
-  this.set('timestamp', moment());
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
-
-  let randomHour = ('0' + Math.round(Math.random() * (12 - 1) + 1)).slice(-2);
-  let id = '#hour' + randomHour;
-
-  this.$(id).click();
-
-  assert.equal(this.$('.hours-header').text().trim(), randomHour);
 });

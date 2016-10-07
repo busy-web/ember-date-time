@@ -7,23 +7,19 @@
 
         <div class="month-container">
 
-
-            <div class="month">{{month}}</div>
-
+            <div class="date-picker-header-month {{monthActive}}">{{month}}</div>
 
         </div>
 
-        <div class="day-of-month">{{day}}</div>
+        <div class="date-picker-header-day {{dayActive}}">{{day}}</div>
 
         <div class="year-container">
 
-            <div class="year">{{year}}</div>
+            <div class="date-picker-header-year {{yearActive}}">{{year}}</div>
 
         </div>
 
     </div>
-
-    <hr>
 
     <div class="calender-body">
 
@@ -31,38 +27,38 @@
 
             <div class="subtract-month" {{action "subtractMonth"}}></div>
 
-            <div class="month-year">{{monthYear}}</div>
+            <div class="month-year {{monthYearActive}}">{{monthYear}}</div>
 
             <div class="add-month" {{action "addMonth"}}></div>
 
         </div>
 
         <table class="calender">
-            <tr>
-                <th>S</th>
-                <th>M</th>
-                <th>T</th>
-                <th>W</th>
-                <th>T</th>
-                <th>F</th>
-                <th>S</th>
+            <tr class="keepOpen week-header-row">
+                <th class="keepOpen week-header-data">S</th>
+                <th class="keepOpen week-header-data">M</th>
+                <th class="keepOpen week-header-data">T</th>
+                <th class="keepOpen week-header-data">W</th>
+                <th class="keepOpen week-header-data">T</th>
+                <th class="keepOpen week-header-data">F</th>
+                <th class="keepOpen week-header-data">S</th>
             </tr>
 
         {{#each groupedArray as |week|}}
-          <tr>
+          <tr class="keepOpen week-row">
             {{#each week as |day|}}
                 {{#if day}}
                     {{#if day.isDisabled}}
-                        <td class="disabled-day">{{day.dayOfMonth}}</td>
+                        <td class="keepOpen disabled-day">{{day.dayOfMonth}}</td>
                     {{else}}
                         {{#if day.isCurrentDay}}
-                            <td class="valid-day current-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
+                            <td class="keepOpen valid-day current-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
                         {{else}}
-                            <td class="valid-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
+                            <td class="keepOpen valid-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
                         {{/if}}
                     {{/if}}
                 {{else}}
-                    <td class="invalid-day"></td>
+                    <td class="keepOpen invalid-day"></td>
                 {{/if}}
             {{/each}}
           </tr>

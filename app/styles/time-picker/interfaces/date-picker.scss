@@ -1,13 +1,17 @@
 
-.date-picker {
-    height: 340px;
+.paper-date-picker {
+    height: 350px;
     width: 250px;
 
   & > div.calender-container {
 
     & > div.header-container {
+      background-color: #f2f2f2;
+      height: 160px;
+      border-bottom: 1px solid #8f8f8e;
 
       & > div.day-of-week {
+        padding-top: 10px;
         text-align: center;
         color: #8f8f8e;
         height: 25px;
@@ -21,20 +25,30 @@
         width: 100%;
         text-align: center;
 
-        & > div.month {
+        & > div.date-picker-header-month {
           display: inline-block;
           font-size: 18px;
           height: 100%;
           width: 45px;
+          color: #8f8f8e;
+
+          &.active {
+            color: #42ace1;
+          }
         }
       }
 
-      & > div.day-of-month {
+      & > div.date-picker-header-day {
         width: 100%;
         text-align: center;
         height: 50px;
         line-height: 50px;
         font-size: 60px;
+        color: #8f8f8e;
+
+        &.active {
+          color: #42ace1;
+        }
       }
 
       & > div.year-container {
@@ -43,33 +57,16 @@
         width: 100%;
         text-align: center;
 
-        & > div.subtract-year {
-          cursor: pointer;
-          display: inline-block;
-          width: 0;
-          height: 0;
-          border-top: 6px solid transparent;
-          border-bottom: 6px solid transparent;
-          border-right:10px solid #2E3E4F;
-          margin-right: 10px;
-        }
-
-        & > div.year {
+        & > div.date-picker-header-year {
           display: inline-block;
           font-size: 18px;
           height: 100%;
           width: 45px;
-        }
+          color: #8f8f8e;
 
-        & > div.add-year {
-          cursor: pointer;
-          display: inline-block;
-          width: 0;
-          height: 0;
-          border-top: 6px solid transparent;
-          border-bottom: 6px solid transparent;
-          border-left:10px solid #2E3E4F;
-          margin-left: 10px;
+          &.active {
+            color: #42ace1;
+          }
         }
       }
     }
@@ -85,6 +82,10 @@
           margin-top: 12px;
           text-align: center;
           display: inline-block;
+
+          &.active {
+            color: #42ace1;
+          }
         }
 
         & > div.add-month {
@@ -136,7 +137,7 @@
             }
 
             &.current-day {
-              background-color: blue;
+              background-color: #42ace1;
               color: white;
             }
 

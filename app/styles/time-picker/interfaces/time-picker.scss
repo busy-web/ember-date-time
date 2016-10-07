@@ -1,5 +1,5 @@
 
-.time-picker {
+.paper-time-picker {
     height: 285px;
     width: 250px;
 
@@ -74,12 +74,13 @@
 
                     &.am-inactive {
                       text-align: center;
-                      background-color:rgba(66, 172, 225, 0);
+                      background-color: none;
                     }
 
                     &.am-active {
                         text-align: center;
-                        background-color:rgba(66, 172, 225, .5);
+                        color: white;
+                        background-color: #42ace1;
                     }
                 }
 
@@ -96,13 +97,13 @@
 
                     &.pm-inactive {
                       text-align: center;
-                      background-color:rgba(66, 172, 225, 0);
-
+                      background-color: none;
                     }
 
                     &.pm-active {
                       text-align: center;
-                      background-color:rgba(66, 172, 225, .5);
+                      color: white;
+                      background-color: #42ace1;
                     }
                 }
             }

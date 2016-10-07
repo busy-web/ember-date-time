@@ -33,7 +33,6 @@ body {
     }
 
     & > .paper-datetime-picker-main {
-      width: 100%;
       max-width: 1400px;
       margin: 0 auto;
       padding: 0 100px 100px;
@@ -45,7 +44,6 @@ body {
           width: 100%;
           margin: 0;
           padding: 30px 0;
-          border-bottom: 1px solid $border-color;
 
           & > header {
             margin: 10px 0;
@@ -85,7 +83,7 @@ body {
 
               &.code-result {
                 display: block;
-                margin: 10px 0 10px 20px;
+                margin-top: 30px;
               }
 
               &.indent {

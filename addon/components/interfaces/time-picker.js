@@ -6,6 +6,7 @@ import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
 import Snap from 'snap-svg';
 import moment from 'moment';
+import Time from 'busy-utils/time';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
@@ -25,7 +26,7 @@ export default Ember.Component.extend(
      * @type String
      * @default time-picker
      */
-    classNames: ['time-picker'],
+    classNames: ['paper-time-picker'],
     layout: layout,
 
     /**
@@ -56,6 +57,16 @@ export default Ember.Component.extend(
      * @optional
      */
     maxDate: null,
+
+    /**
+     * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
+     *
+     * @private
+     * @property isMilliseconds
+     * @type boolean
+     * @optional
+     */
+    isMilliseconds: false,
 
     /**
      * group of snap svg elements
@@ -157,6 +168,15 @@ export default Ember.Component.extend(
     currentDate: null,
 
     /**
+     * if hour or minutes are active
+     *
+     * @private
+     * @property minuteOrHour
+     * @type string
+     */
+    minuteOrHour: null,
+
+    /**
      * checks to see if the current state of the component is DOM editable
      *
      * @private
@@ -166,6 +186,37 @@ export default Ember.Component.extend(
      currentStatePasses: function()
      {
        return (this.get('_state') === "inDOM");
+     },
+
+     /**
+      * returns the correct moment objects, depending on if the timestamps are milliseconds or not
+      *
+      * @private
+      * @method getCorrectMomentObjects
+      * @return object
+      */
+     getCorrectMomentObjects: function()
+     {
+       let time, minDate, maxDate;
+
+       if (this.get('isMilliseconds'))
+       {
+         time = moment(this.get('timestamp'));
+         minDate = moment(this.get('minDate'));
+         maxDate = moment(this.get('maxDate'));
+       }
+       else
+       {
+         time = Time.date(this.get('timestamp'));
+         minDate = Time.date(this.get('minDate'));
+         maxDate = Time.date(this.get('maxDate'));
+       }
+
+       return {
+         'time': time,
+         'minDate': minDate,
+         'maxDate': maxDate
+       };
      },
 
     /**
@@ -183,6 +234,7 @@ export default Ember.Component.extend(
 
         this.removeInitialHours();
         this.removeInitialMinutes();
+        this.observeMinuteOrHour();
 
         if(TimePicker.timeIsAm(this.get('timestamp')))
         {
@@ -194,8 +246,21 @@ export default Ember.Component.extend(
           Ember.$('.pm-button').addClass('pm-active');
           Ember.$('.am-button').addClass('am-inactive');
         }
+
       }
     },
+
+    observeMinuteOrHour: Ember.observer('minuteOrHour', function()
+    {
+      if(this.get('minuteOrHour') === 'minute')
+      {
+        this.send('minuteHeaderClicked');
+      }
+      if(this.get('minuteOrHour') === 'hour')
+      {
+        this.send('hourHeaderClicked');
+      }
+    }),
 
     /**
      * initially sets the clocks based on the passed time
@@ -313,7 +378,7 @@ export default Ember.Component.extend(
           }
           else
           {
-              clockHour = TimePicker.formatMinuteStrings((parseInt(hour) - 12));
+              clockHour = TimePicker.formatHourStrings((parseInt(hour) - 12));
           }
 
           clock.select('#hour' + clockHour).removeClass('disabled-hour');
@@ -878,7 +943,7 @@ export default Ember.Component.extend(
         let stop = function() {
             _this.getMinuteByDegree(currentAngle, newMinute);
         };
-        
+
         if (!Ember.isNone(this.get('lastMinute')))
         {
             let undragPrevious = this.get('lastMinute');
