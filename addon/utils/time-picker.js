@@ -2,17 +2,17 @@
  * @module utils
  *
  */
- import Ember from 'ember';
- import moment from 'moment';
+import Ember from 'ember';
+import moment from 'moment';
 
+/***/
 const TimePicker = Ember.Object.extend();
- /**
-  * `Util/TimePicker`
-  *
-  */
-export default TimePicker.reopenClass(
-{
 
+/**
+ * `Util/TimePicker`
+ *
+ */
+export default TimePicker.reopenClass({
   /**
    * returns the hour passed in for the header
    *
@@ -25,6 +25,11 @@ export default TimePicker.reopenClass(
   {
     Ember.assert("formatHourHeader param must be a string or integer", typeof hour === 'string' || typeof hour === 'number');
 
+		// TODO:
+		// `parseInt(str, base)` takes two parameters. The seconds paremeter is the
+		// base number to convert with. Its alwasy safe to make sure you are passing 10 as the
+		// base when converting to a base 10 number. Otherwise you can get some unexpected results
+		// back from parseInt.
     if (parseInt(hour) !== 0)
     {
       return ('0' + hour).slice(-2);
