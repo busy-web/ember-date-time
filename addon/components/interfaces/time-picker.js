@@ -6,6 +6,7 @@ import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
 import Snap from 'snap-svg';
 import moment from 'moment';
+import Time from 'busy-utils/time';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
@@ -56,6 +57,16 @@ export default Ember.Component.extend(
      * @optional
      */
     maxDate: null,
+
+    /**
+     * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
+     *
+     * @private
+     * @property isMilliseconds
+     * @type boolean
+     * @optional
+     */
+    isMilliseconds: false,
 
     /**
      * group of snap svg elements
@@ -175,6 +186,37 @@ export default Ember.Component.extend(
      currentStatePasses: function()
      {
        return (this.get('_state') === "inDOM");
+     },
+
+     /**
+      * returns the correct moment objects, depending on if the timestamps are milliseconds or not
+      *
+      * @private
+      * @method getCorrectMomentObjects
+      * @return object
+      */
+     getCorrectMomentObjects: function()
+     {
+       let time, minDate, maxDate;
+
+       if (this.get('isMilliseconds'))
+       {
+         time = moment(this.get('timestamp'));
+         minDate = moment(this.get('minDate'));
+         maxDate = moment(this.get('maxDate'));
+       }
+       else
+       {
+         time = Time.date(this.get('timestamp'));
+         minDate = Time.date(this.get('minDate'));
+         maxDate = Time.date(this.get('maxDate'));
+       }
+
+       return {
+         'time': time,
+         'minDate': minDate,
+         'maxDate': maxDate
+       };
      },
 
     /**

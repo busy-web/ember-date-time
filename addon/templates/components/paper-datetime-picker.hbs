@@ -4,7 +4,7 @@
 
     <div class="top-dialog-container">
       {{#if showDialogTop}}
-          {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements}}
+          {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds}}
       {{/if}}
     </div>
 
@@ -42,7 +42,7 @@
 
   <div class="bottom-dialog-container">
     {{#if showDialogBottom}}
-        {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements}}
+        {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds}}
     {{/if}}
   </div>
 

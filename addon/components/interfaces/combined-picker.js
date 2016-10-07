@@ -5,6 +5,7 @@
 import Ember from 'ember';
 import moment from 'moment';
 import layout from '../../templates/components/interfaces/combined-picker';
+import Time from 'busy-utils/time';
 
 /**
  * `Component/CompinedPicker`
@@ -52,6 +53,16 @@ export default Ember.Component.extend({
    * @optional
    */
   maxDate: null,
+
+  /**
+   * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
+   *
+   * @private
+   * @property isMilliseconds
+   * @type boolean
+   * @optional
+   */
+  isMilliseconds: null,
 
   /**
    * boolean based on if the clock or calender is showing
@@ -282,18 +293,17 @@ export default Ember.Component.extend({
    */
   observesDateTime: Ember.observer('timestamp', function()
   {
+    let timestamps = this.getCorrectMomentObjects();
+
     Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
 
-    let time = moment();
-
-    if (!Ember.isNone(this.get('timestamp'))) {
-
-      time = moment(this.get('timestamp'));
-      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(time) && time.isValid());
+    if (!Ember.isNone(this.get('timestamp')))
+    {
+      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(timestamps.time) && timestamps.time.isValid());
     }
 
-    this.set('currentDate', time.format('MMM DD, YYYY'));
-    this.set('currentTime', time.format('hh:mm A'));
+    this.set('currentDate', timestamps.time.format('MMM DD, YYYY'));
+    this.set('currentTime', timestamps.time.format('hh:mm A'));
   }),
 
   /**
@@ -334,6 +344,37 @@ export default Ember.Component.extend({
   {
     Ember.$('.bottom-dialog-container').addClass('removeDisplay');
     Ember.$('.top-dialog-container').addClass('removeDisplay');
+  },
+
+  /**
+   * returns the correct moment objects, depending on if the timestamps are milliseconds or not
+   *
+   * @private
+   * @method getCorrectMomentObjects
+   * @return object
+   */
+  getCorrectMomentObjects: function()
+  {
+    let time, minDate, maxDate;
+
+    if (this.get('isMilliseconds'))
+    {
+      time = moment(this.get('timestamp'));
+      minDate = moment(this.get('minDate'));
+      maxDate = moment(this.get('maxDate'));
+    }
+    else
+    {
+      time = Time.date(this.get('timestamp'));
+      minDate = Time.date(this.get('minDate'));
+      maxDate = Time.date(this.get('maxDate'));
+    }
+
+    return {
+      'time': time,
+      'minDate': minDate,
+      'maxDate': maxDate
+    };
   },
 
   actions: {

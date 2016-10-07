@@ -342,10 +342,9 @@ export default Ember.Component.extend({
    * returns the correct moment objects, depending on if the timestamps are milliseconds or not
    *
    * @private
-   * @method addContainer
+   * @method getCorrectMomentObjects
    * @return object
    */
-
   getCorrectMomentObjects: function()
   {
     let time, minDate, maxDate;
