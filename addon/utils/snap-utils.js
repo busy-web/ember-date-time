@@ -7,7 +7,9 @@ import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
 
+/***/
 const SnapUtils = Ember.Object.extend();
+
  /**
   * `Util/SnapUtils`
   *
@@ -27,6 +29,11 @@ export default SnapUtils.reopenClass(
     let clock = new Snap('#clocks-hour-svg');
     let bigCircle = clock.select('#bigCircle');
 
+		// TODO:
+		// I dont like the use of ID's here instead of classnames
+		// but I can let it slide if class names really wont work in this
+		// case. Maybe you can figure out how to use one ID and classnames under that
+		// ID to elimante the need for so many ID's.
     clock.select('#' + strings.text).removeClass('interiorWhite');
     clock.select('#' + strings.line).insertBefore(bigCircle);
     clock.select('#' + strings.circle).insertBefore(bigCircle);

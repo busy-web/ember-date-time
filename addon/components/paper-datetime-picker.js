@@ -196,7 +196,12 @@ export default Ember.Component.extend({
     {
       if (!moment(this.get('minDate')).isValid() || !moment.isMoment(moment(this.get('minDate'))) || typeof this.get('minDate') !== 'number')
       {
-          Ember.assert("mindate must be a valid unix timestamp");
+				// TODO:
+				// Change Ember.assert to use busy-utils/assert.
+				//
+				// For cases like this where there is not test busy-utils has
+				// a method `Assert.throw("message")` that requires no test.
+        Ember.assert("mindate must be a valid unix timestamp");
       }
     }
 
@@ -238,15 +243,10 @@ export default Ember.Component.extend({
    * @method updateInputValues
    */
   updateInputValues: Ember.observer('timestamp', function() {
-
     let time;
-
-    if (this.get('isMilliseconds'))
-    {
+    if (this.get('isMilliseconds')) {
       time = moment(this.get('timestamp'));
-    }
-    else
-    {
+    } else {
       time = Time.date(this.get('timestamp'));
     }
 
@@ -264,10 +264,8 @@ export default Ember.Component.extend({
    * @private
    * @method updateInputValues
    */
-  destroyOnChange: Ember.observer('destroyElements', function()
-  {
-    if (this.get('destroyElements'))
-    {
+  destroyOnChange: Ember.observer('destroyElements', function() {
+    if (this.get('destroyElements')) {
       this.set('showDialogTop', false);
       this.set('showDialogBottom', false);
     }
@@ -280,15 +278,11 @@ export default Ember.Component.extend({
    * @method setTimestamp
    * @param moment {object} moment object
    */
-  setTimestamp: function(moment)
-  {
-    if (this.get('isMilliseconds'))
-    {
+  setTimestamp: function(moment) {
+    if (this.get('isMilliseconds')) {
       let reverse = Time.timestamp(moment);
       this.set('timestamp', reverse);
-    }
-    else
-    {
+    } else {
       let reverse = moment.unix();
       this.set('timestamp', reverse);
     }
@@ -301,8 +295,7 @@ export default Ember.Component.extend({
    * @method onlyAllowArrows
    * @param {event} key press event
    */
-  onlyAllowArrows: function(event)
-  {
+  onlyAllowArrows: function(event) {
       var key = event.keyCode || event.which;
 
       if (key === 13)
@@ -316,7 +309,7 @@ export default Ember.Component.extend({
         return true;
       }
 
-      else
+      else // TODO: never leave line breaks like the one above between if else
       {
           event.returnValue = false;
           if(event.preventDefault)
@@ -332,8 +325,7 @@ export default Ember.Component.extend({
    * @private
    * @method addContainer
    */
-  addContainer: function()
-  {
+  addContainer: function() {
     Ember.$('.bottom-dialog-container').removeClass('removeDisplay');
     Ember.$('.top-dialog-container').removeClass('removeDisplay');
   },
@@ -345,29 +337,33 @@ export default Ember.Component.extend({
    * @method getCorrectMomentObjects
    * @return object
    */
-  getCorrectMomentObjects: function()
-  {
+  getCorrectMomentObjects: function() {
     let time, minDate, maxDate;
-
-    if (this.get('isMilliseconds'))
-    {
+    if (this.get('isMilliseconds')) {
       time = moment(this.get('timestamp'));
       minDate = moment(this.get('minDate'));
       maxDate = moment(this.get('maxDate'));
-    }
-    else
-    {
+    } else {
       time = Time.date(this.get('timestamp'));
       minDate = Time.date(this.get('minDate'));
       maxDate = Time.date(this.get('maxDate'));
     }
 
+		// TODO:
+		// Object key: values do not need quotes unless the key contains
+		// special characters like dashes. Which I perfer you dont use as
+		// keys unless it is required for some reason.
+		//
+		// Also new JS supports single key value for all key:value pairs that are the same.
+		// this could be written as:
+		//
+		// `return { time, minDate, maxDate };`
+		//
     return {
       'time': time,
       'minDate': minDate,
       'maxDate': maxDate
     };
-
   },
 
   actions: {

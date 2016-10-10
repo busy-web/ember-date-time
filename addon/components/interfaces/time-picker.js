@@ -4,11 +4,17 @@
  */
 import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
-import Snap from 'snap-svg';
 import moment from 'moment';
 import Time from 'busy-utils/time';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
+
+/**
+ * TODO:
+ * snap-utils already includes the snap-svg library.
+ * You should have a method in there to create a new Snap() instance.
+ */
+import Snap from 'snap-svg';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
 
 /**
@@ -18,8 +24,7 @@ import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
  * @namespace Components
  * @extends Ember.Component
  */
-export default Ember.Component.extend(
-{
+export default Ember.Component.extend({
     /**
      * @private
      * @property classNames
@@ -221,6 +226,13 @@ export default Ember.Component.extend(
 
     /**
      * hides and shows the correct elements once the svgs are inserted
+		 *
+		 * TODO:
+		 * `didInsertElement` requires that `this._super()` is called by anyone
+		 * who tries to override this class. Instead you can
+		 * use `myFunction: Ember.on('didInsertElement', function() {` and
+		 * eliminate the need for calling `this._super`. This should make for a
+		 * more robust addon for others to extend later.
      *
      * @private
      * @method didInsertElement
@@ -415,12 +427,22 @@ export default Ember.Component.extend(
 
         if (!Ember.isNone(maxDate) || !Ember.isNone(minDate))
         {
+					// TODO:
+					// allMinutes is an array that you are pushing data into. Therefore the variable
+					// istself is not changing. You can initialize this as a `const` instead of `let`.
           let allMinutes = [];
 
+					// TODO:
+					// Here you are looping 60 times to create an array that you can then loop
+					// through 60 times.
+					//
+					// Why not just handle the logic from the second loop in the first loop?
+					//
           for (let i = 0; i < 60; i++) {
             i = ('0' + i).slice(-2);
             allMinutes.push(i);
           }
+
           allMinutes.forEach(function(minute)
           {
             let item = TimePicker.formatMinuteStrings(minute);
