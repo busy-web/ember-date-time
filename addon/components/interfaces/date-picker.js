@@ -328,16 +328,13 @@ export default Ember.Component.extend({
     const current = calenderObject;
 
     let daysArray = Ember.A();
-    const firstDay = current.clone().startOf('month').hour(current.hour()).minute(current.minute());
-    const lastDay = current.clone().endOf('month').hour(current.hour()).minute(current.minute());
+    const firstDay = current.clone().startOf('month').hour(current.hour()).minute(current.minute()).endOf('minute');
+    const lastDay = current.clone().endOf('month').hour(current.hour()).minute(current.minute()).endOf('minute');
     let currentDay = firstDay;
 
     while (currentDay.isBefore(lastDay)) {
       if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate')))
       {
-        // FIX ACTIVE DAY ERROR
-        console.log(currentDay.unix(), currentDay.date());
-        console.log(timestamps.minDate.unix(), timestamps.maxDate.unix());
         if (currentDay.isBetween(timestamps.minDate, timestamps.maxDate))
         {
             currentDay.isDisabled = false;
