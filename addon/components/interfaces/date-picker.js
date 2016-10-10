@@ -202,32 +202,23 @@ export default Ember.Component.extend({
    * @method getCorrectMomentObjects
    * @return object
    */
-  getCorrectMomentObjects: function()
-  {
+  getCorrectMomentObjects: function() {
     let time, minDate, maxDate, calenderTime;
-
-    if (this.get('isMilliseconds'))
-    {
+    if (this.get('isMilliseconds')) {
       time = moment(this.get('timestamp'));
       minDate = moment(this.get('minDate'));
       maxDate = moment(this.get('maxDate'));
       calenderTime = moment(this.get('calenderDate'));
-    }
-    else
-    {
+    } else {
       time = Time.date(this.get('timestamp'));
       minDate = Time.date(this.get('minDate'));
       maxDate = Time.date(this.get('maxDate'));
       calenderTime = Time.date(this.get('calenderDate'));
     }
 
-    return {
-      'time': time,
-      'minDate': minDate,
-      'maxDate': maxDate,
-      'calenderTime': calenderTime
-    };
+    return {time, minDate, maxDate, calenderTime};
   },
+  
   /**
    * sets the calenderDate to the timestamp and sets the values for the date picker headers
    *

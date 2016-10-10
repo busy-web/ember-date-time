@@ -353,29 +353,20 @@ export default Ember.Component.extend({
    * @method getCorrectMomentObjects
    * @return object
    */
-  getCorrectMomentObjects: function()
-  {
-    let time, minDate, maxDate;
+   getCorrectMomentObjects: function() {
+     let time, minDate, maxDate;
+     if (this.get('isMilliseconds')) {
+       time = moment(this.get('timestamp'));
+       minDate = moment(this.get('minDate'));
+       maxDate = moment(this.get('maxDate'));
+     } else {
+       time = Time.date(this.get('timestamp'));
+       minDate = Time.date(this.get('minDate'));
+       maxDate = Time.date(this.get('maxDate'));
+     }
 
-    if (this.get('isMilliseconds'))
-    {
-      time = moment(this.get('timestamp'));
-      minDate = moment(this.get('minDate'));
-      maxDate = moment(this.get('maxDate'));
-    }
-    else
-    {
-      time = Time.date(this.get('timestamp'));
-      minDate = Time.date(this.get('minDate'));
-      maxDate = Time.date(this.get('maxDate'));
-    }
-
-    return {
-      'time': time,
-      'minDate': minDate,
-      'maxDate': maxDate
-    };
-  },
+     return {time, minDate, maxDate};
+   },
 
   actions: {
 

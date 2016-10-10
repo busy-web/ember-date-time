@@ -200,39 +200,30 @@ export default Ember.Component.extend({
       * @method getCorrectMomentObjects
       * @return object
       */
-     getCorrectMomentObjects: function()
-     {
-       let time, minDate, maxDate;
+      getCorrectMomentObjects: function() {
+        let time, minDate, maxDate;
+        if (this.get('isMilliseconds')) {
+          time = moment(this.get('timestamp'));
+          minDate = moment(this.get('minDate'));
+          maxDate = moment(this.get('maxDate'));
+        } else {
+          time = Time.date(this.get('timestamp'));
+          minDate = Time.date(this.get('minDate'));
+          maxDate = Time.date(this.get('maxDate'));
+        }
 
-       if (this.get('isMilliseconds'))
-       {
-         time = moment(this.get('timestamp'));
-         minDate = moment(this.get('minDate'));
-         maxDate = moment(this.get('maxDate'));
-       }
-       else
-       {
-         time = Time.date(this.get('timestamp'));
-         minDate = Time.date(this.get('minDate'));
-         maxDate = Time.date(this.get('maxDate'));
-       }
-
-       return {
-         'time': time,
-         'minDate': minDate,
-         'maxDate': maxDate
-       };
-     },
+        return {time, minDate, maxDate};
+      },
 
     /**
      * hides and shows the correct elements once the svgs are inserted
-		 *
-		 * TODO:
-		 * `didInsertElement` requires that `this._super()` is called by anyone
-		 * who tries to override this class. Instead you can
-		 * use `myFunction: Ember.on('didInsertElement', function() {` and
-		 * eliminate the need for calling `this._super`. This should make for a
-		 * more robust addon for others to extend later.
+     *
+     * TODO:
+     * `didInsertElement` requires that `this._super()` is called by anyone
+     * who tries to override this class. Instead you can
+     * use `myFunction: Ember.on('didInsertElement', function() {` and
+     * eliminate the need for calling `this._super`. This should make for a
+     * more robust addon for others to extend later.
      *
      * @private
      * @method didInsertElement
@@ -427,17 +418,17 @@ export default Ember.Component.extend({
 
         if (!Ember.isNone(maxDate) || !Ember.isNone(minDate))
         {
-					// TODO:
-					// allMinutes is an array that you are pushing data into. Therefore the variable
-					// istself is not changing. You can initialize this as a `const` instead of `let`.
+          // TODO:
+          // allMinutes is an array that you are pushing data into. Therefore the variable
+          // istself is not changing. You can initialize this as a `const` instead of `let`.
           let allMinutes = [];
 
-					// TODO:
-					// Here you are looping 60 times to create an array that you can then loop
-					// through 60 times.
-					//
-					// Why not just handle the logic from the second loop in the first loop?
-					//
+          // TODO:
+          // Here you are looping 60 times to create an array that you can then loop
+          // through 60 times.
+          //
+          // Why not just handle the logic from the second loop in the first loop?
+          //
           for (let i = 0; i < 60; i++) {
             i = ('0' + i).slice(-2);
             allMinutes.push(i);
