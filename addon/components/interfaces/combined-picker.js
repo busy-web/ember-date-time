@@ -6,6 +6,7 @@ import Ember from 'ember';
 import moment from 'moment';
 import layout from '../../templates/components/interfaces/combined-picker';
 import Time from 'busy-utils/time';
+import Assert from 'busy-utils/assert';
 
 /**
  * `Component/CompinedPicker`
@@ -176,22 +177,17 @@ export default Ember.Component.extend({
    */
   onOpen: Ember.on('didInsertElement', function()
   {
-    if (this.get('isClock') === true || this.get('isCalender') === true)
-    {
+    if (this.get('isClock') === true || this.get('isCalender') === true) {
       let _this = this;
       let modal = Ember.$(document);
       this.set('destroyElements', false);
 
       modal.bind('click.paper-datetime-picker', (evt) => {
+        let el = Ember.$(evt.target);
 
-        var el = Ember.$(evt.target);
-
-        if(el.attr('class') === 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0)
-        {
-          if(!el.hasClass('keepOpen'))
-          {
-            if(_this.get('isClock') === true || _this.get('isCalender') === true)
-            {
+        if(el.attr('class') === 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
+          if(!el.hasClass('keepOpen')) {
+            if(_this.get('isClock') === true || _this.get('isCalender') === true) {
               _this.set('destroyElements', true);
               _this.send('close');
             }
@@ -200,15 +196,12 @@ export default Ember.Component.extend({
       });
 
       modal.bind('keyup.paper-datetime-picker', (e) => {
-
         let key = e.which;
-        if (key === 27)
-        {
+        if (key === 27) {
           _this.set('destroyElements', true);
           _this.send('cancel');
         }
-        if (key === 13)
-        {
+        if (key === 13) {
           _this.set('destroyElements', true);
           _this.send('close');
         }
@@ -238,30 +231,26 @@ export default Ember.Component.extend({
   {
     const section = this.get('activeSection');
 
-    if (section !== this.get('lastActiveSection'))
-    {
-      this.set('openOnce', 0);
-    }
-    if (this.get('isClock') === false && this.get('isCalender') === false)
-    {
+    if (section !== this.get('lastActiveSection')) {
       this.set('openOnce', 0);
     }
 
-    if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1)
-    {
-      if (section === 'year' || section === 'month' || section === 'day')
-      {
+    if (this.get('isClock') === false && this.get('isCalender') === false) {
+      this.set('openOnce', 0);
+    }
+
+    if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1) {
+
+      if (section === 'year' || section === 'month' || section === 'day') {
         this.set('isClock', false);
         this.set('isCalender', true);
       }
-      if (section === 'hour' || section === 'meridean')
-      {
+      if (section === 'hour' || section === 'meridean') {
         this.set('isClock', true);
         this.set('minuteOrHour', 'hour');
         this.set('isCalender', false);
       }
-      if (section === 'minute')
-      {
+      if (section === 'minute') {
         this.set('isClock', true);
         this.set('minuteOrHour', 'minute');
         this.set('isCalender', false);
@@ -297,9 +286,11 @@ export default Ember.Component.extend({
 
     Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
 
-    if (!Ember.isNone(this.get('timestamp')))
-    {
-      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(timestamps.time) && timestamps.time.isValid());
+    if (!Ember.isNone(this.get('timestamp'))) {
+      Assert.isMoment(timestamps.time);
+      if (!timestamps.time.isValid()) {
+        Assert.throw("timestamp must be a valid unix timestamp");
+      }
     }
 
     this.set('currentDate', timestamps.time.format('MMM DD, YYYY'));
@@ -315,8 +306,7 @@ export default Ember.Component.extend({
   changeDialogHeight: function()
   {
     const isClock = this.get('isClock');
-    if (isClock)
-    {
+    if (isClock) {
       Ember.$('.bottom-dialog-container').removeClass('calHeight');
       Ember.$('.top-dialog-container').removeClass('calHeight');
 
@@ -324,8 +314,7 @@ export default Ember.Component.extend({
       Ember.$('.top-dialog-container').addClass('timeHeight');
     }
 
-    if (!isClock)
-    {
+    if (!isClock) {
       Ember.$('.bottom-dialog-container').removeClass('timeHeight');
       Ember.$('.top-dialog-container').removeClass('timeHeight');
 

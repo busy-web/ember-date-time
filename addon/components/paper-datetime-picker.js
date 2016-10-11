@@ -228,19 +228,14 @@ export default Ember.Component.extend({
    * @method updateInputValues
    */
   updateInputValues: Ember.observer('timestamp', function() {
-    let time;
-    if (this.get('isMilliseconds')) {
-      time = moment(this.get('timestamp'));
-    } else {
-      time = Time.date(this.get('timestamp'));
-    }
+    let timestamps = this.getCorrectMomentObjects();
 
-    this.set('timestampMeridian', time.format('A'));
-    this.set('timestampMinutes', time.format('mm'));
-    this.set('timestampHours', time.format('hh'));
-    this.set('timestampDays', time.format('DD'));
-    this.set('timestampMonths', time.format('MM'));
-    this.set('timestampYears', time.format('YYYY'));
+    this.set('timestampMeridian', timestamps.time.format('A'));
+    this.set('timestampMinutes', timestamps.time.format('mm'));
+    this.set('timestampHours', timestamps.time.format('hh'));
+    this.set('timestampDays', timestamps.time.format('DD'));
+    this.set('timestampMonths', timestamps.time.format('MM'));
+    this.set('timestampYears', timestamps.time.format('YYYY'));
   }),
 
   /**

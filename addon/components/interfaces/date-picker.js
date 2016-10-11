@@ -5,6 +5,7 @@
 import Ember from 'ember';
 import moment from 'moment';
 import Time from 'busy-utils/time';
+import Assert from 'busy-utils/assert';
 import layout from '../../templates/components/interfaces/date-picker';
 
 /**
@@ -218,7 +219,7 @@ export default Ember.Component.extend({
 
     return {time, minDate, maxDate, calenderTime};
   },
-  
+
   /**
    * sets the calenderDate to the timestamp and sets the values for the date picker headers
    *
@@ -231,10 +232,8 @@ export default Ember.Component.extend({
 
     let timestamps = this.getCorrectMomentObjects();
 
-    if (!Ember.isNone(this.get('timestamp')))
-    {
-      if (moment.isMoment(timestamps.time) && timestamps.time.isValid())
-      {
+    if (!Ember.isNone(this.get('timestamp'))) {
+      if (moment.isMoment(timestamps.time) && timestamps.time.isValid()) {
         this.set('calenderDate', this.get('timestamp'));
 
         this.set('year', timestamps.time.format('YYYY'));
@@ -242,9 +241,7 @@ export default Ember.Component.extend({
         this.set('day', timestamps.time.format('DD'));
         this.set('dayOfWeek', timestamps.time.format('dddd'));
       }
-    }
-    else
-    {
+    } else {
       Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(timestamps.time) && timestamps.time.isValid());
     }
   }),
@@ -259,31 +256,25 @@ export default Ember.Component.extend({
   {
     let section = this.get('calenderActiveSection');
 
-    if (section === 'day')
-    {
+    if (section === 'day') {
       this.set('dayActive', 'active');
       this.set('monthActive', null);
       this.set('yearActive', null);
       this.set('monthYearActive', null);
     }
-    if (section === 'month')
-    {
+    if (section === 'month') {
       this.set('monthActive', 'active');
       this.set('dayActive', null);
       this.set('yearActive', null);
       this.set('monthYearActive', null);
-
     }
-    if (section === 'year')
-    {
+    if (section === 'year') {
       this.set('yearActive', 'active');
       this.set('monthActive', null);
       this.set('dayActive', null);
       this.set('monthYearActive', null);
     }
-
-    if (section === 'month-year')
-    {
+    if (section === 'month-year') {
       this.set('monthYearActive', 'active');
       this.set('monthActive', null);
       this.set('dayActive', null);
@@ -324,23 +315,17 @@ export default Ember.Component.extend({
     let currentDay = firstDay;
 
     while (currentDay.isBefore(lastDay)) {
-      if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate')))
-      {
-        if (currentDay.isBetween(timestamps.minDate, timestamps.maxDate))
-        {
-            currentDay.isDisabled = false;
-            daysArray.pushObject(currentDay);
-            currentDay = currentDay.clone().add('days', 1);
+      if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
+        if (currentDay.isBetween(timestamps.minDate, timestamps.maxDate)) {
+          currentDay.isDisabled = false;
+          daysArray.pushObject(currentDay);
+          currentDay = currentDay.clone().add('days', 1);
+        } else {
+          currentDay.isDisabled = true;
+          daysArray.pushObject(currentDay);
+          currentDay = currentDay.clone().add('days', 1);
         }
-        else
-        {
-            currentDay.isDisabled = true;
-            daysArray.pushObject(currentDay);
-            currentDay = currentDay.clone().add('days', 1);
-        }
-      }
-      else
-      {
+      } else {
         currentDay.isDisabled = false;
         daysArray.pushObject(currentDay);
         currentDay = currentDay.clone().add('days', 1);
@@ -368,14 +353,11 @@ export default Ember.Component.extend({
       let startOfDay = startItem.startOf('day');
       let endOfDay = endItem.endOf('day');
 
-      if (currentTime.isBetween(startOfDay, endOfDay))
-      {
+      if (currentTime.isBetween(startOfDay, endOfDay)) {
         item.isCurrentDay = true;
         item.dayOfMonth = item.date();
         completeDaysArray.push(item);
-      }
-      else
-      {
+      } else {
         item.isCurrentDay = false;
         item.dayOfMonth = item.date();
         completeDaysArray.push(item);
@@ -450,7 +432,8 @@ export default Ember.Component.extend({
    */
   inRange: function(lower, upper)
   {
-    Ember.assert("lower and upper must be numbers", typeof lower === 'number' || typeof upper === 'number');
+    Assert.isNumber(lower);
+    Assert.isNumber(upper);
 
     return function (each, index) {
 
@@ -468,15 +451,12 @@ export default Ember.Component.extend({
    */
   setTimestamp: function(moment)
   {
-    Ember.assert("setTimestamp param must be a timestamp integer or timestamp string", moment.isValid() === true);
+    Assert.isMoment(moment);
 
-    if (this.get('isMilliseconds'))
-    {
+    if (this.get('isMilliseconds')) {
       let reverse = Time.timestamp(moment);
       this.set('timestamp', reverse);
-    }
-    else
-    {
+    } else {
       let reverse = moment.unix();
       this.set('timestamp', reverse);
     }
@@ -491,19 +471,15 @@ export default Ember.Component.extend({
    */
   setCalenderDate: function(moment)
   {
-    Ember.assert("setCalenderDate param must be a timestamp integer or timestamp string", moment.isValid() === true);
+    Assert.isMoment(moment);
 
-    if (this.get('isMilliseconds'))
-    {
+    if (this.get('isMilliseconds')) {
       let reverse = Time.timestamp(moment);
       this.set('calenderDate', reverse);
-    }
-    else
-    {
+    } else {
       let reverse = moment.unix();
       this.set('calenderDate', reverse);
     }
-
   },
 
   actions: {
@@ -516,6 +492,8 @@ export default Ember.Component.extend({
      */
     dayClicked(day)
     {
+      Assert.isMoment(day);
+
       let timestamps = this.getCorrectMomentObjects();
 
       const newDay = day.date();
