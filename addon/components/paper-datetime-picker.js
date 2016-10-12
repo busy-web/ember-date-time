@@ -417,7 +417,7 @@ export default Ember.Component.extend({
       this.onlyAllowArrows(event);
 
       if (code === 38 || code === 39) {
-        if (((timestamps.time.hour() + 1) % 12) >= 12) {
+        if (((timestamps.time.hour() + 1) % 12) === 0) {
           object = timestamps.time.subtract(11, 'hours');
 
           if (!object.isBefore(timestamps.minDate)) {
@@ -433,7 +433,7 @@ export default Ember.Component.extend({
       }
 
       if (code ===37 || code === 40) {
-        if (timestamps.time.hour() - 1 < 0) {
+        if ((timestamps.time.hour() % 12) === 0) {
           object = timestamps.time.add(11, 'hours');
 
           if (!object.isAfter(timestamps.maxDate)) {

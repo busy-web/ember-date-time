@@ -104,9 +104,9 @@ export default TimePicker.reopenClass({
   {
     if (typeof hour === 'string' || typeof hour === 'number') {
       return {
-        text: 'hour' + hour,
-        line: 'line' + hour,
-        circle: 'circle' + hour
+        "text": 'hour' + hour,
+        "line": 'line' + hour,
+        "circle": 'circle' + hour
       };
     } else {
       Assert.throw("hourStrings param must be a string or integer");
@@ -125,9 +125,9 @@ export default TimePicker.reopenClass({
   {
     if (typeof minute === 'string' || typeof minute === 'number') {
       return {
-        text: 'minText' + minute,
-        line: 'minLine' + minute,
-        circle: 'minCircle' + minute
+        "text": 'minText' + minute,
+        "line": 'minLine' + minute,
+        "circle": 'minCircle' + minute
       };
     } else {
       Assert.throw("minuteStrings param must be a string or integer");
