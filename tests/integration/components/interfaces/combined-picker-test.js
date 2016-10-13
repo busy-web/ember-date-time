@@ -21,7 +21,7 @@ test('toggle from clock to calender and back', function(assert) {
     let time = moment(this.get('timestamp')).format('hh:mm A');
     let date = moment(this.get('timestamp')).format('MMM DD, YYYY');
 
-    this.render(hbs`{{interfaces/combined-picker timestamp=timestamp}}`);
+    this.render(hbs`{{interfaces/combined-picker timestamp=timestamp isMilliseconds=true}}`);
 
     this.$('.current-date').click();
     assert.equal(this.$('.current-date').text(), time);

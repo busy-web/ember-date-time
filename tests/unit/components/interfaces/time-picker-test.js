@@ -1,5 +1,7 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import moment from 'moment';
+import Time from 'busy-utils/time';
+
 
 moduleForComponent('interfaces/time-picker', 'Unit | Component | interfaces/time picker', {
   needs: ['util:snap-utils', 'util:time-picker'],
@@ -18,27 +20,27 @@ test('it renders', function(assert) {
 
 test('set minute to timestamp', function(assert) {
 
-  const time = moment().unix() * 1000;
-  const args = {'timestamp': time};
+  const time = moment().unix();
+  const args = {'timestamp': time, 'isMilliseconds': false};
 
   let component = this.subject(args);
   let minute = Math.floor(Math.random() * (59 - 0 + 1)) + 0;
 
   component.setMinuteToTimestamp(minute);
 
-  assert.equal(moment(component.get('timestamp')).minute(), minute);
+  assert.equal(Time.date(component.get('timestamp')).minute(), minute);
 
-  assert.throws(() => { component.setMinuteToTimestamp('test'); }, /setMinuteToTimestamp param must be an integer/, 'setTimestamp only takes integers');
+  assert.throws(() => { component.setMinuteToTimestamp('test'); }, /Type error/, 'Type error');
 });
 
 test('convertToTimestamp', function(assert) {
 
-  const time = moment().unix() * 1000;
-  const args = {'timestamp': time};
+  const time = moment().unix();
+  const args = {'timestamp': time, 'isMilliseconds': false};
 
   let component = this.subject(args);
   let momentObject = moment().add('1', 'hour');
-  let unix = momentObject.unix() * 1000;
+  let unix = momentObject.unix();
 
   this.subject(args);
 
@@ -46,7 +48,7 @@ test('convertToTimestamp', function(assert) {
 
   assert.equal(component.get('timestamp'), unix);
 
-  assert.throws(() => { component.convertToTimestamp(26543216584); }, /convertToTimestamp param must be a valid moment object/, 'convertToTimestamp only takes moment objects');
+  assert.throws(() => { component.convertToTimestamp(26543216584); }, /Type error/, 'Type error');
 });
 
 
@@ -56,7 +58,7 @@ test('hourOverMaxMin', function(assert) {
   const min = (moment().subtract('6', 'hours')).unix() * 1000;
   const max = (moment().add('6', 'hours')).unix() * 1000;
 
-  const args = {'timestamp': time, 'minDate': min, 'maxDate': max};
+  const args = {'timestamp': time, 'minDate': min, 'maxDate': max, 'isMilliseconds': true};
 
   let component = this.subject(args);
 
@@ -95,7 +97,7 @@ test('minuteOverMaxMin', function(assert) {
   const min = (moment().subtract('45', 'minutes')).unix() * 1000;
   const max = (moment().add('45', 'minutes')).unix() * 1000;
 
-  const args = {'timestamp': time, 'minDate': min, 'maxDate': max};
+  const args = {'timestamp': time, 'minDate': min, 'maxDate': max, 'isMilliseconds': true};
 
   let component = this.subject(args);
   this.subject(args);

@@ -17,31 +17,31 @@ test('it renders', function(assert) {
 
 test('set timestamp', function(assert) {
 
-  const time = moment().unix() * 1000;
-  const args = {'timestamp': time};
+  const time = moment().unix();
+  const args = {'timestamp': time, 'isMilliseconds': false};
 
   let component = this.subject(args);
   let newTimestamp = moment().add('1', 'days');
 
   component.setTimestamp(newTimestamp);
 
-  assert.equal(component.get('timestamp'), newTimestamp.unix() * 1000);
+  assert.equal(component.get('timestamp'), newTimestamp.unix());
 
-  assert.throws(() => { component.setTimestamp('test'); }, /setTimestamp param must be a timestamp integer or timestamp string/, 'setTimestamp only takes timestamp integers and strings');
+  assert.throws(() => { component.setTimestamp('test'); }, /Type error/, 'Type error');
 
 });
 
 test('set calender date', function(assert) {
 
-  const time = moment().unix() * 1000;
-  const args = {'timestamp': time};
+  const time = moment().unix();
+  const args = {'timestamp': time, 'isMilliseconds': false};
 
   let component = this.subject(args);
   let newTimestamp = moment().add('6', 'days');
 
   component.setCalenderDate(newTimestamp);
 
-  assert.equal(component.get('calenderDate'), newTimestamp.unix() * 1000);
+  assert.equal(component.get('calenderDate'), newTimestamp.unix());
 
-  assert.throws(() => { component.setCalenderDate('test'); }, /setCalenderDate param must be a timestamp integer or timestamp string/, 'setCalenderDate only takes timestamp integers and strings');
+  assert.throws(() => { component.setCalenderDate('test'); }, /Type error/, 'Type error');
 });
