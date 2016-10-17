@@ -6,6 +6,7 @@ import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
 import moment from 'moment';
 import Time from 'busy-utils/time';
+import Assert from 'busy-utils/assert';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
 
@@ -200,76 +201,53 @@ export default Ember.Component.extend({
       * @method getCorrectMomentObjects
       * @return object
       */
-     getCorrectMomentObjects: function()
-     {
-       let time, minDate, maxDate;
+      getCorrectMomentObjects: function() {
+        let time, minDate, maxDate;
+        if (this.get('isMilliseconds')) {
+          time = moment(this.get('timestamp'));
+          minDate = moment(this.get('minDate'));
+          maxDate = moment(this.get('maxDate'));
+        } else {
+          time = Time.date(this.get('timestamp'));
+          minDate = Time.date(this.get('minDate'));
+          maxDate = Time.date(this.get('maxDate'));
+        }
 
-       if (this.get('isMilliseconds'))
-       {
-         time = moment(this.get('timestamp'));
-         minDate = moment(this.get('minDate'));
-         maxDate = moment(this.get('maxDate'));
-       }
-       else
-       {
-         time = Time.date(this.get('timestamp'));
-         minDate = Time.date(this.get('minDate'));
-         maxDate = Time.date(this.get('maxDate'));
-       }
-
-       return {
-         'time': time,
-         'minDate': minDate,
-         'maxDate': maxDate
-       };
-     },
+        return {time, minDate, maxDate};
+      },
 
     /**
      * hides and shows the correct elements once the svgs are inserted
-		 *
-		 * TODO:
-		 * `didInsertElement` requires that `this._super()` is called by anyone
-		 * who tries to override this class. Instead you can
-		 * use `myFunction: Ember.on('didInsertElement', function() {` and
-		 * eliminate the need for calling `this._super`. This should make for a
-		 * more robust addon for others to extend later.
      *
      * @private
      * @method didInsertElement
      * @constructor
      */
-    didInsertElement: function()
+    insertTimePicker: Ember.on('didInsertElement', function()
     {
-      if (this.currentStatePasses())
-      {
-        this._super();
+      let timestamps = this.getCorrectMomentObjects();
 
+      if (this.currentStatePasses()) {
         this.removeInitialHours();
         this.removeInitialMinutes();
         this.observeMinuteOrHour();
 
-        if(TimePicker.timeIsAm(this.get('timestamp')))
-        {
+        if(TimePicker.timeIsAm(timestamps.time)) {
           Ember.$('.am-button').addClass('am-active');
           Ember.$('.pm-button').addClass('pm-inactive');
-        }
-        else
-        {
+        } else {
           Ember.$('.pm-button').addClass('pm-active');
           Ember.$('.am-button').addClass('am-inactive');
         }
-
       }
-    },
+    }),
 
     observeMinuteOrHour: Ember.observer('minuteOrHour', function()
     {
-      if(this.get('minuteOrHour') === 'minute')
-      {
+      if(this.get('minuteOrHour') === 'minute') {
         this.send('minuteHeaderClicked');
       }
-      if(this.get('minuteOrHour') === 'hour')
-      {
+      if(this.get('minuteOrHour') === 'hour') {
         this.send('hourHeaderClicked');
       }
     }),
@@ -282,11 +260,12 @@ export default Ember.Component.extend({
      */
     setUpClock: Ember.on('init', Ember.observer('timestamp', function()
     {
-      if(!Ember.isNone(this.get('timestamp')))
-      {
-        let currentHour = TimePicker.formatHourHeader(TimePicker.currentHour(this.get('timestamp')));
-        let currentMinute = TimePicker.currentMinute(this.get('timestamp'));
-        let currentDate = TimePicker.currentDateFormat(this.get('timestamp'));
+      let timestamps = this.getCorrectMomentObjects();
+
+      if (!Ember.isNone(this.get('timestamp'))) {
+        let currentHour = TimePicker.formatHourHeader(TimePicker.currentHour(timestamps.time));
+        let currentMinute = TimePicker.currentMinute(timestamps.time);
+        let currentDate = TimePicker.currentDateFormat(timestamps.time);
 
         this.set('hours', currentHour);
         this.set('minutes', currentMinute);
@@ -302,8 +281,8 @@ export default Ember.Component.extend({
      */
     clickableDate: Ember.observer('timestamp', function()
     {
-      let timestamp = moment(this.get('timestamp'));
-      let format = timestamp.format('MMM DD, YYYY');
+      let timestamps = this.getCorrectMomentObjects();
+      let format = timestamps.time.format('MMM DD, YYYY');
 
       this.set('currentDate', format);
     }),
@@ -316,18 +295,16 @@ export default Ember.Component.extend({
      */
     observesAmPm: Ember.observer('timestamp', function()
     {
-      if (this.currentStatePasses())
-      {
-        if(TimePicker.timeIsAm(this.get('timestamp')))
-        {
+      let timestamps = this.getCorrectMomentObjects();
+
+      if (this.currentStatePasses()) {
+        if(TimePicker.timeIsAm(timestamps.time)) {
           Ember.$('.am-button').removeClass('am-inactive');
           Ember.$('.am-button').addClass('am-active');
 
           Ember.$('.pm-button').removeClass('pm-active');
           Ember.$('.pm-button').addClass('pm-inactive');
-        }
-        else
-        {
+        } else {
           Ember.$('.pm-button').removeClass('pm-inactive');
           Ember.$('.pm-button').addClass('pm-active');
 
@@ -345,18 +322,15 @@ export default Ember.Component.extend({
      */
     minMaxHourHandler: Ember.observer('timestamp', function()
     {
+      let timestamps = this.getCorrectMomentObjects();
       let maxDate = this.get('maxDate');
       let minDate = this.get('minDate');
 
-      if(!Ember.isNone(minDate) || !Ember.isNone(maxDate))
-      {
-        if (TimePicker.timeIsAm(this.get('timestamp')))
-        {
+      if(!Ember.isNone(minDate) || !Ember.isNone(maxDate)) {
+        if (TimePicker.timeIsAm(timestamps.time)) {
           let amHours = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
           this.setHourDisabled(amHours, 'AM');
-        }
-        else
-        {
+        } else {
           let pmHours = ['12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
           this.setHourDisabled(pmHours, 'PM');
         }
@@ -373,34 +347,27 @@ export default Ember.Component.extend({
      */
     setHourDisabled: function(list, AmPm)
     {
-      if (this.currentStatePasses())
-      {
+      let timestamps = this.getCorrectMomentObjects();
+
+      if (this.currentStatePasses()) {
         let clock = new Snap('#clocks-hour-svg');
         let maxDate = this.get('maxDate');
         let minDate = this.get('minDate');
-        let timestamp = moment(this.get('timestamp'));
 
-        list.forEach(function(hour)
-        {
+        list.forEach(function(hour) {
           let clockHour = null;
 
-          if (AmPm === 'AM')
-          {
-              clockHour = TimePicker.formatHourStrings(hour);
-          }
-          else
-          {
-              clockHour = TimePicker.formatHourStrings((parseInt(hour) - 12));
+          if (AmPm === 'AM') {
+            clockHour = TimePicker.formatHourStrings(hour);
+          } else {
+            clockHour = TimePicker.formatHourStrings((parseInt(hour, 10) - 12));
           }
 
           clock.select('#hour' + clockHour).removeClass('disabled-hour');
+          let newHour = timestamps.time.hour(hour);
 
-          let newHour = timestamp.hour(hour);
-
-          if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
-          {
-            if (!(!newHour.isBefore(moment(minDate)) && !newHour.isAfter(moment(maxDate))))
-            {
+          if (!Ember.isNone(minDate) || !Ember.isNone(maxDate)) {
+            if (!(!newHour.isBefore(timestamps.minDate) && !newHour.isAfter(timestamps.maxDate))) {
               clock.select('#hour' + clockHour).addClass('disabled-hour');
             }
           }
@@ -416,47 +383,27 @@ export default Ember.Component.extend({
      */
     minMaxMinuteHandler: Ember.observer('timestamp', function()
     {
+      let timestamps = this.getCorrectMomentObjects();
+
       if (this.currentStatePasses())
       {
         let _this = this;
         let clock = new Snap('#clock-minutes-svg');
 
-        let maxDate = moment(this.get('maxDate'));
-        let minDate = moment(this.get('minDate'));
-        let timestamp = moment(this.get('timestamp'));
-
-        if (!Ember.isNone(maxDate) || !Ember.isNone(minDate))
-        {
-					// TODO:
-					// allMinutes is an array that you are pushing data into. Therefore the variable
-					// istself is not changing. You can initialize this as a `const` instead of `let`.
-          let allMinutes = [];
-
-					// TODO:
-					// Here you are looping 60 times to create an array that you can then loop
-					// through 60 times.
-					//
-					// Why not just handle the logic from the second loop in the first loop?
-					//
-          for (let i = 0; i < 60; i++) {
-            i = ('0' + i).slice(-2);
-            allMinutes.push(i);
-          }
-
-          allMinutes.forEach(function(minute)
+        if (!Ember.isNone(this.get('maxDate')) || !Ember.isNone(this.get('minDate'))) {
+          for (let minute = 0; minute < 60; minute++)
           {
+            minute = ('0' + minute).slice(-2);
             let item = TimePicker.formatMinuteStrings(minute);
 
             clock.select('#sectionMin' + item).removeClass('disabled-minute');
-
-            if (!Ember.isNone(clock.select('#minText' + item)))
-            {
+            if (!Ember.isNone(clock.select('#minText' + item))) {
               clock.select('#minText' + item).removeClass('disabled-minute');
             }
 
-            let newMinute = timestamp.minute(minute);
+            let newMinute = timestamps.time.minute(minute);
             _this.setMinuteDisabled(item, newMinute);
-          });
+          }
         }
       }
     }),
@@ -471,18 +418,17 @@ export default Ember.Component.extend({
      */
     setMinuteDisabled: function(oldMinute, newMinute)
     {
+      let timestamps = this.getCorrectMomentObjects();
+
       if (this.currentStatePasses())
       {
         const clock = new Snap('#clock-minutes-svg');
         const maxDate = this.get('maxDate');
         const minDate = this.get('minDate');
 
-        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
-        {
-          if (!(newMinute.isBefore(moment(minDate)) !== true && newMinute.isAfter(moment(maxDate)) !== true))
-          {
-            if (!Ember.isNone(clock.select('#minText' + oldMinute)))
-            {
+        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate)) {
+          if (!(newMinute.isBefore(timestamps.minDate) !== true && newMinute.isAfter(timestamps.maxDate) !== true)) {
+            if (!Ember.isNone(clock.select('#minText' + oldMinute))) {
               clock.select('#minText' + oldMinute).addClass('disabled-minute');
             }
             clock.select('#sectionMin' + oldMinute).addClass('disabled-section');
@@ -499,15 +445,16 @@ export default Ember.Component.extend({
      */
     removeInitialHours: function()
     {
-      if (this.currentStatePasses())
-      {
+      let timestamps = this.getCorrectMomentObjects();
+
+      if (this.currentStatePasses()) {
         let allHours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
-        allHours.forEach(function(item)
-        {
+
+        allHours.forEach(function(item) {
           SnapUtils.removeHour(item);
         });
 
-        this.removeLastActiveHour(TimePicker.currentHour(this.get('timestamp')));
+        this.removeLastActiveHour(TimePicker.currentHour(timestamps.time));
         this.minMaxHourHandler();
       }
     },
@@ -520,20 +467,16 @@ export default Ember.Component.extend({
      */
     removeInitialMinutes: function()
     {
-      if (this.currentStatePasses())
-      {
-        let allMinutes = [];
-        for (let i = 0; i < 60; i++) {
-            i = ('0' + i).slice(-2);
-            allMinutes.push(i);
+      let timestamps = this.getCorrectMomentObjects();
+
+      if (this.currentStatePasses()) {
+
+        for (let minute = 0; minute < 60; minute++) {
+            minute = ('0' + minute).slice(-2);
+            SnapUtils.removeMinute(minute);
         }
 
-        allMinutes.forEach(function(item)
-        {
-          SnapUtils.removeMinute(item);
-        });
-
-        this.removeLastActiveMinute(TimePicker.currentMinute(this.get('timestamp')));
+        this.removeLastActiveMinute(TimePicker.currentMinute(timestamps.time));
         this.minMaxMinuteHandler();
       }
     },
@@ -546,8 +489,10 @@ export default Ember.Component.extend({
      */
     updateClockHands: Ember.observer('timestamp', function()
     {
-      this.removeLastActiveMinute(TimePicker.formatMinuteStrings(TimePicker.currentMinute(this.get('timestamp'))));
-      this.removeLastActiveHour(TimePicker.formatHourStrings(TimePicker.currentHour(this.get('timestamp'))));
+      let timestamps = this.getCorrectMomentObjects();
+
+      this.removeLastActiveMinute(TimePicker.formatMinuteStrings(TimePicker.currentMinute(timestamps.time)));
+      this.removeLastActiveHour(TimePicker.formatHourStrings(TimePicker.currentHour(timestamps.time)));
     }),
 
     /**
@@ -559,12 +504,10 @@ export default Ember.Component.extend({
      */
     removeLastActiveHour: function(hour)
     {
-      if (this.currentStatePasses())
-      {
+      if (this.currentStatePasses()) {
         let strings = TimePicker.hourStrings(hour);
 
-        if (!Ember.isNone(this.get('lastHourText')) || !Ember.isNone(this.get('lastHourLine')) || !Ember.isNone(this.get('lastHourCircle')))
-        {
+        if (!Ember.isNone(this.get('lastHourText')) || !Ember.isNone(this.get('lastHourLine')) || !Ember.isNone(this.get('lastHourCircle'))) {
           let hour = TimePicker.formatHourStrings(this.get('lastHourText'));
           SnapUtils.removeHour(hour);
         }
@@ -587,22 +530,17 @@ export default Ember.Component.extend({
      */
     removeLastActiveMinute: function(minute)
     {
-      if (this.currentStatePasses())
-      {
+      if (this.currentStatePasses()) {
         let strings = TimePicker.minuteStrings(minute);
 
-        if (!Ember.isNone(this.get('lastMinuteText')) || !Ember.isNone(this.get('lastMinuteLine')) || !Ember.isNone(this.get('lastMinuteCircle')))
-        {
+        if (!Ember.isNone(this.get('lastMinuteText')) || !Ember.isNone(this.get('lastMinuteLine')) || !Ember.isNone(this.get('lastMinuteCircle'))) {
           let sliceOld = TimePicker.formatMinuteStrings(this.get('lastMinuteText'));
           SnapUtils.removeMinute(sliceOld);
         }
 
-        if (TimePicker.minuteModFive(TimePicker.formatMinuteStrings(minute)))
-        {
+        if (TimePicker.minuteModFive(TimePicker.formatMinuteStrings(minute))) {
           SnapUtils.minuteTextActivate(TimePicker.formatMinuteStrings(minute));
-        }
-        else
-        {
+        } else {
           SnapUtils.minuteSectionActivate(TimePicker.formatMinuteStrings(minute));
         }
 
@@ -623,17 +561,15 @@ export default Ember.Component.extend({
      */
     convertToTimestamp: function(momentObject)
     {
-      if (moment.isMoment(momentObject) && momentObject.isValid())
-      {
-        let reverse = momentObject.unix() * 1000;
+      Assert.isMoment(momentObject);
+
+      if (this.get('isMilliseconds')) {
+        let reverse = Time.timestamp(momentObject);
         this.set('timestamp', reverse);
-
+      } else {
+        let reverse = momentObject.unix();
+        this.set('timestamp', reverse);
       }
-      else
-      {
-        Ember.assert("convertToTimestamp param must be a valid moment object");
-      }
-
     },
 
     /**
@@ -646,17 +582,13 @@ export default Ember.Component.extend({
      */
     getHourByDegree: function(offset, degree)
     {
-      if (this.currentStatePasses())
-      {
+      if (this.currentStatePasses()) {
         let hour = (((offset / 30) + (Math.round(degree / 30))) % 12);
         let formatHour = TimePicker.formatHourStrings(hour);
 
-        if (this.hourOverMaxMin(formatHour))
-        {
+        if (this.hourOverMaxMin(formatHour)) {
           this.removeLastActiveHour(formatHour);
-        }
-        else
-        {
+        } else {
           this.removeLastActiveHour(TimePicker.formatMinuteStrings(this.get('lastHourText')));
         }
       }
@@ -672,20 +604,16 @@ export default Ember.Component.extend({
      */
     getMinuteByDegree: function(offset, degree)
     {
-      if (this.currentStatePasses())
-      {
+      if (this.currentStatePasses()) {
         let minute = (((offset / 6) + (Math.round(degree / 6))) % 60);
         let formatMinute = TimePicker.formatMinuteStrings(minute);
         let formatOldMinute = TimePicker.formatMinuteStrings(this.get('lastMinuteText'));
 
-        if (this.minuteOverMaxMin(formatMinute))
-        {
+        if (this.minuteOverMaxMin(formatMinute)) {
           this.setMinuteToTimestamp(minute);
           SnapUtils.minuteSectionActivate(formatMinute);
           this.removeLastActiveMinute(formatMinute);
-        }
-        else
-        {
+        } else {
           this.removeLastActiveMinute(formatOldMinute);
         }
       }
@@ -701,28 +629,25 @@ export default Ember.Component.extend({
      */
     minuteOverMaxMin: function(minute)
     {
-      Ember.assert("minuteOverMaxMin param must be an integer or string", typeof minute === 'number'|| typeof minute === 'string');
+      let timestamps = this.getCorrectMomentObjects();
+      let timestamps_min = this.getCorrectMomentObjects();
 
-      let time = moment(this.get('timestamp'));
-      let setMin = time.minute(parseInt(minute));
+      if (typeof minute === 'string' || typeof minute === 'number') {
+        let setMin = timestamps_min.time.minute(parseInt(minute, 10));
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
 
-      let maxDate = this.get('maxDate');
-      let minDate = this.get('minDate');
-
-      if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
-      {
-        if (!setMin.isBefore(moment(minDate)) && !setMin.isAfter(moment(maxDate)))
-        {
+        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate)) {
+          if (!setMin.isBefore(timestamps.minDate) && !setMin.isAfter(timestamps.maxDate)) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
           return true;
         }
-        else
-        {
-          return false;
-        }
-      }
-      else
-      {
-        return true;
+      } else {
+        Assert.throw("minuteOverMaxMin param must be an integer or string");
       }
     },
 
@@ -736,45 +661,39 @@ export default Ember.Component.extend({
      */
     hourOverMaxMin: function(hour)
     {
-      Ember.assert("hourOverMaxMin param must be an integer or string", typeof hour === 'number' || typeof hour === 'string');
+      if (typeof hour === 'number' || typeof hour === 'string') {
+        let timestamps = this.getCorrectMomentObjects();
+        let timestamps_am = this.getCorrectMomentObjects();
+        let timestamps_pm = this.getCorrectMomentObjects();
 
-      let timeAm = moment(this.get('timestamp'));
-      let setAm = timeAm.hour(parseInt(hour));
+        let timeAm = timestamps_am.time;
+        let setAm = timeAm.hour(parseInt(hour, 10));
 
-      let timePm = moment(this.get('timestamp'));
-      let setPm = timePm.hour(parseInt(hour) + 12);
+        let timePm = timestamps_pm.time;
+        let setPm = timePm.hour(parseInt(hour, 10) + 12);
 
-      let maxDate = this.get('maxDate');
-      let minDate = this.get('minDate');
+        let maxDate = this.get('maxDate');
+        let minDate = this.get('minDate');
 
-      if (!Ember.isNone(minDate) || !Ember.isNone(maxDate))
-      {
-        if (TimePicker.timeIsAm(this.get('timestamp')))
-        {
-          if (!setAm.isBefore(moment(minDate)) && !setAm.isAfter(moment(maxDate)))
-          {
-            return true;
+        if (!Ember.isNone(minDate) || !Ember.isNone(maxDate)) {
+          if (TimePicker.timeIsAm(timestamps.time)) {
+            if (!setAm.isBefore(timestamps.minDate) && !setAm.isAfter(timestamps.maxDate)) {
+              return true;
+            } else {
+              return false;
+            }
+          } else {
+            if (!setPm.isBefore(timestamps.minDate) && !setPm.isAfter(timestamps.maxDate)) {
+              return true;
+            } else {
+              return false;
+            }
           }
-          else
-          {
-            return false;
-          }
-        }
-        else
-        {
-          if (!setPm.isBefore(moment(minDate)) && !setPm.isAfter(moment(maxDate)))
-          {
-            return true;
-          }
-          else
-          {
-            return false;
-          }
-        }
-      }
-      else
-      {
+        } else {
           return true;
+        }
+      } else {
+        Assert.throw("hourOverMaxMin param must be an integer or string");
       }
     },
 
@@ -787,13 +706,12 @@ export default Ember.Component.extend({
      */
     setMinuteToTimestamp: function(minute)
     {
-      Ember.assert("setMinuteToTimestamp param must be an integer", typeof minute === 'number');
+      Assert.isNumber(minute);
 
-      const timestampObject = moment(this.get('timestamp'));
-      const newMin = timestampObject.minute(minute);
-      const reverseConversion = newMin.unix() * 1000;
+      let timestamps = this.getCorrectMomentObjects();
+      let newMin = timestamps.time.minute(minute);
 
-      this.set('timestamp', reverseConversion);
+      this.convertToTimestamp(newMin);
     },
 
     /**
@@ -858,10 +776,9 @@ export default Ember.Component.extend({
 
         _this.postDragHours(strings);
 
-        if (!Ember.isNone(this.get('lastGroup')))
-        {
-            let undragPrevious = this.get('lastGroup');
-            undragPrevious.undrag();
+        if (!Ember.isNone(this.get('lastGroup'))) {
+          let undragPrevious = this.get('lastGroup');
+          undragPrevious.undrag();
         }
 
         let curHours = clock.select('#' + strings.text);
@@ -884,18 +801,16 @@ export default Ember.Component.extend({
      */
     postDragHours(strings)
     {
-      if (parseInt(TimePicker.currentHour(this.get('timestamp'))) !== TimePicker.stringToSlicedInteger(strings.text))
-      {
-        let timestamp = moment(this.get('timestamp'));
+      let timestamps = this.getCorrectMomentObjects();
+
+      if (parseInt(TimePicker.currentHour(timestamps.time), 10) !== TimePicker.stringToSlicedInteger(strings.text)) {
+        let timestamp = timestamps.time;
         let setHour = null;
 
-        if (TimePicker.timeIsAm(this.get('timestamp')))
-        {
+        if (TimePicker.timeIsAm(timestamps.time)) {
           setHour = timestamp.hour(TimePicker.stringToSlicedInteger(strings.text));
           this.convertToTimestamp(setHour);
-        }
-        else
-        {
+        } else {
           setHour = timestamp.hour(TimePicker.stringToSlicedInteger(strings.text) + 12);
           this.convertToTimestamp(setHour);
         }
@@ -966,14 +881,12 @@ export default Ember.Component.extend({
             _this.getMinuteByDegree(currentAngle, newMinute);
         };
 
-        if (!Ember.isNone(this.get('lastMinute')))
-        {
+        if (!Ember.isNone(this.get('lastMinute'))) {
             let undragPrevious = this.get('lastMinute');
             undragPrevious.undrag();
         }
 
-        if (TimePicker.minuteModFive(minute))
-        {
+        if (TimePicker.minuteModFive(minute))  {
             let curMin = clock.select('#' + strings.text);
             let curLine = clock.select('#' + strings.line);
             let curCircle = clock.select('#' + strings.circle);
@@ -981,9 +894,7 @@ export default Ember.Component.extend({
 
             currentSelect.drag(move, start, stop);
             this.set('lastMinute', currentSelect);
-        }
-        else
-        {
+        } else {
             let curLine2 = clock.select('#' + strings.line);
             let curCircle2 = clock.select('#' + strings.circle);
             let currentSelect2 = clock.g(curLine2, curCircle2);
@@ -1004,18 +915,14 @@ export default Ember.Component.extend({
        */
       clickHour: function(hour)
       {
-        if (this.currentStatePasses())
-        {
-          let timestamp = moment(this.get('timestamp'));
+        let timestamps = this.getCorrectMomentObjects();
 
-          if (TimePicker.timeIsAm(this.get('timestamp')))
-          {
-            let setHour = timestamp.hour(TimePicker.stringToSlicedInteger(hour));
+        if (this.currentStatePasses()) {
+          if (TimePicker.timeIsAm(timestamps.time)) {
+            let setHour = timestamps.time.hour(TimePicker.stringToSlicedInteger(hour));
             this.convertToTimestamp(setHour);
-          }
-          else
-          {
-            let setHour2 = timestamp.hour(TimePicker.stringToSlicedInteger(hour) + 12);
+          } else {
+            let setHour2 = timestamps.time.hour(TimePicker.stringToSlicedInteger(hour) + 12);
             this.convertToTimestamp(setHour2);
           }
           this.removeLastActiveHour(hour);
@@ -1030,8 +937,7 @@ export default Ember.Component.extend({
        */
       minuteClicked: function(minute)
       {
-        if (this.currentStatePasses())
-        {
+        if (this.currentStatePasses()) {
           this.setMinuteToTimestamp(TimePicker.stringToSlicedInteger(minute));
           this.removeLastActiveMinute(TimePicker.formatMinuteStrings(minute));
         }
@@ -1044,22 +950,19 @@ export default Ember.Component.extend({
        */
       amClicked: function()
       {
-        if (this.currentStatePasses())
-        {
-          let time = moment(this.get('timestamp'));
-          let newTime = time.subtract(12, 'hours');
+        let timestamps = this.getCorrectMomentObjects();
+        let changeable_timestamps = this.getCorrectMomentObjects();
 
-          if (!TimePicker.timeIsAm(this.get('timestamp')))
-          {
-            if (!Ember.isNone(this.get('minDate')))
-            {
-              if (!time.isBefore(this.get('minDate')))
-              {
+        if (this.currentStatePasses()) {
+          let newTime = changeable_timestamps.time;
+              newTime.subtract(12, 'hours');
+
+          if (!TimePicker.timeIsAm(timestamps.time)) {
+            if (!Ember.isNone(this.get('minDate'))) {
+              if (!newTime.isBefore(timestamps.minDate)) {
                 this.convertToTimestamp(newTime);
               }
-            }
-            else
-            {
+            } else {
               this.convertToTimestamp(newTime);
             }
           }
@@ -1073,22 +976,19 @@ export default Ember.Component.extend({
        */
       pmClicked: function()
       {
-        if (this.currentStatePasses())
-        {
-          let time = moment(this.get('timestamp'));
-          let newTime = time.add(12, 'hours');
+        let timestamps = this.getCorrectMomentObjects();
+        let changeable_timestamps = this.getCorrectMomentObjects();
 
-          if (TimePicker.timeIsAm(this.get('timestamp')))
-          {
-            if (!Ember.isNone(this.get('maxDate')))
-            {
-              if (!time.isAfter(this.get('maxDate')))
-              {
+        if (this.currentStatePasses()) {
+          let newTime = changeable_timestamps.time;
+              newTime.add(12, 'hours');
+
+          if (TimePicker.timeIsAm(timestamps.time)) {
+            if (!Ember.isNone(this.get('maxDate'))) {
+              if (!newTime.isAfter(timestamps.maxDate)) {
                 this.convertToTimestamp(newTime);
               }
-            }
-            else
-            {
+            } else {
               this.convertToTimestamp(newTime);
             }
           }
@@ -1102,6 +1002,8 @@ export default Ember.Component.extend({
        */
       hourHeaderClicked: function()
       {
+        let timestamps = this.getCorrectMomentObjects();
+
         if (this.currentStatePasses())
         {
           Ember.$('#clocks-hour-svg').removeClass('inactive');
@@ -1120,7 +1022,7 @@ export default Ember.Component.extend({
           Ember.$('.minutes-header').addClass('inactive');
 
           this.removeInitialHours();
-          this.removeLastActiveHour(TimePicker.currentHour(this.get('timestamp')));
+          this.removeLastActiveHour(TimePicker.currentHour(timestamps.time));
         }
       },
 
@@ -1131,6 +1033,8 @@ export default Ember.Component.extend({
        */
       minuteHeaderClicked: function()
       {
+        let timestamps = this.getCorrectMomentObjects();
+
         if (this.currentStatePasses())
         {
           Ember.$('#clocks-hour-svg').removeClass('active');
@@ -1149,7 +1053,7 @@ export default Ember.Component.extend({
           Ember.$('.minutes-header').removeClass('inactive');
 
           this.removeInitialMinutes();
-          this.removeLastActiveMinute(TimePicker.currentMinute(this.get('timestamp')));
+          this.removeLastActiveMinute(TimePicker.currentMinute(timestamps.time));
         }
       }
     }

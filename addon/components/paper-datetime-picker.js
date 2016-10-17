@@ -6,6 +6,7 @@ import Ember from 'ember';
 import layout from '../templates/components/paper-datetime-picker';
 import moment from 'moment';
 import Time from 'busy-utils/time';
+import Assert from 'busy-utils/assert';
 
 /**
  * `Component/paper-datetime-picker`
@@ -192,47 +193,31 @@ export default Ember.Component.extend({
   {
     this._super();
 
-    if (!Ember.isNone(this.get('minDate')))
-    {
-      if (!moment(this.get('minDate')).isValid() || !moment.isMoment(moment(this.get('minDate'))) || typeof this.get('minDate') !== 'number')
-      {
-				// TODO:
-				// Change Ember.assert to use busy-utils/assert.
-				//
-				// For cases like this where there is not test busy-utils has
-				// a method `Assert.throw("message")` that requires no test.
-        Ember.assert("mindate must be a valid unix timestamp");
+    if (!Ember.isNone(this.get('minDate'))) {
+      if (!moment(this.get('minDate')).isValid() || !moment.isMoment(moment(this.get('minDate'))) || typeof this.get('minDate') !== 'number') {
+        Assert.throw("mindate must be a valid unix timestamp");
       }
     }
 
-    if (!Ember.isNone(this.get('maxDate')))
-    {
-      if (!moment(this.get('maxDate')).isValid() || !moment.isMoment(moment(this.get('maxDate'))) || typeof this.get('maxDate') !== 'number')
-      {
-          Ember.assert("maxDate must be a valid unix timestamp");
+    if (!Ember.isNone(this.get('maxDate'))) {
+      if (!moment(this.get('maxDate')).isValid() || !moment.isMoment(moment(this.get('maxDate'))) || typeof this.get('maxDate') !== 'number') {
+        Assert.throw("maxDate must be a valid unix timestamp");
       }
     }
 
     let time = moment(this.get('timestamp'));
-    if (!Ember.isNone(this.get('timestamp')))
-    {
-      if (moment.isMoment(time) && time.isValid())
-      {
+    if (!Ember.isNone(this.get('timestamp'))) {
+      if (moment.isMoment(time) && time.isValid()) {
         this.updateInputValues();
+      } else {
+        Assert.throw("timestamp must be a valid unix timestamp");
       }
-      else
-      {
-        Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
-      }
-    }
-    else
-    {
-      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
+    } else {
+      Assert.throw("timestamp must be a valid unix timestamp");
     }
 
-    if (typeof this.get('isMilliseconds') !== 'boolean')
-    {
-      Ember.assert("isMilliseconds must be a boolean'");
+    if (typeof this.get('isMilliseconds') !== 'boolean') {
+      Assert.throw("isMilliseconds must be a boolean'");
     }
   },
 
@@ -243,19 +228,14 @@ export default Ember.Component.extend({
    * @method updateInputValues
    */
   updateInputValues: Ember.observer('timestamp', function() {
-    let time;
-    if (this.get('isMilliseconds')) {
-      time = moment(this.get('timestamp'));
-    } else {
-      time = Time.date(this.get('timestamp'));
-    }
+    let timestamps = this.getCorrectMomentObjects();
 
-    this.set('timestampMeridian', time.format('A'));
-    this.set('timestampMinutes', time.format('mm'));
-    this.set('timestampHours', time.format('hh'));
-    this.set('timestampDays', time.format('DD'));
-    this.set('timestampMonths', time.format('MM'));
-    this.set('timestampYears', time.format('YYYY'));
+    this.set('timestampMeridian', timestamps.time.format('A'));
+    this.set('timestampMinutes', timestamps.time.format('mm'));
+    this.set('timestampHours', timestamps.time.format('hh'));
+    this.set('timestampDays', timestamps.time.format('DD'));
+    this.set('timestampMonths', timestamps.time.format('MM'));
+    this.set('timestampYears', timestamps.time.format('YYYY'));
   }),
 
   /**
@@ -296,27 +276,21 @@ export default Ember.Component.extend({
    * @param {event} key press event
    */
   onlyAllowArrows: function(event) {
-      var key = event.keyCode || event.which;
+    var key = event.keyCode || event.which;
 
-      if (key === 13)
-      {
-        this.set('showDialogTop', false);
-        this.set('showDialogBottom', false);
-      }
+    if (key === 13) {
+      this.set('showDialogTop', false);
+      this.set('showDialogBottom', false);
+    }
 
-      if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9)
-      {
-        return true;
+    if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9) {
+      return true;
+    } else {
+      event.returnValue = false;
+      if(event.preventDefault) {
+        event.preventDefault();
       }
-
-      else // TODO: never leave line breaks like the one above between if else
-      {
-          event.returnValue = false;
-          if(event.preventDefault)
-          {
-            event.preventDefault();
-          }
-      }
+    }
   },
 
   /**
@@ -349,242 +323,207 @@ export default Ember.Component.extend({
       maxDate = Time.date(this.get('maxDate'));
     }
 
-		// TODO:
-		// Object key: values do not need quotes unless the key contains
-		// special characters like dashes. Which I perfer you dont use as
-		// keys unless it is required for some reason.
-		//
-		// Also new JS supports single key value for all key:value pairs that are the same.
-		// this could be written as:
-		//
-		// `return { time, minDate, maxDate };`
-		//
-    return {
-      'time': time,
-      'minDate': minDate,
-      'maxDate': maxDate
-    };
+    return {time, minDate, maxDate};
   },
 
   actions: {
 
-      /**
-       * figures out if the dialog should go above or below the input and changes updateActive so combined-picker can make the correct changes
-       *
-       * @param active {string} string of which input field was selected
-       * @event focusInput
-       */
-      focusInput: function(active)
-      {
-        let activeState = this.get('updateActive');
-        let scrollTop = Ember.$(window).scrollTop();
-        let elementOffsetTop = Ember.$('.paper-datetime-picker').offset().top;
-        let distanceTop = (elementOffsetTop - scrollTop);
-        let distanceBottom = Ember.$(document).height() - Ember.$('.paper-datetime-picker').offset().top - Ember.$('.paper-datetime-picker').height();
+    /**
+     * figures out if the dialog should go above or below the input and changes updateActive so combined-picker can make the correct changes
+     *
+     * @param active {string} string of which input field was selected
+     * @event focusInput
+     */
+    focusInput: function(active)
+    {
+      let activeState = this.get('updateActive');
+      let scrollTop = Ember.$(window).scrollTop();
+      let elementOffsetTop = Ember.$('.paper-datetime-picker').offset().top;
+      let distanceTop = (elementOffsetTop - scrollTop);
+      let distanceBottom = Ember.$(document).height() - Ember.$('.paper-datetime-picker').offset().top - Ember.$('.paper-datetime-picker').height();
 
-        if (distanceTop > distanceBottom)
-        {
-          this.set('showDialogBottom', false);
-          this.set('showDialogTop', true);
-          this.set('updateActive', !activeState);
+      if (distanceTop > distanceBottom) {
+        this.set('showDialogBottom', false);
+        this.set('showDialogTop', true);
+        this.set('updateActive', !activeState);
+      } else {
+        this.set('showDialogTop', false);
+        this.set('showDialogBottom', true);
+        this.set('updateActive',  !activeState);
+      }
+
+      this.set('destroyElements', false);
+      this.set('activeSection', active);
+      this.addContainer();
+    },
+
+    /**
+     * handles up and down arrows pressed while in the minutes input fields
+     *
+     * @event keyUpDownHours
+     */
+    keyUpDownMinutes: function()
+    {
+      let timestamps = this.getCorrectMomentObjects();
+      let object = null;
+      let code = event.keyCode || event.which;
+
+      this.onlyAllowArrows(event);
+
+      if (code === 38 || code === 39) {
+        if (timestamps.time.minutes() + 1 >= 60) {
+          object = timestamps.time.subtract(59, 'minutes');
+
+          if (!object.isBefore(timestamps.minDate)) {
+            this.setTimestamp(object);
+          }
+        } else {
+          object = timestamps.time.add(1, 'minutes');
+
+          if (!object.isAfter(timestamps.maxDate)) {
+            this.setTimestamp(object);
+          }
         }
-        else
-        {
-          this.set('showDialogTop', false);
-          this.set('showDialogBottom', true);
-          this.set('updateActive',  !activeState);
+      }
+
+      if (code === 37 || code === 40) {
+        if (timestamps.time.minutes() - 1 < 0) {
+          object = timestamps.time.add(59, 'minutes');
+
+          if (!object.isAfter(timestamps.maxDate)) {
+            this.setTimestamp(object);
+          }
+        } else {
+          object = timestamps.time.subtract(1, 'minutes');
+
+          if (!object.isBefore(timestamps.minDate)) {
+              this.setTimestamp(object);
+          }
+        }
+      }
+    },
+
+    /**
+     * handles up and down arrows pressed while in the hours input fields
+     *
+     * @event keyUpDownHours
+     */
+    keyUpDownHours: function()
+    {
+      let timestamps = this.getCorrectMomentObjects();
+      let object = null;
+      let code = event.keyCode || event.which;
+
+      this.onlyAllowArrows(event);
+
+      if (code === 38 || code === 39) {
+        if (((timestamps.time.hour() + 1) % 12) === 0) {
+          object = timestamps.time.subtract(11, 'hours');
+
+          if (!object.isBefore(timestamps.minDate)) {
+            this.setTimestamp(object);
+          }
+        } else {
+          object = timestamps.time.add(1, 'hours');
+
+          if (!object.isAfter(timestamps.maxDate)) {
+            this.setTimestamp(object);
+          }
+        }
+      }
+
+      if (code ===37 || code === 40) {
+        if ((timestamps.time.hour() % 12) === 0) {
+          object = timestamps.time.add(11, 'hours');
+
+          if (!object.isAfter(timestamps.maxDate)) {
+            this.setTimestamp(object);
+          }
+        } else {
+          object = timestamps.time.subtract(1, 'hours');
+
+          if (!object.isBefore(timestamps.minDate)) {
+            this.setTimestamp(object);
+          }
+        }
+      }
+    },
+
+    /**
+     * handles up and down arrows pressed while in the days, months, or years input fields
+     *
+     * @param {string} 'days', 'years,', or 'months'
+     * @event keyUpDownHandler
+     */
+    keyUpDownHandler: function(period)
+    {
+      let timestamps = this.getCorrectMomentObjects();
+      let object = null;
+      let code = event.keyCode || event.which;
+
+      this.onlyAllowArrows(event);
+
+      if (this.get('keyHasGoneUp') === true) {
+
+        if (code === 38 || code === 39) {
+          object = timestamps.time.add(1, period);
+
+          if (!object.isAfter(timestamps.maxDate)) {
+            this.setTimestamp(object);
+          }
         }
 
-        this.set('destroyElements', false);
-        this.set('activeSection', active);
+        if (code === 37 || code === 40) {
+          object = timestamps.time.subtract(1, period);
 
-        this.addContainer();
-      },
-
-      /**
-       * handles up and down arrows pressed while in the minutes input fields
-       *
-       * @event keyUpDownHours
-       */
-      keyUpDownMinutes: function()
-      {
-          let timestamps = this.getCorrectMomentObjects();
-          let object = null;
-          let code = event.keyCode || event.which;
-
-          this.onlyAllowArrows(event);
-
-          if (code === 38 || code === 39)
-          {
-              if (timestamps.time.minutes() + 1 >= 60)
-              {
-                  object = timestamps.time.subtract(59, 'minutes');
-                  if (!object.isBefore(timestamps.minDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-              else
-              {
-                  object = timestamps.time.add(1, 'minutes');
-                  if (!object.isAfter(timestamps.maxDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
+          if (!object.isBefore(timestamps.minDate)) {
+            this.setTimestamp(object);
           }
-          if (code === 37 || code === 40)
-          {
-              if (timestamps.time.minutes() - 1 < 0)
-              {
-                  object = timestamps.time.add(59, 'minutes');
-                  if (!object.isAfter(timestamps.maxDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-              else
-              {
-                  object = timestamps.time.subtract(1, 'minutes');
-                  if (!object.isBefore(timestamps.minDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
+        }
+
+        this.set('keyHasGoneUp', false);
+      }
+    },
+
+    /**
+     * allows keyup/keydown handlers to work for calender inputs
+     *
+     * @event resetKeyUp
+     */
+    resetKeyUp: function()
+    {
+      this.set('keyHasGoneUp', true);
+    },
+
+    /**
+     * handles up and down arrows pressed while in the meridian input fields
+     *
+     * @event meridianKeyHandler
+     */
+    meridianKeyHandler: function()
+    {
+      let timestamps = this.getCorrectMomentObjects();
+      let object = null;
+      let code = event.keyCode || event.which;
+
+      this.onlyAllowArrows(event);
+
+      if (code ===37 || code === 38 || code === 39 || code === 40) {
+        if (timestamps.time.format('A') === 'AM') {
+          object = timestamps.time.add(12, 'hours');
+
+          if (!object.isAfter(timestamps.maxDate)) {
+            this.setTimestamp(object);
           }
-      },
+        } else {
+          object = timestamps.time.subtract(12, 'hours');
 
-      /**
-       * handles up and down arrows pressed while in the hours input fields
-       *
-       * @event keyUpDownHours
-       */
-      keyUpDownHours: function()
-      {
-          let timestamps = this.getCorrectMomentObjects();
-          let object = null;
-          let code = event.keyCode || event.which;
-
-          this.onlyAllowArrows(event);
-
-          if (code === 38 || code === 39)
-          {
-              if (((timestamps.time.hour() + 1) % 12) >= 12)
-              {
-                  object = timestamps.time.subtract(11, 'hours');
-                  if (!object.isBefore(timestamps.minDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-              else
-              {
-                  object = timestamps.time.add(1, 'hours');
-                  if (!object.isAfter(timestamps.maxDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
+          if (!object.isBefore(timestamps.minDate)) {
+            this.setTimestamp(object);
           }
-          if (code ===37 || code === 40)
-          {
-              if (timestamps.time.hour() - 1 < 0)
-              {
-                  object = timestamps.time.add(11, 'hours');
-                  if (!object.isAfter(timestamps.maxDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-              else
-              {
-                  object = timestamps.time.subtract(1, 'hours');
-                  if (!object.isBefore(timestamps.minDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-          }
-      },
+        }
+      }
+    }
 
-      /**
-       * handles up and down arrows pressed while in the days, months, or years input fields
-       *
-       * @param {string} 'days', 'years,', or 'months'
-       * @event keyUpDownHandler
-       */
-      keyUpDownHandler: function(period)
-      {
-          let timestamps = this.getCorrectMomentObjects();
-          let object = null;
-          let code = event.keyCode || event.which;
-
-          this.onlyAllowArrows(event);
-
-          if (this.get('keyHasGoneUp') === true)
-          {
-            if (code === 38 || code === 39)
-            {
-                object = timestamps.time.add(1, period);
-                if (!object.isAfter(timestamps.maxDate))
-                {
-                    this.setTimestamp(object);
-                }
-            }
-            if (code === 37 || code === 40)
-            {
-                object = timestamps.time.subtract(1, period);
-                if (!object.isBefore(timestamps.minDate))
-                {
-                    this.setTimestamp(object);
-                }
-            }
-            this.set('keyHasGoneUp', false);
-          }
-      },
-
-      /**
-       * allows keyup/keydown handlers to work for calender inputs
-       *
-       * @event resetKeyUp
-       */
-      resetKeyUp: function()
-      {
-        this.set('keyHasGoneUp', true);
-      },
-
-      /**
-       * handles up and down arrows pressed while in the meridian input fields
-       *
-       * @event meridianKeyHandler
-       */
-      meridianKeyHandler: function()
-      {
-          let timestamps = this.getCorrectMomentObjects();
-          let object = null;
-          let code = event.keyCode || event.which;
-
-          this.onlyAllowArrows(event);
-
-          if (code ===37 || code === 38 || code === 39 || code === 40)
-          {
-              if (timestamps.time.format('A') === 'AM')
-              {
-                  object = timestamps.time.add(12, 'hours');
-                  if (!object.isAfter(timestamps.maxDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-              else
-              {
-                  object = timestamps.time.subtract(12, 'hours');
-                  if (!object.isBefore(timestamps.minDate))
-                  {
-                      this.setTimestamp(object);
-                  }
-              }
-          }
-      },
   }
 });

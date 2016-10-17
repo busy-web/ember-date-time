@@ -10,7 +10,7 @@ test('it renders', function(assert) {
 
   this.set('timestamp', moment().unix() * 1000);
 
-  this.render(hbs`{{interfaces/date-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/date-picker timestamp=timestamp isMilliseconds=true}}`);
 
   assert.ok(this.$().text().trim());
 });
@@ -19,7 +19,7 @@ test('check calender values', function(assert) {
 
   this.set('timestamp', moment().unix() * 1000);
 
-  this.render(hbs`{{interfaces/date-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/date-picker timestamp=timestamp isMilliseconds=true}}`);
 
   assert.equal(this.$('.day-of-week').text().trim(), moment(this.get('timestamp')).format('dddd'));
 
@@ -41,7 +41,7 @@ test('add and subtract months from calender', function(assert) {
   let addMonth = this.get('calenderTimestampAdd').add('1', 'months').format('MMM YYYY');
   let subtractMonth = this.get('calenderTimestampSubtract').subtract('1', 'months').format('MMM YYYY');
 
-  this.render(hbs`{{interfaces/date-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/date-picker timestamp=timestamp isMilliseconds=true}}`);
 
   this.$('.add-month').click();
   assert.equal(this.$('.month-year').text().trim(), addMonth);
@@ -58,13 +58,8 @@ test('click on day', function(assert) {
   this.set('nextDay', moment().startOf('month'));
 
   let firstDay = moment(this.get('timestamp')).date();
-  let nextDay = this.get('nextDay').add('1', 'days').date();
 
-  this.render(hbs`{{interfaces/date-picker timestamp=timestamp}}`);
-
-  this.$('.valid-day:first').next().click();
-
-  assert.equal(this.$('.valid-day:first').next().html(), nextDay);
+  this.render(hbs`{{interfaces/date-picker timestamp=timestamp isMilliseconds=true}}`);
 
   this.$('.valid-day:first').click();
 

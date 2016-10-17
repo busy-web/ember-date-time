@@ -1,6 +1,7 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import moment from 'moment';
+import Time from 'busy-utils/time';
 
 moduleForComponent('interfaces/time-picker', 'Integration | Component | time picker', {
   integration: true
@@ -8,19 +9,19 @@ moduleForComponent('interfaces/time-picker', 'Integration | Component | time pic
 
 test('it renders', function(assert) {
 
-  this.set('timestamp', moment());
+  this.set('timestamp', moment().unix());
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp isMilliseconds=false}}`);
 
   assert.ok(this.$().text().trim());
 });
 
 test('changes from hours to minutes', function(assert) {
 
-  this.set('timestamp', moment());
+  this.set('timestamp', moment().unix());
   this.set('minuteOrHour', 'hour');
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour isMilliseconds=false}}`);
 
   assert.equal(this.$('.hours-header').hasClass('active'), true);
   assert.equal(this.$('.minutes-header').hasClass('inactive'), true);
@@ -34,12 +35,12 @@ test('changes from hours to minutes', function(assert) {
 
 test('changes from pm to am and back', function(assert) {
 
-  this.set('timestamp', moment());
+  this.set('timestamp', moment().unix());
   this.set('minuteOrHour', 'hour');
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour isMilliseconds=false}}`);
 
-  if (this.get('timestamp').format('A') === 'AM')
+  if (Time.date(this.get('timestamp')).format('A') === 'AM')
   {
       assert.equal(this.$('.am-button').hasClass('am-active'), true);
       assert.equal(this.$('.pm-button').hasClass('pm-inactive'), true);
@@ -63,11 +64,11 @@ test('changes from pm to am and back', function(assert) {
 
 test('test hour and minute headers', function(assert) {
 
-  this.set('timestamp', moment());
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
+  this.set('timestamp', moment().unix());
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp isMilliseconds=false}}`);
 
-  let hour = this.get('timestamp').hour();
-  let minute = this.get('timestamp').minute();
+  let hour = Time.date(this.get('timestamp')).hour();
+  let minute = Time.date(this.get('timestamp')).minute();
 
   if (hour === 0 || hour === 12) { hour = '12';} else { hour = ('0' + (hour % 12)).slice(-2); }
   minute = ('0' + minute).slice(-2);
@@ -78,10 +79,10 @@ test('test hour and minute headers', function(assert) {
 
 test('click random minute sectionMin', function(assert) {
 
-  this.set('timestamp', moment());
+  this.set('timestamp', moment().unix());
   this.set('minuteOrHour', 'minute');
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour isMilliseconds=false}}`);
 
   let randomSection = ('0' + Math.round(Math.random() * (60 - 1) + 1)).slice(-2);
   let id = '#sectionMin' + randomSection;
