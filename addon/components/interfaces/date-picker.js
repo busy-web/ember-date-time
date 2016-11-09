@@ -197,27 +197,19 @@ export default Ember.Component.extend({
   },
 
   /**
-   * returns the correct moment objects, depending on if the timestamps are milliseconds or not
+   * Get a monent object from a timestamp that could be seconds or milliseconds
    *
-   * @private
-   * @method getCorrectMomentObjects
-   * @return object
+   * @public
+   * @method getMomentDate
+   * @param timestamp {number}
+   * @return {moment}
    */
-  getCorrectMomentObjects: function() {
-    let time, minDate, maxDate, calenderTime;
+  getMomentDate(timestamp) {
     if (this.get('isMilliseconds')) {
-      time = moment(this.get('timestamp'));
-      minDate = moment(this.get('minDate'));
-      maxDate = moment(this.get('maxDate'));
-      calenderTime = moment(this.get('calenderDate'));
+      return moment.utc(timestamp);
     } else {
-      time = Time.date(this.get('timestamp'));
-      minDate = Time.date(this.get('minDate'));
-      maxDate = Time.date(this.get('maxDate'));
-      calenderTime = Time.date(this.get('calenderDate'));
+      return moment.utc(timestamp*1000);
     }
-
-    return {time, minDate, maxDate, calenderTime};
   },
 
   /**
@@ -230,19 +222,19 @@ export default Ember.Component.extend({
   {
     Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
 
-    let timestamps = this.getCorrectMomentObjects();
+    const time = this.getMomentDate(this.get('timestamp'));
 
     if (!Ember.isNone(this.get('timestamp'))) {
-      if (moment.isMoment(timestamps.time) && timestamps.time.isValid()) {
+      if (moment.isMoment(time) && time.isValid()) {
         this.set('calenderDate', this.get('timestamp'));
 
-        this.set('year', timestamps.time.format('YYYY'));
-        this.set('month', timestamps.time.format('MMM').toUpperCase());
-        this.set('day', timestamps.time.format('DD'));
-        this.set('dayOfWeek', timestamps.time.format('dddd'));
+        this.set('year', time.format('YYYY'));
+        this.set('month', time.format('MMM').toUpperCase());
+        this.set('day', time.format('DD'));
+        this.set('dayOfWeek', time.format('dddd'));
       }
     } else {
-      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(timestamps.time) && timestamps.time.isValid());
+      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(time) && time.isValid());
     }
   }),
 
@@ -290,8 +282,7 @@ export default Ember.Component.extend({
    */
   keepCalenderUpdated: Ember.observer('calenderDate', function()
   {
-    let timestamps = this.getCorrectMomentObjects();
-    const calenderObject = timestamps.calenderTime;
+    const calenderObject = this.getMomentDate(this.get('calenderDate'));
 
     this.buildDaysArrayForMonth(calenderObject);
     this.set('monthYear', calenderObject.format('MMM YYYY'));
@@ -306,7 +297,8 @@ export default Ember.Component.extend({
    */
   buildDaysArrayForMonth: function(calenderObject) {
 
-    let timestamps = this.getCorrectMomentObjects();
+    const minDate = this.getMomentDate(this.get('minDate'));
+    const maxDate = this.getMomentDate(this.get('maxDate'));
     const current = calenderObject;
 
     let daysArray = Ember.A();
@@ -316,7 +308,7 @@ export default Ember.Component.extend({
 
     while (currentDay.isBefore(lastDay)) {
       if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
-        if (currentDay.isBetween(timestamps.minDate, timestamps.maxDate)) {
+        if (currentDay.isBetween(minDate, maxDate)) {
           currentDay.isDisabled = false;
           daysArray.pushObject(currentDay);
           currentDay = currentDay.clone().add('days', 1);
@@ -343,9 +335,8 @@ export default Ember.Component.extend({
    */
   currentDayOnCalender: function(daysArray)
   {
-    let timestamps = this.getCorrectMomentObjects();
     let completeDaysArray = Ember.A();
-    let currentTime = timestamps.time;
+    let currentTime = this.getMomentDate(this.get('timestamp'));
 
     daysArray.forEach((item) => {
       let startItem = item.clone();
@@ -494,13 +485,11 @@ export default Ember.Component.extend({
     {
       Assert.isMoment(day);
 
-      let timestamps = this.getCorrectMomentObjects();
-
       const newDay = day.date();
       const newMonth = day.month();
       const newYear = day.year();
 
-      let timestamp = timestamps.time;
+      let timestamp = this.getMomentDate(this.get('timestamp'));
           timestamp.date(newDay);
           timestamp.month(newMonth);
           timestamp.year(newYear);
@@ -515,8 +504,7 @@ export default Ember.Component.extend({
      */
     subtractMonth()
     {
-      let timestamps = this.getCorrectMomentObjects();
-      let calDate = timestamps.calenderTime;
+      const calDate = this.getMomentDate(this.get('calenderDate'));
       let subtract = calDate.subtract('1', 'months');
 
       this.setCalenderDate(subtract);
@@ -530,8 +518,7 @@ export default Ember.Component.extend({
      */
     addMonth()
     {
-      let timestamps = this.getCorrectMomentObjects();
-      let calDate = timestamps.calenderTime;
+      const calDate = this.getMomentDate(this.get('calenderDate'));
       let add = calDate.add('1', 'months');
 
       this.setCalenderDate(add);

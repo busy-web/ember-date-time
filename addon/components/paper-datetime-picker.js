@@ -183,6 +183,19 @@ export default Ember.Component.extend({
   keyHasGoneUp: true,
 
   /**
+   * value thats used to make each instance of component unique
+   *
+   * @private
+   * @property instanceNumber
+   * @type Integer
+   */
+  instanceNumber: 1,
+
+  topDialogState: null,
+  BottomDialogState: null,
+
+
+  /**
    * checks if timestamp is valid calls updateInputValues
    *
    * @private
@@ -192,59 +205,59 @@ export default Ember.Component.extend({
   init() {
     this._super(...arguments);
 
-		// make sure isMilliseconds is set to a boolean value.
-		Assert.isBoolean(this.get('isMilliseconds'));
+    // make sure isMilliseconds is set to a boolean value.
+    Assert.isBoolean(this.get('isMilliseconds'));
 
-		// changed to Assert.test in and removed if statements that are not needed.
-		// minDate and maxDate should be null or a unix timestamp
+    // changed to Assert.test in and removed if statements that are not needed.
+    // minDate and maxDate should be null or a unix timestamp
     Assert.test("minDate must be a valid unix timestamp", Ember.isNone(this.get('minDate')) || (this.isValidTimestamp(this.get('minDate')) && this.isValidMomentObject(this.getMomentDate(this.get('minDate')))));
     Assert.test("maxDate must be a valid unix timestamp", Ember.isNone(this.get('maxDate')) || (this.isValidTimestamp(this.get('maxDate')) && this.isValidMomentObject(this.getMomentDate(this.get('maxDate')))));
 
-		// timestamp must be set to a unix timestamp
+    // timestamp must be set to a unix timestamp
     Assert.test("timestamp must be a valid unix timestamp", !Ember.isNone(this.get('timestamp')) && this.isValidTimestamp(this.get('timestamp')) && this.isValidMomentObject(this.getMomentDate(this.get('timestamp'))));
 
     this.updateInputValues();
   },
 
-	/**
-	 * Check if a timestamp is a valid date timestamp
-	 *
-	 * @public
-	 * @method timestamp
-	 * @param timestamp {number}
-	 * @return {boolean} true if valid
-	 */
-	isValidTimestamp(timestamp) {
-		return (typeof timestamp === 'number' && this.getMomentDate(timestamp).isValid());
-	},
+  /**
+   * Check if a timestamp is a valid date timestamp
+   *
+   * @public
+   * @method timestamp
+   * @param timestamp {number}
+   * @return {boolean} true if valid
+   */
+  isValidTimestamp(timestamp) {
+    return (typeof timestamp === 'number' && this.getMomentDate(timestamp).isValid());
+  },
 
-	/**
-	 * Check to see if an object is a valid moment object
-	 *
-	 * @public
-	 * @method isValidMomentObject
-	 * @param date {object}
-	 * @return {boolean} true if valid
-	 */
-	isValidMomentObject(date) {
-		return (moment.isMoment(date) && date.isValid());
-	},
+  /**
+   * Check to see if an object is a valid moment object
+   *
+   * @public
+   * @method isValidMomentObject
+   * @param date {object}
+   * @return {boolean} true if valid
+   */
+  isValidMomentObject(date) {
+    return (moment.isMoment(date) && date.isValid());
+  },
 
-	/**
-	 * Get a monent object from a timestamp that could be seconds or milliseconds
-	 *
-	 * @public
-	 * @method getMomentDate
-	 * @param timestamp {number}
-	 * @return {moment}
-	 */
-	getMomentDate(timestamp) {
-		if (this.get('isMilliseconds')) {
-			return moment(timestamp);
-		} else {
-			return moment(timestamp*1000);
-		}
-	},
+  /**
+   * Get a monent object from a timestamp that could be seconds or milliseconds
+   *
+   * @public
+   * @method getMomentDate
+   * @param timestamp {number}
+   * @return {moment}
+   */
+  getMomentDate(timestamp) {
+    if (this.get('isMilliseconds')) {
+      return moment.utc(timestamp);
+    } else {
+      return moment.utc(timestamp*1000);
+    }
+  },
 
   /**
    * observes the timestamp and updates the input values accordingly
@@ -253,7 +266,7 @@ export default Ember.Component.extend({
    * @method updateInputValues
    */
   updateInputValues: Ember.observer('timestamp', function() {
-		const time = this.getMomentDate(this.get('timestamp'));
+    const time = this.getMomentDate(this.get('timestamp'));
 
     this.set('timestampMeridian', time.format('A'));
     this.set('timestampMinutes', time.format('mm'));
@@ -306,7 +319,7 @@ export default Ember.Component.extend({
       this.set('showDialogTop', false);
       this.set('showDialogBottom', false);
     }
-
+    // only allows arrow keys and tab key
     if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9) {
       return true;
     } else {
@@ -326,34 +339,6 @@ export default Ember.Component.extend({
   addContainer() {
     Ember.$('.bottom-dialog-container').removeClass('removeDisplay');
     Ember.$('.top-dialog-container').removeClass('removeDisplay');
-  },
-
-  /**
-	 * TODO: I didnt like this function. mindate and maxdate are not always needed and this is
-	 * doing extra work when they are used. There is a new function above that takes a timestamps and
-	 * returns a monent date based on isMilliseconds. Also Time.date converts a timestamp to a moment date
-	 * without converting to local time. We may need that but if that is the case both isMilliseconds and !isMilliseconds
-	 * dates should be converted the same way. So for now I removed `Time.date` in the above function.
-	 *
-   * returns the correct moment objects, depending on if the timestamps are milliseconds or not
-   *
-   * @private
-   * @method getCorrectMomentObjects
-   * @return object
-   */
-  getCorrectMomentObjects() {
-    let time, minDate, maxDate;
-    if (this.get('isMilliseconds')) {
-      time = moment(this.get('timestamp'));
-      minDate = moment(this.get('minDate'));
-      maxDate = moment(this.get('maxDate'));
-    } else {
-      time = Time.date(this.get('timestamp'));
-      minDate = Time.date(this.get('minDate'));
-      maxDate = Time.date(this.get('maxDate'));
-    }
-
-    return {time, minDate, maxDate};
   },
 
   actions: {
@@ -392,55 +377,49 @@ export default Ember.Component.extend({
      * @event keyUpDownHours
      */
     keyUpDownMinutes() {
-			// where are we getting event from ????
+      this.onlyAllowArrows(event);
+
       const code = event.keyCode || event.which;
+      const time = this.getMomentDate(this.get('timestamp'));
+      const minDate = this.getMomentDate(this.get('minDate'));
+      const maxDate = this.getMomentDate(this.get('maxDate'));
 
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
+      let date;
 
-			// TODO:
-			// Im assuming onlyAllowArrows is going to stop the rest of the logic
-			// from executing if it wasnt an arrow key pressed. If that is the case
-			// then why do any logic before this. It may not be much but the extra logic
-			// above does take some time. ????
-			this.onlyAllowArrows(event);
+      // 38 -> up arrow being pressed, 39 -> right arrow being pressed
+      if (code === 38 || code === 39) {
 
-			// Changed name from object to date
-			// because it make more sense what we
-			// are dealing with.
-			let date;
-
-			// TODO:
-			//
-			// COMMENT what is going on below. This is complex logic to try and
-			// guess what is actually going on here...
-			//
-      if (code === 38 || code === 39) { // 38 and 39 mean what ???
-        if (time.minutes() + 1 >= 60) { // assuming some up arrow logic here?
+        // if adding one minute to current date makes minutes >= 60, subtract 59 instead. Otherwise just add 1 minute.
+        if (time.minutes() + 1 >= 60) {
           date = time.subtract(59, 'minutes');
 
+          // make sure new time is not before minDate
           if (!date.isBefore(minDate)) {
             this.setTimestamp(date);
           }
         } else {
           date = time.add(1, 'minutes');
 
+          // make sure new time is not after maxDate
           if (!date.isAfter(maxDate)) {
             this.setTimestamp(date);
           }
         }
-					// Changed this to `else if` as I dont see there being more than one code at a time hitting this function.
-      } else if (code === 37 || code === 40) { // 37 and 40 mean what ??? comments would be nice.
-        if (time.minutes() - 1 < 0) { // assuming some down arrow logic here?
+      // 40 -> down arrow being pressed, 37 -> left arrow being pressed
+      } else if (code === 37 || code === 40) {
+
+        // if subtracting one minute to current date makes minutes < 0, add 59 instead. Otherwise just subtract 1 minute.
+        if (time.minutes() - 1 < 0) {
           date = time.add(59, 'minutes');
 
+          // make sure new time is not after maxDate
           if (!date.isAfter(maxDate)) {
             this.setTimestamp(date);
           }
         } else {
           date = time.subtract(1, 'minutes');
 
+          // make sure new time is not before minDate
           if (!date.isBefore(minDate)) {
               this.setTimestamp(date);
           }
@@ -454,45 +433,50 @@ export default Ember.Component.extend({
      * @event keyUpDownHours
      */
     keyUpDownHours() {
-      const code = event.keyCode || event.which;
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
-
       this.onlyAllowArrows(event);
+
+      const code = event.keyCode || event.which;
+      const time = this.getMomentDate(this.get('timestamp'));
+      const minDate = this.getMomentDate(this.get('minDate'));
+      const maxDate = this.getMomentDate(this.get('maxDate'));
 
       let date;
 
-			// TODO:
-			//
-			// again comment this code is looks like the same code as above at first glance
-			// Walk us through the logic here...
+      // 38 -> up arrow being pressed, 39 -> right arrow being pressed
       if (code === 38 || code === 39) {
+
+        // if adding one hour to current date makes hours === 0, subtract 11 instead. Otherwise just add 1 hour.
         if (((time.hour() + 1) % 12) === 0) {
           date = time.subtract(11, 'hours');
 
+          // make sure new time is not before minDate
           if (!date.isBefore(minDate)) {
             this.setTimestamp(date);
           }
         } else {
           date = time.add(1, 'hours');
 
+          // make sure new time is not after maxDate
           if (!date.isAfter(maxDate)) {
             this.setTimestamp(date);
           }
         }
       }
+      // 40 -> down arrow being pressed, 37 -> left arrow being pressed
+      else if (code ===37 || code === 40) {
 
-      if (code ===37 || code === 40) {
+        // if current hour is 0 (12), add 11 instead. Otherwise just subtract 1 hour.
         if ((time.hour() % 12) === 0) {
           date = time.add(11, 'hours');
 
+          // make sure new time is not after maxDate
           if (!date.isAfter(maxDate)) {
             this.setTimestamp(date);
           }
         } else {
           date = time.subtract(1, 'hours');
 
+          // make sure new time is not before minDate
           if (!date.isBefore(date.minDate)) {
             this.setTimestamp(date);
           }
@@ -507,26 +491,31 @@ export default Ember.Component.extend({
      * @event keyUpDownHandler
      */
     keyUpDownHandler(period) {
-      const code = event.keyCode || event.which;
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
-
-      this.onlyAllowArrows(event);
-
-			let date;
+      // make sure key has gone up before re triggering changes
       if (this.get('keyHasGoneUp') === true) {
+        this.onlyAllowArrows(event);
+
+        const code = event.keyCode || event.which;
+        const time = this.getMomentDate(this.get('timestamp'));
+        const minDate = this.getMomentDate(this.get('minDate'));
+        const maxDate = this.getMomentDate(this.get('maxDate'));
+
+        let date;
+
+        // 38 -> up arrow being pressed, 39 -> right arrow being pressed
         if (code === 38 || code === 39) {
           date = time.add(1, period);
 
+          // make sure new time is not after maxDate
           if (!date.isAfter(maxDate)) {
             this.setTimestamp(date);
           }
         }
-
-        if (code === 37 || code === 40) {
+        // 40 -> down arrow being pressed, 37 -> left arrow being pressed
+        else if (code === 37 || code === 40) {
           date = time.subtract(1, period);
 
+          // make sure new time is not before minDate
           if (!date.isBefore(minDate)) {
             this.setTimestamp(date);
           }
@@ -551,15 +540,20 @@ export default Ember.Component.extend({
      * @event meridianKeyHandler
      */
     meridianKeyHandler() {
-      const code = event.keyCode || event.which;
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
-
       this.onlyAllowArrows(event);
 
+      const code = event.keyCode || event.which;
+      const time = this.getMomentDate(this.get('timestamp'));
+      const minDate = this.getMomentDate(this.get('minDate'));
+      const maxDate = this.getMomentDate(this.get('maxDate'));
+
       let date;
+
+      // 40 -> down arrow being pressed, 37 -> left arrow being pressed
+      // 38 -> up arrow being pressed, 39 -> right arrow being pressed
       if (code ===37 || code === 38 || code === 39 || code === 40) {
+
+        // if meridian is am, add 12 hours, else subtract 12 hours
         if (time.format('A') === 'AM') {
           date = time.add(12, 'hours');
 

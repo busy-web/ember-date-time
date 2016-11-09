@@ -122,12 +122,12 @@
             float: left;
 
             & .inactive {
-                visibility: hidden;
-                pointer-events: none;
+              display: none;
+              pointer-events: none;
             }
 
             & .active {
-                visibility: visible;
+              pointer-events: all;
             }
 
             & > h1 {
@@ -183,11 +183,12 @@
             pointer-events: none;
 
             & .inactive {
-                visibility: hidden;
+              display: none;
+              pointer-events: none;
             }
 
             & .active {
-                visibility: visible;;
+              pointer-events: all;
             }
 
             & > svg {

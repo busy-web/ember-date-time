@@ -2,9 +2,9 @@
 <div class="paper-datetime-picker">
   <div class="inputContainer {{class}}">
 
-    <div class="top-dialog-container">
+    <div class="top-dialog-container {{topDialogState}}">
       {{#if showDialogTop}}
-          {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds}}
+          {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds instanceNumber=instanceNumber topDialogState=topDialogState bottomDialogState=bottomDialogState}}
       {{/if}}
     </div>
 
@@ -40,9 +40,9 @@
 
   <div class="right-padding"{{action 'focusInput' 'hour'}}></div>
 
-  <div class="bottom-dialog-container">
+  <div class="bottom-dialog-container {{bottomDialogState}}">
     {{#if showDialogBottom}}
-        {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds}}
+        {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds instanceNumber=instanceNumber topDialogState=topDialogState bottomDialogState=bottomDialogState}}
     {{/if}}
   </div>
 

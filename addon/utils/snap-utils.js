@@ -23,10 +23,10 @@ export default SnapUtils.reopenClass(
    * @method removeHour
    * @param hour {string} hour to remove from clock
    */
-  removeHour: function(hour)
+  removeHour: function(hour, instanceNumber)
   {
     let strings = TimePicker.hourStrings(hour);
-    let clock = new Snap('#clocks-hour-svg');
+    let clock = new Snap('#clocks-hour-svg-' + instanceNumber);
     let bigCircle = clock.select('#bigCircle');
 
     clock.select('#' + strings.text).removeClass('interiorWhite');
@@ -41,10 +41,10 @@ export default SnapUtils.reopenClass(
    * @method removeMinute
    * @param minute {string} minute to remove from clock
    */
-  removeMinute: function(minute)
+  removeMinute: function(minute, instanceNumber)
   {
     let strings = TimePicker.minuteStrings(minute);
-    let clock = new Snap('#clock-minutes-svg');
+    let clock = new Snap('#clock-minutes-svg-' + instanceNumber);
     let bigCircle = clock.select('#bigCircleMinutes');
 
     if (!Ember.isNone(clock.select('#minText' + minute)))
@@ -63,10 +63,10 @@ export default SnapUtils.reopenClass(
    * @method hourTextActivate
    * @param hour {string} new active hour
    */
-  hourTextActivate: function(hour)
+  hourTextActivate: function(hour, instanceNumber)
   {
     let strings = TimePicker.hourStrings(hour);
-    let clock = new Snap('#clocks-hour-svg');
+    let clock = new Snap('#clocks-hour-svg-' + instanceNumber);
 
     clock.select('#' + strings.text).addClass('interiorWhite');
     clock.select('#' + strings.line).appendTo(clock);
@@ -81,10 +81,10 @@ export default SnapUtils.reopenClass(
    * @method minuteTextActivate
    * @param minute {string} new active minute
    */
-  minuteTextActivate: function(minute)
+  minuteTextActivate: function(minute, instanceNumber)
   {
       let strings = TimePicker.minuteStrings(minute);
-      let clock = new Snap('#clock-minutes-svg');
+      let clock = new Snap('#clock-minutes-svg-' + instanceNumber);
 
       clock.select('#' + strings.line).appendTo(clock);
       clock.select('#' + strings.circle).appendTo(clock);
@@ -99,10 +99,10 @@ export default SnapUtils.reopenClass(
    * @method minuteSectionActivate
    * @param minute {string} new active minute
    */
-  minuteSectionActivate: function(minute)
+  minuteSectionActivate: function(minute, instanceNumber)
   {
       let strings = TimePicker.minuteStrings(minute);
-      let clock = new Snap('#clock-minutes-svg');
+      let clock = new Snap('#clock-minutes-svg-' + instanceNumber);
 
       clock.select('#' + strings.line).appendTo(clock);
       clock.select('#' + strings.circle).appendTo(clock);

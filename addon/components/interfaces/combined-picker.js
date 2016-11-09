@@ -5,7 +5,6 @@
 import Ember from 'ember';
 import moment from 'moment';
 import layout from '../../templates/components/interfaces/combined-picker';
-import Time from 'busy-utils/time';
 import Assert from 'busy-utils/assert';
 
 /**
@@ -156,6 +155,18 @@ export default Ember.Component.extend({
   openOnce: 0,
 
   /**
+   * value thats used to make each instance of component unique
+   *
+   * @private
+   * @property instanceNumber
+   * @type Integer
+   */
+  instanceNumber: null,
+
+  topDialogState: null,
+  BottomDialogState: null,
+
+  /**
    * sets currentTime and currentDate, sets a timestamp to now if a timestamp wasnt passed in
    * @private
    * @method init
@@ -282,19 +293,19 @@ export default Ember.Component.extend({
    */
   observesDateTime: Ember.observer('timestamp', function()
   {
-    let timestamps = this.getCorrectMomentObjects();
+    const time = this.getMomentDate(this.get('timestamp'));
 
     Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
 
     if (!Ember.isNone(this.get('timestamp'))) {
-      Assert.isMoment(timestamps.time);
-      if (!timestamps.time.isValid()) {
+      Assert.isMoment(time);
+      if (!time.isValid()) {
         Assert.throw("timestamp must be a valid unix timestamp");
       }
     }
 
-    this.set('currentDate', timestamps.time.format('MMM DD, YYYY'));
-    this.set('currentTime', timestamps.time.format('hh:mm A'));
+    this.set('currentDate', time.format('MMM DD, YYYY'));
+    this.set('currentTime', time.format('hh:mm A'));
   }),
 
   /**
@@ -307,19 +318,13 @@ export default Ember.Component.extend({
   {
     const isClock = this.get('isClock');
     if (isClock) {
-      Ember.$('.bottom-dialog-container').removeClass('calHeight');
-      Ember.$('.top-dialog-container').removeClass('calHeight');
-
-      Ember.$('.bottom-dialog-container').addClass('timeHeight');
-      Ember.$('.top-dialog-container').addClass('timeHeight');
+      this.set('topDialogState', 'timeHeight');
+      this.set('BottomDialogState', 'timeHeight');
     }
 
     if (!isClock) {
-      Ember.$('.bottom-dialog-container').removeClass('timeHeight');
-      Ember.$('.top-dialog-container').removeClass('timeHeight');
-
-      Ember.$('.bottom-dialog-container').addClass('calHeight');
-      Ember.$('.top-dialog-container').addClass('calHeight');
+      this.set('topDialogState', 'calHeight');
+      this.set('BottomDialogState', 'calHeight');
     }
   },
 
@@ -331,31 +336,25 @@ export default Ember.Component.extend({
    */
   removeContainer: function()
   {
-    Ember.$('.bottom-dialog-container').addClass('removeDisplay');
-    Ember.$('.top-dialog-container').addClass('removeDisplay');
+    this.set('topDialogState', 'removeDisplay');
+    this.set('BottomDialogState', 'removeDisplay');
   },
 
   /**
-   * returns the correct moment objects, depending on if the timestamps are milliseconds or not
+   * Get a monent object from a timestamp that could be seconds or milliseconds
    *
-   * @private
-   * @method getCorrectMomentObjects
-   * @return object
+   * @public
+   * @method getMomentDate
+   * @param timestamp {number}
+   * @return {moment}
    */
-   getCorrectMomentObjects: function() {
-     let time, minDate, maxDate;
-     if (this.get('isMilliseconds')) {
-       time = moment(this.get('timestamp'));
-       minDate = moment(this.get('minDate'));
-       maxDate = moment(this.get('maxDate'));
-     } else {
-       time = Time.date(this.get('timestamp'));
-       minDate = Time.date(this.get('minDate'));
-       maxDate = Time.date(this.get('maxDate'));
-     }
-
-     return {time, minDate, maxDate};
-   },
+  getMomentDate(timestamp) {
+    if (this.get('isMilliseconds')) {
+      return moment.utc(timestamp);
+    } else {
+      return moment.utc(timestamp*1000);
+    }
+  },
 
   actions: {
 
