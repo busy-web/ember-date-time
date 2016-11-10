@@ -189,7 +189,7 @@ export default Ember.Component.extend({
    * @property instanceNumber
    * @type Integer
    */
-  instanceNumber: 1,
+  instanceNumber: 'one',
 
   topDialogState: null,
   BottomDialogState: null,

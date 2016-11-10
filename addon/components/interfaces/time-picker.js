@@ -308,11 +308,11 @@ export default Ember.Component.extend({
         this.observeMinuteOrHour();
 
         if(TimePicker.timeIsAm(time)) {
-          this.set('amButtonState', 'am-active');
-          this.set('pmButtonState', 'pm-inactive');
+          this.$('.am-button').addClass('am-active');
+          this.$('.pm-button').addClass('pm-inactive');
         } else {
-          this.set('pmButtonState', 'pm-active');
-          this.set('amButtonState', 'am-inactive');
+          this.$('.pm-button').addClass('pm-active');
+          this.$('.am-button').addClass('am-inactive');
         }
       }
     }),
@@ -374,11 +374,17 @@ export default Ember.Component.extend({
 
       if (this.currentStatePasses()) {
         if(TimePicker.timeIsAm(time)) {
-          this.set('amButtonState', 'am-active');
-          this.set('pmButtonState', 'pm-inactive');
+          this.$('.am-button').removeClass('am-inactive');
+          this.$('.pm-button').removeClass('pm-active');
+
+          this.$('.am-button').addClass('am-active');
+          this.$('.pm-button').addClass('pm-inactive');
         } else {
-          this.set('pmButtonState', 'pm-active');
-          this.set('amButtonState', 'am-inactive');
+          this.$('.am-button').removeClass('am-active');
+          this.$('.pm-button').removeClass('pm-inactive');
+
+          this.$('.am-button').addClass('am-inactive');
+          this.$('.pm-button').addClass('pm-active');
         }
       }
     }),
@@ -1078,14 +1084,23 @@ export default Ember.Component.extend({
 
         if (this.currentStatePasses())
         {
-          this.set('clockHoursState', 'active');
-          this.set('clockMinutesState', 'inactive');
+          // switch active header
+          this.$('.hours-header').removeClass('inactive');
+          this.$('.hours-header').addClass('active');
+          this.$('.minutes-header').removeClass('active');
+          this.$('.minutes-header').addClass('inactive');
 
-          this.set('outsideHoursContainerState', 'active');
-          this.set('outsideHoursContainerBottomState', 'inactive');
+          // open correct container
+          this.$('.outside-hours-container').removeClass('inactive');
+          this.$('.outside-hours-container').addClass('active');
+          this.$('.outside-hours-container-bottom').removeClass('active');
+          this.$('.outside-hours-container-bottom').addClass('inactive');
 
-          this.set('hoursHeaderState', 'active');
-          this.set('minutesHeaderState', 'inactive');
+          // select correct clock
+          this.$('#clock-minutes-svg-' + this.get('instanceNumber')).removeClass('active');
+          this.$('#clock-minutes-svg-' + this.get('instanceNumber')).addClass('inactive');
+          this.$('#clock-hour-svg-' + this.get('instanceNumber')).removeClass('inactive');
+          this.$('#clock-hour-svg-' + this.get('instanceNumber')).addClass('active');
 
           this.removeInitialHours();
           this.removeLastActiveHour(TimePicker.currentHour(time));
@@ -1103,14 +1118,23 @@ export default Ember.Component.extend({
 
         if (this.currentStatePasses())
         {
-          this.set('clockHoursState', 'inactive');
-          this.set('clockMinutesState', 'active');
+          // switch active header
+          this.$('.hours-header').removeClass('active');
+          this.$('.hours-header').addClass('inactive');
+          this.$('.minutes-header').removeClass('inactive');
+          this.$('.minutes-header').addClass('active');
 
-          this.set('outsideHoursContainerState', 'inactive');
-          this.set('outsideHoursContainerBottomState', 'active');
+          // open correct container
+          this.$('.outside-hours-container').removeClass('active');
+          this.$('.outside-hours-container').addClass('inactive');
+          this.$('.outside-hours-container-bottom').removeClass('inactive');
+          this.$('.outside-hours-container-bottom').addClass('active');
 
-          this.set('hoursHeaderState', 'inactive');
-          this.set('minutesHeaderState', 'active');
+          // select correct clock
+          this.$('#clock-minutes-svg-' + this.get('instanceNumber')).removeClass('inactive');
+          this.$('#clock-minutes-svg-' + this.get('instanceNumber')).addClass('active');
+          this.$('#clock-hour-svg-' + this.get('instanceNumber')).removeClass('active');
+          this.$('#clock-hour-svg-' + this.get('instanceNumber')).addClass('inactive');
 
           this.removeInitialMinutes();
           this.removeLastActiveMinute(TimePicker.currentMinute(time));
