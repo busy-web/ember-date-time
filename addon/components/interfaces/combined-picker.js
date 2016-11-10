@@ -193,10 +193,10 @@ export default Ember.Component.extend({
       let modal = Ember.$(document);
       this.set('destroyElements', false);
 
-      modal.bind('click.paper-datetime-picker', (evt) => {
+      modal.bind(('click.paper-datetime-picker-' + this.get('instanceNumber')), (evt) => {
         let el = Ember.$(evt.target);
 
-        if(el.attr('class') === 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
+        if(el.attr('class') === ('paper-datetime-picker-' + this.get('instanceNumber')) || el.parents('.paper-datetime-picker-' + this.get('instanceNumber')).length === 0) {
           if(!el.hasClass('keepOpen')) {
             if(_this.get('isClock') === true || _this.get('isCalender') === true) {
               _this.set('destroyElements', true);
@@ -228,8 +228,8 @@ export default Ember.Component.extend({
   onClose: Ember.on('willDestroyElement', function()
   {
     let modal = Ember.$(document);
-    modal.unbind('click.paper-datetime-picker');
-    modal.unbind('keyup.paper-datetime-picker');
+    modal.unbind('click.paper-datetime-picker-' + this.get('instanceNumber'));
+    modal.unbind('keyup.paper-datetime-picker-' + this.get('instanceNumber'));
   }),
 
   /**
@@ -369,6 +369,7 @@ export default Ember.Component.extend({
      this.set('isClock', !isClock);
      this.set('isCalender', isClock);
      this.set('openOnce', 0);
+     this.set('minuteOrHour', 'hour');
 
      this.changeDialogHeight();
    },

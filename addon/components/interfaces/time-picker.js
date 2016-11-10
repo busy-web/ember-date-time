@@ -317,7 +317,7 @@ export default Ember.Component.extend({
       }
     }),
 
-    observeMinuteOrHour: Ember.observer('minuteOrHour', function()
+    observeMinuteOrHour: Ember.observer('minuteOrHour', 'isClock', function()
     {
       if(this.get('minuteOrHour') === 'minute') {
         this.send('minuteHeaderClicked');
@@ -1081,7 +1081,6 @@ export default Ember.Component.extend({
       hourHeaderClicked: function()
       {
         const time = this.getMomentDate(this.get('timestamp'));
-
         if (this.currentStatePasses())
         {
           // switch active header
@@ -1115,7 +1114,6 @@ export default Ember.Component.extend({
       minuteHeaderClicked: function()
       {
         const time = this.getMomentDate(this.get('timestamp'));
-
         if (this.currentStatePasses())
         {
           // switch active header

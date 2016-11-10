@@ -1,5 +1,5 @@
 
-.paper-datetime-picker {
+div[class^="paper-datetime-picker"], div[class*="paper-datetime-picker"] {
   position: relative;
 
     & > div.inputContainer {

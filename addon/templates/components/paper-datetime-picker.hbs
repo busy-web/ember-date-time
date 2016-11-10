@@ -1,7 +1,7 @@
 
-<div class="paper-datetime-picker">
+<div class="paper-datetime-picker-{{instanceNumber}}">
   <div class="inputContainer {{class}}">
-
+    
     <div class="top-dialog-container {{topDialogState}}">
       {{#if showDialogTop}}
           {{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate activeSection=activeSection updateActive=updateActive destroyElements=destroyElements isMilliseconds=isMilliseconds instanceNumber=instanceNumber topDialogState=topDialogState bottomDialogState=bottomDialogState}}
