@@ -18,7 +18,7 @@ test('it renders', function(assert) {
 test('set timestamp', function(assert) {
 
   const time = moment().unix();
-  const args = {'timestamp': time, 'isMilliseconds': false};
+  const args = {'timestamp': time, 'isMilliseconds': false , instanceNumber: "one"};
 
   let component = this.subject(args);
   let newTimestamp = moment().add('1', 'days');
@@ -34,7 +34,7 @@ test('set timestamp', function(assert) {
 test('set calender date', function(assert) {
 
   const time = moment().unix();
-  const args = {'timestamp': time, 'isMilliseconds': false};
+  const args = {'timestamp': time, 'isMilliseconds': false, instanceNumber: "one"};
 
   let component = this.subject(args);
   let newTimestamp = moment().add('6', 'days');
