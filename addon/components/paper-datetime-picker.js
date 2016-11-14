@@ -193,6 +193,7 @@ export default Ember.Component.extend({
 
   topDialogState: null,
   BottomDialogState: null,
+  closeOnTab: null,
 
 
   /**
@@ -477,7 +478,7 @@ export default Ember.Component.extend({
           date = time.subtract(1, 'hours');
 
           // make sure new time is not before minDate
-          if (!date.isBefore(date.minDate)) {
+          if (!date.isBefore(minDate)) {
             this.setTimestamp(date);
           }
         }
@@ -551,7 +552,7 @@ export default Ember.Component.extend({
 
       // 40 -> down arrow being pressed, 37 -> left arrow being pressed
       // 38 -> up arrow being pressed, 39 -> right arrow being pressed
-      if (code ===37 || code === 38 || code === 39 || code === 40) {
+      if (code === 37 || code === 38 || code === 39 || code === 40) {
 
         // if meridian is am, add 12 hours, else subtract 12 hours
         if (time.format('A') === 'AM') {
@@ -567,7 +568,11 @@ export default Ember.Component.extend({
             this.setTimestamp(date);
           }
         }
+      // is tab is hit on last input, remove dialog
+      } else if (code === 9) {
+        this.set('closeOnTab', true);
       }
     }
+
   }
 });

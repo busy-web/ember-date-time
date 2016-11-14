@@ -163,8 +163,32 @@ export default Ember.Component.extend({
    */
   instanceNumber: null,
 
+  /**
+   * value for data binding css for top dialog
+   *
+   * @private
+   * @property topDialogState
+   * @type String
+   */
   topDialogState: null,
+
+  /**
+   * value for data binding css for bottom dialog
+   *
+   * @private
+   * @property BottomDialogState
+   * @type String
+   */
   BottomDialogState: null,
+
+  /**
+   * observer value to close dialog on tab from last input field
+   *
+   * @private
+   * @property closeOnTab
+   * @type Boolean
+   */
+  closeOnTab: null,
 
   /**
    * sets currentTime and currentDate, sets a timestamp to now if a timestamp wasnt passed in
@@ -283,6 +307,20 @@ export default Ember.Component.extend({
   refreshCalenderActiveSection: Ember.observer('updateActive', function()
   {
     this.set('calenderActiveSection', this.get('activeSection'));
+  }),
+
+  /**
+   * closes dialog if tabbed on last input
+   *
+   * @private
+   * @method observeCloseOnTab
+   */
+  observeCloseOnTab: Ember.observer('closeOnTab', function()
+  {
+    if (this.get('closeOnTab') === true) {
+      this.set('destroyElements', true);
+      this.send('close');
+    }
   }),
 
   /**
