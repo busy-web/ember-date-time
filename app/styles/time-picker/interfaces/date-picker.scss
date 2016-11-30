@@ -1,151 +1,146 @@
 
 .paper-date-picker {
-    height: 350px;
-    width: 250px;
+	width: 250px;
+	height: 350px;
 
-  & > div.calender-container {
+	& > .calendar-container {
+		& > .header-container {
+			height: 160px;
+			border-bottom: 1px solid #8f8f8e;
+			background-color: #f2f2f2;
 
-    & > div.header-container {
-      background-color: #f2f2f2;
-      height: 160px;
-      border-bottom: 1px solid #8f8f8e;
-
-      & > div.day-of-week {
-        padding-top: 10px;
-        text-align: center;
-        color: #8f8f8e;
-        height: 25px;
-        line-height: 25px;
-        font-size: 13px;
+			& > .day-of-week {
+				height: 25px;
+				padding-top: 10px;
+				color: #8f8f8e;
+				font-size: 13px;
+				line-height: 25px;
+				text-align: center;
       }
 
-      & > div.month-container {
-        height: 30px;
-        line-height: 30px;
-        width: 100%;
-        text-align: center;
+			& > .month-container {
+				width: 100%;
+				height: 30px;
+				line-height: 30px;
+				text-align: center;
 
-        & > div.date-picker-header-month {
-          display: inline-block;
-          font-size: 18px;
-          height: 100%;
-          width: 45px;
-          color: #8f8f8e;
+				& > .date-picker-header-month {
+					display: inline-block;
+					width: 45px;
+					height: 100%;
+					color: #8f8f8e;
+					font-size: 18px;
 
-          &.active {
-            color: #42ace1;
+					&.active {
+						color: #42ace1;
           }
         }
       }
 
-      & > div.date-picker-header-day {
-        width: 100%;
-        text-align: center;
-        height: 50px;
-        line-height: 50px;
-        font-size: 60px;
-        color: #8f8f8e;
+			& > .date-picker-header-day {
+				width: 100%;
+				height: 50px;
+				color: #8f8f8e;
+				font-size: 60px;
+				line-height: 50px;
+				text-align: center;
 
-        &.active {
-          color: #42ace1;
+				&.active {
+					color: #42ace1;
         }
       }
 
-      & > div.year-container {
-        height: 30px;
-        line-height: 30px;
-        width: 100%;
-        text-align: center;
+			& > .year-container {
+				width: 100%;
+				height: 30px;
+				line-height: 30px;
+				text-align: center;
 
-        & > div.date-picker-header-year {
-          display: inline-block;
-          font-size: 18px;
-          height: 100%;
-          width: 45px;
-          color: #8f8f8e;
+				& > .date-picker-header-year {
+					display: inline-block;
+					width: 45px;
+					height: 100%;
+					color: #8f8f8e;
+					font-size: 18px;
 
-          &.active {
-            color: #42ace1;
+					&.active {
+						color: #42ace1;
           }
         }
       }
     }
 
-    & > div.calender-body {
+		& > .calendar-body {
+			& > .header {
+				text-align: center;
 
-      & > div.header {
-        text-align: center;
+				& > .month-year {
+					display: inline-block;
+					width: 80px;
+					margin-top: 12px;
+					font-size: 12px;
+					text-align: center;
 
-        & > div.month-year {
-          width: 80px;
-          font-size: 12px;
-          margin-top: 12px;
-          text-align: center;
-          display: inline-block;
-
-          &.active {
-            color: #42ace1;
+					&.active {
+						color: #42ace1;
           }
         }
 
-        & > div.add-month {
-          cursor: pointer;
-          display: inline-block;
-          width: 0;
-          height: 0;
-          border-top: 6px solid transparent;
-          border-bottom: 6px solid transparent;
-          border-left:10px solid #2E3E4F;
-          margin-left: 10px;
+				& > .add-month {
+					display: inline-block;
+					width: 0;
+					height: 0;
+					margin-left: 10px;
+					border-top: 6px solid transparent;
+					border-bottom: 6px solid transparent;
+					border-left: 10px solid #2e3e4f;
+					cursor: pointer;
         }
 
-        & > div.subtract-month {
-          cursor: pointer;
-          display: inline-block;
-          width: 0;
-          height: 0;
-          border-top: 6px solid transparent;
-          border-bottom: 6px solid transparent;
-          border-right:10px solid #2E3E4F;
-          margin-right: 10px;
+				& > .subtract-month {
+					display: inline-block;
+					width: 0;
+					height: 0;
+					margin-right: 10px;
+					border-top: 6px solid transparent;
+					border-right: 10px solid #2e3e4f;
+					border-bottom: 6px solid transparent;
+					cursor: pointer;
         }
       }
 
-      & > table.calender {
-        width: 100%;
-        margin-top: 10px;
+			& > table {
+				&.calendar {
+					width: 100%;
+					margin-top: 10px;
 
-        & > tr {
+					& > tr {
+						& > th {
+							font-size: 13px;
+							font-weight: normal;
+						}
 
-          & > th {
-            font-weight: normal;
-            font-size: 13px;
-          }
+						& > td {
+							width: 10px;
+							height: 20px;
+							font-size: 12px;
+							text-align: center;
 
-          & > td {
-            text-align: center;
-            font-size: 12px;
-            width: 10px;
-            height: 20px;
+							&.valid-day {
+								cursor: pointer;
+							}
 
-            &.valid-day {
-              cursor: pointer;
-            }
+							&.current-day {
+								background-color: #42ace1;
+								color: white;
+							}
 
-            &.invalid-day {
-
-            }
-
-            &.current-day {
-              background-color: #42ace1;
-              color: white;
-            }
-
-            &.disabled-day {
-              color: #8f8f8e;
-            }
-          }
-        }
+							&.disabled-day {
+								color: #8f8f8e;
+							}
+						}
+					}
+				}
       }
     }
   }

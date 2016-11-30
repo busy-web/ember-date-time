@@ -55,16 +55,6 @@ export default Ember.Component.extend({
   minDate: null,
 
   /**
-   * can be passed in to give the input an initial class
-   *
-   * @private
-   * @property class
-   * @type String
-   * @optional
-   */
-  class: null,
-
-  /**
    * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
    *
    * @private
@@ -219,6 +209,19 @@ export default Ember.Component.extend({
 
     this.updateInputValues();
   },
+
+	_timestamp: Ember.computed('timestamp', 'isMilliseconds', function() {
+		const timestamp = this.get('timestamp');
+		if (!Ember.isNone(timestamp)) {
+			Assert.isNumber(timestamp);
+
+			if (!this.get('isMilliseconds')) {
+				// convert seconds timestamp to workable milliseconds timestamp.
+				return timestamp * 1000;
+			}
+		}
+		return timestamp;
+	}),
 
   /**
    * Check if a timestamp is a valid date timestamp

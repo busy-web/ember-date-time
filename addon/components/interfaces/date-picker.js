@@ -36,13 +36,13 @@ export default Ember.Component.extend({
   timestamp: null,
 
   /**
-   * timestamp that controls the dates for the calender
+   * timestamp that controls the dates for the calendar
    *
    * @private
-   * @property calenderDate
+   * @property calendarDate
    * @type Number
    */
-  calenderDate: null,
+  calendarDate: null,
 
   /**
    * can be passed in so a date before the minDate cannot be selected
@@ -75,7 +75,7 @@ export default Ember.Component.extend({
   isMilliseconds: false,
 
   /**
-   * day of the month shown on the calender header - based off timestamp
+   * day of the month shown on the calendar header - based off timestamp
    *
    * @private
    * @property day
@@ -84,7 +84,7 @@ export default Ember.Component.extend({
   day: null,
 
   /**
-   * month of year shown on the calender header - based off timestamp
+   * month of year shown on the calendar header - based off timestamp
    *
    * @private
    * @property month
@@ -93,7 +93,7 @@ export default Ember.Component.extend({
   month: null,
 
   /**
-   * year shown on the calender header - based off timestamp
+   * year shown on the calendar header - based off timestamp
    *
    * @private
    * @property year
@@ -102,7 +102,7 @@ export default Ember.Component.extend({
   year: null,
 
   /**
-   * month + year string - based off calenderTimestamp
+   * month + year string - based off calendarTimestamp
    *
    * @private
    * @property monthYear
@@ -111,7 +111,7 @@ export default Ember.Component.extend({
   monthYear: null,
 
   /**
-   * array of all days in the current month of calenderTimestamp
+   * array of all days in the current month of calendarTimestamp
    *
    * @private
    * @property daysArray
@@ -188,11 +188,10 @@ export default Ember.Component.extend({
    * @method init
    * @constructor
    */
-  init: function()
-  {
+  init() {
     this._super();
-    this.resetCalenderDate();
-    this.keepCalenderUpdated();
+    this.resetCalendarDate();
+    this.keepCalendarUpdated();
     this.updateActiveSection();
   },
 
@@ -213,20 +212,19 @@ export default Ember.Component.extend({
   },
 
   /**
-   * sets the calenderDate to the timestamp and sets the values for the date picker headers
+   * sets the calendarDate to the timestamp and sets the values for the date picker headers
    *
    * @private
-   * @method resetCalenderDate
+   * @method resetCalendarDate
    */
-  resetCalenderDate: Ember.observer('timestamp', function()
-  {
+  resetCalendarDate: Ember.observer('timestamp', function() {
     Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
 
     const time = this.getMomentDate(this.get('timestamp'));
 
     if (!Ember.isNone(this.get('timestamp'))) {
       if (moment.isMoment(time) && time.isValid()) {
-        this.set('calenderDate', this.get('timestamp'));
+        this.set('calendarDate', this.get('timestamp'));
 
         this.set('year', time.format('YYYY'));
         this.set('month', time.format('MMM').toUpperCase());
@@ -244,29 +242,25 @@ export default Ember.Component.extend({
    * @private
    * @method updateActiveSection
    */
-  updateActiveSection: Ember.observer('calenderActiveSection', function()
-  {
-    let section = this.get('calenderActiveSection');
+  updateActiveSection: Ember.observer('calendarActiveSection', function() {
+    let section = this.get('calendarActiveSection');
 
     if (section === 'day') {
       this.set('dayActive', 'active');
       this.set('monthActive', null);
       this.set('yearActive', null);
       this.set('monthYearActive', null);
-    }
-    if (section === 'month') {
+    } else if (section === 'month') {
       this.set('monthActive', 'active');
       this.set('dayActive', null);
       this.set('yearActive', null);
       this.set('monthYearActive', null);
-    }
-    if (section === 'year') {
+    } else if (section === 'year') {
       this.set('yearActive', 'active');
       this.set('monthActive', null);
       this.set('dayActive', null);
       this.set('monthYearActive', null);
-    }
-    if (section === 'month-year') {
+    } else if (section === 'month-year') {
       this.set('monthYearActive', 'active');
       this.set('monthActive', null);
       this.set('dayActive', null);
@@ -275,17 +269,16 @@ export default Ember.Component.extend({
   }),
 
   /**
-   * re configures the calender when calenderDate is changed, sets the monthYear calender header
+   * re configures the calendar when calendarDate is changed, sets the monthYear calendar header
    *
    * @private
-   * @method keepCalenderUpdated
+   * @method keepCalendarUpdated
    */
-  keepCalenderUpdated: Ember.observer('calenderDate', function()
-  {
-    const calenderObject = this.getMomentDate(this.get('calenderDate'));
-
-    this.buildDaysArrayForMonth(calenderObject);
-    this.set('monthYear', calenderObject.format('MMM YYYY'));
+  keepCalendarUpdated: Ember.observer('calendarDate', function() {
+		console.log('calendarDate', this.get('calendarDate'));
+    const calendarObject = this.getMomentDate(this.get('calendarDate'));
+    this.buildDaysArrayForMonth(calendarObject);
+    this.set('monthYear', calendarObject.format('MMM YYYY'));
   }),
 
   /**
@@ -293,19 +286,19 @@ export default Ember.Component.extend({
    *
    * @private
    * @method buildDaysArrayForMonth
-   * @param calenderObject {object} moment object used for calender
+   * @param calendarObject {object} moment object used for calendar
    */
-  buildDaysArrayForMonth: function(calenderObject) {
-
+  buildDaysArrayForMonth: function(calendarObject) {
     const minDate = this.getMomentDate(this.get('minDate'));
     const maxDate = this.getMomentDate(this.get('maxDate'));
-    const current = calenderObject;
-
-    let daysArray = Ember.A();
+    const current = calendarObject;
+    const daysArray = Ember.A();
     const firstDay = current.clone().startOf('month').hour(current.hour()).minute(current.minute()).endOf('minute');
     const lastDay = current.clone().endOf('month').hour(current.hour()).minute(current.minute()).endOf('minute');
-    let currentDay = firstDay;
 
+		console.log('firstDay', firstDay, 'lastDay', lastDay);
+
+    let currentDay = firstDay;
     while (currentDay.isBefore(lastDay)) {
       if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
         if (currentDay.isBetween(minDate, maxDate)) {
@@ -323,18 +316,16 @@ export default Ember.Component.extend({
         currentDay = currentDay.clone().add('days', 1);
       }
     }
-
-    this.currentDayOnCalender(daysArray);
+    this.currentDayOnCalendar(daysArray);
   },
 
   /**
    * sets active to the current active day
    *
    * @private
-   * @method currentDayOnCalender
+   * @method currentDayOnCalendar
    */
-  currentDayOnCalender: function(daysArray)
-  {
+  currentDayOnCalendar(daysArray) {
     let completeDaysArray = Ember.A();
     let currentTime = this.getMomentDate(this.get('timestamp'));
 
@@ -364,8 +355,7 @@ export default Ember.Component.extend({
    * @private
    * @method buildCompleteArray
    */
-  buildCompleteArray: function(completeDaysArray)
-{
+  buildCompleteArray(completeDaysArray) {
     let nullHeadLength = 0;
     let monthArrayLength = 42;
     let firstDayPosition = completeDaysArray.get('firstObject').day();
@@ -378,8 +368,7 @@ export default Ember.Component.extend({
       completeArray.push(null);
     }
 
-    completeDaysArray.forEach(function(day)
-    {
+    completeDaysArray.forEach(function(day) {
       completeArray.push(day);
     });
 
@@ -389,6 +378,7 @@ export default Ember.Component.extend({
       nullHeadLength++;
       completeArray.push(null);
     }
+
     this.groupByWeeks(completeArray);
   },
 
@@ -398,8 +388,7 @@ export default Ember.Component.extend({
    * @private
    * @method groupByWeeks
    */
-  groupByWeeks: function(completeArray)
-  {
+  groupByWeeks(completeArray) {
     let grouped = Ember.A([]);
 
     grouped.pushObject(completeArray.filter(this.inRange(0, 7)));
@@ -421,16 +410,13 @@ export default Ember.Component.extend({
    * @param upper {number} last number in week
    * @return {boolean} true if day is in week, otherwise false
    */
-  inRange: function(lower, upper)
-  {
+  inRange(lower, upper) {
     Assert.isNumber(lower);
     Assert.isNumber(upper);
 
     return function (each, index) {
-
       return (index >= lower && index < upper);
     };
-
   },
 
   /**
@@ -440,8 +426,7 @@ export default Ember.Component.extend({
    * @method setTimestamp
    * @param moment {object} moment object
    */
-  setTimestamp: function(moment)
-  {
+  setTimestamp(moment) {
     Assert.isMoment(moment);
 
     if (this.get('isMilliseconds')) {
@@ -454,22 +439,21 @@ export default Ember.Component.extend({
   },
 
   /**
-   * receives a moment object and sets it to calenderTimestamp
+   * receives a moment object and sets it to calendarTimestamp
    *
    * @private
-   * @method setCalenderTimestamp
+   * @method setCalendarTimestamp
    * @param moment {object} moment object
    */
-  setCalenderDate: function(moment)
-  {
+  setCalendarDate(moment) {
     Assert.isMoment(moment);
 
     if (this.get('isMilliseconds')) {
       let reverse = Time.timestamp(moment);
-      this.set('calenderDate', reverse);
+      this.set('calendarDate', reverse);
     } else {
       let reverse = moment.unix();
-      this.set('calenderDate', reverse);
+      this.set('calendarDate', reverse);
     }
   },
 
@@ -481,8 +465,7 @@ export default Ember.Component.extend({
      * @param day {object} moment object of the clicked day
      * @event dayClicked
      */
-    dayClicked(day)
-    {
+    dayClicked(day) {
       Assert.isMoment(day);
 
       const newDay = day.date();
@@ -490,39 +473,35 @@ export default Ember.Component.extend({
       const newYear = day.year();
 
       let timestamp = this.getMomentDate(this.get('timestamp'));
-          timestamp.date(newDay);
-          timestamp.month(newMonth);
-          timestamp.year(newYear);
+      timestamp.date(newDay);
+      timestamp.month(newMonth);
+      timestamp.year(newYear);
 
       this.setTimestamp(timestamp);
     },
 
     /**
-     * subtracts 1 month to the calenderDate
+     * subtracts 1 month to the calendarDate
      *
      * @event subtractMonth
      */
-    subtractMonth()
-    {
-      const calDate = this.getMomentDate(this.get('calenderDate'));
-      let subtract = calDate.subtract('1', 'months');
-
-      this.setCalenderDate(subtract);
-      this.set('calenderActiveSection', 'month-year');
+    subtractMonth() {
+      const calDate = this.getMomentDate(this.get('calendarDate'));
+      this.setCalendarDate(calDate.subtract('1', 'months'));
+      this.set('calendarActiveSection', 'month-year');
     },
 
     /**
-     * adds 1 month to the calenderDate
+     * adds 1 month to the calendarDate
      *
      * @event addMonth
      */
-    addMonth()
-    {
-      const calDate = this.getMomentDate(this.get('calenderDate'));
+    addMonth() {
+      const calDate = this.getMomentDate(this.get('calendarDate'));
       let add = calDate.add('1', 'months');
 
-      this.setCalenderDate(add);
-      this.set('calenderActiveSection', 'month-year');
+      this.setCalendarDate(add);
+      this.set('calendarActiveSection', 'month-year');
     }
   }
 });

@@ -229,9 +229,8 @@ rules:
   # enforce an indentation size (in spaces) and ensure that tabs and spaces are not mixed
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/indentation.md
   indentation:
-    - 1
-    -
-      size: 1
+    - 2
+    - size: tab
 
   # enforce whether or not decimal numbers should include a leading zero
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/leading-zero.md
@@ -245,12 +244,13 @@ rules:
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/property-sort-order.md
   property-sort-order:
     - 2
-    -
-      order: smacss
+    - order: smacss
 
   # enforce whether single quotes ('') or double quotes ("") should be used for all strings (defaults single)
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/quotes.md
-  quotes: 2
+  quotes:
+    - 2
+    - style: single
 
   # enforce that values in their shorthand form are as concise as specified
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/shorthand-values.md
