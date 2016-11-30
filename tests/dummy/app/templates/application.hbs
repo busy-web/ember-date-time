@@ -12,14 +12,13 @@
         <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
         <li>class - "invalid" can be passed in to make input border red. optional.</li>
         <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
-        <li>instanceNumber - a string of a number that is unique from all other paper-datetime-picker instanceNumber's. string. required if using picker more than once in view.</li>
       </ul>
       Code:
-      <code>\{{paper-datetime-picker timestamp=1475711999 minDate=1475611999 maxDate=1485713999 isMilliseconds=false instanceNumber='one'}}</code>
+      <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate}}</code>
       <br>
       Result:
       <span class="code-result">
-          {{paper-datetime-picker timestamp=1475711999 minDate=1415611999 maxDate=1495713999 isMilliseconds=false instanceNumber='one'}}
+        {{paper-datetime-picker timestamp=unix minDate=minDateUnix maxDate=maxDateUnix}}
       </span>
     </section>
 
@@ -36,14 +35,13 @@
         <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
         <li>class - "invalid" can be passed in to make input border red. optional.</li>
         <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
-        <li>instanceNumber - a string of a number that is unique from all other paper-datetime-picker instanceNumber's. string. required if using picker more than once in view.</li>
       </ul>
       Code:
-      <code>\{{paper-datetime-picker timestamp=1475711999000 minDate=1475611999000 maxDate=1485713999000 isMilliseconds=true instanceNumber='two'}}</code>
+      <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate isMilliseconds=true}}</code>
       <br>
       Result:
       <span class="code-result">
-          {{paper-datetime-picker timestamp=1475711999000 minDate=1475611999000 maxDate=1485713999000 isMilliseconds=true instanceNumber='two'}}
+        {{paper-datetime-picker timestamp=milli minDate=minDateMilli maxDate=maxDateMilli isMilliseconds=true}}
       </span>
     </section>
 

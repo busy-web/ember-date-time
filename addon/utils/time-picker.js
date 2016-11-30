@@ -21,8 +21,7 @@ export default TimePicker.reopenClass({
    * @param hour {number} hour you want string of
    * @return {string} hour as string
    */
-  formatHourHeader: function(hour)
-  {
+  formatHourHeader(hour) {
     if (typeof hour === 'string' || typeof hour === 'number') {
       if (parseInt(hour, 10) !== 0) {
         return ('0' + hour).slice(-2);
@@ -42,8 +41,7 @@ export default TimePicker.reopenClass({
    * @param minute {number} minute you want string of
    * @return {string} minute as string
    */
-  formatMinuteStrings: function(minute)
-  {
+  formatMinuteStrings(minute) {
     if (typeof minute === 'string' || typeof minute === 'number') {
       if (parseInt(minute, 10) !== 60) {
         return ('0' + minute).slice(-2);
@@ -63,8 +61,7 @@ export default TimePicker.reopenClass({
    * @param hour {number} hour you want string of
    * @return {string} hour as string
    */
-  formatHourStrings: function(hour)
-  {
+  formatHourStrings(hour) {
     if (typeof hour === 'string' || typeof hour === 'number') {
       if (parseInt(hour, 10) !== 12) {
         return ('0' + hour).slice(-2);
@@ -84,8 +81,7 @@ export default TimePicker.reopenClass({
    * @param string {string} string you want integer of
    * @return {number} passed in string as integer
    */
-  stringToSlicedInteger: function(string)
-  {
+  stringToSlicedInteger(string) {
     Assert.isString(string);
 
     let int = string.slice(-2);
@@ -100,13 +96,12 @@ export default TimePicker.reopenClass({
    * @param hour {number} hour you want strings of
    * @return {object} all passed in hour strings
    */
-  hourStrings: function(hour)
-  {
+  hourStrings(hour) {
     if (typeof hour === 'string' || typeof hour === 'number') {
       return {
-        "text": 'hour' + hour,
-        "line": 'line' + hour,
-        "circle": 'circle' + hour
+        "text": `hour-${hour}`,
+        "line": `line-${hour}`,
+        "circle": `circle-${hour}`
       };
     } else {
       Assert.throw("hourStrings param must be a string or integer");
@@ -121,13 +116,12 @@ export default TimePicker.reopenClass({
    * @param minute {string} minute you want strings of
    * @return {object} all passed in minute strings
    */
-  minuteStrings: function(minute)
-  {
+  minuteStrings(minute) {
     if (typeof minute === 'string' || typeof minute === 'number') {
       return {
-        "text": 'minText' + minute,
-        "line": 'minLine' + minute,
-        "circle": 'minCircle' + minute
+        "text": `min-text-${minute}`,
+        "line": `min-line-${minute}`,
+        "circle": `min-circle-${minute}`
       };
     } else {
       Assert.throw("minuteStrings param must be a string or integer");
@@ -142,8 +136,7 @@ export default TimePicker.reopenClass({
    * @param minute {number} minute to check if multiple of 5
    * @return {boolean} returns true if minute is a multiple of 5
    */
-  minuteModFive: function(minute)
-  {
+  minuteModFive(minute) {
     if (typeof minute === 'string' || typeof minute === 'number') {
       if (minute % 5 === 0) {
         return true;
@@ -166,8 +159,7 @@ export default TimePicker.reopenClass({
    * @param y2 {number} point 2 y value
    * @return {number} angle from point 1 to point 2
    */
-  angle: function(x, y, x2, y2)
-  {
+  angle(x, y, x2, y2) {
     let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
     let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
     let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
@@ -183,8 +175,7 @@ export default TimePicker.reopenClass({
    * @param momentObject {moment}
    * @return {string} hour of the current timestamp
    */
-  currentHour: function(momentObject)
-  {
+  currentHour(momentObject) {
     Assert.isMoment(momentObject);
 
     let hour = ('0' + (momentObject.hour() % 12)).slice(-2);
@@ -199,8 +190,7 @@ export default TimePicker.reopenClass({
    * @param momentObject {moment}
    * @return {string} minute of the current timestamp
    */
-  currentMinute: function(momentObject)
-  {
+  currentMinute(momentObject) {
     Assert.isMoment(momentObject);
 
     let minute = momentObject.minute();
@@ -215,8 +205,7 @@ export default TimePicker.reopenClass({
    * @param momentObject {moment}
    * @return {string} sting (date) of current moment object
    */
-  currentDateFormat: function(momentObject)
-  {
+  currentDateFormat(momentObject) {
     Assert.isMoment(momentObject);
 
     return momentObject.format('MMM DD, YYYY');
@@ -230,8 +219,7 @@ export default TimePicker.reopenClass({
    * @param momentObject {moment}
    * @return {boolean}
    */
-  timeIsAm: function(momentObject)
-  {
+  timeIsAm(momentObject) {
     Assert.isMoment(momentObject);
 
     if (momentObject.format('A') === 'AM') {
@@ -239,6 +227,5 @@ export default TimePicker.reopenClass({
     } else {
       return false;
     }
-  },
-
+  }
 });

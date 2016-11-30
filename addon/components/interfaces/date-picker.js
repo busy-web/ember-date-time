@@ -4,7 +4,6 @@
  */
 import Ember from 'ember';
 import moment from 'moment';
-import Time from 'busy-utils/time';
 import Assert from 'busy-utils/assert';
 import layout from '../../templates/components/interfaces/date-picker';
 
@@ -275,9 +274,8 @@ export default Ember.Component.extend({
    * @method keepCalendarUpdated
    */
   keepCalendarUpdated: Ember.observer('calendarDate', function() {
-		console.log('calendarDate', this.get('calendarDate'));
     const calendarObject = this.getMomentDate(this.get('calendarDate'));
-    this.buildDaysArrayForMonth(calendarObject);
+    this.buildDaysArrayForMonth();
     this.set('monthYear', calendarObject.format('MMM YYYY'));
   }),
 
@@ -286,18 +284,15 @@ export default Ember.Component.extend({
    *
    * @private
    * @method buildDaysArrayForMonth
-   * @param calendarObject {object} moment object used for calendar
    */
-  buildDaysArrayForMonth: function(calendarObject) {
+  buildDaysArrayForMonth: function() {
+		const calendarDate = this.get('calendarDate');
     const minDate = this.getMomentDate(this.get('minDate'));
     const maxDate = this.getMomentDate(this.get('maxDate'));
-    const current = calendarObject;
+    const firstDay = this.getMomentDate(calendarDate).startOf('month');
+    const lastDay = this.getMomentDate(calendarDate).add(1, 'month').startOf('month');
+
     const daysArray = Ember.A();
-    const firstDay = current.clone().startOf('month').hour(current.hour()).minute(current.minute()).endOf('minute');
-    const lastDay = current.clone().endOf('month').hour(current.hour()).minute(current.minute()).endOf('minute');
-
-		console.log('firstDay', firstDay, 'lastDay', lastDay);
-
     let currentDay = firstDay;
     while (currentDay.isBefore(lastDay)) {
       if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
@@ -430,11 +425,9 @@ export default Ember.Component.extend({
     Assert.isMoment(moment);
 
     if (this.get('isMilliseconds')) {
-      let reverse = Time.timestamp(moment);
-      this.set('timestamp', reverse);
+      this.set('timestamp', moment.valueOf());
     } else {
-      let reverse = moment.unix();
-      this.set('timestamp', reverse);
+      this.set('timestamp', moment.unix());
     }
   },
 
@@ -449,11 +442,9 @@ export default Ember.Component.extend({
     Assert.isMoment(moment);
 
     if (this.get('isMilliseconds')) {
-      let reverse = Time.timestamp(moment);
-      this.set('calendarDate', reverse);
+      this.set('calendarDate', moment.valueOf());
     } else {
-      let reverse = moment.unix();
-      this.set('calendarDate', reverse);
+      this.set('calendarDate', moment.unix());
     }
   },
 

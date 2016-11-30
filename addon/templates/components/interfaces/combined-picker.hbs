@@ -1,11 +1,11 @@
 
 <div class="picker-container">
 	{{#if isClock}}
-		{{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate minuteOrHour=minuteOrHour isClock=isClock isMilliseconds=isMilliseconds instanceNumber=instanceNumber }}
+		{{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate minuteOrHour=minuteOrHour isClock=isClock isMilliseconds=isMilliseconds}}
 	{{/if}}
 
 	{{#if isCalender}}
-		{{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calenderActiveSection=calenderActiveSection isMilliseconds=isMilliseconds instanceNumber=instanceNumber}}
+		{{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calenderActiveSection=calenderActiveSection isMilliseconds=isMilliseconds}}
 	{{/if}}
 
 	<div class="picker-footer">

@@ -5,7 +5,6 @@
 import Ember from 'ember';
 import layout from '../templates/components/paper-datetime-picker';
 import moment from 'moment';
-import Time from 'busy-utils/time';
 import Assert from 'busy-utils/assert';
 
 /**
@@ -172,19 +171,7 @@ export default Ember.Component.extend({
    */
   keyHasGoneUp: true,
 
-  /**
-   * value thats used to make each instance of component unique
-   *
-   * @private
-   * @property instanceNumber
-   * @type Integer
-   */
-  instanceNumber: 'one',
-
-  topDialogState: null,
-  BottomDialogState: null,
   closeOnTab: null,
-
 
   /**
    * checks if timestamp is valid calls updateInputValues
@@ -209,19 +196,6 @@ export default Ember.Component.extend({
 
     this.updateInputValues();
   },
-
-	_timestamp: Ember.computed('timestamp', 'isMilliseconds', function() {
-		const timestamp = this.get('timestamp');
-		if (!Ember.isNone(timestamp)) {
-			Assert.isNumber(timestamp);
-
-			if (!this.get('isMilliseconds')) {
-				// convert seconds timestamp to workable milliseconds timestamp.
-				return timestamp * 1000;
-			}
-		}
-		return timestamp;
-	}),
 
   /**
    * Check if a timestamp is a valid date timestamp
@@ -257,9 +231,9 @@ export default Ember.Component.extend({
    */
   getMomentDate(timestamp) {
     if (this.get('isMilliseconds')) {
-      return moment.utc(timestamp);
+      return moment(timestamp);
     } else {
-      return moment.utc(timestamp*1000);
+      return moment(timestamp*1000);
     }
   },
 
@@ -302,11 +276,9 @@ export default Ember.Component.extend({
    */
   setTimestamp(moment) {
     if (this.get('isMilliseconds')) {
-      let reverse = Time.timestamp(moment);
-      this.set('timestamp', reverse);
+      this.set('timestamp', moment.valueOf());
     } else {
-      let reverse = moment.unix();
-      this.set('timestamp', reverse);
+      this.set('timestamp', moment.unix());
     }
   },
 
@@ -354,26 +326,30 @@ export default Ember.Component.extend({
      * @event focusInput
      */
     focusInput(active) {
-      let activeState = this.get('updateActive');
-      let scrollTop = Ember.$(window).scrollTop();
-      let elementOffsetTop = Ember.$('.paper-datetime-picker').offset().top;
-      let distanceTop = (elementOffsetTop - scrollTop);
-      let distanceBottom = Ember.$(document).height() - Ember.$('.paper-datetime-picker').offset().top - Ember.$('.paper-datetime-picker').height();
+      const activeState = this.get('updateActive');
+			const documentHeight = Ember.$(document).height();
+			const dialogHeight = this.$().find('.dialog-container').height() + 50;
+			const elementHeight = this.$().height();
+      const distanceTop = this.$().offset().top;
+      const distanceBottom = documentHeight - (distanceTop + elementHeight);
 
-      if (distanceTop > distanceBottom) {
-        this.set('showDialogBottom', false);
+      if (distanceTop > distanceBottom && distanceBottom < dialogHeight) {
         this.set('showDialogTop', true);
         this.set('updateActive', !activeState);
       } else {
         this.set('showDialogTop', false);
-        this.set('showDialogBottom', true);
         this.set('updateActive',  !activeState);
       }
 
+			this.set('showDialog', true);
       this.set('destroyElements', false);
       this.set('activeSection', active);
       this.addContainer();
     },
+
+		closeAction() {
+			this.set('showDialog', false);
+		},
 
     /**
      * handles up and down arrows pressed while in the minutes input fields
