@@ -4,8 +4,8 @@
 		{{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate minuteOrHour=minuteOrHour isClock=isClock isMilliseconds=isMilliseconds}}
 	{{/if}}
 
-	{{#if isCalender}}
-		{{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calenderActiveSection=calenderActiveSection isMilliseconds=isMilliseconds}}
+	{{#if isCalendar}}
+		{{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calendarActiveSection=calendarActiveSection isMilliseconds=isMilliseconds}}
 	{{/if}}
 
 	<div class="picker-footer">
@@ -15,8 +15,8 @@
 				<div class="cancel" {{action 'cancel'}}>Cancel</div>
 		{{/if}}
 
-		{{#if isCalender}}
-			<div class="current-date keepOpen" {{action 'togglePicker' 'isCalender'}}>{{currentTime}}</div>
+		{{#if isCalendar}}
+			<div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar'}}>{{currentTime}}</div>
 			<div class="ok" {{action 'close'}}>OK</div>
 			<div class="cancel" {{action 'cancel'}}>Cancel</div>
 		{{/if}}

@@ -65,7 +65,7 @@ export default Ember.Component.extend({
   isMilliseconds: null,
 
   /**
-   * boolean based on if the clock or calender is showing
+   * boolean based on if the clock or calendar is showing
    *
    * @private
    * @property isClockHour
@@ -74,13 +74,13 @@ export default Ember.Component.extend({
   isClock: true,
 
   /**
-   * boolean based on if the clock or calender is showing
+   * boolean based on if the clock or calendar is showing
    *
    * @private
-   * @property isCalender
+   * @property isCalendar
    * @type Boolean
    */
-  isCalender: false,
+  isCalendar: false,
 
   /**
    * String as the current date of the timestamp
@@ -119,13 +119,13 @@ export default Ember.Component.extend({
   minuteOrHour: null,
 
   /**
-   * active input for calender dialog
+   * active input for calendar dialog
    *
    * @private
-   * @property calenderActiveSection
+   * @property calendarActiveSection
    * @type string
    */
-  calenderActiveSection: null,
+  calendarActiveSection: null,
 
   /**
    * if they cancel the change this is the timestamp the picker will revert back to
@@ -182,24 +182,26 @@ export default Ember.Component.extend({
    * @method didInsertElement
    */
   onOpen: Ember.on('didInsertElement', function() {
-    if (this.get('isClock') === true || this.get('isCalender') === true) {
+    if (this.get('isClock') === true || this.get('isCalendar') === true) {
       let modal = Ember.$(document);
 			let thisEl = this.$();
 
 			this.set('destroyElements', false);
 
       modal.bind('click.paper-datetime-picker', (evt) => {
-        let el = Ember.$(evt.target);
+				if (!this.get('isDestroyed')) {
+					let el = Ember.$(evt.target);
 
-				let elMain = el.parents('.paper-datetime-picker');
-				let thisMain = thisEl.parents('.paper-datetime-picker');
+					let elMain = el.parents('.paper-datetime-picker');
+					let thisMain = thisEl.parents('.paper-datetime-picker');
 
-				if (elMain.attr('id') !== thisMain.attr('id')) {
-					if(el.attr('class') !== 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
-						if(!el.hasClass('keepOpen')) {
-							if(this.get('isClock') === true || this.get('isCalender') === true) {
-								this.set('destroyElements', true);
-								this.send('close');
+					if (elMain.attr('id') !== thisMain.attr('id')) {
+						if(el.attr('class') !== 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
+							if(!el.hasClass('keepOpen')) {
+								if(this.get('isClock') === true || this.get('isCalendar') === true) {
+									this.set('destroyElements', true);
+									this.send('close');
+								}
 							}
 						}
 					}
@@ -207,14 +209,16 @@ export default Ember.Component.extend({
       });
 
       modal.bind('keyup.paper-datetime-picker', (e) => {
-        let key = e.which;
-        if (key === 27) {
-          this.set('destroyElements', true);
-          this.send('cancel');
-        } else if (key === 13) {
-          this.set('destroyElements', true);
-          this.send('close');
-        }
+				if (!this.get('isDestroyed')) {
+					let key = e.which;
+					if (key === 27) {
+						this.set('destroyElements', true);
+						this.send('cancel');
+					} else if (key === 13) {
+						this.set('destroyElements', true);
+						this.send('close');
+					}
+				}
       });
     }
   }),
@@ -242,22 +246,22 @@ export default Ember.Component.extend({
       this.set('openOnce', 0);
     }
 
-    if (this.get('isClock') === false && this.get('isCalender') === false) {
+    if (this.get('isClock') === false && this.get('isCalendar') === false) {
       this.set('openOnce', 0);
     }
 
     if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1) {
       if (section === 'year' || section === 'month' || section === 'day') {
         this.set('isClock', false);
-        this.set('isCalender', true);
+        this.set('isCalendar', true);
       } else if (section === 'hour' || section === 'meridean') {
         this.set('isClock', true);
         this.set('minuteOrHour', 'hour');
-        this.set('isCalender', false);
+        this.set('isCalendar', false);
       } else if (section === 'minute') {
         this.set('isClock', true);
         this.set('minuteOrHour', 'minute');
-        this.set('isCalender', false);
+        this.set('isCalendar', false);
       }
 
       this.set('lastActiveSection', section);
@@ -266,13 +270,13 @@ export default Ember.Component.extend({
   }),
 
   /**
-   * refreshes calenderActiveSection
+   * refreshes calendarActiveSection
    *
    * @private
-   * @method refreshCalenderActiveSection
+   * @method refreshCalendarActiveSection
    */
-  refreshCalenderActiveSection: Ember.observer('updateActive', function() {
-    this.set('calenderActiveSection', this.get('activeSection'));
+  refreshCalendarActiveSection: Ember.observer('updateActive', function() {
+    this.set('calendarActiveSection', this.get('activeSection'));
   }),
 
   /**
@@ -329,7 +333,7 @@ export default Ember.Component.extend({
   actions: {
 
     /**
-     * changes dialog from clock to calender and vice versa
+     * changes dialog from clock to calendar and vice versa
      *
      * @event togglePicker
      */
@@ -337,7 +341,7 @@ export default Ember.Component.extend({
      const isClock = (current === 'isClock');
 
      this.set('isClock', !isClock);
-     this.set('isCalender', isClock);
+     this.set('isCalendar', isClock);
      this.set('openOnce', 0);
      this.set('minuteOrHour', 'hour');
    },
@@ -350,7 +354,7 @@ export default Ember.Component.extend({
    close() {
      this.set('backupTimestamp', this.get('timestamp'));
      this.set('isClock', false);
-     this.set('isCalender', false);
+     this.set('isCalendar', false);
      this.set('openOnce', 0);
 		 this.sendAction('onClose');
    },
@@ -363,7 +367,7 @@ export default Ember.Component.extend({
    cancel() {
      this.set('timestamp', this.get('backupTimestamp'));
      this.set('isClock', false);
-     this.set('isCalender', false);
+     this.set('isCalendar', false);
      this.set('openOnce', 0);
 		 this.sendAction('onClose');
 		}

@@ -163,7 +163,7 @@ export default Ember.Component.extend({
   destroyElements: false,
 
   /**
-   * value thats used to only allow one action to be sent each keyup/heydown for calender
+   * value thats used to only allow one action to be sent each keyup/heydown for calendar
    *
    * @private
    * @property keyHasGoneUp
@@ -231,9 +231,9 @@ export default Ember.Component.extend({
    */
   getMomentDate(timestamp) {
     if (this.get('isMilliseconds')) {
-      return moment(timestamp);
+      return moment.utc(timestamp);
     } else {
-      return moment(timestamp*1000);
+      return moment.utc(timestamp*1000);
     }
   },
 
@@ -274,11 +274,11 @@ export default Ember.Component.extend({
    * @method setTimestamp
    * @param moment {object} moment object
    */
-  setTimestamp(moment) {
+  setTimestamp(date) {
     if (this.get('isMilliseconds')) {
-      this.set('timestamp', moment.valueOf());
+      this.set('timestamp', date.valueOf());
     } else {
-      this.set('timestamp', moment.unix());
+      this.set('timestamp', date.unix());
     }
   },
 
@@ -345,6 +345,8 @@ export default Ember.Component.extend({
       this.set('destroyElements', false);
       this.set('activeSection', active);
       this.addContainer();
+
+			return false;
     },
 
 		closeAction() {
@@ -506,7 +508,7 @@ export default Ember.Component.extend({
     },
 
     /**
-     * allows keyup/keydown handlers to work for calender inputs
+     * allows keyup/keydown handlers to work for calendar inputs
      *
      * @event resetKeyUp
      */

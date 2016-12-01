@@ -14,7 +14,12 @@
 			float: left;
 			border: 1px solid #e1dfdf;
 			border-radius: 3px;
+			cursor: pointer;
 			box-sizing: border-box;
+
+			&.active {
+				box-shadow: 0 0 0 1px #30aeef;
+			}
 
 			& > div {
 				display: inline;
@@ -69,29 +74,27 @@
 					float: left;
 					color: #727272;
 					font-size: 12px;
-					line-height: 34px;
+					line-height: 30px;
 				}
 
 				& > .colon {
 					display: inline-block;
 					width: 3px;
 					height: 100%;
-					margin-right: 2px;
-					margin-left: 2px;
+					margin: 0 2px;
 					float: left;
 					font-size: 12px;
-					line-height: 32px;
+					line-height: 30px;
 				}
 
 				&.dash {
 					display: inline-block;
 					width: 5px;
 					height: 100%;
-					margin-right: 2px;
-					margin-left: 5px;
+					margin: 0 2px;
 					float: left;
 					font-size: 12px;
-					line-height: 32px;
+					line-height: 30px;
 				}
 
 				& > .date-right-padding {

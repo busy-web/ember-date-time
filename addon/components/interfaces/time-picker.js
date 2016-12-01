@@ -274,9 +274,9 @@ export default Ember.Component.extend({
       */
      getMomentDate(timestamp) {
        if (this.get('isMilliseconds')) {
-         return moment(timestamp);
+         return moment.utc(timestamp);
        } else {
-         return moment(timestamp*1000);
+         return moment.utc(timestamp*1000);
        }
      },
 

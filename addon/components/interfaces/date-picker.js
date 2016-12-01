@@ -299,16 +299,16 @@ export default Ember.Component.extend({
         if (currentDay.isBetween(minDate, maxDate)) {
           currentDay.isDisabled = false;
           daysArray.pushObject(currentDay);
-          currentDay = currentDay.clone().add('days', 1);
+          currentDay = currentDay.clone().add(1, 'days');
         } else {
           currentDay.isDisabled = true;
           daysArray.pushObject(currentDay);
-          currentDay = currentDay.clone().add('days', 1);
+          currentDay = currentDay.clone().add(1, 'days');
         }
       } else {
         currentDay.isDisabled = false;
         daysArray.pushObject(currentDay);
-        currentDay = currentDay.clone().add('days', 1);
+        currentDay = currentDay.clone().add(1, 'days');
       }
     }
     this.currentDayOnCalendar(daysArray);
@@ -421,13 +421,13 @@ export default Ember.Component.extend({
    * @method setTimestamp
    * @param moment {object} moment object
    */
-  setTimestamp(moment) {
-    Assert.isMoment(moment);
+  setTimestamp(date) {
+    Assert.isMoment(date);
 
     if (this.get('isMilliseconds')) {
-      this.set('timestamp', moment.valueOf());
+      this.set('timestamp', date.valueOf());
     } else {
-      this.set('timestamp', moment.unix());
+      this.set('timestamp', date.unix());
     }
   },
 
@@ -438,13 +438,13 @@ export default Ember.Component.extend({
    * @method setCalendarTimestamp
    * @param moment {object} moment object
    */
-  setCalendarDate(moment) {
-    Assert.isMoment(moment);
+  setCalendarDate(date) {
+    Assert.isMoment(date);
 
     if (this.get('isMilliseconds')) {
-      this.set('calendarDate', moment.valueOf());
+      this.set('calendarDate', date.valueOf());
     } else {
-      this.set('calendarDate', moment.unix());
+      this.set('calendarDate', date.unix());
     }
   },
 
