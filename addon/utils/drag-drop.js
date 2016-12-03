@@ -3,15 +3,46 @@
 *
 */
 import Ember from 'ember';
-import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 
+/***/
 const DragDrop = Ember.Object.extend();
+
  /**
   * `Util/DragDrop`
   *
   */
-export default DragDrop.reopenClass(
-{
+export default DragDrop.reopenClass({
+
+	lineAngle(x1, y1, x2, y2) {
+		let dy = -(y1 - y2); // invert dy for proper x-axis
+		let dx = x1 - x2;
+
+		// returns the angle of a line off the x-axis
+		let angle = Math.atan2(dy, dx);
+		angle *= 180 / Math.PI;
+
+		// invert the angle to make work on the y-axis
+		angle = -angle;
+
+		// convert to 360 degree angles
+		if (angle < 0) {
+			angle += 360;
+		}
+
+		// rotate the angle back up to the y-axis 0 coordinate
+		angle = (angle + 90) % 360;
+
+		return angle;
+	},
+
+	calculateDirection(startAngle, endAngle) {
+		let angle = endAngle - startAngle;
+		if (angle > 180) {
+			angle -= 360;
+		}
+		return angle;
+	},
+
   /**
    * returns the x,y coordinates of starting and ending points relative to center_point
    *
@@ -23,20 +54,14 @@ export default DragDrop.reopenClass(
    * @param y {string}
    * @return {object} starting and ending x,y points
    */
-  angleValues: function(dx,dy,x,y, center_point)
-  {
-    let coordinates = center_point[0].getBoundingClientRect();
-    let endX = x - (coordinates.left + 3);
-    let endY = -(y - (coordinates.top - 3));
-    let startX = endX - dx;
-    let startY = endY + dy;
+  angleValues(dx,dy,x,y, center_point) {
+    const coordinates = center_point[0].getBoundingClientRect();
+    const endX = x - (coordinates.left + 3);
+    const endY = -(y - (coordinates.top - 3));
+    const startX = endX - dx;
+    const startY = endY + dy;
 
-    return {
-      startX: startX,
-      startY: startY,
-      endX: endX,
-      endY: endY
-    };
+    return { startX, startY, endX, endY };
   },
 
   /**
@@ -49,35 +74,15 @@ export default DragDrop.reopenClass(
    * @param unit {string} last active minute/hour
    * @return angle {number} new angle
    */
-  dragDirection: function(angle, points, unit)
-  {
-    let slope = (points.startY/points.startX);
-    let isForward = points.endY < (slope*points.endX);
-    let last2 = parseInt(TimePicker.formatHourStrings(unit));
+  dragDirection(angle, points) {
+    const slope = points.startY / points.startX;
+    const isForward = points.endY < (slope * points.endX);
 
-    if (unit.substr(0, 3) !== 'min')
-    {
-      if (last2 <= 6 || last2 === 12)
-      {
-        angle = isForward ? angle : -angle;
-      }
-      else
-      {
-        angle = isForward ? -angle : angle;
-      }
-    }
-    else
-    {
-      if (last2 <= 30 || last2 === 60)
-      {
-        angle = isForward ? angle : -angle;
-      }
-      else
-      {
-        angle = isForward ? -angle : angle;
-      }
-    }
-
+		if (points.startX > 0) {
+			angle = isForward ? angle : -angle;
+		} else {
+			angle = isForward ? -angle : angle;
+		}
     return angle;
   },
 
@@ -89,12 +94,10 @@ export default DragDrop.reopenClass(
    * @param direction {number}
    * @return {number} new minute or hour post drag
    */
-  getNewValue: function(direction)
-  {
-    let anglePositive = direction > 0;
-    let over180 = 180 + Math.abs((180 - Math.abs(direction)));
-    let newHour = anglePositive ? direction : over180;
+  getNewValue(direction) {
+    const anglePositive = direction > 0;
+    const over180 = 180 + Math.abs((180 - Math.abs(direction)));
 
-    return newHour;
+		return (anglePositive ? direction : over180);
   }
 });
