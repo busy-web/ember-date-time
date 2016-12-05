@@ -13,125 +13,79 @@ const TimePicker = Ember.Object.extend();
  *
  */
 export default TimePicker.reopenClass({
-  /**
-   * returns the hour passed in for the header
-   *
-   * @private
-   * @method formatHourHeader
-   * @param hour {number} hour you want string of
-   * @return {string} hour as string
-   */
-  formatHourHeader: function(hour)
-  {
-    if (typeof hour === 'string' || typeof hour === 'number') {
-      if (parseInt(hour, 10) !== 0) {
-        return ('0' + hour).slice(-2);
-      } else {
-        return '12';
-      }
-    } else {
-      Assert.throw("formatHourHeader param must be a string or integer");
-    }
-  },
 
-  /**
-   * returns the minute passed in - formatted correctly
-   *
-   * @private
-   * @method formatMinuteStrings
-   * @param minute {number} minute you want string of
-   * @return {string} minute as string
-   */
-  formatMinuteStrings: function(minute)
-  {
-    if (typeof minute === 'string' || typeof minute === 'number') {
-      if (parseInt(minute, 10) !== 60) {
-        return ('0' + minute).slice(-2);
-      } else {
-        return '00';
-      }
-    } else {
-      Assert.throw("formatMinuteStrings param must be a string or integer");
-    }
-  },
+	/**
+	 * Adds a zero to numbers below 10
+	 *
+	 * @public
+	 * @method formatTime
+	 * @param value {number|string}
+	 * @return {string}
+	 */
+	formatNumber(value) {
+		if (typeof value === 'string') {
+			value = this.stringToInteger(value);
+		}
 
-  /**
-   * returns the hour passed in - formatted correctly
-   *
-   * @private
-   * @method formatHourStrings
-   * @param hour {number} hour you want string of
-   * @return {string} hour as string
-   */
-  formatHourStrings: function(hour)
-  {
-    if (typeof hour === 'string' || typeof hour === 'number') {
-      if (parseInt(hour, 10) !== 12) {
-        return ('0' + hour).slice(-2);
-      } else {
-        return '00';
-      }
-    } else {
-      Assert.throw("formatHourStrings param must be a string or integer");
-    }
-  },
+		Assert.isNumber(value);
+		return (value < 10) ? `0${value}` : `${value}`;
+	},
 
-  /**
-   * formats string to an integer
-   *
-   * @private
-   * @method stringToSlicedInteger
-   * @param string {string} string you want integer of
-   * @return {number} passed in string as integer
-   */
-  stringToSlicedInteger: function(string)
-  {
-    Assert.isString(string);
+	/**
+	 * Converts a string to an integer value
+	 *
+	 * @public
+	 * @method stringToInteger
+	 * @param value {string}
+	 * @return {number}
+	 */
+	stringToInteger(value) {
+		Assert.isString(value);
+		value = value.replace(/\D/g, '');
+		return parseInt(value, 10);
+	},
 
-    let int = string.slice(-2);
-    return parseInt(int, 10);
-  },
+	elementNames(type, value) {
+		value = this.formatNumber(value);
+		return {
+			"text": `${type}-text-${value}`,
+			"line": `${type}-line-${value}`,
+			"circle": `${type}-circle-${value}`
+		};
+	},
 
-  /**
-   * returns object with names of all hour strings
-   *
-   * @private
-   * @method hourStrings
-   * @param hour {number} hour you want strings of
-   * @return {object} all passed in hour strings
-   */
-  hourStrings: function(hour)
-  {
-    if (typeof hour === 'string' || typeof hour === 'number') {
-      return {
-        "text": 'hour' + hour,
-        "line": 'line' + hour,
-        "circle": 'circle' + hour
-      };
-    } else {
-      Assert.throw("hourStrings param must be a string or integer");
-    }
-  },
+	/**
+	 * returns object with names of all hour strings
+	 *
+	 * @private
+	 * @method hourStrings
+	 * @param value {number|string} hour you want strings of
+	 * @return {object} all passed in hour strings
+	 */
+	hourStrings(value) {
+		value = this.formatNumber(value);
+		return {
+			"text": `hour-${value}`,
+			"line": `line-${value}`,
+			"circle": `circle-${value}`
+		};
+	},
 
   /**
    * returns object with names of all minute strings
    *
    * @private
    * @method minuteStrings
-   * @param minute {string} minute you want strings of
+   * @param value {number|string} minute you want strings of
    * @return {object} all passed in minute strings
    */
-  minuteStrings: function(minute)
-  {
-    if (typeof minute === 'string' || typeof minute === 'number') {
-      return {
-        "text": 'minText' + minute,
-        "line": 'minLine' + minute,
-        "circle": 'minCircle' + minute
-      };
-    } else {
-      Assert.throw("minuteStrings param must be a string or integer");
-    }
+  minuteStrings(value) {
+		value = this.formatNumber(value);
+		return {
+			"text": `min-text-${value}`,
+			"line": `min-line-${value}`,
+			"circle": `min-circle-${value}`
+		};
   },
 
   /**
@@ -142,17 +96,10 @@ export default TimePicker.reopenClass({
    * @param minute {number} minute to check if multiple of 5
    * @return {boolean} returns true if minute is a multiple of 5
    */
-  minuteModFive: function(minute)
-  {
-    if (typeof minute === 'string' || typeof minute === 'number') {
-      if (minute % 5 === 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      Assert.throw("minuteModFive param must be a string or integer");
-    }
+  minuteModFive(value) {
+		Assert.isNumber(value);
+
+		return (value % 5 === 0);
   },
 
   /**
@@ -166,79 +113,11 @@ export default TimePicker.reopenClass({
    * @param y2 {number} point 2 y value
    * @return {number} angle from point 1 to point 2
    */
-  angle: function(x, y, x2, y2)
-  {
+  angle(x, y, x2, y2) {
     let p0 = Math.sqrt(Math.pow(0-x, 2)+Math.pow(0-y, 2));
     let p1 = Math.sqrt(Math.pow(0-x2, 2)+Math.pow(0-y2, 2));
     let p2 = Math.sqrt(Math.pow(x2-x, 2)+Math.pow(y2-y, 2));
 
     return (Math.acos(((p1*p1)+(p0*p0)-(p2*p2))/(2*(p1*p0)))*360)/(2*Math.PI);
-  },
-
-  /**
-   * returns the hour of the current momentObject formatted as length 2 string
-   *
-   * @private
-   * @method currentHour
-   * @param momentObject {moment}
-   * @return {string} hour of the current timestamp
-   */
-  currentHour: function(momentObject)
-  {
-    Assert.isMoment(momentObject);
-
-    let hour = ('0' + (momentObject.hour() % 12)).slice(-2);
-    return hour;
-  },
-
-  /**
-   * returns the minute of the current momentObject
-   *
-   * @private
-   * @method currentMinute
-   * @param momentObject {moment}
-   * @return {string} minute of the current timestamp
-   */
-  currentMinute: function(momentObject)
-  {
-    Assert.isMoment(momentObject);
-
-    let minute = momentObject.minute();
-    return TimePicker.formatMinuteStrings(minute);
-  },
-
-  /**
-   * returns the date of the current momentObject
-   *
-   * @private
-   * @method getMinuteByDegree
-   * @param momentObject {moment}
-   * @return {string} sting (date) of current moment object
-   */
-  currentDateFormat: function(momentObject)
-  {
-    Assert.isMoment(momentObject);
-
-    return momentObject.format('MMM DD, YYYY');
-  },
-
-  /**
-   * returns true if the set timestamp is AM
-   *
-   * @private
-   * @method timeIsAm
-   * @param momentObject {moment}
-   * @return {boolean}
-   */
-  timeIsAm: function(momentObject)
-  {
-    Assert.isMoment(momentObject);
-
-    if (momentObject.format('A') === 'AM') {
-      return true;
-    } else {
-      return false;
-    }
-  },
-
+  }
 });

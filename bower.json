@@ -1,8 +1,8 @@
 {
   "name": "ember-paper-time-picker",
   "dependencies": {
-    "ember": "~2.8.0",
-    "ember-cli-shims": "0.1.1",
+    "ember": "~2.10.0",
+    "ember-cli-shims": "0.1.3",
     "ember-cli-snap-svg-shim": "^0.0.3"
   }
 }

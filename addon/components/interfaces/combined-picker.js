@@ -65,7 +65,7 @@ export default Ember.Component.extend({
   isMilliseconds: null,
 
   /**
-   * boolean based on if the clock or calender is showing
+   * boolean based on if the clock or calendar is showing
    *
    * @private
    * @property isClockHour
@@ -74,13 +74,13 @@ export default Ember.Component.extend({
   isClock: true,
 
   /**
-   * boolean based on if the clock or calender is showing
+   * boolean based on if the clock or calendar is showing
    *
    * @private
-   * @property isCalender
+   * @property isCalendar
    * @type Boolean
    */
-  isCalender: false,
+  isCalendar: false,
 
   /**
    * String as the current date of the timestamp
@@ -119,13 +119,13 @@ export default Ember.Component.extend({
   minuteOrHour: null,
 
   /**
-   * active input for calender dialog
+   * active input for calendar dialog
    *
    * @private
-   * @property calenderActiveSection
+   * @property calendarActiveSection
    * @type string
    */
-  calenderActiveSection: null,
+  calendarActiveSection: null,
 
   /**
    * if they cancel the change this is the timestamp the picker will revert back to
@@ -155,33 +155,6 @@ export default Ember.Component.extend({
   openOnce: 0,
 
   /**
-   * value thats used to make each instance of component unique
-   *
-   * @private
-   * @property instanceNumber
-   * @type Integer
-   */
-  instanceNumber: null,
-
-  /**
-   * value for data binding css for top dialog
-   *
-   * @private
-   * @property topDialogState
-   * @type String
-   */
-  topDialogState: null,
-
-  /**
-   * value for data binding css for bottom dialog
-   *
-   * @private
-   * @property BottomDialogState
-   * @type String
-   */
-  BottomDialogState: null,
-
-  /**
    * observer value to close dialog on tab from last input field
    *
    * @private
@@ -196,12 +169,10 @@ export default Ember.Component.extend({
    * @method init
    * @constructor
    */
-  init: function()
-  {
+  init() {
     this._super();
     this.observeActiveSection();
     this.observesDateTime();
-
     this.set('backupTimestamp', this.get('timestamp'));
   },
 
@@ -210,36 +181,44 @@ export default Ember.Component.extend({
    * @private
    * @method didInsertElement
    */
-  onOpen: Ember.on('didInsertElement', function()
-  {
-    if (this.get('isClock') === true || this.get('isCalender') === true) {
-      let _this = this;
+  onOpen: Ember.on('didInsertElement', function() {
+    if (this.get('isClock') === true || this.get('isCalendar') === true) {
       let modal = Ember.$(document);
-      this.set('destroyElements', false);
+			let thisEl = this.$();
 
-      modal.bind(('click.paper-datetime-picker-' + this.get('instanceNumber')), (evt) => {
-        let el = Ember.$(evt.target);
+			this.set('destroyElements', false);
 
-        if(el.attr('class') === ('paper-datetime-picker-' + this.get('instanceNumber')) || el.parents('.paper-datetime-picker-' + this.get('instanceNumber')).length === 0) {
-          if(!el.hasClass('keepOpen')) {
-            if(_this.get('isClock') === true || _this.get('isCalender') === true) {
-              _this.set('destroyElements', true);
-              _this.send('close');
-            }
-          }
-        }
+      modal.bind('click.paper-datetime-picker', (evt) => {
+				if (!this.get('isDestroyed')) {
+					let el = Ember.$(evt.target);
+
+					let elMain = el.parents('.paper-datetime-picker');
+					let thisMain = thisEl.parents('.paper-datetime-picker');
+
+					if (elMain.attr('id') !== thisMain.attr('id')) {
+						if(el.attr('class') !== 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
+							if(!el.hasClass('keepOpen')) {
+								if(this.get('isClock') === true || this.get('isCalendar') === true) {
+									this.set('destroyElements', true);
+									this.send('close');
+								}
+							}
+						}
+					}
+				}
       });
 
       modal.bind('keyup.paper-datetime-picker', (e) => {
-        let key = e.which;
-        if (key === 27) {
-          _this.set('destroyElements', true);
-          _this.send('cancel');
-        }
-        if (key === 13) {
-          _this.set('destroyElements', true);
-          _this.send('close');
-        }
+				if (!this.get('isDestroyed')) {
+					let key = e.which;
+					if (key === 27) {
+						this.set('destroyElements', true);
+						this.send('cancel');
+					} else if (key === 13) {
+						this.set('destroyElements', true);
+						this.send('close');
+					}
+				}
       });
     }
   }),
@@ -249,11 +228,10 @@ export default Ember.Component.extend({
    * @private
    * @method removeClick
    */
-  onClose: Ember.on('willDestroyElement', function()
-  {
+  onClose: Ember.on('willDestroyElement', function() {
     let modal = Ember.$(document);
-    modal.unbind('click.paper-datetime-picker-' + this.get('instanceNumber'));
-    modal.unbind('keyup.paper-datetime-picker-' + this.get('instanceNumber'));
+    modal.unbind('click.paper-datetime-picker');
+    modal.unbind('keyup.paper-datetime-picker');
   }),
 
   /**
@@ -262,51 +240,43 @@ export default Ember.Component.extend({
    * @private
    * @method observeActiveSection
    */
-  observeActiveSection: Ember.observer('updateActive', function()
-  {
+  observeActiveSection: Ember.observer('updateActive', function() {
     const section = this.get('activeSection');
-
     if (section !== this.get('lastActiveSection')) {
       this.set('openOnce', 0);
     }
 
-    if (this.get('isClock') === false && this.get('isCalender') === false) {
+    if (this.get('isClock') === false && this.get('isCalendar') === false) {
       this.set('openOnce', 0);
     }
 
     if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1) {
-
       if (section === 'year' || section === 'month' || section === 'day') {
         this.set('isClock', false);
-        this.set('isCalender', true);
-      }
-      if (section === 'hour' || section === 'meridean') {
+        this.set('isCalendar', true);
+      } else if (section === 'hour' || section === 'meridean') {
         this.set('isClock', true);
         this.set('minuteOrHour', 'hour');
-        this.set('isCalender', false);
-      }
-      if (section === 'minute') {
+        this.set('isCalendar', false);
+      } else if (section === 'minute') {
         this.set('isClock', true);
         this.set('minuteOrHour', 'minute');
-        this.set('isCalender', false);
+        this.set('isCalendar', false);
       }
 
       this.set('lastActiveSection', section);
       this.set('openOnce', this.get('openOnce') + 1);
     }
-
-    this.changeDialogHeight();
   }),
 
   /**
-   * refreshes calenderActiveSection
+   * refreshes calendarActiveSection
    *
    * @private
-   * @method refreshCalenderActiveSection
+   * @method refreshCalendarActiveSection
    */
-  refreshCalenderActiveSection: Ember.observer('updateActive', function()
-  {
-    this.set('calenderActiveSection', this.get('activeSection'));
+  refreshCalendarActiveSection: Ember.observer('updateActive', function() {
+    this.set('calendarActiveSection', this.get('activeSection'));
   }),
 
   /**
@@ -315,8 +285,7 @@ export default Ember.Component.extend({
    * @private
    * @method observeCloseOnTab
    */
-  observeCloseOnTab: Ember.observer('closeOnTab', function()
-  {
+  observeCloseOnTab: Ember.observer('closeOnTab', function() {
     if (this.get('closeOnTab') === true) {
       this.set('destroyElements', true);
       this.send('close');
@@ -329,8 +298,7 @@ export default Ember.Component.extend({
    * @private
    * @method observesCurrentDate
    */
-  observesDateTime: Ember.observer('timestamp', function()
-  {
+  observesDateTime: Ember.observer('timestamp', function() {
     const time = this.getMomentDate(this.get('timestamp'));
 
     Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
@@ -345,38 +313,6 @@ export default Ember.Component.extend({
     this.set('currentDate', time.format('MMM DD, YYYY'));
     this.set('currentTime', time.format('hh:mm A'));
   }),
-
-  /**
-   * sets the correct classes depending on which section is active
-   *
-   * @private
-   * @method changeDialogHeight
-   */
-  changeDialogHeight: function()
-  {
-    const isClock = this.get('isClock');
-    if (isClock) {
-      this.set('topDialogState', 'timeHeight');
-      this.set('BottomDialogState', 'timeHeight');
-    }
-
-    if (!isClock) {
-      this.set('topDialogState', 'calHeight');
-      this.set('BottomDialogState', 'calHeight');
-    }
-  },
-
-  /**
-   * completely removes the pickers containers
-   *
-   * @private
-   * @method removeContainer
-   */
-  removeContainer: function()
-  {
-    this.set('topDialogState', 'removeDisplay');
-    this.set('BottomDialogState', 'removeDisplay');
-  },
 
   /**
    * Get a monent object from a timestamp that could be seconds or milliseconds
@@ -397,19 +333,17 @@ export default Ember.Component.extend({
   actions: {
 
     /**
-     * changes dialog from clock to calender and vice versa
+     * changes dialog from clock to calendar and vice versa
      *
      * @event togglePicker
      */
-    togglePicker: function(current)
-    {
+    togglePicker(current) {
      const isClock = (current === 'isClock');
+
      this.set('isClock', !isClock);
-     this.set('isCalender', isClock);
+     this.set('isCalendar', isClock);
      this.set('openOnce', 0);
      this.set('minuteOrHour', 'hour');
-
-     this.changeDialogHeight();
    },
 
    /**
@@ -417,14 +351,12 @@ export default Ember.Component.extend({
     *
     * @event togglePicker
     */
-   close: function()
-   {
+   close() {
      this.set('backupTimestamp', this.get('timestamp'));
-     this.removeContainer();
-
      this.set('isClock', false);
-     this.set('isCalender', false);
+     this.set('isCalendar', false);
      this.set('openOnce', 0);
+		 this.sendAction('onClose');
    },
 
    /**
@@ -432,14 +364,12 @@ export default Ember.Component.extend({
     *
     * @event togglePicker
     */
-   cancel: function()
-   {
+   cancel() {
      this.set('timestamp', this.get('backupTimestamp'));
-     this.removeContainer();
-
      this.set('isClock', false);
-     this.set('isCalender', false);
+     this.set('isCalendar', false);
      this.set('openOnce', 0);
-   }
-  }
+		 this.sendAction('onClose');
+		}
+	}
 });

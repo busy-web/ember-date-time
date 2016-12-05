@@ -1,298 +1,158 @@
 
-div[class^="paper-datetime-picker"], div[class*="paper-datetime-picker"] {
-  position: relative;
+.paper-datetime-picker {
+	display: inline-block;
+	position: relative;
+	width: 100%;
 
-    & > div.inputContainer {
-        width: 100%;
-        min-width: 250px;
-        border-width: 1px;
-        border-color: #E1DFDF;
-        border-style: solid;
-        height: 32px;
-        float: left;
-        position: relative;
+	& > .main-container {
+		& > .input-container {
+			position: relative;
+			width: 100%;
+			min-width: 250px;
+			height: 32px;
+			padding: 0 10px;
+			float: left;
+			border: 1px solid #e1dfdf;
+			border-radius: 3px;
+			cursor: pointer;
+			box-sizing: border-box;
 
-        &.invalid {
-          border-color: #b7220f !important;
-        }
+			&.active {
+				box-shadow: 0 0 0 1px #30aeef;
+			}
 
-        & > div.inputInDate {
-          float: left;
-            vertical-align: top;
-            width: 100px;
-            text-align: center;
-            height: 100%;
+			& > div {
+				display: inline;
+				height: 100%;
+				padding: 0 30px 0 0;
+				float: left;
+				text-align: center;
+				vertical-align: top;
 
-            & > div.monthContainer {
-                width: 16px;
-                display: inline-block;
-                float: left;
-                height: 100%;
-                text-align: right;
-                margin-left: 10px;
+				&:last-of-type {
+					padding: 0;
+				}
 
-                & > input.month {
-                    width: 100%;
-                    height: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    height: 32px;
-                    padding: 0;
-                    border: none;
-                    color: #727272;
-                    box-shadow: none !important;
-                }
+				& > .section {
+					display: inline-block;
+					width: 16px;
+					height: 100%;
+					float: left;
 
-                & > input.month:focus {
-                    outline: none;
-                }
-            }
+					& > input {
+						width: 100%;
+						height: 100%;
+						padding: 0;
+						float: left;
+						border: 0;
+						color: #727272;
+						font-size: 12px;
+						text-align: center;
+						box-shadow: none !important;
 
-            & > div.dayContainer {
-                width: 16px;
-                display: inline-block;
-                float: left;
-                height: 100%;
+						&:focus {
+							outline: none;
+						}
+					}
 
-                & > input.day {
-                    width: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    height: 32px;
-                    padding: 0;
-                    border: none;
-                    float: left;
-                    color: #727272;
-                    box-shadow: none !important;
-                }
+					&.year {
+						width: 32px;
+					}
 
-                & > input.day:focus {
-                    outline: none;
-                }
-            }
+					&.meridean {
+						width: 20px;
+						padding: 0 0 0 5px;
+					}
+				}
 
-            & > div.yearContainer {
-                width: 30px;
-                display: inline-block;
-                float: left;
-                height: 100%;
+				& > .slash {
+					display: inline-block;
+					width: 4px;
+					height: 100%;
+					margin-right: 2px;
+					margin-left: 2px;
+					float: left;
+					color: #727272;
+					font-size: 12px;
+					line-height: 30px;
+				}
 
-                & > input.year {
-                    width: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    height: 32px;
-                    padding: 0;
-                    border: none;
-                    color: #727272;
-                    box-shadow: none !important;
-                }
+				& > .colon {
+					display: inline-block;
+					width: 3px;
+					height: 100%;
+					margin: 0 2px;
+					float: left;
+					font-size: 12px;
+					line-height: 30px;
+				}
 
-                & > input.year:focus {
-                    outline: none;
-                }
-            }
+				&.dash {
+					display: inline-block;
+					width: 5px;
+					height: 100%;
+					margin: 0 2px;
+					float: left;
+					font-size: 12px;
+					line-height: 30px;
+				}
 
-            & div.monthSlash {
-                width: 4px;
-                float: left;
-                display: inline-block;
-                height: 100%;
-                font-size: 12px;
-                line-height: 34px;
-                margin-left: 2px;
-                margin-right: 2px;
-                color: #727272;
-            }
+				& > .date-right-padding {
+					width: calc(100% - 118px);
+					height: 100%;
+					float: left;
+				}
 
-            & div.daySlash {
-                width: 4px;
-                float: left;
-                display: inline-block;
-                height: 100%;
-                font-size: 12px;
-                line-height: 34px;
-                margin-left: 2px;
-                margin-right: 2px;
-                color: #727272;
-            }
-            & > div.date-right-padding {
-              height: 100%;
-              width: calc(100% - 118px);
-              float: left;
-            }
-        }
+				& > .right-padding {
+					width: calc(100% - 250px);
+					height: 100%;
+					float: left;
+					cursor: pointer;
+				}
 
+				//&.input-in-time {
+				//	float: left;
+				//	vertical-align: top;
+				//	width: 100px;
+				//	text-align: center;
+				//	font-size: 16px;
+				//	height: 32px;
+				//}
+			}
 
-        & > div.right-padding {
-           height: 100%;
-           width: calc(100% - 250px);
-           float: left;
-           cursor: pointer;
-        }
+			&.invalid {
+				border-color: #b7220f !important;
+			}
+		}
 
-        & > div.inputInTime {
-            float: left;
-            vertical-align: top;
-            width: 100px;
-            text-align: center;
-            font-size: 16px;
-            height: 32px;
+		& > .dialog-container {
+			display: none;
+			position: absolute;
+			top: 40px;
+			left: 25px;
+			z-index: 50;
 
-            & > div.hourContainer {
-                width: 16px;
-                display: inline-block;
-                float: left;
-                height: 100%;
-                text-align: right;
-                margin-left: 2px;
-                margin-right: 0px;
+			&.show {
+				display: block;
+			}
 
-                & > input.hour {
-                    width: 100%;
-                    height: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    height: 32px;
-                    padding: 0;
-                    border: none;
-                    color: #727272;
-                    box-shadow: none !important;
-                }
-
-                & > input.hour:focus {
-                    outline: none;
-                }
-            }
-
-            & > div.minuteContainer {
-                width: 16px;
-                display: inline-block;
-                float: left;
-                height: 100%;
-                text-align: right;
-
-                & > input.minute {
-                    width: 100%;
-                    height: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    height: 32px;
-                    padding: 0;
-                    border: none;
-                    color: #727272;
-                    box-shadow: none !important;
-                }
-
-                & > input.minute:focus {
-                    outline: none;
-                }
-            }
-
-            & > div.merideanContainer {
-                width: 24px;
-                display: inline-block;
-                float: left;
-                height: 100%;
-                text-align: right;
-                margin-left: 1px;
-
-                & > input.am-pm {
-                    width: 100%;
-                    height: 100%;
-                    text-align: center;
-                    font-size: 12px;
-                    height: 32px;
-                    padding: 0;
-                    border: none;
-                    color: #727272;
-                    box-shadow: none !important;
-                }
-
-                & > input.am-pm:focus {
-                    outline: none;
-                }
-            }
-
-            & div.timeColon {
-                width: 3px;
-                float: left;
-                display: inline-block;
-                height: 100%;
-                font-size: 12px;
-                line-height: 32px;
-                margin-left: 2px;
-                margin-right: 2px;
-            }
-
-            & div.dividingDash {
-                width: 5px;
-                float: left;
-                display: inline-block;
-                height: 100%;
-                font-size: 12px;
-                line-height: 32px;
-                margin-left: 5px;
-                margin-right: 2px;
-            }
-        }
-
-      & > div.top-dialog-container {
-        position: absolute;
-        background-color: white;
-        bottom: 50px;
-        left: 25px;
-        z-index: 50;
-        display: block;
-
-        &.removeDisplay {
-          display: none;
-        }
-
-        &.calHeight {
-          height: 400px;
-        }
-
-        &.timeHeight {
-          height: 330px;
-        }
-      }
-
-      & > div.bottom-dialog-container {
-        position: absolute;
-        background-color: white;
-        top: 50px;
-        left: 25px;
-        z-index: 50;
-        display: block;
-
-        &.removeDisplay {
-          display: none;
-        }
-
-        &.calHeight {
-          height: 400px;
-        }
-
-        &.timeHeight {
-          height: 330px;
-        }
-      }
-    }
+			&.top {
+				top: initial;
+				bottom: 50px;
+			}
+		}
+	}
 }
 
 @media only screen and (max-width: 500px) {
-  div.top-dialog-container {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-  }
-
-  div.bottom-dialog-container {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-  }
+	.paper-datetime-picker {
+		& > .main-container {
+			& > .dialog-container {
+				position: fixed !important;
+				top: 50% !important;
+				left: 50% !important;
+				transform: translate(-50%, -50%) !important;
+			}
+		}
+	}
 }

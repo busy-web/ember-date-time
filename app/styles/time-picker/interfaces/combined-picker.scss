@@ -1,45 +1,44 @@
 
 .combined-picker {
-  width: 250px;
-  -moz-box-shadow: 0 0 5px #ccc;
-  -webkit-box-shadow: 0 0 5px #ccc;
-  box-shadow: 0 0 5px #8f8f8e;
-  position: relative;
+	position: relative;
+	width: 250px;
+	background: #fff;
+	box-shadow: 0 0 5px #8f8f8e;
+	-webkit-box-shadow: 0 0 5px #ccc;
+	-moz-box-shadow: 0 0 5px #ccc;
 
-  & > div.picker-container {
-
-    & > div.picker-footer {
-
-      & > div.current-date {
-        display: inline-block;
-        margin-left: 15px;
-        height: 30px;
-        margin-top: 15px;
-        cursor: pointer;
-        color: #8f8f8e;
-        font-size: 12px;
+	& > .picker-container {
+		& > .picker-footer {
+			& > .current-date {
+				display: inline-block;
+				height: 30px;
+				margin-top: 15px;
+				margin-left: 15px;
+				color: #8f8f8e;
+				font-size: 12px;
+				cursor: pointer;
       }
 
-      & > div.cancel {
-        display: inline-block;
-        margin-right: 20px;
-        height: 30px;
-        margin-top: 15px;
-        cursor: pointer;
-        color: #8f8f8e;
-        font-size: 12px;
-        float: right;
+			& > .cancel {
+				display: inline-block;
+				height: 30px;
+				margin-top: 15px;
+				margin-right: 20px;
+				float: right;
+				color: #8f8f8e;
+				font-size: 12px;
+				cursor: pointer;
       }
 
-      & > div.ok {
-        display: inline-block;
-        float: right;
-        margin-right: 20px;
-        height: 30px;
-        margin-top: 15px;
-        cursor: pointer;
-        color: #8f8f8e;
-        font-size: 12px;
+			& > .ok {
+				display: inline-block;
+				height: 30px;
+				margin-top: 15px;
+				margin-right: 20px;
+				float: right;
+				color: #8f8f8e;
+				font-size: 12px;
+				cursor: pointer;
       }
     }
   }
