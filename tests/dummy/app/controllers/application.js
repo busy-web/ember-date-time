@@ -16,7 +16,7 @@ export default Ember.Controller.extend({
 
 		this.set('unix', moment().unix());
 		this.set('minDateUnix', moment().subtract(90, 'days').unix());
-		this.set('maxDateUnix', moment().add(30, 'days').unix());
+		this.set('maxDateUnix', moment().subtract(2, 'hours').add(1, 'days').unix());
 
 		this.set('milli', moment().valueOf());
 		this.set('minDateMilli', moment().subtract(90, 'days').valueOf());

@@ -11,7 +11,7 @@ test('it renders', function(assert) {
 
   this.set('timestamp', moment().unix());
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp isMilliseconds=false instanceNumber="one"}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
 
   assert.ok(this.$().text().trim());
 });
@@ -19,9 +19,9 @@ test('it renders', function(assert) {
 test('changes from hours to minutes', function(assert) {
 
   this.set('timestamp', moment().unix());
-  this.set('minuteOrHour', 'hour');
+  this.set('isHourPicker', true);
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour isMilliseconds=false instanceNumber="one"}}`);
+  this.render(hbs`{{interfaces/time-picker timestamp=timestamp isHourPicker=isHourPicker}}`);
 
   assert.equal(this.$('.hours-header').hasClass('active'), true);
   assert.equal(this.$('.minutes-header').hasClass('inactive'), true);
