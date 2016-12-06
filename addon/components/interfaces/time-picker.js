@@ -588,8 +588,8 @@ export default Ember.Component.extend({
 			const centerY = circle.attr('cy');
 
 			const offset = this.$().find(`#clocks-${type}-svg`).offset();
-			const diffX = offset.left - 4.5;
-			const diffY = offset.top - 4;
+			let diffX = offset.left - 4.5;
+			let diffY = offset.top - 4;
 
 			const startAngle = this.getDegree(type, value);
 			let endAngle = startAngle;
@@ -598,6 +598,12 @@ export default Ember.Component.extend({
 				* allows for the hours group to start being dragged
 				*/
 			const start = function() {
+				if (diffX < 0 && diffY < 0) {
+					const _offset = _this.$().find(`#clocks-${type}-svg`).offset();
+					diffX = _offset.left - 4.5;
+					diffY = _offset.top - 4;
+				}
+
 				this.data('origTransform', this.transform().local);
 				if (!Ember.isNone(curTimeElement)) {
 					curTimeElement.remove();
