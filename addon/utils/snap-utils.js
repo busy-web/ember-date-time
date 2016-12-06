@@ -6,6 +6,7 @@ import Ember from 'ember';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
+import { Assert } from 'busy-utils';
 
 /***/
 const SnapUtils = Ember.Object.extend();
@@ -15,92 +16,114 @@ const SnapUtils = Ember.Object.extend();
   *
   */
 export default SnapUtils.reopenClass({
-  /**
-   * removes the hour that was passed in from the clock
-   *
-   * @private
-   * @method removeHour
-   * @param hour {string} hour to remove from clock
-   */
-  removeHour(hour, parentId) {
-    let strings = TimePicker.elementNames('hours', hour);
-    let clock = new Snap(`#${parentId} #clocks-hours-svg`);
-    let bigCircle = clock.select('#big-circle-hours');
 
-    clock.select(`#${strings.text}`).removeClass('interior-white');
+	/**
+	 * removes an element based on the type and number passed in
+	 *
+	 * @public
+	 * @method addElement
+   * @param type {string} the type to set either minutes or hours
+	 * @param value {number} the integer value for the time
+	 * @param parentId {string} the parent element id set by ember
+	 */
+	addElement(type, value, parentId) {
+		Assert.isString(type);
+		Assert.isNumber(value);
+		Assert.isString(parentId);
+
+		value = TimePicker.formatNumber(value);
+
+    const clock = new Snap(`#${parentId} #clocks-${type}-svg`);
+    const strings = TimePicker.elementNames(type, value);
+
+    const clockNumber = clock.select(`#${strings.text}`);
+		if (!Ember.isNone(clockNumber)) {
+			clockNumber.removeClass('interior-white');
+		}
+
+    const bigCircle = clock.select(`#big-circle-${type}`);
     clock.select(`#${strings.line}`).insertBefore(bigCircle);
     clock.select(`#${strings.circle}`).insertBefore(bigCircle);
-  },
+	},
 
-  /**
-   * removes the minute that was passed in from the clock
-   *
-   * @private
-   * @method removeMinute
-   * @param minute {string} minute to remove from clock
-   */
-  removeMinute(minute, parentId) {
-    let strings = TimePicker.elementNames('minutes', minute);
-    let clock = new Snap(`#${parentId} #clocks-minutes-svg`);
-    let bigCircle = clock.select('#big-circle-minutes');
-
-    if (!Ember.isNone(clock.select(`#min-text-${minute}`))) {
-      clock.select(`#${strings.text}`).removeClass('interior-white');
-    }
-
-    clock.select(`#${strings.line}`).insertBefore(bigCircle);
-    clock.select(`#${strings.circle}`).insertBefore(bigCircle);
-  },
-
-  /**
+	/**
    * activates hour on the clock
    *
    * @private
-   * @method hourTextActivate
-   * @param hour {string} new active hour
+   * @method activateClockNumber
+   * @param type {string} the type to set either minutes or hours
+	 * @param value {number} the integer value for the time
+	 * @param parentId {string} the parent element id set by ember
    */
-  hourTextActivate(hour, parentId) {
-    let strings = TimePicker.elementNames('hours', hour);
-    let clock = new Snap(`#${parentId} #clocks-hours-svg`);
+  activateClockNumber(type, value, parentId) {
+		Assert.isString(type);
+		Assert.isNumber(value);
+		Assert.isString(parentId);
 
-    clock.select(`#${strings.text}`).addClass('interior-white');
-    clock.select(`#${strings.line}`).appendTo(clock);
-    clock.select(`#${strings.circle}`).appendTo(clock);
-    clock.select(`#${strings.text}`).animate({ fill: "white" }, 100, mina.easein).appendTo(clock);
-  },
+		value = TimePicker.formatNumber(value);
 
-  /**
-   * activates minute with text on the clock
-   *
-   * @private
-   * @method minuteTextActivate
-   * @param minute {string} new active minute
-   */
-  minuteTextActivate(minute, parentId) {
-		let strings = TimePicker.elementNames('minutes', minute);
-		let clock = new Snap(`#${parentId} #clocks-minutes-svg`);
+    const clock = new Snap(`#${parentId} #clocks-${type}-svg`);
+    const strings = TimePicker.elementNames(type, value);
 
-		clock.select(`#${strings.line}`).appendTo(clock);
-		clock.select(`#${strings.circle}`).appendTo(clock);
-		const text = clock.select(`#${strings.text}`);
-		if (text && text.length > 0) {
-			text.addClass('interior-white');
-			text.animate({ fill: "white" }, 100, mina.easein).appendTo(clock);
+		const clockNumber = clock.select(`#${strings.text}`);
+		if (!Ember.isNone(clockNumber) && !clockNumber.hasClass('interior-white')) {
+			clockNumber.addClass('interior-white');
+			clock.select(`#${strings.line}`).appendTo(clock);
+			clock.select(`#${strings.circle}`).appendTo(clock);
+			clockNumber.animate({ fill: "white" }, 100, mina.easein).appendTo(clock);
+			return true;
+		} else {
+			clock.select(`#${strings.line}`).appendTo(clock);
+			clock.select(`#${strings.circle}`).appendTo(clock);
+			return false;
 		}
   },
 
-  /**
-   * activates minute on the clock that doesn't have text
-   *
-   * @private
-   * @method minuteSectionActivate
-   * @param minute {string} new active minute
-   */
-  minuteSectionActivate(minute, parentId) {
-		let strings = TimePicker.elementNames('minutes', minute);
-		let clock = new Snap(`#${parentId} #clocks-minutes-svg`);
+	/**
+	 * enables an element that was disabled
+	 *
+	 * @public
+	 * @method enableClockNumber
+   * @param type {string} the type to set either minutes or hours
+	 * @param value {number} the integer value for the time
+	 * @param parentId {string} the parent element id set by ember
+	 */
+	enableClockNumber(type, value, parentId) {
+		const clock = new Snap(`#${parentId} #clocks-${type}-svg`);
+    const strings = TimePicker.elementNames(type, value);
 
-		clock.select(`#${strings.line}`).appendTo(clock);
-    clock.select(`#${strings.circle}`).appendTo(clock);
-  }
+		const section = clock.select(`#${strings.section}`);
+		if (!Ember.isNone(section)) {
+			section.removeClass('disabled');
+		}
+
+		const clockNumber = clock.select(`#${strings.text}`);
+		if (!Ember.isNone(clockNumber)) {
+			clockNumber.removeClass('disabled');
+		}
+	},
+
+	/**
+	 * disables an element
+	 *
+	 * @public
+	 * @method disableClockNumber
+   * @param type {string} the type to set either minutes or hours
+	 * @param value {number} the integer value for the time
+	 * @param parentId {string} the parent element id set by ember
+	 */
+	disableClockNumber(type, value, parentId) {
+		const clock = new Snap(`#${parentId} #clocks-${type}-svg`);
+    const strings = TimePicker.elementNames(type, value);
+
+		const section = clock.select(`#${strings.section}`);
+		if (!Ember.isNone(section) && !section.hasClass('disabled')) {
+			section.addClass('disabled');
+		}
+
+		const clockNumber = clock.select(`#${strings.text}`);
+		if (!Ember.isNone(clockNumber) && !clockNumber.hasClass('disabled')) {
+			clockNumber.addClass('disabled');
+		}
+	}
 });

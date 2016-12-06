@@ -113,10 +113,10 @@ export default Ember.Component.extend({
    * if hour or minutes are active
    *
    * @private
-   * @property minuteOrHour
+   * @property isHourPicker
    * @type string
    */
-  minuteOrHour: null,
+  isHourPicker: true,
 
   /**
    * active input for calendar dialog
@@ -256,11 +256,11 @@ export default Ember.Component.extend({
         this.set('isCalendar', true);
       } else if (section === 'hour' || section === 'meridean') {
         this.set('isClock', true);
-        this.set('minuteOrHour', 'hour');
+        this.set('isHourPicker', true);
         this.set('isCalendar', false);
       } else if (section === 'minute') {
         this.set('isClock', true);
-        this.set('minuteOrHour', 'minute');
+        this.set('isHourPicker', false);
         this.set('isCalendar', false);
       }
 
@@ -343,7 +343,7 @@ export default Ember.Component.extend({
      this.set('isClock', !isClock);
      this.set('isCalendar', isClock);
      this.set('openOnce', 0);
-     this.set('minuteOrHour', 'hour');
+     this.set('isHourPicker', true);
    },
 
    /**

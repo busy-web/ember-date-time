@@ -67,20 +67,16 @@
 					height: 20px;
 					margin-top: 15px;
 					border-radius: 5%;
+					background-color: none;
 					color: #8f8f8e;
 					font-size: 14px;
 					line-height: 20px;
+					text-align: center;
 					cursor: pointer;
 
-					&.am-inactive {
-						background-color: none;
-						text-align: center;
-					}
-
-					&.am-active {
+					&.active {
 						background-color: #42ace1;
 						color: white;
-						text-align: center;
 					}
 				}
 
@@ -90,20 +86,16 @@
 					height: 20px;
 					margin-top: 5px;
 					border-radius: 5%;
+					background-color: none;
 					color: #8f8f8e;
 					font-size: 14px;
 					line-height: 20px;
+					text-align: center;
 					cursor: pointer;
 
-					&.pm-inactive {
-						background-color: none;
-						text-align: center;
-					}
-
-					&.pm-active {
+					&.active {
 						background-color: #42ace1;
 						color: white;
-						text-align: center;
 					}
 				}
 			}
@@ -143,9 +135,10 @@
 				}
 
 				& > text {
-					&.disabled-hour {
+					&.disabled {
 						pointer-events: none;
-						stroke: red;
+						stroke: #ccc;
+						stroke-width: .5px;
 					}
 
 					&.interior-white {
@@ -159,9 +152,10 @@
 							fill: white !important;
 						}
 
-						&.disabled-hour {
+						&.disabled {
 							pointer-events: none;
-							stroke: red;
+							stroke: #ccc;
+							stroke-width: .5px;
 						}
 					}
 				}
@@ -186,7 +180,7 @@
 
 			& > svg {
 				& > path {
-					&.disabled-section {
+					&.disabled {
 						pointer-events: none;
 					}
 				}
@@ -202,9 +196,10 @@
 						fill: white !important;
 					}
 
-					&.disabled-minute {
+					&.disabled {
 						pointer-events: none;
-						stroke: red;
+						stroke: #ccc;
+						stroke-width: .5px;
 					}
 				}
 
@@ -214,9 +209,10 @@
 							fill: white !important;
 						}
 
-						&.disabled-minute {
+						&.disabled {
 							pointer-events: none;
-							stroke: red;
+							stroke: #ccc;
+							stroke-width: .5px;
 						}
 					}
 				}

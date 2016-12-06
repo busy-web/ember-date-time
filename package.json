@@ -1,6 +1,6 @@
 {
   "name": "ember-paper-time-picker",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Ember addon for a paper like time picker",
   "directories": {
     "doc": "doc",
@@ -18,7 +18,7 @@
   "author": "busy inc",
   "license": "MIT",
   "dependencies": {
-    "busy-utils": "^2.0.3",
+    "busy-utils": "^2.0.6",
     "ember-cli-htmlbars": "^1.0.10",
     "ember-cli-sass": "^5.3.1",
     "ember-cli-babel": "^5.1.7"
