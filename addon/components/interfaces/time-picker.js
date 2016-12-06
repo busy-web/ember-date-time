@@ -628,6 +628,7 @@ export default Ember.Component.extend({
 			const move = function(dx, dy, x, y) {
 				const nx = x - diffX;
 				const ny = y - diffY;
+
 				// get angle of line from center x,y to new nx, ny
 				endAngle = DragDrop.lineAngle(nx, ny, centerX, centerY);
 
