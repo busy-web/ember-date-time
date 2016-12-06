@@ -361,16 +361,13 @@ export default Ember.Component.extend({
 
   resetClockHands: Ember.observer('timestamp', 'isHourPicker', function()
   {
+    console.log('getting called');
     if (this.get('isHourPicker')) {
       this.removeClockTime(kHourFlag, kHourMin, kHourMax);
-      const time = this.getCurrentHour();
-      this.set('lastActive', time);
-      this.setTimestamp(kHourFlag, time);
+      this.setActiveTime(kHourFlag);
     } else {
       this.removeClockTime(kMinuteFlag, kMinuteMin, kMinuteMax);
-      const time = this.getCurrentMinute();
-      this.set('lastActive', time);
-      this.setTimestamp(kMinuteFlag, time);
+      this.setActiveTime(kMinuteFlag);
     }
   }),
 
@@ -633,7 +630,6 @@ export default Ember.Component.extend({
       const move = function(dx, dy, x, y) {
         const nx = x - diffX;
         const ny = y - diffY;
-
         // get angle of line from center x,y to new nx, ny
         endAngle = DragDrop.lineAngle(nx, ny, centerX, centerY);
 
