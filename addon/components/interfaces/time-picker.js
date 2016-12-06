@@ -361,7 +361,6 @@ export default Ember.Component.extend({
 
   resetClockHands: Ember.observer('timestamp', 'isHourPicker', function()
   {
-    console.log('getting called');
     if (this.get('isHourPicker')) {
       this.removeClockTime(kHourFlag, kHourMin, kHourMax);
       this.setActiveTime(kHourFlag);
