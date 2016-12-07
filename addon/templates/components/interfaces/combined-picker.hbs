@@ -1,43 +1,32 @@
-{{#if calenderOnly}}
-  <div class="picker-container">
-      {{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calendarActiveSection=calendarActiveSection isMilliseconds=isMilliseconds}}
-    <div class="picker-footer">
-      <div class="current-date keepOpen"></div>
-        <div class="ok" {{action 'close'}}>OK</div>
-        <div class="cancel" {{action 'cancel'}}>Cancel</div>
-    </div>
-  </div>
-{{else if timepickerOnly}}
-  <div class="picker-container">
-      {{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate isHourPicker=isHourPicker isClock=isClock isMilliseconds=isMilliseconds}}
-    <div class="picker-footer">
-      <div class="current-date keepOpen"></div>
-        <div class="ok" {{action 'close'}}>OK</div>
-        <div class="cancel" {{action 'cancel'}}>Cancel</div>
-    </div>
-  </div>
-{{else}}
-  <div class="picker-container">
-    {{#if isClock}}
-      {{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate isHourPicker=isHourPicker isClock=isClock isMilliseconds=isMilliseconds}}
-    {{/if}}
 
-    {{#if isCalendar}}
-      {{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calendarActiveSection=calendarActiveSection isMilliseconds=isMilliseconds}}
-    {{/if}}
+<div class="picker-container">
+	{{#if isClock}}
+		{{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate isHourPicker=isHourPicker isClock=isClock isMilliseconds=isMilliseconds}}
+	{{/if}}
 
-    <div class="picker-footer">
-      {{#if isClock}}
-        <div class="current-date keepOpen" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
-          <div class="ok" {{action 'close'}}>OK</div>
-          <div class="cancel" {{action 'cancel'}}>Cancel</div>
-      {{/if}}
+	{{#if isCalendar}}
+		{{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calendarActiveSection=calendarActiveSection isMilliseconds=isMilliseconds}}
+	{{/if}}
 
-      {{#if isCalendar}}
-        <div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar'}}>{{currentTime}}</div>
-        <div class="ok" {{action 'close'}}>OK</div>
-        <div class="cancel" {{action 'cancel'}}>Cancel</div>
-      {{/if}}
-    </div>
-  </div>
-{{/if}}
+	<div class="picker-footer">
+		{{#if isClock}}
+			{{#if timepickerOnly}}
+				<div class="current-date keepOpen"></div>
+			{{else}}
+				<div class="current-date keepOpen" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
+			{{/if}}
+			<div class="ok" {{action 'close'}}>OK</div>
+			<div class="cancel" {{action 'cancel'}}>Cancel</div>
+		{{/if}}
+
+		{{#if isCalendar}}
+			{{#if calenderOnly}}
+				<div class="current-date keepOpen"></div>
+			{{else}}
+				<div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar'}}>{{currentTime}}</div>
+			{{/if}}
+			<div class="ok" {{action 'close'}}>OK</div>
+			<div class="cancel" {{action 'cancel'}}>Cancel</div>
+		{{/if}}
+	</div>
+</div>
