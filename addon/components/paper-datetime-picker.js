@@ -64,6 +64,26 @@ export default Ember.Component.extend({
   isMilliseconds: false,
 
   /**
+  * can be passed in as true or false, true will have the picker only be a date picker
+  *
+  * @private
+  * @property calenderOnly
+  * @type boolean
+  * @optional
+  */
+  calenderOnly: false,
+
+  /**
+  * can be passed in as true or false, true will have the picker only be a time picker
+  *
+  * @private
+  * @property timepickerOnly
+  * @type boolean
+  * @optional
+  */
+  timepickerOnly: false,
+
+  /**
    * Merdian (AM/PM) that is shown in the input bar
    *
    * @private
@@ -185,6 +205,8 @@ export default Ember.Component.extend({
 
     // make sure isMilliseconds is set to a boolean value.
     Assert.isBoolean(this.get('isMilliseconds'));
+    Assert.isBoolean(this.get('calenderOnly'));
+    Assert.isBoolean(this.get('timepickerOnly'));
 
     // changed to Assert.test in and removed if statements that are not needed.
     // minDate and maxDate should be null or a unix timestamp
@@ -327,9 +349,9 @@ export default Ember.Component.extend({
      */
     focusInput(active) {
       const activeState = this.get('updateActive');
-			const documentHeight = Ember.$(document).height();
-			const dialogHeight = this.$().find('.dialog-container').height() + 50;
-			const elementHeight = this.$().height();
+      const documentHeight = Ember.$(document).height();
+      const dialogHeight = this.$().find('.dialog-container').height() + 50;
+      const elementHeight = this.$().height();
       const distanceTop = this.$().offset().top;
       const distanceBottom = documentHeight - (distanceTop + elementHeight);
 
@@ -341,17 +363,17 @@ export default Ember.Component.extend({
         this.set('updateActive',  !activeState);
       }
 
-			this.set('showDialog', true);
+      this.set('showDialog', true);
       this.set('destroyElements', false);
       this.set('activeSection', active);
       this.addContainer();
 
-			return false;
+      return false;
     },
 
-		closeAction() {
-			this.set('showDialog', false);
-		},
+    closeAction() {
+      this.set('showDialog', false);
+    },
 
     /**
      * handles up and down arrows pressed while in the minutes input fields

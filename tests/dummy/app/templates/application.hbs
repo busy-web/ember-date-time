@@ -12,13 +12,16 @@
         <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
         <li>class - "invalid" can be passed in to make input border red. optional.</li>
         <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
+        <li>calenderOnly - automatically set to false. if set to true only the calender portion of the picker will show. optional.</li>
+        <li>timepickerOnly - automatically set to false. if set to true only the timepicker portion of the picker will show. optional.</li>
+
       </ul>
       Code:
-      <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate}}</code>
+      <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate calenderOnly=true}}</code>
       <br>
       Result:
       <span class="code-result">
-        {{paper-datetime-picker timestamp=unix minDate=minDateUnix maxDate=maxDateUnix}}
+        {{paper-datetime-picker timestamp=unix minDate=minDateUnix maxDate=maxDateUnix calenderOnly=true}}
       </span>
     </section>
 
@@ -35,6 +38,34 @@
         <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
         <li>class - "invalid" can be passed in to make input border red. optional.</li>
         <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
+        <li>calenderOnly - automatically set to false. if set to true only the calender portion of the picker will show. optional.</li>
+        <li>timepickerOnly - automatically set to false. if set to true only the timepicker portion of the picker will show. optional.</li>
+
+      </ul>
+      Code:
+      <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate timepickerOnly=true}}</code>
+      <br>
+      Result:
+      <span class="code-result">
+        {{paper-datetime-picker timestamp=unix minDate=minDateUnix maxDate=maxDateUnix timepickerOnly=true}}
+      </span>
+    </section>
+
+    <br>
+    <br>
+    <br>
+
+    <section>
+      <p>Time and Date Picker</p>
+      Properties:
+      <ul>
+        <li>timestamp - unix timestamp. value to set the date and time to. required.</li>
+        <li>minDate - unix timestamp. minimum date and time allowed to be selected. optional.</li>
+        <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
+        <li>class - "invalid" can be passed in to make input border red. optional.</li>
+        <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
+        <li>calenderOnly - automatically set to false. if set to true only the calender portion of the picker will show. optional.</li>
+        <li>timepickerOnly - automatically set to false. if set to true only the timepicker portion of the picker will show. optional.</li>
       </ul>
       Code:
       <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate isMilliseconds=true}}</code>

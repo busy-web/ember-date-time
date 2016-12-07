@@ -164,6 +164,27 @@ export default Ember.Component.extend({
   closeOnTab: null,
 
   /**
+  * can be passed in as true or false, true will have the picker only be a date picker
+  *
+  * @private
+  * @property calenderOnly
+  * @type boolean
+  * @optional
+  */
+  calenderOnly: false,
+
+  /**
+  * can be passed in as true or false, true will have the picker only be a time picker
+  *
+  * @private
+  * @property timepickerOnly
+  * @type boolean
+  * @optional
+  */
+  timepickerOnly: false,
+
+
+  /**
    * sets currentTime and currentDate, sets a timestamp to now if a timestamp wasnt passed in
    * @private
    * @method init
@@ -184,41 +205,41 @@ export default Ember.Component.extend({
   onOpen: Ember.on('didInsertElement', function() {
     if (this.get('isClock') === true || this.get('isCalendar') === true) {
       let modal = Ember.$(document);
-			let thisEl = this.$();
+      let thisEl = this.$();
 
-			this.set('destroyElements', false);
+      this.set('destroyElements', false);
 
       modal.bind('click.paper-datetime-picker', (evt) => {
-				if (!this.get('isDestroyed')) {
-					let el = Ember.$(evt.target);
+        if (!this.get('isDestroyed')) {
+          let el = Ember.$(evt.target);
 
-					let elMain = el.parents('.paper-datetime-picker');
-					let thisMain = thisEl.parents('.paper-datetime-picker');
+          let elMain = el.parents('.paper-datetime-picker');
+          let thisMain = thisEl.parents('.paper-datetime-picker');
 
-					if (elMain.attr('id') !== thisMain.attr('id')) {
-						if(el.attr('class') !== 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
-							if(!el.hasClass('keepOpen')) {
-								if(this.get('isClock') === true || this.get('isCalendar') === true) {
-									this.set('destroyElements', true);
-									this.send('close');
-								}
-							}
-						}
-					}
-				}
+          if (elMain.attr('id') !== thisMain.attr('id')) {
+            if(el.attr('class') !== 'paper-datetime-picker' || el.parents('.paper-datetime-picker').length === 0) {
+              if(!el.hasClass('keepOpen')) {
+                if(this.get('isClock') === true || this.get('isCalendar') === true) {
+                  this.set('destroyElements', true);
+                  this.send('close');
+                }
+              }
+            }
+          }
+        }
       });
 
       modal.bind('keyup.paper-datetime-picker', (e) => {
-				if (!this.get('isDestroyed')) {
-					let key = e.which;
-					if (key === 27) {
-						this.set('destroyElements', true);
-						this.send('cancel');
-					} else if (key === 13) {
-						this.set('destroyElements', true);
-						this.send('close');
-					}
-				}
+        if (!this.get('isDestroyed')) {
+          let key = e.which;
+          if (key === 27) {
+            this.set('destroyElements', true);
+            this.send('cancel');
+          } else if (key === 13) {
+            this.set('destroyElements', true);
+            this.send('close');
+          }
+        }
       });
     }
   }),
@@ -251,7 +272,7 @@ export default Ember.Component.extend({
     }
 
     if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1) {
-      if (section === 'year' || section === 'month' || section === 'day') {
+      if (section === 'year' || section === 'month' || section === 'day' || this.get('calenderOnly') === true) {
         this.set('isClock', false);
         this.set('isCalendar', true);
       } else if (section === 'hour' || section === 'meridean') {
@@ -356,7 +377,7 @@ export default Ember.Component.extend({
      this.set('isClock', false);
      this.set('isCalendar', false);
      this.set('openOnce', 0);
-		 this.sendAction('onClose');
+     this.sendAction('onClose');
    },
 
    /**
@@ -369,7 +390,7 @@ export default Ember.Component.extend({
      this.set('isClock', false);
      this.set('isCalendar', false);
      this.set('openOnce', 0);
-		 this.sendAction('onClose');
-		}
-	}
+     this.sendAction('onClose');
+    }
+  }
 });
