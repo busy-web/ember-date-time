@@ -17,6 +17,8 @@ const SnapUtils = Ember.Object.extend();
   */
 export default SnapUtils.reopenClass({
 
+	snap: Snap,
+
 	/**
 	 * removes an element based on the type and number passed in
 	 *
