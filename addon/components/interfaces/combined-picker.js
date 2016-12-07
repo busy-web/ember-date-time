@@ -71,7 +71,7 @@ export default Ember.Component.extend({
    * @property isClockHour
    * @type Boolean
    */
-  isClock: true,
+  isClock: false,
 
   /**
    * boolean based on if the clock or calendar is showing
@@ -80,7 +80,7 @@ export default Ember.Component.extend({
    * @property isCalendar
    * @type Boolean
    */
-  isCalendar: false,
+  isCalendar: true,
 
   /**
    * String as the current date of the timestamp

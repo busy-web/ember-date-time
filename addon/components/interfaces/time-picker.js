@@ -8,21 +8,15 @@ import moment from 'moment';
 import Assert from 'busy-utils/assert';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
+import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
 
+/***/
 const kHourMin = 1;
 const kHourMax = 12;
 const kMinuteMin = 0;
 const kMinuteMax = 59;
 const kHourFlag = 'hours';
 const kMinuteFlag = 'minutes';
-
-/**
- * TODO:
- * snap-utils already includes the snap-svg library.
- * You should have a method in there to create a new Snap() instance.
- */
-import Snap from 'snap-svg';
-import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
 
 /**
  * `Component/TimePicker`
@@ -359,7 +353,7 @@ export default Ember.Component.extend({
 		}
 	}),
 
-	resetClockHands: Ember.observer('timestamp', 'isHourPicker', function() {
+	resetClockHands: Ember.observer('timestamp', function() {
 		if (this.get('isHourPicker')) {
 			this.removeClockTime(kHourFlag, kHourMin, kHourMax);
 			this.setActiveTime(kHourFlag);
@@ -498,7 +492,7 @@ export default Ember.Component.extend({
 		Assert.isString(type);
 		Assert.isNumber(value);
 
-		const total = type === kHourFlag ? kHourMax : kMinuteMax;
+		const total = type === kHourFlag ? 12 : 60;
 		return (value * (360 / total)) % 360;
 	},
 
@@ -518,7 +512,18 @@ export default Ember.Component.extend({
 		Assert.isNumber(degree);
 
 		const total = type === kHourFlag ? kHourMax : kMinuteMax;
-		return Math.round((degree * total) / 360);
+		let result = (degree * total) / 360;
+		if (type === kMinuteFlag) {
+			const upResult = Math.ceil(result);
+			const downResult = Math.floor(result);
+
+			if ((upResult%5) === 0) {
+				result = upResult;
+			} else if ((downResult%5) === 0) {
+				result = downResult;
+			}
+		}
+		return Math.round(result);
 	},
 
 	/**
@@ -576,6 +581,54 @@ export default Ember.Component.extend({
 		return time;
 	},
 
+	setupCircles(type, start, end) {
+		const id = this.$().attr('id');
+		const clock = new SnapUtils.snap(`#${id} #clocks-${type}-svg`);
+		const circle = clock.select(`#big-circle-${type}`);
+		const centerX = parseFloat(circle.attr('cx'));
+		const centerY = parseFloat(circle.attr('cy'));
+		const bbox = circle.node.getBBox();
+		const clockPadding = 15;
+
+		for(let i=start; i<=end; i++) {
+			// bbox width - the padding inside which is 2 times the x value then divide
+			// that by two for the radius and finally subtract an amount of desired padding for looks.
+			const lineLength = (( ( bbox.width - ( bbox.x * 2 ) ) / 2 ) - clockPadding );
+			let _degree = this.getDegree(type, i);
+			let degree = (_degree + 270) % 360;
+			let rads = SnapUtils.snap.rad(degree);
+
+			let x = centerX + lineLength * Math.cos(rads);
+			let y = centerY + lineLength * Math.sin(rads);
+
+			const strings = TimePicker.elementNames(type, i);
+			const line = clock.select(`#${strings.line}`);
+			line.attr({x1: x, y1: y, x2: centerY, y2: centerX});
+
+			const circle = clock.select(`#${strings.circle}`);
+			circle.attr({cx: x, cy: y});
+
+			const text = clock.select(`#${strings.text}`);
+			if (!Ember.isNone(text)) {
+				const bounds = text.node.getBBox();
+				const nx = (x - (bounds.width/2));
+				const ny = (y + (bounds.height/3));
+
+				text.attr('transform', `translate(${nx}, ${ny})`);
+			}
+
+			const section = clock.select(`#${strings.section}`);
+			if (!Ember.isNone(section)) {
+				const r = circle.attr('r')/2;
+
+				const nx = x - r;
+				const ny = y - r;
+				const wh = r*2;
+				section.attr('d', `M${nx} ${ny} h ${wh} v ${wh} -${wh} Z`);
+			}
+		}
+	},
+
 	/**
 	 * handles all the function events for dragging on the hours clock
 	 * newDrag must contain start, move and stop functions within it
@@ -589,31 +642,27 @@ export default Ember.Component.extend({
 		if (!this.get('isDestroyed')) {
 			const _this = this;
 			const id = this.$().attr('id');
-			const clock = new Snap(`#${id} #clocks-${type}-svg`);
+			const clock = new SnapUtils.snap(`#${id} #clocks-${type}-svg`);
 			const strings = TimePicker.elementNames(type, value);
 			const curTimeElement = clock.select(`#${strings.text}`);
 
 			const circle = clock.select(`#big-circle-${type}`);
-			const centerX = circle.attr('cx');
-			const centerY = circle.attr('cy');
-
-			const offset = this.$().find(`#clocks-${type}-svg`).offset();
-			let diffX = offset.left - 4.5;
-			let diffY = offset.top - 4;
+			const centerX = parseFloat(circle.attr('cx'));
+			const centerY = parseFloat(circle.attr('cy'));
 
 			const startAngle = this.getDegree(type, value);
 			let endAngle = startAngle;
+
+			const curHours = clock.select(`#${strings.text}`);
+			const curLine = clock.select(`#${strings.line}`);
+			const curCircle = clock.select(`#${strings.circle}`);
+			const startX = parseFloat(curCircle.attr('cx'));
+			const startY = parseFloat(curCircle.attr('cy'));
 
 			/**
 			 * allows for the hours group to start being dragged
 			 */
 			const start = function() {
-				if (diffX < 0 && diffY < 0) {
-					const _offset = _this.$().find(`#clocks-${type}-svg`).offset();
-					diffX = _offset.left - 4.5;
-					diffY = _offset.top - 4;
-				}
-
 				this.data('origTransform', this.transform().local);
 				if (!Ember.isNone(curTimeElement)) {
 					curTimeElement.remove();
@@ -625,9 +674,9 @@ export default Ember.Component.extend({
 			/**
 			 * moves the dial on the hour clock while transforming group
 			 */
-			const move = function(dx, dy, x, y) {
-				const nx = x - diffX;
-				const ny = y - diffY;
+			const move = function(dx, dy) {
+				const nx = startX + dx;
+				const ny = startY + dy;
 
 				// get angle of line from center x,y to new nx, ny
 				endAngle = DragDrop.lineAngle(nx, ny, centerX, centerY);
@@ -651,10 +700,6 @@ export default Ember.Component.extend({
 				const undragPrevious = this.get('lastGroup');
 				undragPrevious.undrag();
 			}
-
-			const curHours = clock.select(`#${strings.text}`);
-			const curLine = clock.select(`#${strings.line}`);
-			const curCircle = clock.select(`#${strings.circle}`);
 
 			const typeArray = [curLine, curCircle];
 			if (!Ember.isNone(curHours)) {
@@ -750,6 +795,8 @@ export default Ember.Component.extend({
 
 			this.set('isHourPicker', true);
 
+			this.setupCircles(kHourFlag, kHourMin, kHourMax);
+
 			this.removeClockTime(kHourFlag, kHourMin, kHourMax);
 
 			const time = this.getCurrentHour();
@@ -782,6 +829,8 @@ export default Ember.Component.extend({
 			this.$('#clocks-hours-svg').addClass('inactive');
 
 			this.set('isHourPicker', false);
+
+			this.setupCircles(kMinuteFlag, kMinuteMin, kMinuteMax);
 
 			this.removeClockTime(kMinuteFlag, kMinuteMin, kMinuteMax);
 
