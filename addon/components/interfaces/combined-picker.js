@@ -272,7 +272,7 @@ export default Ember.Component.extend({
     }
 
     if (section !== this.get('lastActiveSection') || this.get('openOnce') < 1) {
-      if (section === 'year' || section === 'month' || section === 'day' || this.get('calenderOnly') === true) {
+      if (section === 'year' || section === 'month' || section === 'day') {
         this.set('isClock', false);
         this.set('isCalendar', true);
       } else if (section === 'hour' || section === 'meridean') {
