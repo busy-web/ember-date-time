@@ -5,7 +5,7 @@
 import Ember from 'ember';
 import layout from '../templates/components/paper-datetime-picker';
 import moment from 'moment';
-import Assert from 'busy-utils/assert';
+import { Assert } from 'busy-utils';
 
 /**
  * `Component/paper-datetime-picker`
@@ -130,10 +130,10 @@ export default Ember.Component.extend({
    * bool for if the dialog is being shown or not
    *
    * @private
-   * @property showDialogBottom
+   * @property showDialog
    * @type bool
    */
-  showDialogBottom: false,
+  showDialog: false,
 
   /**
    * string of the new active element on the picker
@@ -262,8 +262,7 @@ export default Ember.Component.extend({
    */
   destroyOnChange: Ember.observer('destroyElements', function() {
     if (this.get('destroyElements')) {
-      this.set('showDialogTop', false);
-      this.set('showDialogBottom', false);
+      this.set('showDialog', false);
     }
   }),
 
@@ -292,9 +291,9 @@ export default Ember.Component.extend({
   onlyAllowArrows(event) {
     const key = event.keyCode || event.which;
     if (key === 13) {
-      this.set('showDialogTop', false);
-      this.set('showDialogBottom', false);
+      this.set('showDialog', false);
     }
+
     // only allows arrow keys and tab key
     if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9) {
       return true;
@@ -348,6 +347,14 @@ export default Ember.Component.extend({
 
 			return false;
     },
+
+		focusOnInput(type) {
+			Assert.isString(type);
+
+			type = Ember.String.singularize(type);
+
+			this.$(`.section.${type} > input`).focus();
+		},
 
 		closeAction() {
 			this.set('showDialog', false);

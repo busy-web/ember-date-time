@@ -1,21 +1,19 @@
 
 <div class="clock-container">
-	<div class="clock-hour-header">
-		<div class="date-container">
-			<div class="numbers-container">
-				<div class="hours-header" {{action "hourHeaderClicked"}}>{{hours}}</div>
-				<div class="colon">:</div>
-				<div class="minutes-header" {{action "minuteHeaderClicked"}}>{{minutes}}</div>
-			</div>
+	<div class="header">
+		<span class="numbers-container">
+			<span class="number hours" {{action "hourHeaderClicked"}}>{{hours}}</span>
+			<span class="colon">:</span>
+			<span class="number minutes" {{action "minuteHeaderClicked"}}>{{minutes}}</span>
+		</span>
 
-			<div class="am-pm-container">
-				<div class="am-button" {{action 'amClicked'}}>AM</div>
-				<div class="pm-button" {{action 'pmClicked'}}>PM</div>
-			</div>
-		</div>
+		<span class="am-pm-container">
+			<span class="button am" {{action 'amClicked'}}>AM</span>
+			<span class="button pm" {{action 'pmClicked'}}>PM</span>
+		</span>
 	</div>
 
-	<div class="outside-hours-container">
+	<div class="outside-container hours">
 		<svg id="clocks-hours-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210">
 				<defs>
 					<style>
@@ -74,7 +72,7 @@
 		</svg>
 	</div>
 
-	<div class="outside-hours-container-bottom">
+	<div class="outside-container minutes">
 		<svg id="clocks-minutes-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210">
 				<defs>
 					<style>

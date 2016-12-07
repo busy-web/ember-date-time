@@ -39,7 +39,7 @@
 	<div class="dialog-container{{if showDialog ' show'}}{{if showDialogTop ' top'}}">
 		{{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate
 			activeSection=activeSection updateActive=updateActive destroyElements=destroyElements
-			isMilliseconds=isMilliseconds closeOnTab=closeOnTab onClose=(action 'closeAction')}}
+			isMilliseconds=isMilliseconds closeOnTab=closeOnTab onClose=(action 'closeAction') dateTypeChange=(action 'focusOnInput')}}
 	</div>
 </div>
 
