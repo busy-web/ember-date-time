@@ -348,11 +348,15 @@ export default Ember.Component.extend({
 			return false;
 		},
 
+		/**
+		 * focus event handle to set the focus correctly
+		 * when the hours and minutes are selected from the time picker
+		 *
+		 * @event focusOnInput
+		 */
 		focusOnInput(type) {
 			Assert.isString(type);
-
 			type = Ember.String.singularize(type);
-
 			this.$(`.section.${type} > input`).focus();
 		},
 
