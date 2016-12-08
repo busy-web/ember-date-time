@@ -64,23 +64,23 @@ export default Ember.Component.extend({
 	isMilliseconds: false,
 
 	/**
-	* can be passed in as true or false, true will have the picker only be a date picker
-	*
-	* @private
-	* @property calenderOnly
-	* @type boolean
-	* @optional
-	*/
+	 * can be passed in as true or false, true will have the picker only be a date picker
+	 *
+	 * @private
+	 * @property calenderOnly
+	 * @type boolean
+	 * @optional
+	 */
 	calenderOnly: false,
 
 	/**
-	* can be passed in as true or false, true will have the picker only be a time picker
-	*
-	* @private
-	* @property timepickerOnly
-	* @type boolean
-	* @optional
-	*/
+	 * can be passed in as true or false, true will have the picker only be a time picker
+	 *
+	 * @private
+	 * @property timepickerOnly
+	 * @type boolean
+	 * @optional
+	 */
 	timepickerOnly: false,
 
 	/**
@@ -150,10 +150,10 @@ export default Ember.Component.extend({
 	 * bool for if the dialog is being shown or not
 	 *
 	 * @private
-	 * @property showDialogBottom
+	 * @property showDialog
 	 * @type bool
 	 */
-	showDialogBottom: false,
+	showDialog: false,
 
 	/**
 	 * string of the new active element on the picker
@@ -284,8 +284,7 @@ export default Ember.Component.extend({
 	 */
 	destroyOnChange: Ember.observer('destroyElements', function() {
 		if (this.get('destroyElements')) {
-			this.set('showDialogTop', false);
-			this.set('showDialogBottom', false);
+			this.set('showDialog', false);
 		}
 	}),
 
@@ -314,9 +313,9 @@ export default Ember.Component.extend({
 	onlyAllowArrows(event) {
 		const key = event.keyCode || event.which;
 		if (key === 13) {
-			this.set('showDialogTop', false);
-			this.set('showDialogBottom', false);
+			this.set('showDialog', false);
 		}
+
 		// only allows arrow keys and tab key
 		if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9) {
 			return true;
@@ -360,7 +359,7 @@ export default Ember.Component.extend({
 				this.set('updateActive', !activeState);
 			} else {
 				this.set('showDialogTop', false);
-				this.set('updateActive',  !activeState);
+				this.set('updateActive',	!activeState);
 			}
 
 			this.set('showDialog', true);
@@ -576,6 +575,5 @@ export default Ember.Component.extend({
 				this.set('closeOnTab', true);
 			}
 		}
-
 	}
 });
