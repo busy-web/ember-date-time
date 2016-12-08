@@ -351,46 +351,53 @@ export default Ember.Component.extend({
     }
   },
 
-  actions: {
+	actions: {
 
-    /**
+		/**
      * changes dialog from clock to calendar and vice versa
      *
      * @event togglePicker
      */
-    togglePicker(current) {
-     const isClock = (current === 'isClock');
+		togglePicker(current) {
+			const isClock = (current === 'isClock');
 
-     this.set('isClock', !isClock);
-     this.set('isCalendar', isClock);
-     this.set('openOnce', 0);
-     this.set('isHourPicker', true);
-   },
+			this.set('isClock', !isClock);
+			this.set('isCalendar', isClock);
+			this.set('openOnce', 0);
+			this.set('isHourPicker', true);
 
-   /**
-    * closes all dialogs
-    *
-    * @event togglePicker
-    */
-   close() {
-     this.set('backupTimestamp', this.get('timestamp'));
-     this.set('isClock', false);
-     this.set('isCalendar', false);
-     this.set('openOnce', 0);
-     this.sendAction('onClose');
-   },
+			this.sendAction('dateTypeChange', (isClock ? 'day' : 'hour'));
+		},
 
-   /**
-    * closes all dialogs and resets the timestamp
-    *
-    * @event togglePicker
-    */
-   cancel() {
-     this.set('timestamp', this.get('backupTimestamp'));
-     this.set('isClock', false);
-     this.set('isCalendar', false);
-     this.set('openOnce', 0);
-     this.sendAction('onClose');
-    }
-  }
+		/**
+		 * closes all dialogs
+		 *
+		 * @event togglePicker
+		 */
+		close() {
+			this.set('backupTimestamp', this.get('timestamp'));
+			this.set('isClock', false);
+			this.set('isCalendar', false);
+			this.set('openOnce', 0);
+			this.sendAction('onClose');
+		},
+
+		/**
+     * closes all dialogs and resets the timestamp
+     *
+     * @event togglePicker
+     */
+		cancel() {
+			this.set('timestamp', this.get('backupTimestamp'));
+			this.set('isClock', false);
+			this.set('isCalendar', false);
+			this.set('openOnce', 0);
+			this.sendAction('onClose');
+		},
+
+		onHeaderSelect(type) {
+			this.set('isHourPicker', (type === 'hours'));
+			this.sendAction('dateTypeChange', type);
+		},
+	}
 });
