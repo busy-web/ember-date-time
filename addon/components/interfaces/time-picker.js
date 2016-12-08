@@ -4,7 +4,6 @@
  */
 import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
-import moment from 'moment';
 import Assert from 'busy-utils/assert';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
@@ -205,24 +204,8 @@ export default Ember.Component.extend({
 
 	isHourPicker: true,
 
-	/**
-	 * Get a monent object from a timestamp that could be seconds or milliseconds
-	 *
-	 * @public
-	 * @method getMomentDate
-	 * @param timestamp {number}
-	 * @return {moment}
-	 */
-	getMomentDate(timestamp) {
-		if (this.get('isMilliseconds')) {
-			return moment.utc(timestamp);
-		} else {
-			return moment.utc(timestamp*1000);
-		}
-	},
-
 	getCurrentHour() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		let hour = time.hour();
 		if (this.get('meridian') === 'PM') {
 			hour = time.hour() - 12;
@@ -236,7 +219,7 @@ export default Ember.Component.extend({
 	},
 
 	getCurrentMinute() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		return time.minute();
 	},
 
@@ -268,16 +251,34 @@ export default Ember.Component.extend({
 	}),
 
 	meridian: Ember.computed('timestamp', function() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		return time.format('A');
 	}),
 
 	observeMinuteOrHour: Ember.observer('isHourPicker', 'isClock', function() {
+		this.$().removeClass(kHourFlag);
+		this.$().removeClass(kMinuteFlag);
+
+		let type, min, max;
 		if (this.get('isHourPicker')) {
-			this.send('hourHeaderClicked');
+			type = kHourFlag;
+			min = kHourMin;
+			max = kHourMax;
 		} else {
-			this.send('minuteHeaderClicked');
+			type = kMinuteFlag;
+			min = kMinuteMin;
+			max = kMinuteMax;
 		}
+
+		// switch active header
+		this.$().addClass(type);
+
+		this.setupCircles(type, min, max);
+		this.removeClockTime(type, min, max);
+
+		const time = this.getCurrentTimeByType(type);
+		this.set('lastActive', time);
+		this.setTimestamp(type, time);
 	}),
 
 	/**
@@ -305,7 +306,7 @@ export default Ember.Component.extend({
 	 * @method clickableDate
 	 */
 	clickableDate: Ember.observer('timestamp', function() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		let format = time.format(this.get('format'));
 		this.set('currentDate', format);
 	}),
@@ -318,13 +319,12 @@ export default Ember.Component.extend({
 	 */
 	observesAmPm: Ember.observer('meridian', function() {
 		if (!this.get('isDestroyed')) {
-			this.$('.am-button').removeClass('active');
-			this.$('.pm-button').removeClass('active');
+			this.$('.am-pm-container > .button').removeClass('active');
 
 			if(this.get('meridian') === 'AM') {
-				this.$('.am-button').addClass('active');
+				this.$('.am-pm-container > .button.am').addClass('active');
 			} else {
-				this.$('.pm-button').addClass('active');
+				this.$('.am-pm-container > .button.pm').addClass('active');
 			}
 		}
 	}),
@@ -380,17 +380,10 @@ export default Ember.Component.extend({
 		Assert.funcNumArgs(arguments, 1, true);
 		Assert.isMoment(date);
 
-		let isBefore = false;
-		let isAfter = false;
-		if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
+		const minDate = TimePicker.getMomentDate(this.get('minDate'));
+		const maxDate = TimePicker.getMomentDate(this.get('maxDate'));
 
-			// if time is before minDate or after maxDate then its invalid
-			isBefore = date.isBefore(minDate);
-			isAfter = date.isAfter(maxDate);
-		}
-		return { isBefore, isAfter };
+		return TimePicker.isDateInBounds(date, minDate, maxDate);
 	},
 
 	/**
@@ -469,9 +462,9 @@ export default Ember.Component.extend({
 		Assert.isObject(bounds);
 
 		if (bounds.isBefore) {
-			this.saveTimestamp(this.getMomentDate(this.get('minDate')));
+			this.saveTimestamp(TimePicker.getMomentDate(this.get('minDate')));
 		} else if (bounds.isAfter) {
-			this.saveTimestamp(this.getMomentDate(this.get('maxDate')));
+			this.saveTimestamp(TimePicker.getMomentDate(this.get('maxDate')));
 		} else {
 			Assert.throw(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`);
 		}
@@ -561,7 +554,7 @@ export default Ember.Component.extend({
 	},
 
 	getDateFromTime(type, value) {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 
 		if (type === kHourFlag) {
 			if (value === 12) {
@@ -590,24 +583,28 @@ export default Ember.Component.extend({
 		const bbox = circle.node.getBBox();
 		const clockPadding = 15;
 
-		for(let i=start; i<=end; i++) {
+		for (let i=start; i<=end; i++) {
 			// bbox width - the padding inside which is 2 times the x value then divide
 			// that by two for the radius and finally subtract an amount of desired padding for looks.
 			const lineLength = (( ( bbox.width - ( bbox.x * 2 ) ) / 2 ) - clockPadding );
-			let _degree = this.getDegree(type, i);
-			let degree = (_degree + 270) % 360;
-			let rads = SnapUtils.snap.rad(degree);
 
-			let x = centerX + lineLength * Math.cos(rads);
-			let y = centerY + lineLength * Math.sin(rads);
+			// get the degree for the time
+			const degree = this.getDegree(type, i);
+
+			const { x, y } = this.getPointFromAngle(degree, lineLength, centerX, centerY);
 
 			const strings = TimePicker.elementNames(type, i);
+
+			// calculate line coords
 			const line = clock.select(`#${strings.line}`);
 			line.attr({x1: x, y1: y, x2: centerY, y2: centerX});
 
+			// calculate circle coords
 			const circle = clock.select(`#${strings.circle}`);
 			circle.attr({cx: x, cy: y});
 
+			// calculate text position if there is a text
+			// at this number
 			const text = clock.select(`#${strings.text}`);
 			if (!Ember.isNone(text)) {
 				const bounds = text.node.getBBox();
@@ -617,16 +614,48 @@ export default Ember.Component.extend({
 				text.attr('transform', `translate(${nx}, ${ny})`);
 			}
 
+			// calculate section position for click areas on minutes
 			const section = clock.select(`#${strings.section}`);
 			if (!Ember.isNone(section)) {
-				const r = circle.attr('r')/2;
+				const tLength = lineLength + clockPadding;
+				const bLength = lineLength - clockPadding;
 
-				const nx = x - r;
-				const ny = y - r;
-				const wh = r*2;
-				section.attr('d', `M${nx} ${ny} h ${wh} v ${wh} -${wh} Z`);
+				const places = type === kHourFlag ? 12 : 60;
+				const space = ((360/places)/2);
+
+				const lDegree = ((degree - space) + 360) % 360; // get the angle for the left bounds
+				const rDegree = (degree + space) % 360; // get the angle for the right bounds
+
+				// get the bottom left and right points
+				const lp = this.getPointFromAngle(lDegree, bLength, centerX, centerY);
+				const rp = this.getPointFromAngle(rDegree, bLength, centerX, centerY);
+
+				// get the top left and right points
+				const lph = this.getPointFromAngle(lDegree, tLength, centerX, centerY);
+				const rph = this.getPointFromAngle(rDegree, tLength, centerX, centerY);
+
+				// get the point to curve the top bar to.
+				const bp = this.getPointFromAngle(degree, tLength, centerX, centerY);
+
+				// build the path string
+				section.attr({d: `M${lph.x} ${lph.y} Q ${bp.x} ${bp.y} ${rph.x} ${rph.y} L ${rp.x} ${rp.y} ${lp.x} ${lp.y} Z`});
 			}
 		}
+	},
+
+	getPointFromAngle(degree, length, x1, y1) {
+		// getPointFromAngle will calculate all angles according to the positive x axis
+		// so rotate all degrees by 270 to get the proper alignment of time per degree on the clock
+		degree = (degree + 270) % 360;
+
+		// convert degrees to radians
+		let rads = SnapUtils.snap.rad(degree);
+
+		// calculate x and y
+		let x = x1 + length * Math.cos(rads);
+		let y = y1 + length * Math.sin(rads);
+
+		return { x, y };
 	},
 
 	/**
@@ -750,7 +779,7 @@ export default Ember.Component.extend({
 		 */
 		amClicked() {
 			if (this.get('meridian') === 'PM') {
-				const time = this.getMomentDate(this.get('timestamp'));
+				const time = TimePicker.getMomentDate(this.get('timestamp'));
 				time.subtract(12, 'hours');
 				this.saveTimestamp(time);
 			}
@@ -763,7 +792,7 @@ export default Ember.Component.extend({
 		 */
 		pmClicked() {
 			if (this.get('meridian') === 'AM') {
-				const time = this.getMomentDate(this.get('timestamp'));
+				const time = TimePicker.getMomentDate(this.get('timestamp'));
 				time.add(12, 'hours');
 				this.saveTimestamp(time);
 			}
@@ -775,33 +804,8 @@ export default Ember.Component.extend({
 		 * @event hourHeaderClicked
 		 */
 		hourHeaderClicked() {
-			// switch active header
-			this.$('.hours-header').removeClass('inactive');
-			this.$('.hours-header').addClass('active');
-			this.$('.minutes-header').removeClass('active');
-			this.$('.minutes-header').addClass('inactive');
-
-			// open correct container
-			this.$('.outside-hours-container').removeClass('inactive');
-			this.$('.outside-hours-container').addClass('active');
-			this.$('.outside-hours-container-bottom').removeClass('active');
-			this.$('.outside-hours-container-bottom').addClass('inactive');
-
-			// select correct clock
-			this.$('#clocks-minutes-svg').removeClass('active');
-			this.$('#clocks-minutes-svg').addClass('inactive');
-			this.$('#clocks-hours-svg').removeClass('inactive');
-			this.$('#clocks-hours-svg').addClass('active');
-
 			this.set('isHourPicker', true);
-
-			this.setupCircles(kHourFlag, kHourMin, kHourMax);
-
-			this.removeClockTime(kHourFlag, kHourMin, kHourMax);
-
-			const time = this.getCurrentHour();
-			this.set('lastActive', time);
-			this.setTimestamp(kHourFlag, time);
+			this.sendAction('headerSelect', kHourFlag);
 		},
 
 		/**
@@ -810,33 +814,8 @@ export default Ember.Component.extend({
 		 * @event minuteHeaderClicked
 		 */
 		minuteHeaderClicked() {
-			// switch active header
-			this.$('.hours-header').removeClass('active');
-			this.$('.hours-header').addClass('inactive');
-			this.$('.minutes-header').removeClass('inactive');
-			this.$('.minutes-header').addClass('active');
-
-			// open correct container
-			this.$('.outside-hours-container').removeClass('active');
-			this.$('.outside-hours-container').addClass('inactive');
-			this.$('.outside-hours-container-bottom').removeClass('inactive');
-			this.$('.outside-hours-container-bottom').addClass('active');
-
-			// select correct clock
-			this.$('#clocks-minutes-svg').removeClass('inactive');
-			this.$('#clocks-minutes-svg').addClass('active');
-			this.$('#clocks-hours-svg').removeClass('active');
-			this.$('#clocks-hours-svg').addClass('inactive');
-
 			this.set('isHourPicker', false);
-
-			this.setupCircles(kMinuteFlag, kMinuteMin, kMinuteMax);
-
-			this.removeClockTime(kMinuteFlag, kMinuteMin, kMinuteMax);
-
-			const time = this.getCurrentMinute();
-			this.set('lastActive', time);
-			this.setTimestamp(kMinuteFlag, time);
+			this.sendAction('headerSelect', kMinuteFlag);
 		}
 	}
 });

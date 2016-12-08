@@ -124,9 +124,14 @@
 							width: 10px;
 							height: 22px;
 							border-radius: 2px;
+							color: #e5e5e5;
 							font-size: 12px;
 							text-align: center;
 							vertical-align: middle;
+
+							&.month-day {
+								color: #333;
+							}
 
 							&.valid-day {
 								cursor: pointer;

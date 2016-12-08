@@ -3,8 +3,8 @@
  *
  */
 import Ember from 'ember';
-import moment from 'moment';
-import Assert from 'busy-utils/assert';
+import { Assert } from 'busy-utils';
+import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import layout from '../../templates/components/interfaces/date-picker';
 
 /**
@@ -195,44 +195,26 @@ export default Ember.Component.extend({
   },
 
   /**
-   * Get a monent object from a timestamp that could be seconds or milliseconds
-   *
-   * @public
-   * @method getMomentDate
-   * @param timestamp {number}
-   * @return {moment}
-   */
-  getMomentDate(timestamp) {
-    if (this.get('isMilliseconds')) {
-      return moment.utc(timestamp);
-    } else {
-      return moment.utc(timestamp*1000);
-    }
-  },
-
-  /**
    * sets the calendarDate to the timestamp and sets the values for the date picker headers
    *
    * @private
    * @method resetCalendarDate
    */
   resetCalendarDate: Ember.observer('timestamp', function() {
-    Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
+		const timestamp = this.get('timestamp');
+		Assert.isNumber(timestamp);
 
-    const time = this.getMomentDate(this.get('timestamp'));
-
-    if (!Ember.isNone(this.get('timestamp'))) {
-      if (moment.isMoment(time) && time.isValid()) {
-        this.set('calendarDate', this.get('timestamp'));
-
-        this.set('year', time.format('YYYY'));
-        this.set('month', time.format('MMM').toUpperCase());
-        this.set('day', time.format('DD'));
-        this.set('dayOfWeek', time.format('dddd'));
-      }
-    } else {
-      Ember.assert("timestamp must be a valid unix timestamp", moment.isMoment(time) && time.isValid());
-    }
+		// get moment timestamp
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
+		if (TimePicker.isValidDate(time)) {
+			this.set('calendarDate', this.get('timestamp'));
+			this.set('year', time.format('YYYY'));
+			this.set('month', time.format('MMM').toUpperCase());
+			this.set('day', time.format('DD'));
+			this.set('dayOfWeek', time.format('dddd'));
+		} else {
+			Assert.throw("timestamp must be a valid unix timestamp");
+		}
   }),
 
   /**
@@ -274,7 +256,7 @@ export default Ember.Component.extend({
    * @method keepCalendarUpdated
    */
   keepCalendarUpdated: Ember.observer('calendarDate', function() {
-    const calendarObject = this.getMomentDate(this.get('calendarDate'));
+    const calendarObject = TimePicker.getMomentDate(this.get('calendarDate'));
     this.buildDaysArrayForMonth();
     this.set('monthYear', calendarObject.format('MMM YYYY'));
   }),
@@ -287,94 +269,52 @@ export default Ember.Component.extend({
    */
   buildDaysArrayForMonth: function() {
 		const calendarDate = this.get('calendarDate');
-    const minDate = this.getMomentDate(this.get('minDate'));
-    const maxDate = this.getMomentDate(this.get('maxDate'));
-    const firstDay = this.getMomentDate(calendarDate).startOf('month');
-    const lastDay = this.getMomentDate(calendarDate).add(1, 'month').startOf('month');
+    const minDate =	this.get('minDate');
+    const maxDate = this.get('maxDate');
+		const isMilliseconds = this.get('isMilliseconds');
 
-    const daysArray = Ember.A();
+		const currentCalendar = TimePicker.getMomentDate(calendarDate, isMilliseconds);
+    const currentTime = TimePicker.getMomentDate(this.get('timestamp'), isMilliseconds);
+    const firstDay = TimePicker.getMomentDate(calendarDate, isMilliseconds).startOf('month');
+    const lastDay = TimePicker.getMomentDate(calendarDate, isMilliseconds).endOf('month').date();
+
+		const start = firstDay.day();
     let currentDay = firstDay;
-    while (currentDay.isBefore(lastDay)) {
-      if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
-        if (currentDay.isBetween(minDate, maxDate)) {
-          currentDay.isDisabled = false;
-          daysArray.pushObject(currentDay);
-          currentDay = currentDay.clone().add(1, 'days');
-        } else {
-          currentDay.isDisabled = true;
-          daysArray.pushObject(currentDay);
-          currentDay = currentDay.clone().add(1, 'days');
-        }
-      } else {
-        currentDay.isDisabled = false;
-        daysArray.pushObject(currentDay);
-        currentDay = currentDay.clone().add(1, 'days');
-      }
-    }
-    this.currentDayOnCalendar(daysArray);
-  },
+		currentDay.subtract(start, 'days');
 
-  /**
-   * sets active to the current active day
-   *
-   * @private
-   * @method currentDayOnCalendar
-   */
-  currentDayOnCalendar(daysArray) {
-    let completeDaysArray = Ember.A();
-    let currentTime = this.getMomentDate(this.get('timestamp'));
+		let daysInCalendar = 28;
+		if ((start + lastDay) > 35) {
+			daysInCalendar = 42;
+		} else if ((start + lastDay) > 28) {
+			daysInCalendar = 35;
+		}
 
-    daysArray.forEach((item) => {
-      let startItem = item.clone();
-      let endItem = item.clone();
-      let startOfDay = startItem.startOf('day');
-      let endOfDay = endItem.endOf('day');
+		const daysArray = Ember.A();
+    for (let i=0; i<daysInCalendar; i++) {
+			const paper = TimePicker.createPaperDate({timestamp: currentDay.valueOf()});
 
-      if (currentTime.isBetween(startOfDay, endOfDay)) {
-        item.isCurrentDay = true;
-        item.dayOfMonth = item.date();
-        completeDaysArray.push(item);
-      } else {
-        item.isCurrentDay = false;
-        item.dayOfMonth = item.date();
-        completeDaysArray.push(item);
-      }
-    });
+			const { isBefore, isAfter } = TimePicker.isDateInBounds(paper.get('date'), minDate, maxDate, isMilliseconds);
+			paper.set('isBefore', isBefore);
+			paper.set('isAfter', isAfter);
+			paper.set('weekNumber', Math.ceil((i+1)/7));
 
-    this.buildCompleteArray(completeDaysArray);
-  },
+			if (paper.get('date').year() === currentCalendar.year()) {
+				paper.set('isCurrentYear', true);
 
-  /**
-   * builds an array of days in a month, starting at sunday
-   *
-   * @private
-   * @method buildCompleteArray
-   */
-  buildCompleteArray(completeDaysArray) {
-    let nullHeadLength = 0;
-    let monthArrayLength = 42;
-    let firstDayPosition = completeDaysArray.get('firstObject').day();
-    let numberOfDays = completeDaysArray.get('length');
+				if (paper.get('date').month() === currentCalendar.month()) {
+					paper.set('isCurrentMonth', true);
+				}
+			}
 
-    let completeArray = Ember.A();
+			if (paper.get('date').year() === currentTime.year() && paper.get('date').month() === currentTime.month() && paper.get('date').date() === currentTime.date()) {
+				paper.set('isCurrentDay', true);
+			}
 
-    for (let i=0; i<firstDayPosition; i++) {
-      nullHeadLength++;
-      completeArray.push(null);
+			daysArray.pushObject(paper);
+			currentDay.add(1, 'days');
     }
 
-    completeDaysArray.forEach(function(day) {
-      completeArray.push(day);
-    });
-
-    let nullTailLength = monthArrayLength - nullHeadLength - numberOfDays;
-
-    for (let x=0; x<nullTailLength; x++) {
-      nullHeadLength++;
-      completeArray.push(null);
-    }
-
-    this.groupByWeeks(completeArray);
+    this.groupByWeeks(daysArray);
   },
 
    /**
@@ -386,12 +326,12 @@ export default Ember.Component.extend({
   groupByWeeks(completeArray) {
     let grouped = Ember.A([]);
 
-    grouped.pushObject(completeArray.filter(this.inRange(0, 7)));
-    grouped.pushObject(completeArray.filter(this.inRange(7, 14)));
-    grouped.pushObject(completeArray.filter(this.inRange(14, 21)));
-    grouped.pushObject(completeArray.filter(this.inRange(21, 28)));
-    grouped.pushObject(completeArray.filter(this.inRange(28, 35)));
-    grouped.pushObject(completeArray.filter(this.inRange(35, 42)));
+    grouped.pushObject(completeArray.filterBy('weekNumber', 1));
+    grouped.pushObject(completeArray.filterBy('weekNumber', 2));
+    grouped.pushObject(completeArray.filterBy('weekNumber', 3));
+    grouped.pushObject(completeArray.filterBy('weekNumber', 4));
+    grouped.pushObject(completeArray.filterBy('weekNumber', 5));
+    grouped.pushObject(completeArray.filterBy('weekNumber', 6));
 
     this.set('groupedArray', grouped);
   },
@@ -456,14 +396,16 @@ export default Ember.Component.extend({
      * @param day {object} moment object of the clicked day
      * @event dayClicked
      */
-    dayClicked(day) {
+    dayClicked(paper) {
+			const day = paper.get('date');
+
       Assert.isMoment(day);
 
       const newDay = day.date();
       const newMonth = day.month();
       const newYear = day.year();
 
-      let timestamp = this.getMomentDate(this.get('timestamp'));
+      let timestamp = TimePicker.getMomentDate(this.get('timestamp'));
       timestamp.date(newDay);
       timestamp.month(newMonth);
       timestamp.year(newYear);
@@ -477,7 +419,7 @@ export default Ember.Component.extend({
      * @event subtractMonth
      */
     subtractMonth() {
-      const calDate = this.getMomentDate(this.get('calendarDate'));
+      const calDate = TimePicker.getMomentDate(this.get('calendarDate'));
       this.setCalendarDate(calDate.subtract('1', 'months'));
       this.set('calendarActiveSection', 'month-year');
     },
@@ -488,7 +430,7 @@ export default Ember.Component.extend({
      * @event addMonth
      */
     addMonth() {
-      const calDate = this.getMomentDate(this.get('calendarDate'));
+      const calDate = TimePicker.getMomentDate(this.get('calendarDate'));
       let add = calDate.add('1', 'months');
 
       this.setCalendarDate(add);

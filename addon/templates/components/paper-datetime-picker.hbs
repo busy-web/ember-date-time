@@ -1,48 +1,49 @@
-	<div class="main-container">
-		<div class="input-container{{if showDialog ' active'}}" {{action 'focusInput' 'hour'}}>
-			{{#unless timepickerOnly}}
-				<div class="input-in-date">
-					<div class="section month">
-						{{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-up=(action 'resetKeyUp') key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'month') click=(action 'focusInput' 'month' bubbles=false)}}
-					</div>
 
-					<div class="slash" {{action 'focusInput' 'month' bubbles=false}}>/</div>
-
-					<div class="section day">
-						{{input class="day" type="text" maxlength="2" value=timestampDays key-up=(action 'resetKeyUp') key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'day') click=(action 'focusInput' 'day' bubbles=false)}}
-					</div>
-
-					<div class="slash" {{action 'focusInput' 'day' bubbles=false}}>/</div>
-
-					<div class="section year">
-						{{input class="year" type="text" maxlength="4" value=timestampYears key-up=(action 'resetKeyUp') key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'year') click=(action 'focusInput' 'year' bubbles=false)}}
-					</div>
+<div class="main-container">
+	<div class="input-container{{if showDialog ' active'}}" {{action 'focusInput' 'default'}}>
+		{{#unless timepickerOnly}}
+			<div class="input-in-date">
+				<div class="section month">
+					{{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-up=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'month') click=(action 'focusInput' 'month' bubbles=false)}}
 				</div>
-			{{/unless}}
 
-			{{#unless calenderOnly}}
-				<div class="input-in-time">
-					<div class="section hour">
-						{{input type="text" class="hour" maxlength="2" value=timestampHours  key-down=(action 'keyUpDownHours') focus-in=(action 'focusInput' 'hour') click=(action 'focusInput' 'hour' bubbles=false)}}
-					</div>
+				<div class="slash" {{action 'focusInput' 'month' bubbles=false}}>/</div>
 
-					<div class="colon">:</div>
-
-					<div class="section minute">
-						{{input type="text" class="minute" maxlength="2" value=timestampMinutes  key-down=(action 'keyUpDownMinutes') focus-in=(action 'focusInput' 'minute') click=(action 'focusInput' 'minute' bubbles=false)}}
-					</div>
-
-					<div class="section meridean">
-						{{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-down=(action 'meridianKeyHandler') focus-in=(action 'focusInput' 'meridean') click=(action 'focusInput' 'meridean' bubbles=false)}}
-					</div>
+				<div class="section day">
+					{{input class="day" type="text" maxlength="2" value=timestampDays key-up=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'day') click=(action 'focusInput' 'day' bubbles=false)}}
 				</div>
-			{{/unless}}
-		</div>
 
-		<div class="dialog-container{{if showDialog ' show'}}{{if showDialogTop ' top'}}">
-			{{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate
-				activeSection=activeSection updateActive=updateActive destroyElements=destroyElements
-				isMilliseconds=isMilliseconds closeOnTab=closeOnTab onClose=(action 'closeAction')
-				calenderOnly=calenderOnly timepickerOnly=timepickerOnly}}
-		</div>
+				<div class="slash" {{action 'focusInput' 'day' bubbles=false}}>/</div>
+
+				<div class="section year">
+					{{input class="year" type="text" maxlength="4" value=timestampYears key-up=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'year') click=(action 'focusInput' 'year' bubbles=false)}}
+				</div>
+			</div>
+		{{/unless}}
+
+		{{#unless calenderOnly}}
+			<div class="input-in-time">
+				<div class="section hour">
+					{{input type="text" class="hour" maxlength="2" value=timestampHours  key-up=(action 'keyUpDownHours') focus-in=(action 'focusInput' 'hour') click=(action 'focusInput' 'hour' bubbles=false)}}
+				</div>
+
+				<div class="colon">:</div>
+
+				<div class="section minute">
+					{{input type="text" class="minute" maxlength="2" value=timestampMinutes  key-up=(action 'keyUpDownMinutes') focus-in=(action 'focusInput' 'minute') click=(action 'focusInput' 'minute' bubbles=false)}}
+				</div>
+
+				<div class="section meridean">
+					{{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-up=(action 'meridianKeyHandler') focus-in=(action 'focusInput' 'meridean') click=(action 'focusInput' 'meridean' bubbles=false)}}
+				</div>
+			</div>
+		{{/unless}}
 	</div>
+
+	<div class="dialog-container{{if showDialog ' show'}}{{if showDialogTop ' top'}}">
+		{{interfaces/combined-picker timestamp=timestamp maxDate=maxDate minDate=minDate
+			activeSection=activeSection updateActive=updateActive destroyElements=destroyElements
+			isMilliseconds=isMilliseconds closeOnTab=closeOnTab onClose=(action 'closeAction')
+			calenderOnly=calenderOnly timepickerOnly=timepickerOnly dateTypeChange=(action 'focusOnInput')}}
+	</div>
+</div>

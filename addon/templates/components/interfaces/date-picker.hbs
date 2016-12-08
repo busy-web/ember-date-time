@@ -34,19 +34,7 @@
 		{{#each groupedArray as |week|}}
 			<tr class="keepOpen week-row">
 				{{#each week as |day|}}
-					{{#if day}}
-						{{#if day.isDisabled}}
-							<td class="keepOpen disabled-day">{{day.dayOfMonth}}</td>
-						{{else}}
-							{{#if day.isCurrentDay}}
-								<td class="keepOpen valid-day current-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
-							{{else}}
-								<td class="keepOpen valid-day" {{action "dayClicked" day}}>{{day.dayOfMonth}}</td>
-							{{/if}}
-						{{/if}}
-					{{else}}
-						<td class="keepOpen invalid-day"></td>
-					{{/if}}
+					<td class="keepOpen{{if day.isDisabled ' disabled-day' ' valid-day'}}{{if day.isCurrentDay ' current-day'}}{{if day.isCurrentMonth ' month-day'}}" {{action 'dayClicked' day}}>{{day.dayOfMonth}}</td>
 				{{/each}}
 			</tr>
 		{{/each}}
