@@ -347,6 +347,13 @@ export default Ember.Component.extend({
 		 * @event focusInput
 		 */
 		focusInput(active) {
+			if (active === 'default') {
+				active = 'hour';
+				if (this.get('calenderOnly')) {
+					active = 'day';
+				}
+			}
+
 			const activeState = this.get('updateActive');
 			const documentHeight = Ember.$(document).height();
 			const dialogHeight = this.$().find('.dialog-container').height() + 50;
