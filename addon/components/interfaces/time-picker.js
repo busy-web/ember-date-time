@@ -4,7 +4,6 @@
  */
 import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
-import moment from 'moment';
 import Assert from 'busy-utils/assert';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
@@ -205,24 +204,8 @@ export default Ember.Component.extend({
 
 	isHourPicker: true,
 
-	/**
-	 * Get a monent object from a timestamp that could be seconds or milliseconds
-	 *
-	 * @public
-	 * @method getMomentDate
-	 * @param timestamp {number}
-	 * @return {moment}
-	 */
-	getMomentDate(timestamp) {
-		if (this.get('isMilliseconds')) {
-			return moment.utc(timestamp);
-		} else {
-			return moment.utc(timestamp*1000);
-		}
-	},
-
 	getCurrentHour() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		let hour = time.hour();
 		if (this.get('meridian') === 'PM') {
 			hour = time.hour() - 12;
@@ -236,7 +219,7 @@ export default Ember.Component.extend({
 	},
 
 	getCurrentMinute() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		return time.minute();
 	},
 
@@ -268,7 +251,7 @@ export default Ember.Component.extend({
 	}),
 
 	meridian: Ember.computed('timestamp', function() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		return time.format('A');
 	}),
 
@@ -323,7 +306,7 @@ export default Ember.Component.extend({
 	 * @method clickableDate
 	 */
 	clickableDate: Ember.observer('timestamp', function() {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		let format = time.format(this.get('format'));
 		this.set('currentDate', format);
 	}),
@@ -397,17 +380,10 @@ export default Ember.Component.extend({
 		Assert.funcNumArgs(arguments, 1, true);
 		Assert.isMoment(date);
 
-		let isBefore = false;
-		let isAfter = false;
-		if (!Ember.isNone(this.get('minDate')) || !Ember.isNone(this.get('maxDate'))) {
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
+		const minDate = TimePicker.getMomentDate(this.get('minDate'));
+		const maxDate = TimePicker.getMomentDate(this.get('maxDate'));
 
-			// if time is before minDate or after maxDate then its invalid
-			isBefore = date.isBefore(minDate);
-			isAfter = date.isAfter(maxDate);
-		}
-		return { isBefore, isAfter };
+		return TimePicker.isDateInBounds(date, minDate, maxDate);
 	},
 
 	/**
@@ -486,9 +462,9 @@ export default Ember.Component.extend({
 		Assert.isObject(bounds);
 
 		if (bounds.isBefore) {
-			this.saveTimestamp(this.getMomentDate(this.get('minDate')));
+			this.saveTimestamp(TimePicker.getMomentDate(this.get('minDate')));
 		} else if (bounds.isAfter) {
-			this.saveTimestamp(this.getMomentDate(this.get('maxDate')));
+			this.saveTimestamp(TimePicker.getMomentDate(this.get('maxDate')));
 		} else {
 			Assert.throw(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`);
 		}
@@ -578,7 +554,7 @@ export default Ember.Component.extend({
 	},
 
 	getDateFromTime(type, value) {
-		const time = this.getMomentDate(this.get('timestamp'));
+		const time = TimePicker.getMomentDate(this.get('timestamp'));
 
 		if (type === kHourFlag) {
 			if (value === 12) {
@@ -803,7 +779,7 @@ export default Ember.Component.extend({
 		 */
 		amClicked() {
 			if (this.get('meridian') === 'PM') {
-				const time = this.getMomentDate(this.get('timestamp'));
+				const time = TimePicker.getMomentDate(this.get('timestamp'));
 				time.subtract(12, 'hours');
 				this.saveTimestamp(time);
 			}
@@ -816,7 +792,7 @@ export default Ember.Component.extend({
 		 */
 		pmClicked() {
 			if (this.get('meridian') === 'AM') {
-				const time = this.getMomentDate(this.get('timestamp'));
+				const time = TimePicker.getMomentDate(this.get('timestamp'));
 				time.add(12, 'hours');
 				this.saveTimestamp(time);
 			}
