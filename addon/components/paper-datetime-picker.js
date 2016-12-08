@@ -536,7 +536,7 @@ export default Ember.Component.extend({
 					}
 				}
 
-				this.set('keyHasGoneUp', false);
+				this.set('keyHasGoneUp', true);
 			}
 		},
 
