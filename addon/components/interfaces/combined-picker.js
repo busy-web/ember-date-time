@@ -3,9 +3,9 @@
  *
  */
 import Ember from 'ember';
-import moment from 'moment';
 import layout from '../../templates/components/interfaces/combined-picker';
-import Assert from 'busy-utils/assert';
+import TimePicker from 'ember-paper-time-picker/utils/time-picker';
+//import { Assert } from 'busy-utils';
 
 /**
  * `Component/CompinedPicker`
@@ -92,7 +92,9 @@ export default Ember.Component.extend({
    * @property currentDate
    * @type String
    */
-  currentDate: null,
+  currentDate: Ember.computed('timestamp', function() {
+		return TimePicker.getMomentDate(this.get('timestamp')).format('MMM DD, YYYY');
+	}).readOnly(),
 
   /**
    * String as the current time of the timestamp
@@ -101,7 +103,9 @@ export default Ember.Component.extend({
    * @property currentTime
    * @type String
    */
-  currentTime: null,
+  currentTime: Ember.computed('timestamp', function() {
+		return TimePicker.getMomentDate(this.get('timestamp')).format('hh:mm A');
+	}).readOnly(),
 
   /**
    * if they cancel the change this is the timestamp the picker will revert back to
@@ -132,7 +136,6 @@ export default Ember.Component.extend({
   initialize: Ember.on('init', function() {
 		this.setupTime();
     this.observeActiveSection();
-    this.observesDateTime();
     this.set('backupTimestamp', this.get('timestamp'));
 	}),
 
@@ -238,46 +241,7 @@ export default Ember.Component.extend({
 		}
   }),
 
-  /**
-   * sets/resets currentDate whenever timestamp changes
-   *
-   * @private
-   * @method observesCurrentDate
-   */
-  observesDateTime: Ember.observer('timestamp', function() {
-    const time = this.getMomentDate(this.get('timestamp'));
-
-    Ember.assert("timestamp must be a valid unix timestamp", Ember.isNone(this.get('timestamp')) || typeof this.get('timestamp') === 'number');
-
-    if (!Ember.isNone(this.get('timestamp'))) {
-      Assert.isMoment(time);
-      if (!time.isValid()) {
-        Assert.throw("timestamp must be a valid unix timestamp");
-      }
-    }
-
-    this.set('currentDate', time.format('MMM DD, YYYY'));
-    this.set('currentTime', time.format('hh:mm A'));
-  }),
-
-  /**
-   * Get a monent object from a timestamp that could be seconds or milliseconds
-   *
-   * @public
-   * @method getMomentDate
-   * @param timestamp {number}
-   * @return {moment}
-   */
-  getMomentDate(timestamp) {
-    if (this.get('isMilliseconds')) {
-      return moment.utc(timestamp);
-    } else {
-      return moment.utc(timestamp*1000);
-    }
-  },
-
 	actions: {
-
 		update(focus, time) {
 			this.sendAction('onUpdate', focus, time);
 		},

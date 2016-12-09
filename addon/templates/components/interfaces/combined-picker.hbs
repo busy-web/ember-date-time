@@ -10,20 +10,20 @@
 
 	<div class="picker-footer">
 		{{#if isClock}}
-			{{#if activeState.showTime}}
-				<div class="current-date keepOpen"></div>
-			{{else}}
+			{{#if activeState.showDate}}
 				<div class="current-date keepOpen" {{action 'togglePicker' 'isClock' bubbles=false}}>{{currentDate}}</div>
+			{{else}}
+				<div class="current-date keepOpen"></div>
 			{{/if}}
 			<div class="ok" {{action 'close' bubbles=false}}>OK</div>
 			<div class="cancel" {{action 'cancel' bubbles=false}}>Cancel</div>
 		{{/if}}
 
 		{{#if isCalendar}}
-			{{#if activeState.showDate}}
-				<div class="current-date keepOpen"></div>
-			{{else}}
+			{{#if activeState.showTime}}
 				<div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar' bubbles=false}}>{{currentTime}}</div>
+			{{else}}
+				<div class="current-date keepOpen"></div>
 			{{/if}}
 			<div class="ok" {{action 'close' bubbles=false}}>OK</div>
 			<div class="cancel" {{action 'cancel' bubbles=false}}>Cancel</div>
