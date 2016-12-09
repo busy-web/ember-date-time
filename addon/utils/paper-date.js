@@ -23,24 +23,6 @@ const PaperDate = Ember.Object.extend({
 
 	_backupTimestamp: null,
 
-	/**
-	 * Must be a timestamp in seconds
-	 *
-	 * @public
-	 * @property unix
-	 * @type number
-	 */
-	unix: null,
-
-	/**
-	 * boolean value if true the timestamp wont be converted to local time
-	 *
-	 * @public
-	 * @property utc
-	 * @type boolean
-	 */
-	utc: false,
-
 	minDate: null,
 	maxDate: null,
 
@@ -177,38 +159,17 @@ export default function paper(options) {
 
 	const date = PaperDate.create();
 
-	if (!options.unix && !options.timestamp) {
-		// timestamp must be set to a unix timestamp
-		Assert.throw("timestamp or unix is required for ember-paper-time-picker");
-	}
-
-	let isMilliseconds = true;
-	if (options.unix && !options.timestamp) {
-		options.timestamp = options.unix * 1000;
-		isMilliseconds = false;
-	}
-
-	if (options.timestamp && !options.unix) {
-		options.unix = Math.floor(options.timestamp/1000);
-	}
-
 	// changed to Assert.test in and removed if statements that are not needed.
-	// minDate and maxDate should be null or a unix timestamp
+	// minDate and maxDate should be null or a timestamp
 	if (options.minDate) {
-		if (!isMilliseconds) {
-			options.minDate = options.minDate * 1000;
-		}
-		Assert.test("minDate must be a valid unix timestamp", TimePicker.isValidTimestamp(options.minDate));
+		Assert.test("minDate must be a valid timestamp", TimePicker.isValidTimestamp(options.minDate));
 	}
 
 	if (options.maxDate) {
-		if (!isMilliseconds) {
-			options.maxDate = options.maxDate * 1000;
-		}
-		Assert.test("maxDate must be a valid unix timestamp", TimePicker.isValidTimestamp(options.maxDate));
+		Assert.test("maxDate must be a valid timestamp", TimePicker.isValidTimestamp(options.maxDate));
 	}
 
-	// timestamp must be set to a unix timestamp
+	// timestamp must be set to a timestamp
 	Assert.test("timestamp must be a valid number in milliseconds representing a date", TimePicker.isValidTimestamp(options.timestamp));
 
 	date.setProperties(options);

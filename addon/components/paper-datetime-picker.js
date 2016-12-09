@@ -179,17 +179,24 @@ export default Ember.Component.extend(keyEvents, {
 	}),
 
 	setPaperDate: function(timestamp, unix) {
+		let minDate = this.get('minDate');
+		let maxDate = this.get('maxDate');
+
 		if (this.get('utc')) {
 			if (!Ember.isNone(timestamp)) {
 				timestamp = TimePicker.utcToLocal(timestamp);
+				minDate = TimePicker.utcToLocal(minDate);
+				maxDate = TimePicker.utcToLocal(maxDate);
 			} else if (!Ember.isNone(unix)) {
-				unix = TimePicker.utcToLocal(unix, true);
+				// assume all dates are unix but convert them to milliseconds
+				timestamp = TimePicker.utcToLocal(unix*1000);
+				minDate = TimePicker.utcToLocal(minDate*1000);
+				maxDate = TimePicker.utcToLocal(maxDate*1000);
 			}
 		}
 
 		const paper = paperDate({
 			timestamp: timestamp,
-			unix: unix,
 			minDate: this.get('minDate'),
 			maxDate: this.get('maxDate'),
 			format: this.get('format'),
@@ -199,7 +206,6 @@ export default Ember.Component.extend(keyEvents, {
 
 		const cal = paperDate({
 			timestamp: timestamp,
-			unix: unix,
 			minDate: this.get('minDate'),
 			maxDate: this.get('maxDate'),
 			format: this.get('format'),
