@@ -6,6 +6,21 @@ import Ember from 'ember';
 import { Assert } from 'busy-utils';
 
 export default Ember.Mixin.create({
+	_timeout: false,
+
+	throttleKey(evt, time=50) {
+		if (!this._timeout) {
+			this._timeout = true;
+			const _this = this;
+			this.set('_timeout', window.setTimeout(function() {
+				_this._timeout = false;
+			}, time));
+			return true;
+		} else {
+			return this.preventDefault(evt);
+		}
+	},
+
 	/**
 	 * Takse a event and returns a readable key event for main key events like enter, tab arrow keys
 	 *
@@ -16,7 +31,6 @@ export default Ember.Mixin.create({
 	 */
 	translate(key) {
 		const keys = { 9: 'tab', 13: 'enter', 8: 'delete', 37: 'left-arrow', 38: 'up-arrow', 39: 'right-arrow', 40: 'down-arrow' };
-
 		return keys[key] || -1;
 	},
 
@@ -50,11 +64,7 @@ export default Ember.Mixin.create({
 		if (isArrow) {
 			return true;
 		} else {
-			evt.returnValue = false;
-			if(evt.preventDefault) {
-				evt.preventDefault();
-			}
-			return false;
+			return this.preventDefault(evt);
 		}
 	},
 
@@ -73,5 +83,13 @@ export default Ember.Mixin.create({
 		if (this.isKey(evt, keys)) {
 			callback.call(target);
 		}
+	},
+
+	preventDefault(evt) {
+		evt.returnValue = false;
+		if(evt.preventDefault) {
+			evt.preventDefault();
+		}
+		return false;
 	}
 });

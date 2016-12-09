@@ -216,13 +216,12 @@ export default Ember.Component.extend({
 	}),
 
 	setupTime: Ember.observer('paperDate.timestamp', function() {
-		this.set('timestamp', this.get('paperDate.timestamp'));
-		this.set('minDate', this.get('paperDate.minDate'));
-		this.set('maxDate', this.get('paperDate.maxDate'));
-
 		// TODO:
 		// pass format from parent element
 		//this.set('format', this.get('paperDate.format'));
+		this.set('minDate', this.get('paperDate.minDate'));
+		this.set('maxDate', this.get('paperDate.maxDate'));
+		this.set('timestamp', this.get('paperDate.timestamp'));
 	}),
 
 	resetClockHands: Ember.observer('timestamp', 'activeState.state', function() {
@@ -391,7 +390,7 @@ export default Ember.Component.extend({
 	 */
 	saveTimestamp(date) {
 		Assert.isMoment(date);
-		if (!this.get('isDestroyed')) {
+		if (!this.get('isDestroyed') && this.get('timestamp') !== date.valueOf()) {
 			const bounds = TimePicker.isDateInBounds(date, this.get('minDate'), this.get('maxDate'));
 			if (bounds.isBefore || bounds.isAfter) {
 				this.setAvailableTimestamp(bounds);

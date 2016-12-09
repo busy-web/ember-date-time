@@ -201,9 +201,9 @@ export default Ember.Component.extend({
 	}),
 
 	setupTime: Ember.observer('paperDate.timestamp', function() {
-		this.set('timestamp', this.get('paperDate.timestamp'));
 		this.set('minDate', this.get('paperDate.minDate'));
 		this.set('maxDate', this.get('paperDate.maxDate'));
+		this.set('timestamp', this.get('paperDate.timestamp'));
   }),
 
   /**

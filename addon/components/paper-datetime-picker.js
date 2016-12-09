@@ -182,23 +182,30 @@ export default Ember.Component.extend(keyEvents, {
 		let minDate = this.get('minDate');
 		let maxDate = this.get('maxDate');
 
-		if (this.get('utc')) {
-			if (!Ember.isNone(timestamp)) {
+
+		if (!Ember.isNone(timestamp)) {
+			if (this.get('utc')) {
 				timestamp = TimePicker.utcToLocal(timestamp);
 				minDate = TimePicker.utcToLocal(minDate);
 				maxDate = TimePicker.utcToLocal(maxDate);
-			} else if (!Ember.isNone(unix)) {
-				// assume all dates are unix but convert them to milliseconds
-				timestamp = TimePicker.utcToLocal(unix*1000);
-				minDate = TimePicker.utcToLocal(minDate*1000);
-				maxDate = TimePicker.utcToLocal(maxDate*1000);
+			}
+		} else if (!Ember.isNone(unix)) {
+			// assume all dates are unix and convert them to milliseconds
+			unix = TimePicker.getTimstamp(unix);
+			minDate = TimePicker.getTimstamp(minDate);
+			maxDate = TimePicker.getTimstamp(maxDate);
+
+			if (this.get('utc')) {
+				timestamp = TimePicker.utcToLocal(unix);
+				minDate = TimePicker.utcToLocal(minDate);
+				maxDate = TimePicker.utcToLocal(maxDate);
 			}
 		}
 
 		const paper = paperDate({
 			timestamp: timestamp,
-			minDate: this.get('minDate'),
-			maxDate: this.get('maxDate'),
+			minDate: minDate,
+			maxDate: maxDate,
 			format: this.get('format'),
 		});
 
@@ -206,8 +213,8 @@ export default Ember.Component.extend(keyEvents, {
 
 		const cal = paperDate({
 			timestamp: timestamp,
-			minDate: this.get('minDate'),
-			maxDate: this.get('maxDate'),
+			minDate: minDate,
+			maxDate: maxDate,
 			format: this.get('format'),
 		});
 
@@ -362,7 +369,11 @@ export default Ember.Component.extend(keyEvents, {
 		 * @event keyUpDownHours
 		 */
 		keyUpDownMinutes() {
-			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
+			if (!this.throttleKey(event)) {
+				return false;
+			}
+
+			if (!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
 				return false;
 			}
 
@@ -396,6 +407,10 @@ export default Ember.Component.extend(keyEvents, {
 		 * @event keyUpDownHours
 		 */
 		keyUpDownHours() {
+			if (!this.throttleKey(event)) {
+				return false;
+			}
+
 			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
 				return false;
 			}
@@ -431,6 +446,10 @@ export default Ember.Component.extend(keyEvents, {
 		 * @event keyUpDownHandler
 		 */
 		keyUpDownHandler(period) {
+			if (!this.throttleKey(event)) {
+				return false;
+			}
+
 			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
 				return false;
 			}
@@ -464,6 +483,10 @@ export default Ember.Component.extend(keyEvents, {
 		 * @event meridianKeyHandler
 		 */
 		meridianKeyHandler() {
+			if (!this.throttleKey(event)) {
+				return false;
+			}
+
 			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
 				return false;
 			}
