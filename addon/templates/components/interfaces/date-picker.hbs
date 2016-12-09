@@ -3,21 +3,21 @@
 	<div class="header-container">
 		<div class="day-of-week">{{dayOfWeek}}</div>
 		<div class="month-container">
-			<div class="date-picker-header-month {{monthActive}}">{{month}}</div>
+			<div class="date-picker-header-month{{if monthActive ' active'}}" {{action 'activateHeader' 'month' bubbles=false}}>{{month}}</div>
 		</div>
 
-		<div class="date-picker-header-day {{dayActive}}">{{day}}</div>
+		<div class="date-picker-header-day{{if dayActive ' active'}}" {{action 'activateHeader' 'day' bubbles=false}}>{{day}}</div>
 
 		<div class="year-container">
-			<div class="date-picker-header-year {{yearActive}}">{{year}}</div>
+			<div class="date-picker-header-year{{if yearActive ' active'}}" {{action 'activateHeader' 'year' bubbles=false}}>{{year}}</div>
 		</div>
 	</div>
 
 	<div class="calendar-body">
 		<div class="header">
-			<div class="subtract-month" {{action "subtractMonth"}}></div>
-			<div class="month-year {{monthYearActive}}">{{monthYear}}</div>
-			<div class="add-month" {{action "addMonth"}}></div>
+			<div class="subtract-month" {{action "subtractMonth" bubbles=false}}></div>
+			<div class="month-year{{if monthYearActive ' active'}}">{{monthYear}}</div>
+			<div class="add-month" {{action "addMonth" bubbles=false}}></div>
 		</div>
 
 		<table class="calendar">
@@ -34,7 +34,7 @@
 		{{#each groupedArray as |week|}}
 			<tr class="keepOpen week-row">
 				{{#each week as |day|}}
-					<td class="keepOpen{{if day.isDisabled ' disabled-day' ' valid-day'}}{{if day.isCurrentDay ' current-day'}}{{if day.isCurrentMonth ' month-day'}}" {{action 'dayClicked' day}}>{{day.dayOfMonth}}</td>
+					<td class="keepOpen day{{if day.isDisabled ' disabled'}}{{if day.isCurrentDay ' current'}}{{if day.isCurrentMonth '' ' outside'}}" {{action 'dayClicked' day bubbles=false}}>{{day.dayOfMonth}}</td>
 				{{/each}}
 			</tr>
 		{{/each}}

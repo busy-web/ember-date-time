@@ -30,6 +30,7 @@
 					height: 100%;
 					color: #8f8f8e;
 					font-size: 18px;
+					cursor: pointer;
 
 					&.active {
 						color: #42ace1;
@@ -44,6 +45,7 @@
 				font-size: 60px;
 				line-height: 50px;
 				text-align: center;
+				cursor: pointer;
 
 				&.active {
 					color: #42ace1;
@@ -62,6 +64,7 @@
 					height: 100%;
 					color: #8f8f8e;
 					font-size: 18px;
+					cursor: pointer;
 
 					&.active {
 						color: #42ace1;
@@ -124,26 +127,24 @@
 							width: 10px;
 							height: 22px;
 							border-radius: 2px;
-							color: #e5e5e5;
+							color: #333;
 							font-size: 12px;
 							text-align: center;
+							cursor: pointer;
 							vertical-align: middle;
 
-							&.month-day {
-								color: #333;
+							&.disabled {
+								color: #aaa;
+								cursor: not-allowed;
 							}
 
-							&.valid-day {
-								cursor: pointer;
+							&.outside {
+								color: #e5e5e5;
 							}
 
-							&.current-day {
+							&.current {
 								background-color: #42ace1;
 								color: white;
-							}
-
-							&.disabled-day {
-								color: #8f8f8e;
 							}
 						}
 					}

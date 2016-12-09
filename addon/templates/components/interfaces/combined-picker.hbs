@@ -1,32 +1,32 @@
 
 <div class="picker-container">
 	{{#if isClock}}
-		{{interfaces/time-picker timestamp=timestamp minDate=minDate maxDate=maxDate isHourPicker=isHourPicker isClock=isClock isMilliseconds=isMilliseconds headerSelect=(action 'onHeaderSelect')}}
+		{{interfaces/time-picker paperDate=paperDate activeState=activeState onUpdate=(action 'update')}}
 	{{/if}}
 
 	{{#if isCalendar}}
-		{{interfaces/date-picker timestamp=timestamp minDate=minDate maxDate=maxDate calendarActiveSection=calendarActiveSection isMilliseconds=isMilliseconds}}
+		{{interfaces/date-picker paperDate=paperDate paperCalendar=paperCalendar activeState=activeState onUpdate=(action 'update')}}
 	{{/if}}
 
 	<div class="picker-footer">
 		{{#if isClock}}
-			{{#if timepickerOnly}}
+			{{#if activeState.showTime}}
 				<div class="current-date keepOpen"></div>
 			{{else}}
-				<div class="current-date keepOpen" {{action 'togglePicker' 'isClock'}}>{{currentDate}}</div>
+				<div class="current-date keepOpen" {{action 'togglePicker' 'isClock' bubbles=false}}>{{currentDate}}</div>
 			{{/if}}
-			<div class="ok" {{action 'close'}}>OK</div>
-			<div class="cancel" {{action 'cancel'}}>Cancel</div>
+			<div class="ok" {{action 'close' bubbles=false}}>OK</div>
+			<div class="cancel" {{action 'cancel' bubbles=false}}>Cancel</div>
 		{{/if}}
 
 		{{#if isCalendar}}
-			{{#if calenderOnly}}
+			{{#if activeState.showDate}}
 				<div class="current-date keepOpen"></div>
 			{{else}}
-				<div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar'}}>{{currentTime}}</div>
+				<div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar' bubbles=false}}>{{currentTime}}</div>
 			{{/if}}
-			<div class="ok" {{action 'close'}}>OK</div>
-			<div class="cancel" {{action 'cancel'}}>Cancel</div>
+			<div class="ok" {{action 'close' bubbles=false}}>OK</div>
+			<div class="cancel" {{action 'cancel' bubbles=false}}>Cancel</div>
 		{{/if}}
 	</div>
 </div>

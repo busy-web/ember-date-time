@@ -5,6 +5,7 @@
 import Ember from 'ember';
 import { Assert } from 'busy-utils';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
+import createPaperDate from 'ember-paper-time-picker/utils/paper-date';
 import layout from '../../templates/components/interfaces/date-picker';
 
 /**
@@ -24,6 +25,9 @@ export default Ember.Component.extend({
    */
   classNames: ['paper-date-picker'],
   layout: layout,
+
+	paperDate: null,
+	paperCalendar: null,
 
   /**
    * timestamp that is passed in when using date picker
@@ -62,16 +66,6 @@ export default Ember.Component.extend({
    * @optional
    */
   maxDate: null,
-
-  /**
-   * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
-   *
-   * @private
-   * @property isMilliseconds
-   * @type boolean
-   * @optional
-   */
-  isMilliseconds: false,
 
   /**
    * day of the month shown on the calendar header - based off timestamp
@@ -145,6 +139,18 @@ export default Ember.Component.extend({
    */
   groupedArray: null,
 
+	/**
+	 * active state is a string passed to this view to initialize the correct active state
+	 * for this view.
+	 *
+	 * activeState: [day, month, year, monthYear]
+	 *
+	 * @public
+	 * @property activeState
+	 * @type string
+	 */
+	activeState: null,
+
   /**
    * becomes string 'active' (binded to classes in template) if monthActive is active
    *
@@ -152,7 +158,7 @@ export default Ember.Component.extend({
    * @property monthActive
    * @type String
    */
-  monthActive: null,
+  monthActive: false,
 
   /**
    * becomes string 'active' (binded to classes in template) if dayActive is active
@@ -161,7 +167,7 @@ export default Ember.Component.extend({
    * @property monthActive
    * @type dayActive
    */
-  dayActive: null,
+  dayActive: false,
 
   /**
    * becomes string 'active' (binded to classes in template) if yearActive is active
@@ -170,7 +176,7 @@ export default Ember.Component.extend({
    * @property yearActive
    * @type String
    */
-  yearActive: null,
+  yearActive: false,
 
   /**
    * becomes string 'active' (binded to classes in template) if monthYearActive is active
@@ -179,7 +185,7 @@ export default Ember.Component.extend({
    * @property monthYearActive
    * @type String
    */
-  monthYearActive: null,
+  monthYearActive: false,
 
 
   /**
@@ -187,12 +193,18 @@ export default Ember.Component.extend({
    * @method init
    * @constructor
    */
-  init() {
-    this._super();
+  initialize: Ember.on('init', function() {
+		this.setupTime();
     this.resetCalendarDate();
     this.keepCalendarUpdated();
     this.updateActiveSection();
-  },
+	}),
+
+	setupTime: Ember.observer('paperDate.timestamp', function() {
+		this.set('timestamp', this.get('paperDate.timestamp'));
+		this.set('minDate', this.get('paperDate.minDate'));
+		this.set('maxDate', this.get('paperDate.maxDate'));
+  }),
 
   /**
    * sets the calendarDate to the timestamp and sets the values for the date picker headers
@@ -223,30 +235,24 @@ export default Ember.Component.extend({
    * @private
    * @method updateActiveSection
    */
-  updateActiveSection: Ember.observer('calendarActiveSection', function() {
-    let section = this.get('calendarActiveSection');
+  updateActiveSection: Ember.observer('activeState.state', function() {
+		let state = this.get('activeState.state');
+		if (!Ember.isNone(state)) {
+			state = Ember.String.camelize(state);
+			const statusType = ['day', 'month', 'year', 'monthYear'];
 
-    if (section === 'day') {
-      this.set('dayActive', 'active');
-      this.set('monthActive', null);
-      this.set('yearActive', null);
-      this.set('monthYearActive', null);
-    } else if (section === 'month') {
-      this.set('monthActive', 'active');
-      this.set('dayActive', null);
-      this.set('yearActive', null);
-      this.set('monthYearActive', null);
-    } else if (section === 'year') {
-      this.set('yearActive', 'active');
-      this.set('monthActive', null);
-      this.set('dayActive', null);
-      this.set('monthYearActive', null);
-    } else if (section === 'month-year') {
-      this.set('monthYearActive', 'active');
-      this.set('monthActive', null);
-      this.set('dayActive', null);
-      this.set('yearActive', null);
-    }
+			// ensure the active status applies to the calendar
+			if (statusType.indexOf(state) !== -1) {
+				// reset active status
+				this.set('dayActive', false);
+				this.set('monthActive', false);
+				this.set('yearActive', false);
+				this.set('monthYearActive', false);
+
+				// set new active status
+				this.set(`${state}Active`, true);
+			}
+		}
   }),
 
   /**
@@ -271,12 +277,11 @@ export default Ember.Component.extend({
 		const calendarDate = this.get('calendarDate');
     const minDate =	this.get('minDate');
     const maxDate = this.get('maxDate');
-		const isMilliseconds = this.get('isMilliseconds');
 
-		const currentCalendar = TimePicker.getMomentDate(calendarDate, isMilliseconds);
-    const currentTime = TimePicker.getMomentDate(this.get('timestamp'), isMilliseconds);
-    const firstDay = TimePicker.getMomentDate(calendarDate, isMilliseconds).startOf('month');
-    const lastDay = TimePicker.getMomentDate(calendarDate, isMilliseconds).endOf('month').date();
+		const currentCalendar = TimePicker.getMomentDate(calendarDate);
+    const currentTime = TimePicker.getMomentDate(this.get('timestamp'));
+    const firstDay = TimePicker.getMomentDate(calendarDate).startOf('month');
+    const lastDay = TimePicker.getMomentDate(calendarDate).endOf('month').date();
 
 		const start = firstDay.day();
     let currentDay = firstDay;
@@ -291,11 +296,7 @@ export default Ember.Component.extend({
 
 		const daysArray = Ember.A();
     for (let i=0; i<daysInCalendar; i++) {
-			const paper = TimePicker.createPaperDate({timestamp: currentDay.valueOf()});
-
-			const { isBefore, isAfter } = TimePicker.isDateInBounds(paper.get('date'), minDate, maxDate, isMilliseconds);
-			paper.set('isBefore', isBefore);
-			paper.set('isAfter', isAfter);
+			const paper = createPaperDate({timestamp: currentDay.valueOf(), minDate, maxDate});
 			paper.set('weekNumber', Math.ceil((i+1)/7));
 
 			if (paper.get('date').year() === currentCalendar.year()) {
@@ -363,12 +364,7 @@ export default Ember.Component.extend({
    */
   setTimestamp(date) {
     Assert.isMoment(date);
-
-    if (this.get('isMilliseconds')) {
-      this.set('timestamp', date.valueOf());
-    } else {
-      this.set('timestamp', date.unix());
-    }
+    this.set('timestamp', date.valueOf());
   },
 
   /**
@@ -380,12 +376,7 @@ export default Ember.Component.extend({
    */
   setCalendarDate(date) {
     Assert.isMoment(date);
-
-    if (this.get('isMilliseconds')) {
-      this.set('calendarDate', date.valueOf());
-    } else {
-      this.set('calendarDate', date.unix());
-    }
+    this.set('calendarDate', date.valueOf());
   },
 
   actions: {
@@ -397,20 +388,24 @@ export default Ember.Component.extend({
      * @event dayClicked
      */
     dayClicked(paper) {
-			const day = paper.get('date');
+			if (!paper.get('isDisabled')) {
+				const day = paper.get('date');
 
-      Assert.isMoment(day);
+				Assert.isMoment(day);
 
-      const newDay = day.date();
-      const newMonth = day.month();
-      const newYear = day.year();
+				const newDay = day.date();
+				const newMonth = day.month();
+				const newYear = day.year();
 
-      let timestamp = TimePicker.getMomentDate(this.get('timestamp'));
-      timestamp.date(newDay);
-      timestamp.month(newMonth);
-      timestamp.year(newYear);
+				let timestamp = TimePicker.getMomentDate(this.get('timestamp'));
+				timestamp.date(newDay);
+				timestamp.month(newMonth);
+				timestamp.year(newYear);
 
-      this.setTimestamp(timestamp);
+				this.setTimestamp(timestamp);
+
+				this.sendAction('onUpdate', 'day', this.get('timestamp'));
+			}
     },
 
     /**
@@ -420,8 +415,14 @@ export default Ember.Component.extend({
      */
     subtractMonth() {
       const calDate = TimePicker.getMomentDate(this.get('calendarDate'));
-      this.setCalendarDate(calDate.subtract('1', 'months'));
-      this.set('calendarActiveSection', 'month-year');
+			calDate.subtract('1', 'months').endOf('month');
+
+			if (!TimePicker.isDateBefore(calDate, this.get('minDate'))) {
+				this.setCalendarDate(calDate);
+				this.set('calendarActiveSection', 'month-year');
+			}
+
+			this.sendAction('onUpdate', 'day', this.get('timestamp'));
     },
 
     /**
@@ -431,10 +432,20 @@ export default Ember.Component.extend({
      */
     addMonth() {
       const calDate = TimePicker.getMomentDate(this.get('calendarDate'));
-      let add = calDate.add('1', 'months');
+      calDate.add('1', 'months').startOf('month');
 
-      this.setCalendarDate(add);
-      this.set('calendarActiveSection', 'month-year');
-    }
+			if (!TimePicker.isDateAfter(calDate, this.get('maxDate'))) {
+				this.setCalendarDate(calDate);
+				this.set('calendarActiveSection', 'month-year');
+			}
+
+			this.sendAction('onUpdate', 'day', this.get('timestamp'));
+    },
+
+		activateHeader(section) {
+			this.set('calendarActiveSection', section);
+
+			this.sendAction('onUpdate', section, this.get('timestamp'));
+		},
   }
 });
