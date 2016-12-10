@@ -524,7 +524,7 @@ export default Ember.Component.extend({
 		const centerX = parseFloat(circle.attr('cx'));
 		const centerY = parseFloat(circle.attr('cy'));
 		const bbox = circle.node.getBBox();
-		const clockPadding = 15;
+		const clockPadding = 13;
 
 		for (let i=start; i<=end; i++) {
 			// bbox width - the padding inside which is 2 times the x value then divide

@@ -223,7 +223,7 @@ export default Ember.Component.extend({
 			this.set('year', time.format('YYYY'));
 			this.set('month', time.format('MMM').toUpperCase());
 			this.set('day', time.format('DD'));
-			this.set('dayOfWeek', time.format('dddd'));
+			this.set('dayOfWeek', time.format('ddd'));
 		} else {
 			Assert.throw("timestamp must be a valid unix timestamp");
 		}
@@ -264,7 +264,7 @@ export default Ember.Component.extend({
   keepCalendarUpdated: Ember.observer('calendarDate', function() {
     const calendarObject = TimePicker.getMomentDate(this.get('calendarDate'));
     this.buildDaysArrayForMonth();
-    this.set('monthYear', calendarObject.format('MMM YYYY'));
+    this.set('monthYear', calendarObject.format('MMMM YYYY'));
   }),
 
   /**

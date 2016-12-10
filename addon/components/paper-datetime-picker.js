@@ -182,7 +182,6 @@ export default Ember.Component.extend(keyEvents, {
 		let minDate = this.get('minDate');
 		let maxDate = this.get('maxDate');
 
-
 		if (!Ember.isNone(timestamp)) {
 			if (this.get('utc')) {
 				timestamp = TimePicker.utcToLocal(timestamp);
@@ -191,12 +190,12 @@ export default Ember.Component.extend(keyEvents, {
 			}
 		} else if (!Ember.isNone(unix)) {
 			// assume all dates are unix and convert them to milliseconds
-			unix = TimePicker.getTimstamp(unix);
+			timestamp = TimePicker.getTimstamp(unix);
 			if (!Ember.isNone(minDate)) { minDate = TimePicker.getTimstamp(minDate); }
 			if (!Ember.isNone(maxDate)) { maxDate = TimePicker.getTimstamp(maxDate); }
 
 			if (this.get('utc')) {
-				timestamp = TimePicker.utcToLocal(unix);
+				timestamp = TimePicker.utcToLocal(timestamp);
 				if (!Ember.isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
 				if (!Ember.isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
 			}

@@ -1,4 +1,41 @@
+
+$light-1: #fff;
+$light-2: #eee;
+$light-3: #68a3b5;
+$light-4: #fff;
+$light-4-1: rgba(255, 255, 255, .6);
+$light-5: #ccc;
+$light-6: #fff;
+$light-6-1: #4f4f4f;
+$light-6-2: #afafaf;
+$light-6-3: #dfdfdf;
+$light-7: #68a3b5;
+
+
+$dark-1: #2d3e50;
+$dark-2: #384d60;
+$dark-3: #68a3b5;
+$dark-4: #fff;
+$dark-4-1: rgba(255, 255, 255, .6);
+$dark-5: #ccc;
+$dark-6: #fff;
+$dark-6-1: rgba(255, 255, 255, .6);
+$dark-7: #384d60;
+
+$color-1: $light-1;
+$color-2: $light-2;
+$color-3: $light-3;
+$color-4: $light-4;
+$color-4-1: $light-4-1;
+$color-5: $light-5;
+$color-6: $light-6;
+$color-6-1: $light-6-1;
+$color-6-2: $light-6-2;
+$color-6-3: $light-6-3;
+$color-7: $light-7;
+
+
 @import 'time-picker/interfaces/time-picker';
-@import 'time-picker/interfaces/combined-picker';
 @import 'time-picker/interfaces/date-picker';
+@import 'time-picker/interfaces/combined-picker';
 @import 'time-picker/paper-datetime-picker';

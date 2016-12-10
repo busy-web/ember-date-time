@@ -1,54 +1,148 @@
 
 <div class="paper-datetime-picker-main">
   <div class="component">
-    <header>paper-datetime-picker</header>
+    <header>
+			<div><span>ember</span><span>paper</span><span>datetime</span></div>
+		</header>
 
-    <section>
-      <p>Time and Date Picker</p>
-      Properties:
-      <ul>
-        <li>timestamp - unix timestamp. value to set the date and time to. required.</li>
-        <li>minDate - unix timestamp. minimum date and time allowed to be selected. optional.</li>
-        <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
-        <li>class - "invalid" can be passed in to make input border red. optional.</li>
-        <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
-        <li>calenderOnly - automatically set to false. if set to true only the calender portion of the picker will show. optional.</li>
-        <li>timepickerOnly - automatically set to false. if set to true only the timepicker portion of the picker will show. optional.</li>
+		<div>
+			<section>
+				<h1>Basic date and time picker (milliseconds)</h1>
+				<h2>For a basic date and time picker with milliseconds all that is required is the timestamp property</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>timestamp</b><i>number</i><span>timestamp in milliseconds</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>
+					\{{paper-datetime-picker timestamp=milliseconds}}
+				</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker timestamp=model.picker0.standard.timestamp}}
+				</span>
+			</section>
 
-      </ul>
-      Code:
-      <code>\{{paper-datetime-picker unix=unix minDate=minDate maxDate=maxDate utc=true}}</code>
-      <br>
-      Result:
-      <span class="code-result">
-        {{paper-datetime-picker unix=unix minDate=minDateUnix maxDate=maxDateUnix utc=true}}
-      </span>
-    </section>
+			<section>
+				<h1>Basic date and time picker (seconds)</h1>
+				<h2>For a basic date and time picker with seconds all that is required is the unix property</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>unix</b><i>number</i><span>timestamp in seconds</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>
+					\{{paper-datetime-picker unix=seconds}}
+				</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker unix=model.picker1.seconds.timestamp}}
+				</span>
+			</section>
 
-    <br>
-    <br>
-    <br>
+			<section>
+				<h1>Date and time picker with min max dates (milliseconds)</h1>
+				<h2>Date and time picker with milliseconds that is restricted by a min and/or max dates.</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>timestamp</b><i>number</i><span>timestamp in milliseconds</span></li>
+					<li><b>minDate</b><i>number</i><span>timestamp in milliseconds</span></li>
+					<li><b>maxDate</b><i>number</i><span>timestamp in milliseconds</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>
+					\{{paper-datetime-picker timestamp=milliseconds minDate=milliseconds maxDate=milliseconds}}
+				</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker timestamp=model.picker2.standard.timestamp minDate=model.picker2.standard.minDate maxDate=model.picker2.standard.maxDate}}
+				</span>
+			</section>
 
-    <section>
-      <p>Time and Date Picker</p>
-      Properties:
-      <ul>
-        <li>timestamp - unix timestamp. value to set the date and time to. required.</li>
-        <li>minDate - unix timestamp. minimum date and time allowed to be selected. optional.</li>
-        <li>maxDate - unix timestamp in milliseconds. maximum date and time allowed to be selected. optional.</li>
-        <li>class - "invalid" can be passed in to make input border red. optional.</li>
-        <li>isMilliseconds - automatically set to false. if set to true timestamps passed in must be milliseconds not seconds. boolean. optional.</li>
-        <li>calenderOnly - automatically set to false. if set to true only the calender portion of the picker will show. optional.</li>
-        <li>timepickerOnly - automatically set to false. if set to true only the timepicker portion of the picker will show. optional.</li>
+			<section>
+				<h1>Date and time picker with min max dates (seconds)</h1>
+				<h2>Date and time picker with seconds that is restricted by a min and/or max dates.</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>unix</b><i>number</i><span>timestamp in seconds</span></li>
+					<li><b>minDate</b><i>number</i><span>timestamp in seconds</span></li>
+					<li><b>maxDate</b><i>number</i><span>timestamp in seconds</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>
+					\{{paper-datetime-picker timestamp=seconds minDate=seconds maxDate=seconds}}
+				</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker timestamp=model.picker3.seconds.timestamp minDate=model.picker3.seconds.minDate maxDate=model.picker3.seconds.maxDate}}
+				</span>
+			</section>
 
-      </ul>
-      Code:
-      <code>\{{paper-datetime-picker timestamp=timestamp minDate=minDate maxDate=maxDate}}</code>
-      <br>
-      Result:
-      <span class="code-result">
-        {{paper-datetime-picker timestamp=milli minDate=minDateMilli maxDate=maxDateMilli}}
-      </span>
-    </section>
+			<section>
+				<h1>UTC date and time picker (milliseconds)</h1>
+				<h2>UTC flag will allow for a timestamp that wont get converted to local js time. This will allow you to pass a epoch timestamp.</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>timestamp</b><i>number</i><span>timestamp in milliseconds</span></li>
+					<li><b>utc</b><i>boolean</i><span>defaults to false, if set to true: unix, minDate, and maxDate will not be converted to local time zones</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>\{{paper-datetime-picker timestamp=milliseconds utc=true}}</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker timestamp=model.picker4.standardUTC.timestamp utc=true}}
+				</span>
+			</section>
+
+			<section>
+				<h1>UTC date and time picker (seconds)</h1>
+				<h2>UTC flag will allow for a timestamp that wont get converted to local js time. This will allow you to pass a epoch timestamp.</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>unix</b><i>number</i><span>timestamp in seconds</span></li>
+					<li><b>minDate</b><i>number</i><span>timestamp in seconds</span></li>
+					<li><b>maxDate</b><i>number</i><span>timestamp in seconds</span></li>
+					<li><b>utc</b><i>boolean</i><span>defaults to false, if set to true: unix, minDate, and maxDate will not be converted to local time zones</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>\{{paper-datetime-picker unix=seconds minDate=seconds maxDate=seconds utc=true}}</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker unix=model.picker5.secondsUTC.timestamp minDate=model.picker5.secondsUTC.minDate maxDate=model.picker5.secondsUTC.maxDate utc=true}}
+				</span>
+			</section>
+
+			<section>
+				<h1>Date Picker</h1>
+				<h2>For a basic date picker just add hideTime=true</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>timestamp</b><i>number</i><span>timestamp in milliseconds</span></li>
+					<li><b>hideTime</b><i>boolean</i><span>set to true to hide time picker</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>\{{paper-datetime-picker timestamp=milliseconds hideTime=true}}</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker timestamp=model.picker6.standard.timestamp hideTime=true}}
+				</span>
+			</section>
+
+			<section>
+				<h1>Time Picker</h1>
+				<h2>For a basic time picker just add hideDate=true</h2>
+				<h3>Properties:</h3>
+				<ul>
+					<li><b>timestamp</b><i>number</i><span>timestamp in milliseconds</span></li>
+					<li><b>hideDate</b><i>boolean</i><span>set to true to hide date picker</span></li>
+				</ul>
+				<h3>Code:</h3>
+				<code>\{{paper-datetime-picker timestamp=milliseconds hideDate=true}}</code>
+				<h3>Result:</h3>
+				<span class="code-result">
+					{{paper-datetime-picker timestamp=model.picker7.standard.timestamp hideDate=true}}
+				</span>
+			</section>
+		</div>
   </div>
 </div>

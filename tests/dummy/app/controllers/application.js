@@ -14,13 +14,40 @@ export default Ember.Controller.extend({
 	init() {
 		this._super();
 
-		this.set('unix', moment().add(moment().utcOffset(), 'minutes').unix());
-		this.set('minDateUnix', moment().add(moment().utcOffset(), 'minutes').subtract(90, 'days').unix());
-		this.set('maxDateUnix', moment().add(moment().utcOffset(), 'minutes').add(30, 'days').unix());
+		const totalPickers = 7;
 
-		this.set('milli', moment().valueOf());
-		this.set('minDateMilli', moment().subtract(90, 'days').valueOf());
-		this.set('maxDateMilli', moment().add(30, 'days').valueOf());
+		const model = {};
+		const offset = moment().utcOffset();
+		const minDate = 90;
+		const maxDate = 45;
+		for (var i=0; i<=totalPickers; i++) {
+			const data = {
+				standard: {
+					timestamp: moment().valueOf(),
+					minDate: moment().subtract(minDate, 'days').valueOf(),
+					maxDate: moment().add(maxDate, 'days').valueOf()
+				},
+				seconds: {
+					timestamp: moment().unix(),
+					minDate: moment().subtract(minDate, 'days').unix(),
+					maxDate: moment().add(maxDate, 'days').unix()
+				},
+				standardUTC: {
+					timestamp: moment().add(offset, 'minutes').valueOf(),
+					minDate: moment().add(offset, 'minutes').subtract(minDate, 'days').valueOf(),
+					maxDate: moment().add(offset, 'minutes').add(maxDate, 'days').valueOf()
+				},
+				secondsUTC: {
+					timestamp: moment().add(offset, 'minutes').unix(),
+					minDate: moment().add(offset, 'minutes').subtract(minDate, 'days').unix(),
+					maxDate: moment().add(offset, 'minutes').add(maxDate, 'days').unix()
+				}
+			};
+
+			model[`picker${i}`] = data;
+		}
+
+		this.set('model', model);
 	},
 
 	test: Ember.observer('unix', function() {
