@@ -221,7 +221,7 @@ export default Ember.Component.extend({
 		if (TimePicker.isValidDate(time)) {
 			this.set('calendarDate', this.get('timestamp'));
 			this.set('year', time.format('YYYY'));
-			this.set('month', time.format('MMM').toUpperCase());
+			this.set('month', time.format('MMM'));
 			this.set('day', time.format('DD'));
 			this.set('dayOfWeek', time.format('ddd'));
 		} else {

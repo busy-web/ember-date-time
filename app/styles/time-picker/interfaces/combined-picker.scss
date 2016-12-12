@@ -1,10 +1,8 @@
 
-
-
 .combined-picker {
 	position: relative;
 	border-radius: 2px;
-	background: $color-1;
+	background: $ept-color-1;
 	box-shadow: 0 10px 27px 0 #999;
 
 	& > .picker-container {
@@ -21,9 +19,9 @@
 				display: inline-block;
 				padding: 20px 15px;
 				float: right;
-				color: $color-3;
+				color: $ept-color-8;
 				font-size: 14px;
-				font-weight: lighter;
+				font-weight: normal;
 				text-transform: uppercase;
 				cursor: pointer;
 

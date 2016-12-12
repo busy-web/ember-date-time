@@ -1,15 +1,15 @@
 
 <div class="clock-container">
 	<div class="header">
+		<span class="am-pm-container">
+			<span class="button am" {{action 'amClicked'}}>AM</span>
+			<span class="button pm" {{action 'pmClicked'}}>PM</span>
+		</span>
+
 		<span class="numbers-container">
 			<span class="number hours" {{action "hourHeaderClicked"}}>{{hours}}</span>
 			<span class="colon">:</span>
 			<span class="number minutes" {{action "minuteHeaderClicked"}}>{{minutes}}</span>
-		</span>
-
-		<span class="am-pm-container">
-			<span class="button am" {{action 'amClicked'}}>AM</span>
-			<span class="button pm" {{action 'pmClicked'}}>PM</span>
 		</span>
 	</div>
 

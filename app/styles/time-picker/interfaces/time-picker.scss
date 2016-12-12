@@ -1,7 +1,4 @@
 
-// set this number to adjust picker size
-$picker-width: 250px;
-
 .paper-time-picker {
 	position: relative;
 	width: $picker-width;
@@ -15,19 +12,18 @@ $picker-width: 250px;
 
 		& > .header {
 			width: 100%;
-			height: 80px;
+			height: 96px;
 			margin: -80px 0 0;
 			padding: 20px 0;
 			border-radius: 2px 2px 0 0;
-			background: $color-7;
+			background: $ept-color-7;
 			box-sizing: border-box;
 
 			& > span {
-				width: 100%;
 				height: 100%;
 				margin: 0;
 				padding: 0;
-				float: left;
+				float: right;
 				font-style: lighter;
 				line-height: 1;
 				text-align: center;
@@ -38,14 +34,15 @@ $picker-width: 250px;
 					height: 100%;
 					margin: 0;
 					background-color: none;
-					color: $color-4-1;
+					color: $ept-color-4-1;
 				}
 
 				&.numbers-container {
-					padding: 0 70px 0 50px;
+					text-align: right;
 
 					& > span {
-						font-size: 42px;
+						font-size: 55px;
+						font-weight: lighter;
 
 						&.number {
 							cursor: pointer;
@@ -55,14 +52,16 @@ $picker-width: 250px;
 
 				&.am-pm-container {
 					width: 60px;
-					margin: 0 0 0 -70px;
+					margin: 0 20px 0 0;
+					padding: 6px 0 0;
 
 					& > .button {
 						width: 40px;
-						height: 20px;
+						height: 24px;
 						border-radius: 2px;
-						font-size: 14px;
-						line-height: 20px;
+						font-size: 16px;
+						font-weight: lighter;
+						line-height: 24px;
 						text-align: center;
 						cursor: pointer;
 
@@ -73,7 +72,7 @@ $picker-width: 250px;
 
 						&.active {
 							//background: #42ace1;
-							color: $color-4;
+							color: $ept-color-4;
 						}
 					}
 				}
@@ -98,15 +97,15 @@ $picker-width: 250px;
 				pointer-events: none;
 
 				.cls-dark-fill {
-					fill: $color-2;
+					fill: $ept-color-2;
 				}
 
 				.cls-bright-fill {
-					fill: $color-3;
+					fill: $ept-color-3;
 				}
 
 				.cls-bright-stroke {
-					stroke: $color-3;
+					stroke: $ept-color-3;
 				}
 
 				.cls-cursor {
@@ -120,13 +119,17 @@ $picker-width: 250px;
 				}
 
 				.cls-text {
-					font: 12px/1 geneva, sans-serif !important;
-					fill: $color-6-1 !important;
+					font-size: 12px;
+					font-weight: lighter;
+					line-height: 1;
+					fill: $ept-color-6-1;
 				}
 
 				.cls-text-small {
-					font: 11px/1 geneva, sans-serif !important;
-					fill: $color-6-1 !important;
+					font-size: 11px;
+					font-weight: lighter;
+					line-height: 1;
+					fill: $ept-color-6-1;
 				}
 
 				.cls-transparent {
@@ -148,25 +151,23 @@ $picker-width: 250px;
 				& > text {
 					&.disabled {
 						pointer-events: none;
-						stroke: $color-4-1;
-						stroke-width: .5px;
+						fill: $ept-color-6-2;
 					}
 
 					&.interior-white {
-						fill: $color-6 !important;
+						fill: $ept-color-6 !important;
 					}
 				}
 
 				& > g {
 					& > text {
 						&.interior-white {
-							fill: $color-6 !important;
+							fill: $ept-color-6 !important;
 						}
 
 						&.disabled {
 							pointer-events: none;
-							stroke: $color-5;
-							stroke-width: .5px;
+							fill: $ept-color-6-2;
 						}
 					}
 				}
@@ -181,7 +182,7 @@ $picker-width: 250px;
 					& > .number {
 						&.hours {
 							//color: #42ace1;
-							color: $color-4;
+							color: $ept-color-4;
 						}
 					}
 				}
@@ -206,7 +207,7 @@ $picker-width: 250px;
 					& > .number {
 						&.minutes {
 							//color: #42ace1;
-							color: $color-4;
+							color: $ept-color-4;
 						}
 					}
 				}

@@ -1,7 +1,6 @@
 
 .paper-date-picker {
-	width: 330px;
-	//height: 350px;
+	width: $picker-width;
 
 	& > .calendar-container {
 		width: 100%;
@@ -10,7 +9,7 @@
 			display: inline-block;
 			width: 100%;
 			padding: 14px 30px;
-			background-color: $color-7;
+			background-color: $ept-color-7;
 			box-sizing: border-box;
 
 			& > div {
@@ -21,7 +20,7 @@
 					display: inline-block;
 					padding: 0 10px 0 0;
 					float: left;
-					color: $color-4;
+					color: $ept-color-4;
 					font-size: 34px;
 					font-weight: normal;
 					line-height: 40px;
@@ -31,6 +30,7 @@
 				&.year-container {
 					& > div {
 						padding: 0;
+						color: $ept-color-4-1;
 						font-size: 16px;
 						font-weight: lighter;
 						line-height: 24px;
@@ -48,7 +48,7 @@
 			& > .header {
 				display: inline-block;
 				width: 100%;
-				padding: 0 25px;
+				padding: 4px 25px;
 				text-align: center;
 				box-sizing: border-box;
 
@@ -64,15 +64,15 @@
 						width: 150px;
 						height: 30px;
 						margin: 0;
-						color: $color-6-1;
-						font-weight: lighter;
+						color: $ept-color-6-1;
+						font-weight: normal;
 						line-height: 30px;
 					}
 
 					&.add-month {
 						float: right;
 						transform: rotate(45deg);
-						border: 2px solid $color-6-1;
+						border: 2px solid $ept-color-6-1;
 						border-bottom-color: transparent;
 						border-left-color: transparent;
 						cursor: pointer;
@@ -81,7 +81,7 @@
 					&.subtract-month {
 						float: left;
 						transform: rotate(45deg);
-						border: 2px solid $color-6-1;
+						border: 2px solid $ept-color-6-1;
 						border-top-color: transparent;
 						border-right-color: transparent;
 						cursor: pointer;
@@ -98,15 +98,16 @@
 					text-align: center;
 
 					& > tr {
-						color: $color-6-2;
+						color: $ept-color-6-2;
 						font-weight: inherit;
 
 						& > th {
 							font-weight: inherit;
+							line-height: 40px;
 						}
 
 						& > td {
-							color: $color-6-1;
+							color: $ept-color-6-1;
 							font-weight: inherit;
 							cursor: pointer;
 							vertical-align: middle;
@@ -116,22 +117,23 @@
 								width: 40px;
 								height: 40px;
 								border-radius: 20px;
-							}
-
-							&.disabled {
-								color: $color-6-2;
-								cursor: not-allowed;
+								line-height: 40px;
 							}
 
 							&.outside {
-								color: $color-6-3;
+								color: $ept-color-6-2;
+							}
+
+							&.disabled {
+								color: $ept-color-6-3;
+								cursor: not-allowed;
 							}
 
 							&.current {
-								color: $color-4;
+								color: $ept-color-4;
 
 								& > span {
-									background-color: $color-3;
+									background-color: $ept-color-3;
 								}
 							}
 						}
