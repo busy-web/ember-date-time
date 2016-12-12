@@ -1,7 +1,4 @@
 
-// set this number to adjust picker size
-$picker-width: 250px;
-
 .paper-time-picker {
 	position: relative;
 	width: $picker-width;
@@ -15,17 +12,19 @@ $picker-width: 250px;
 
 		& > .header {
 			width: 100%;
-			height: 80px;
+			height: 96px;
 			margin: -80px 0 0;
 			padding: 20px 0;
-			background-color: #f1f1f2;
+			border-radius: 2px 2px 0 0;
+			background: $ept-color-7;
 			box-sizing: border-box;
 
-			& > .numbers-container {
-				width: 100%;
+			& > span {
 				height: 100%;
-				padding: 0 70px 0 50px;
-				float: left;
+				margin: 0;
+				padding: 0;
+				float: right;
+				font-style: lighter;
 				line-height: 1;
 				text-align: center;
 				box-sizing: border-box;
@@ -33,46 +32,48 @@ $picker-width: 250px;
 				& > span {
 					display: inline-block;
 					height: 100%;
-					color: #8f8f8e;
-					font-size: 42px;
+					margin: 0;
+					background-color: none;
+					color: $ept-color-4-1;
+				}
 
-					&.number {
-						cursor: pointer;
+				&.numbers-container {
+					text-align: right;
+
+					& > span {
+						font-size: 55px;
+						font-weight: lighter;
+
+						&.number {
+							cursor: pointer;
+						}
 					}
 				}
-			}
 
-			& > .am-pm-container {
-				width: 60px;
-				height: 100%;
-				margin: 0 0 0 -70px;
-				float: left;
-				text-align: center;
+				&.am-pm-container {
+					width: 60px;
+					margin: 0 20px 0 0;
+					padding: 6px 0 0;
 
-				& > .button {
-					display: inline-block;
-					width: 40px;
-					height: 20px;
-					margin: 0;
-					border-radius: 5%;
-					background-color: none;
-					color: #8f8f8e;
-					font-size: 14px;
-					line-height: 20px;
-					text-align: center;
-					cursor: pointer;
+					& > .button {
+						width: 40px;
+						height: 24px;
+						border-radius: 2px;
+						font-size: 16px;
+						font-weight: lighter;
+						line-height: 24px;
+						text-align: center;
+						cursor: pointer;
 
-					&.am {
-						margin: 0;
-					}
+						&.am,
+						&.pm {
+							margin: 0;
+						}
 
-					&.pm {
-						margin: 0;
-					}
-
-					&.active {
-						background-color: #42ace1;
-						color: white;
+						&.active {
+							//background: #42ace1;
+							color: $ept-color-4;
+						}
 					}
 				}
 			}
@@ -95,6 +96,46 @@ $picker-width: 250px;
 			& > svg {
 				pointer-events: none;
 
+				.cls-dark-fill {
+					fill: $ept-color-2;
+				}
+
+				.cls-bright-fill {
+					fill: $ept-color-3;
+				}
+
+				.cls-bright-stroke {
+					stroke: $ept-color-3;
+				}
+
+				.cls-cursor {
+					cursor: pointer;
+				}
+
+				.cls-line {
+					fill: none;
+					stroke-miterlimit: 10;
+					stroke-width: 2;
+				}
+
+				.cls-text {
+					font-size: 12px;
+					font-weight: lighter;
+					line-height: 1;
+					fill: $ept-color-6-1;
+				}
+
+				.cls-text-small {
+					font-size: 11px;
+					font-weight: lighter;
+					line-height: 1;
+					fill: $ept-color-6-1;
+				}
+
+				.cls-transparent {
+					fill: transparent !important;
+				}
+
 				& > path {
 					&.disabled {
 						pointer-events: none;
@@ -110,25 +151,23 @@ $picker-width: 250px;
 				& > text {
 					&.disabled {
 						pointer-events: none;
-						stroke: #ccc;
-						stroke-width: .5px;
+						fill: $ept-color-6-2;
 					}
 
 					&.interior-white {
-						fill: white !important;
+						fill: $ept-color-6 !important;
 					}
 				}
 
 				& > g {
 					& > text {
 						&.interior-white {
-							fill: white !important;
+							fill: $ept-color-6 !important;
 						}
 
 						&.disabled {
 							pointer-events: none;
-							stroke: #ccc;
-							stroke-width: .5px;
+							fill: $ept-color-6-2;
 						}
 					}
 				}
@@ -142,7 +181,8 @@ $picker-width: 250px;
 				& > .numbers-container {
 					& > .number {
 						&.hours {
-							color: #42ace1;
+							//color: #42ace1;
+							color: $ept-color-4;
 						}
 					}
 				}
@@ -166,7 +206,8 @@ $picker-width: 250px;
 				& > .numbers-container {
 					& > .number {
 						&.minutes {
-							color: #42ace1;
+							//color: #42ace1;
+							color: $ept-color-4;
 						}
 					}
 				}

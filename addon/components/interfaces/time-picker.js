@@ -34,6 +34,8 @@ export default Ember.Component.extend({
 	classNames: ['paper-time-picker'],
 	layout: layout,
 
+	paperDate: null,
+
 	/**
 	 * timestamp that is passed in when using date picker
 	 *
@@ -73,16 +75,6 @@ export default Ember.Component.extend({
 	maxDate: null,
 
 	/**
-	 * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
-	 *
-	 * @public
-	 * @property isMilliseconds
-	 * @type boolean
-	 * @optional
-	 */
-	isMilliseconds: false,
-
-	/**
 	 * group of snap svg elements
 	 *
 	 * @private
@@ -110,7 +102,9 @@ export default Ember.Component.extend({
 	 * @property hours
 	 * @type String
 	 */
-	hours: null,
+	hours: Ember.computed('timestamp', function() {
+		return TimePicker.formatNumber(this.getCurrentHour());
+	}).readOnly(),
 
 	/**
 	 * current minute of timestamp displayed in clock header
@@ -119,7 +113,9 @@ export default Ember.Component.extend({
 	 * @property minutes
 	 * @type String
 	 */
-	minutes: null,
+	minutes: Ember.computed('timestamp', function() {
+		return TimePicker.formatNumber(this.getCurrentMinute());
+	}).readOnly(),
 
 	/**
 	 * current date of timestamp displayed in clock footer
@@ -128,7 +124,13 @@ export default Ember.Component.extend({
 	 * @property currentDate
 	 * @type String
 	 */
-	currentDate: null,
+	currentDate: Ember.computed('timestamp', 'format', function() {
+		return TimePicker.getMomentDate(this.get('timestamp')).format(this.get('format'));
+	}).readOnly(),
+
+	meridian: Ember.computed('timestamp', function() {
+		return TimePicker.getMomentDate(this.get('timestamp')).format('A');
+	}).readOnly(),
 
 	/**
 	 * style attribute for am button
@@ -204,6 +206,66 @@ export default Ember.Component.extend({
 
 	isHourPicker: true,
 
+	initialize: Ember.on('init', function() {
+		this.setupTime();
+	}),
+
+	renderPicker: Ember.on('didInsertElement', function() {
+		this.observesAmPm();
+		this.resetClockHands();
+	}),
+
+	setupTime: Ember.observer('paperDate.timestamp', function() {
+		// TODO:
+		// pass format from parent element
+		//this.set('format', this.get('paperDate.format'));
+		this.set('minDate', this.get('paperDate.minDate'));
+		this.set('maxDate', this.get('paperDate.maxDate'));
+		this.set('timestamp', this.get('paperDate.timestamp'));
+	}),
+
+	resetClockHands: Ember.observer('timestamp', 'activeState.state', function() {
+		let state = this.get('activeState.state');
+		if (state === 'meridian') {
+			state = 'hour';
+		}
+
+		if (state === 'hour' || state === 'minute') {
+			let type, min, max;
+			if (state === 'hour') {
+				type = kHourFlag;
+			 	min = kHourMin;
+			 	max = kHourMax;
+			} else if (state === 'minute'){
+				type = kMinuteFlag;
+				min = kMinuteMin;
+				max = kMinuteMax;
+			}
+
+			if (this.$() && this.$().length) {
+				this.resetTimeElements(type, min, max);
+			}
+		}
+	}),
+
+	/**
+	 * applies and removes correct classes to AM PM buttons
+	 *
+	 * @private
+	 * @method observesAmPm
+	 */
+	observesAmPm: Ember.observer('meridian', function() {
+		if (this.$() && this.$().length) {
+			this.$('.am-pm-container > .button').removeClass('active');
+
+			if(this.get('meridian') === 'AM') {
+				this.$('.am-pm-container > .button.am').addClass('active');
+			} else {
+				this.$('.am-pm-container > .button.pm').addClass('active');
+			}
+		}
+	}),
+
 	getCurrentHour() {
 		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		let hour = time.hour();
@@ -233,42 +295,25 @@ export default Ember.Component.extend({
 		}
 	},
 
-	/**
-	 * hides and shows the correct elements once the svgs are inserted
-	 *
-	 * @private
-	 * @method didInsertElement
-	 * @constructor
-	 */
-	insertTimePicker: Ember.on('didInsertElement', function() {
-		if (!this.get('isDestroyed')) {
-			this.removeClockTime(kHourFlag, kHourMin, kHourMax);
-			this.removeClockTime(kMinuteFlag, kMinuteMin, kMinuteMax);
+	minMaxHandler(type, rangeStart, rangeEnd) {
+		const el = this.$();
+		if (el && el.length) {
+			const id = el.attr('id');
+			for (let time=rangeStart; time<=rangeEnd; time++) {
+				SnapUtils.enableClockNumber(type, time, id);
 
-			this.observeMinuteOrHour();
-			this.observesAmPm();
+				const date = this.getDateFromTime(type, time);
+				const bounds = TimePicker.isDateInBounds(date, this.get('minDate'), this.get('maxDate'));
+				if (bounds.isBefore || bounds.isAfter) {
+					SnapUtils.disableClockNumber(type, time, id);
+				}
+			}
 		}
-	}),
+	},
 
-	meridian: Ember.computed('timestamp', function() {
-		const time = TimePicker.getMomentDate(this.get('timestamp'));
-		return time.format('A');
-	}),
-
-	observeMinuteOrHour: Ember.observer('isHourPicker', 'isClock', function() {
+	resetTimeElements(type, min, max) {
 		this.$().removeClass(kHourFlag);
 		this.$().removeClass(kMinuteFlag);
-
-		let type, min, max;
-		if (this.get('isHourPicker')) {
-			type = kHourFlag;
-			min = kHourMin;
-			max = kHourMax;
-		} else {
-			type = kMinuteFlag;
-			min = kMinuteMin;
-			max = kMinuteMax;
-		}
 
 		// switch active header
 		this.$().addClass(type);
@@ -279,115 +324,10 @@ export default Ember.Component.extend({
 		const time = this.getCurrentTimeByType(type);
 		this.set('lastActive', time);
 		this.setTimestamp(type, time);
-	}),
-
-	/**
-	 * initially sets the clocks based on the passed time
-	 *
-	 * @private
-	 * @method setUpClock
-	 */
-	setUpClock: Ember.on('init', Ember.observer('timestamp', function() {
-		if (!Ember.isNone(this.get('timestamp'))) {
-			let currentHour = TimePicker.formatNumber(this.getCurrentHour());
-			let currentMinute = TimePicker.formatNumber(this.getCurrentMinute());
-
-			this.set('hours', currentHour);
-			this.set('minutes', currentMinute);
-
-			this.clickableDate();
-		}
-	})),
-
-	/**
-	 * formats date in bottom left corner
-	 *
-	 * @private
-	 * @method clickableDate
-	 */
-	clickableDate: Ember.observer('timestamp', function() {
-		const time = TimePicker.getMomentDate(this.get('timestamp'));
-		let format = time.format(this.get('format'));
-		this.set('currentDate', format);
-	}),
-
-	/**
-	 * applies and removes correct classes to AM PM buttons
-	 *
-	 * @private
-	 * @method observesAmPm
-	 */
-	observesAmPm: Ember.observer('meridian', function() {
-		if (!this.get('isDestroyed')) {
-			this.$('.am-pm-container > .button').removeClass('active');
-
-			if(this.get('meridian') === 'AM') {
-				this.$('.am-pm-container > .button.am').addClass('active');
-			} else {
-				this.$('.am-pm-container > .button.pm').addClass('active');
-			}
-		}
-	}),
-
-	/**
-	 * checks for min/max dates and calls setHourDisabled()
-	 *
-	 * @private
-	 * @method minMaxHourHandler
-	 */
-	minMaxHourHandler: Ember.observer('timestamp', 'isHourPicker', function() {
-		if (!this.get('isDestroyed') && this.get('isHourPicker')) {
-			this.minMaxHandler(kHourFlag, kHourMin, kHourMax);
-		}
-	}),
-
-	/**
-	 * checks for min/max dates and calls setMinuteDisabled()
-	 *
-	 * @private
-	 * @method minMaxMinuteHandler
-	 */
-	minMaxMinuteHandler: Ember.observer('timestamp', 'isHourPicker', function() {
-		if (!this.get('isDestroyed') && !this.get('isHourPicker')) {
-			this.minMaxHandler(kMinuteFlag, kMinuteMin, kMinuteMax);
-		}
-	}),
-
-	resetClockHands: Ember.observer('timestamp', function() {
-		if (this.get('isHourPicker')) {
-			this.removeClockTime(kHourFlag, kHourMin, kHourMax);
-			this.setActiveTime(kHourFlag);
-		} else {
-			this.removeClockTime(kMinuteFlag, kMinuteMin, kMinuteMax);
-			this.setActiveTime(kMinuteFlag);
-		}
-	}),
-
-	minMaxHandler(type, rangeStart, rangeEnd) {
-		const id = this.$().attr('id');
-		for (let time=rangeStart; time<=rangeEnd; time++) {
-			SnapUtils.enableClockNumber(type, time, id);
-
-			const date = this.getDateFromTime(type, time);
-			const bounds = this.isWithinMinMax(date);
-			if (bounds.isBefore || bounds.isAfter) {
-				SnapUtils.disableClockNumber(type, time, id);
-			}
-		}
-	},
-
-	isWithinMinMax(date) {
-		Assert.funcNumArgs(arguments, 1, true);
-		Assert.isMoment(date);
-
-		const minDate = TimePicker.getMomentDate(this.get('minDate'));
-		const maxDate = TimePicker.getMomentDate(this.get('maxDate'));
-
-		return TimePicker.isDateInBounds(date, minDate, maxDate);
 	},
 
 	/**
-	 * remove initial circles and lines for minutes clock
+	 * remove initial circles and lines for clock
 	 *
 	 * @private
 	 * @method removeClockTime
@@ -396,16 +336,21 @@ export default Ember.Component.extend({
 	 * @param rangeEnd {number}
 	 */
 	removeClockTime(type, rangeStart, rangeEnd) {
-		for (let time=rangeStart; time<=rangeEnd; time++) {
-			SnapUtils.addElement(type, time, this.$().attr('id'));
-		}
+		const el = this.$();
+		if (el && el.length) {
+			const id = el.attr('id');
 
-		if (type === kHourFlag) {
-			this.minMaxHourHandler();
-		} else if (type === kMinuteFlag) {
-			this.minMaxMinuteHandler();
-		} else {
-			Assert.throw(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`);
+			for (let time=rangeStart; time<=rangeEnd; time++) {
+				SnapUtils.addElement(type, time, id);
+			}
+
+			if (type === kHourFlag) {
+				this.minMaxHandler(kHourFlag, kHourMin, kHourMax);
+			} else if (type === kMinuteFlag) {
+				this.minMaxHandler(kMinuteFlag, kMinuteMin, kMinuteMax);
+			} else {
+				Assert.throw(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`);
+			}
 		}
 	},
 
@@ -419,16 +364,20 @@ export default Ember.Component.extend({
 	setActiveTime(type) {
 		Assert.isString(type);
 		if (!this.get('isDestroyed')) {
-			const lastActive = this.get(`lastActive`);
-			if (!Ember.isNone(lastActive)) {
-				SnapUtils.addElement(type, lastActive, this.$().attr('id'));
+			const el = this.$();
+			if (el && el.length) {
+				const id = el.attr('id');
+				const lastActive = this.get(`lastActive`);
+				if (!Ember.isNone(lastActive)) {
+					SnapUtils.addElement(type, lastActive, id);
+				}
+
+				const value = this.getCurrentTimeByType(type);
+				SnapUtils.activateClockNumber(type, value, id);
+
+				this.set(`lastActive`, value);
+				this.newDrag(type, value);
 			}
-
-			const value = this.getCurrentTimeByType(type);
-			SnapUtils.activateClockNumber(type, value, this.$().attr('id'));
-
-			this.set(`lastActive`, value);
-			this.newDrag(type, value);
 		}
 	},
 
@@ -441,19 +390,13 @@ export default Ember.Component.extend({
 	 */
 	saveTimestamp(date) {
 		Assert.isMoment(date);
-		if (!this.get('isDestroyed')) {
-			const bounds = this.isWithinMinMax(date);
+		if (!this.get('isDestroyed') && this.get('timestamp') !== date.valueOf()) {
+			const bounds = TimePicker.isDateInBounds(date, this.get('minDate'), this.get('maxDate'));
 			if (bounds.isBefore || bounds.isAfter) {
 				this.setAvailableTimestamp(bounds);
 			} else {
-				let timestamp;
-				if (this.get('isMilliseconds')) {
-					timestamp = date.valueOf();
-				} else {
-					timestamp = date.unix();
-				}
-
-				this.set('timestamp', timestamp);
+				// save the current date as the timestamp
+				this.set('timestamp', date.valueOf());
 			}
 		}
 	},
@@ -581,7 +524,7 @@ export default Ember.Component.extend({
 		const centerX = parseFloat(circle.attr('cx'));
 		const centerY = parseFloat(circle.attr('cy'));
 		const bbox = circle.node.getBBox();
-		const clockPadding = 15;
+		const clockPadding = 13;
 
 		for (let i=start; i<=end; i++) {
 			// bbox width - the padding inside which is 2 times the x value then divide
@@ -723,6 +666,9 @@ export default Ember.Component.extend({
 			const stop = function() {
 				// set the time according to the new angle
 				_this.setTimeForDegree(type, endAngle);
+
+				// notify listeners an update has occured
+				_this.sendAction('onUpdate', type, _this.get('timestamp'));
 			};
 
 			if (!Ember.isNone(this.get('lastGroup'))) {
@@ -756,6 +702,9 @@ export default Ember.Component.extend({
 
 			// set time and remove last active
 			this.setTimestamp(kHourFlag, hour);
+
+			// notify event listeners that an update has occurred
+			this.sendAction('onUpdate', kHourFlag, this.get('timestamp'));
 		},
 
 		/**
@@ -770,6 +719,9 @@ export default Ember.Component.extend({
 
 			// set time and remove last active
 			this.setTimestamp(kMinuteFlag, minute);
+
+			// notify event listeners that an update has occurred
+			this.sendAction('onUpdate', kMinuteFlag, this.get('timestamp'));
 		},
 
 		/**
@@ -782,6 +734,10 @@ export default Ember.Component.extend({
 				const time = TimePicker.getMomentDate(this.get('timestamp'));
 				time.subtract(12, 'hours');
 				this.saveTimestamp(time);
+
+				// notify event listeners that an update has occurred
+				const flag = this.get('isHourPicker') ? kHourFlag : kMinuteFlag;
+				this.sendAction('onUpdate', flag, this.get('timestamp'));
 			}
 		},
 
@@ -795,6 +751,10 @@ export default Ember.Component.extend({
 				const time = TimePicker.getMomentDate(this.get('timestamp'));
 				time.add(12, 'hours');
 				this.saveTimestamp(time);
+
+				// notify event listeners that an update has occurred
+				const flag = this.get('isHourPicker') ? kHourFlag : kMinuteFlag;
+				this.sendAction('onUpdate', flag, this.get('timestamp'));
 			}
 		},
 
@@ -805,7 +765,9 @@ export default Ember.Component.extend({
 		 */
 		hourHeaderClicked() {
 			this.set('isHourPicker', true);
-			this.sendAction('headerSelect', kHourFlag);
+
+			// notify event listeners that an update has occurred
+			this.sendAction('onUpdate', kHourFlag, this.get('timestamp'));
 		},
 
 		/**
@@ -815,7 +777,9 @@ export default Ember.Component.extend({
 		 */
 		minuteHeaderClicked() {
 			this.set('isHourPicker', false);
-			this.sendAction('headerSelect', kMinuteFlag);
+
+			// notify event listeners that an update has occurred
+			this.sendAction('onUpdate', kMinuteFlag, this.get('timestamp'));
 		}
 	}
 });

@@ -1,4 +1,7 @@
-@import '../../../app/styles/app';
+
+//$dark-theme: true;
+
+@import '../../../app/styles/ember-paper-time-picker';
 
 $header-color: #2d3e50;
 $header-font-color: #a9b5bf;
@@ -14,92 +17,186 @@ $section-title-color: #4e4e4e;
 $page-font-color: #8e8e8e;
 
 body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	color: #333;
+	font: normal 14px/1 Roboto, sans-serif;
 
-  & > div {
+	& > div {
+		width: 100%;
+		height: 100%;
 
-    & > h2 {
-      display: block;
-      width: 100%;
-      height: 56px;
-      margin: 0;
-      background-color: $header-color;
-      color: $header-font-color;
-      font: 24px/55px Verdana;
-      text-align: center;
-    }
+		& > .paper-datetime-picker-main {
+			width: 100%;
+			height: 100%;
+			margin: 0 auto;
 
-    & > .paper-datetime-picker-main {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 100px 100px;
-      font-family: Arial;
+			& > div {
 
-      & > div {
+				&.component {
+					width: 100%;
+					margin: 0;
+					padding: 70px 0;
 
-        &.component {
-          width: 100%;
-          margin: 0;
-          padding: 30px 0;
+					& > header {
+						display: block;
+						width: 100%;
+						height: 70px;
+						margin: -70px 0 0;
+						background: #2d3e50;
+						font-size: 25px;
+						line-height: 70px;
 
-          & > header {
-            margin: 10px 0;
-            color: $title-font-color;
-            font-size: 25px;
-            text-transform: lowercase;
+						& > div {
+							width: 100%;
+							max-width: 1200px;
+							height: 100%;
+							margin: 0 auto;
+
+							& > span {
+								position: relative;
+								margin: 0 5px 0 0;
+								color: #fff;
+								font-family: Orbitron;
+								z-index: 1;
+
+								&:nth-child(2n-2) {
+									color: #fabd14;
+									z-index: 2;
+								}
+							}
+						}
           }
 
-          & > section {
-            color: $section-title-color;
+					& > div {
+						width: 100%;
+						max-width: 1200px;
+						height: 100%;
+						margin: 0 auto;
+						padding: 30px 0 0;
+						box-sizing: border-box;
 
-            & > p {
-              padding: 0 0 0 20px;
-              color: $page-font-color;
-            }
+						& > section {
+							position: relative;
+							width: 100%;
+							margin: 0 0 50px;
+							padding: 10px 40px 30px;
+							//border-radius: 3px;
+							//background: #efefef;
+							//box-shadow: 1px 1px 10px -3px #999;
+							box-sizing: border-box;
 
-            & > ul {
-              color: $page-font-color;
-            }
+							&:after {
+								display: block;
+								position: absolute;
+								bottom: -25px;
+								left: 0;
+								width: 100%;
+								height: 1px;
+								background: #333;
+								content: '\00a0';
+							}
 
-            & > code {
-              display: inline-block;
-              position: relative;
-              width: 100%;
-              margin: 10px 0 10px 20px;
-              padding: 20px;
-              white-space: nowrap;
-              overflow: visible;
+							& > h1 {
+								color: #30aeef;
+								font-size: 24px;
+								font-weight: normal;
+							}
 
-              .indent {
-                display: inline-block;
-                margin: 0 0 0 20px;
-              }
-            }
+							& > h2 {
+								margin: 15px 0 0;
+								padding: 0 0 0 5px;
+								color: #666;
+								font-size: 14px;
+								font-weight: normal;
+								box-sizing: border-box;
+							}
 
-            & > span {
+							& > h3 {
+								margin: 30px 0 0;
+								color: #999;
+								font-size: 14px;
+								font-weight: normal;
+							}
 
-              &.code-result {
-                display: block;
-                margin-top: 30px;
-              }
+							& > ul {
+								display: table;
+								width: 100%;
+								margin: 0;
+								padding: 5px 0;
+								color: $page-font-color;
+								list-style-type: none;
 
-              &.indent {
-                display: inline-block;
-                padding-left: 30px;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+								& > li {
+									display: table-row;
+									width: 100%;
+									color: #666;
+									box-sizing: border-box;
 
-  & > #ember-testing-container {
-    position: fixed !important;
-    right: 20px;
-    bottom: 20px;
-  }
+									& > b {
+										display: table-cell;
+										width: 1%;
+										padding: 5px 10px;
+										//color: #b28900;
+										color: #68a3b5;
+										font-size: 15px;
+										font-weight: bold;
+									}
+
+									& > i {
+										display: table-cell;
+										width: 1%;
+										padding: 5px 10px;
+										color: #999;
+										font-size: 14px;
+										font-weight: lighter;
+									}
+
+									& > span {
+										display: table-cell;
+										width: 80%;
+										padding: 5px 10px;
+									}
+								}
+							}
+
+							& > code {
+								display: inline-block;
+								position: relative;
+								width: 100%;
+								margin: 10px 0 0;
+								padding: 40px 20px;
+								border: 1px solid #ccc;
+								background: #f9f9f9;
+								white-space: nowrap;
+								overflow-y: auto;
+								box-sizing: border-box;
+
+								.indent {
+									display: inline-block;
+									margin: 0 0 0 20px;
+								}
+							}
+
+							& > span {
+								&.code-result {
+									display: block;
+									margin: 10px 0 0;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	& > #ember-testing-container {
+		position: fixed !important;
+		right: 20px;
+		bottom: 20px;
+	}
 }

@@ -3,8 +3,10 @@
  *
  */
 import Ember from 'ember';
+import keyEvents from 'ember-paper-time-picker/mixins/key-events';
 import layout from '../templates/components/paper-datetime-picker';
-import moment from 'moment';
+import TimePicker from 'ember-paper-time-picker/utils/time-picker';
+import paperDate from 'ember-paper-time-picker/utils/paper-date';
 import Assert from 'busy-utils/assert';
 
 /**
@@ -14,7 +16,7 @@ import Assert from 'busy-utils/assert';
  * @namespace Components
  * @extends Ember.Component
  */
-export default Ember.Component.extend({
+export default Ember.Component.extend(keyEvents, {
 	/**
 	 * @private
 	 * @property classNames
@@ -25,13 +27,22 @@ export default Ember.Component.extend({
 	layout: layout,
 
 	/**
-	 * timestamp that is passed in when using paper-datetime-picker
+	 * timestamp that is passed in as a milliseconds timestamp
 	 *
 	 * @private
 	 * @property timestamp
 	 * @type Number
 	 */
 	timestamp: null,
+
+	/**
+	 * timestamp that is passed in as a seconds timestamp
+	 *
+	 * @public
+	 * @property unix
+	 * @type number
+	 */
+	unix: null,
 
 	/**
 	 * can be passed in so a date after the maxDate cannot be selected
@@ -54,34 +65,17 @@ export default Ember.Component.extend({
 	minDate: null,
 
 	/**
-	 * can be passed in as true or false, true sets timepicker to handle unix timestamp * 1000, false sets it to handle unix timestamp
+	 * set to true if the values passed in should not be converted to local time
 	 *
-	 * @private
-	 * @property isMilliseconds
+	 * @public
+	 * @property utc
 	 * @type boolean
-	 * @optional
 	 */
-	isMilliseconds: false,
+	utc: false,
 
-	/**
-	 * can be passed in as true or false, true will have the picker only be a date picker
-	 *
-	 * @private
-	 * @property calenderOnly
-	 * @type boolean
-	 * @optional
-	 */
-	calenderOnly: false,
+	lastSaveTime: null,
 
-	/**
-	 * can be passed in as true or false, true will have the picker only be a time picker
-	 *
-	 * @private
-	 * @property timepickerOnly
-	 * @type boolean
-	 * @optional
-	 */
-	timepickerOnly: false,
+	format: 'MMM DD, YYYY',
 
 	/**
 	 * Merdian (AM/PM) that is shown in the input bar
@@ -138,49 +132,15 @@ export default Ember.Component.extend({
 	timestampYears: null,
 
 	/**
-	 * bool for if the dialog is being shown or not
+	 * active state of the picker view this is an object
+	 * passed around to the different compnents to trigger state
+	 * changes.
 	 *
 	 * @private
-	 * @property showDialogTop
-	 * @type bool
-	 */
-	showDialogTop: false,
-
-	/**
-	 * bool for if the dialog is being shown or not
-	 *
-	 * @private
-	 * @property showDialog
-	 * @type bool
-	 */
-	showDialog: false,
-
-	/**
-	 * string of the new active element on the picker
-	 *
-	 * @private
-	 * @property activeSection
+	 * @property activeState
 	 * @type string
 	 */
-	activeSection: null,
-
-	/**
-	 * value changes if the active section is changed to a different value or the SAME value
-	 *
-	 * @private
-	 * @property updateActive
-	 * @type Boolean
-	 */
-	updateActive: true,
-
-	/**
-	 * value shared with combined picker to destroy both dialogs when closed
-	 *
-	 * @private
-	 * @property destroyElements
-	 * @type Boolean
-	 */
-	destroyElements: false,
+	activeState: null,
 
 	/**
 	 * value thats used to only allow one action to be sent each keyup/heydown for calendar
@@ -191,73 +151,88 @@ export default Ember.Component.extend({
 	 */
 	keyHasGoneUp: true,
 
-	closeOnTab: null,
+	/**
+	 * The date object used by paper-datetime-picker
+	 *
+	 * @private
+	 * @property paper
+	 * @type object
+	 */
+	paper: null,
+	calendar: null,
+
+	hideTime: false,
+	hideDate: false,
 
 	/**
 	 * checks if timestamp is valid calls updateInputValues
 	 *
 	 * @private
-	 * @method init
+	 * @method initialize
 	 * @constructor
 	 */
-	init() {
-		this._super(...arguments);
-
-		// make sure isMilliseconds is set to a boolean value.
-		Assert.isBoolean(this.get('isMilliseconds'));
-		Assert.isBoolean(this.get('calenderOnly'));
-		Assert.isBoolean(this.get('timepickerOnly'));
-
-		// changed to Assert.test in and removed if statements that are not needed.
-		// minDate and maxDate should be null or a unix timestamp
-		Assert.test("minDate must be a valid unix timestamp", Ember.isNone(this.get('minDate')) || (this.isValidTimestamp(this.get('minDate')) && this.isValidMomentObject(this.getMomentDate(this.get('minDate')))));
-		Assert.test("maxDate must be a valid unix timestamp", Ember.isNone(this.get('maxDate')) || (this.isValidTimestamp(this.get('maxDate')) && this.isValidMomentObject(this.getMomentDate(this.get('maxDate')))));
-
-		// timestamp must be set to a unix timestamp
-		Assert.test("timestamp must be a valid unix timestamp", !Ember.isNone(this.get('timestamp')) && this.isValidTimestamp(this.get('timestamp')) && this.isValidMomentObject(this.getMomentDate(this.get('timestamp'))));
-
+	initialize: Ember.on('init', function() {
+		this.setActiveState();
+		this.setupPicker();
+		this.setPaperDate(this.get('timestamp'), this.get('unix'));
 		this.updateInputValues();
-	},
+	}),
 
-	/**
-	 * Check if a timestamp is a valid date timestamp
-	 *
-	 * @public
-	 * @method timestamp
-	 * @param timestamp {number}
-	 * @return {boolean} true if valid
-	 */
-	isValidTimestamp(timestamp) {
-		return (typeof timestamp === 'number' && this.getMomentDate(timestamp).isValid());
-	},
+	setPaperDate: function(timestamp, unix) {
+		let minDate = this.get('minDate');
+		let maxDate = this.get('maxDate');
 
-	/**
-	 * Check to see if an object is a valid moment object
-	 *
-	 * @public
-	 * @method isValidMomentObject
-	 * @param date {object}
-	 * @return {boolean} true if valid
-	 */
-	isValidMomentObject(date) {
-		return (moment.isMoment(date) && date.isValid());
-	},
+		if (!Ember.isNone(timestamp)) {
+			if (this.get('utc')) {
+				timestamp = TimePicker.utcToLocal(timestamp);
+				if (!Ember.isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
+				if (!Ember.isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
+			}
+		} else if (!Ember.isNone(unix)) {
+			// assume all dates are unix and convert them to milliseconds
+			timestamp = TimePicker.getTimstamp(unix);
+			if (!Ember.isNone(minDate)) { minDate = TimePicker.getTimstamp(minDate); }
+			if (!Ember.isNone(maxDate)) { maxDate = TimePicker.getTimstamp(maxDate); }
 
-	/**
-	 * Get a monent object from a timestamp that could be seconds or milliseconds
-	 *
-	 * @public
-	 * @method getMomentDate
-	 * @param timestamp {number}
-	 * @return {moment}
-	 */
-	getMomentDate(timestamp) {
-		if (this.get('isMilliseconds')) {
-			return moment.utc(timestamp);
-		} else {
-			return moment.utc(timestamp*1000);
+			if (this.get('utc')) {
+				timestamp = TimePicker.utcToLocal(timestamp);
+				if (!Ember.isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
+				if (!Ember.isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
+			}
 		}
+
+		const paper = paperDate({
+			timestamp: timestamp,
+			minDate: minDate,
+			maxDate: maxDate,
+			format: this.get('format'),
+		});
+
+		this.set('paper', paper);
+
+		const cal = paperDate({
+			timestamp: timestamp,
+			minDate: minDate,
+			maxDate: maxDate,
+			format: this.get('format'),
+		});
+
+		this.set('calendar', cal);
 	},
+
+	setupPicker: Ember.observer('hideTime', 'hideDate', function() {
+		Assert.isBoolean(this.get('hideTime'));
+		Assert.isBoolean(this.get('hideDate'));
+
+		const showDate = (this.get('hideTime') || !this.get('hideDate'));
+		const showTime = (this.get('hideDate') || !this.get('hideTime'));
+		let state = 'day';
+		if (!showDate) {
+			state = 'hour';
+		}
+
+		this.setActiveState({ state, showDate, showTime });
+	}),
 
 	/**
 	 * observes the timestamp and updates the input values accordingly
@@ -265,8 +240,8 @@ export default Ember.Component.extend({
 	 * @private
 	 * @method updateInputValues
 	 */
-	updateInputValues: Ember.observer('timestamp', function() {
-		const time = this.getMomentDate(this.get('timestamp'));
+	updateInputValues: Ember.observer('paper.timestamp', function() {
+		const time = this.get('paper.date');
 
 		this.set('timestampMeridian', time.format('A'));
 		this.set('timestampMinutes', time.format('mm'));
@@ -277,120 +252,114 @@ export default Ember.Component.extend({
 	}),
 
 	/**
-	 * observes the destroyElements value shared with combined picker and destroys both dialogs if set to true
-	 *
-	 * @private
-	 * @method updateInputValues
-	 */
-	destroyOnChange: Ember.observer('destroyElements', function() {
-		if (this.get('destroyElements')) {
-			this.set('showDialog', false);
-		}
-	}),
-
-	/**
 	 * receives a moment object and sets it to timestamp
 	 *
 	 * @private
 	 * @method setTimestamp
-	 * @param moment {object} moment object
+	 * @param time {Moment|number} moment or timestamp
 	 */
-	setTimestamp(date) {
-		if (this.get('isMilliseconds')) {
-			this.set('timestamp', date.valueOf());
-		} else {
-			this.set('timestamp', date.unix());
-		}
-	},
-
-	/**
-	 * only allows up and down arrows and tabs to be affected
-	 *
-	 * @private
-	 * @method onlyAllowArrows
-	 * @param {event} key press event
-	 */
-	onlyAllowArrows(event) {
-		const key = event.keyCode || event.which;
-		if (key === 13) {
-			this.set('showDialog', false);
-		}
-
-		// only allows arrow keys and tab key
-		if (key === 37 || key === 38 || key === 39 || key === 40 || key === 9) {
-			return true;
-		} else {
-			event.returnValue = false;
-			if(event.preventDefault) {
-				event.preventDefault();
+	setTimestamp(time) {
+		if (!Ember.isNone(time)) {
+			if (typeof time === 'object' && typeof time.valueOf === 'function') {
+				time = time.valueOf();
 			}
+			this.set('lastSaveTime', time);
+
+			if (this.get('utc')) {
+				time = TimePicker.utcFromLocal(time);
+			}
+
+			if (!Ember.isNone(this.get('timestamp'))) {
+				this.set('timestamp', time);
+			}
+
+			if (!Ember.isNone(this.get('unix'))) {
+				time = TimePicker.getUnix(time);
+				this.set('unix', time);
+			}
+
+			this.setPaperDate(this.get('timestamp'), this.get('unix'));
 		}
 	},
 
-	/**
-	 * removes display none from the dialog containers
-	 *
-	 * @private
-	 * @method addContainer
-	 */
-	addContainer() {
-		Ember.$('.bottom-dialog-container').removeClass('removeDisplay');
-		Ember.$('.top-dialog-container').removeClass('removeDisplay');
+	setActiveState(options={}) {
+		if (Ember.isNone(this.get('activeState'))) {
+			const activeState = Ember.Object.create({
+				state: '',
+				isOpen: false,
+				isTop: false,
+		 	});
+			this.set('activeState', activeState);
+		}
+
+		if (!Ember.isNone(options.state)) {
+
+			this.set('activeState.state', options.state);
+		}
+
+		if (!Ember.isNone(options.isOpen)) {
+			this.set('activeState.isOpen', options.isOpen);
+		}
+
+		if (!Ember.isNone(options.isTop)) {
+			this.set('activeState.isTop', options.isTop);
+		}
+
+		if (!Ember.isNone(options.showDate)) {
+			this.set('activeState.showDate', options.showDate);
+		}
+
+		if (!Ember.isNone(options.showTime)) {
+			this.set('activeState.showTime', options.showTime);
+		}
+	},
+
+	shouldPickerOpenTop() {
+		const documentHeight = Ember.$(document).height();
+		const dialogHeight = this.$().find('.dialog-container').height() + 50;
+		const elementHeight = this.$().height();
+		const distanceTop = this.$().offset().top;
+		const distanceBottom = documentHeight - (distanceTop + elementHeight);
+
+		return (distanceTop > distanceBottom && distanceBottom < dialogHeight);
+	},
+
+	focusState(state) {
+		state = Ember.String.singularize(state);
+		this.$(`.section.${state} > input`).focus();
 	},
 
 	actions: {
 
 		/**
-		 * figures out if the dialog should go above or below the input and changes updateActive so combined-picker can make the correct changes
+		 * figures out if the dialog should go above or below the input and changes activeState so combined-picker can make the correct changes
 		 *
 		 * @param active {string} string of which input field was selected
 		 * @event focusInput
 		 */
-		focusInput(active) {
-			if (active === 'default') {
-				active = 'hour';
-				if (this.get('calenderOnly')) {
-					active = 'day';
+		focusInput(state) {
+			if (Ember.isEmpty(state)) {
+				state = 'hour';
+				if (!this.get('activeState.showTime')) {
+					state = 'day';
 				}
+				this.focusState(state);
 			}
 
-			const activeState = this.get('updateActive');
-			const documentHeight = Ember.$(document).height();
-			const dialogHeight = this.$().find('.dialog-container').height() + 50;
-			const elementHeight = this.$().height();
-			const distanceTop = this.$().offset().top;
-			const distanceBottom = documentHeight - (distanceTop + elementHeight);
-
-			if (distanceTop > distanceBottom && distanceBottom < dialogHeight) {
-				this.set('showDialogTop', true);
-				this.set('updateActive', !activeState);
-			} else {
-				this.set('showDialogTop', false);
-				this.set('updateActive',	!activeState);
-			}
-
-			this.set('showDialog', true);
-			this.set('destroyElements', false);
-			this.set('activeSection', active);
-			this.addContainer();
-
+			const isOpen = true;
+			const isTop = this.shouldPickerOpenTop();
+			this.setActiveState({ state, isOpen, isTop });
 			return false;
 		},
 
-		/**
-		 * focus event handle to set the focus correctly
-		 * when the hours and minutes are selected from the time picker
-		 *
-		 * @event focusOnInput
-		 */
-		focusOnInput(type) {
-			Assert.isString(type);
-			type = Ember.String.singularize(type);
-			this.$(`.section.${type} > input`).focus();
+		closeAction() {
+			this.setActiveState({ state: '', isOpen: false, isTop: false });
 		},
 
-		closeAction() {
-			this.set('showDialog', false);
+		keyReleased() {
+			if (this.get('lastSaveTime') !== this.get('paper.timestamp')) {
+				this.setTimestamp(this.get('paper.timestamp'));
+			}
 		},
 
 		/**
@@ -399,54 +368,36 @@ export default Ember.Component.extend({
 		 * @event keyUpDownHours
 		 */
 		keyUpDownMinutes() {
-			this.onlyAllowArrows(event);
+			if (!this.throttleKey(event)) {
+				return false;
+			}
 
-			const code = event.keyCode || event.which;
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
-
-			let date;
+			if (!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
+				return false;
+			}
 
 			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-			if (code === 38 || code === 39) {
-
-				// if adding one minute to current date makes minutes >= 60, subtract 59 instead. Otherwise just add 1 minute.
-				if (time.minutes() + 1 >= 60) {
-					date = time.subtract(59, 'minutes');
-
-					// make sure new time is not before minDate
-					if (!date.isBefore(minDate)) {
-						this.setTimestamp(date);
-					}
+			this.onKeyPressed(event, ['right-arrow', 'up-arrow'], () => {
+				if ((this.get('paper.date').minutes() + 1) > 59) {
+					this.get('paper').subtract(59, 'minutes');
 				} else {
-					date = time.add(1, 'minutes');
-
-					// make sure new time is not after maxDate
-					if (!date.isAfter(maxDate)) {
-						this.setTimestamp(date);
-					}
+					this.get('paper').add(1, 'minutes');
 				}
+			});
+
 			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-			} else if (code === 37 || code === 40) {
-
-				// if subtracting one minute to current date makes minutes < 0, add 59 instead. Otherwise just subtract 1 minute.
-				if (time.minutes() - 1 < 0) {
-					date = time.add(59, 'minutes');
-
-					// make sure new time is not after maxDate
-					if (!date.isAfter(maxDate)) {
-						this.setTimestamp(date);
-					}
+			this.onKeyPressed(event, ['left-arrow', 'down-arrow'], () => {
+				if ((this.get('paper.date').minutes() - 1) < 0) {
+					this.get('paper').add(59, 'minutes');
 				} else {
-					date = time.subtract(1, 'minutes');
-
-					// make sure new time is not before minDate
-					if (!date.isBefore(minDate)) {
-							this.setTimestamp(date);
-					}
+					this.get('paper').subtract(1, 'minutes');
 				}
-			}
+			});
+
+			// enter key will close the picker
+			this.onKeyPressed(event, ['enter'], () => {
+				this.send('closeAction');
+			});
 		},
 
 		/**
@@ -455,55 +406,36 @@ export default Ember.Component.extend({
 		 * @event keyUpDownHours
 		 */
 		keyUpDownHours() {
-			this.onlyAllowArrows(event);
+			if (!this.throttleKey(event)) {
+				return false;
+			}
 
-			const code = event.keyCode || event.which;
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
-
-			let date;
+			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
+				return false;
+			}
 
 			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-			if (code === 38 || code === 39) {
-
-				// if adding one hour to current date makes hours === 0, subtract 11 instead. Otherwise just add 1 hour.
-				if (((time.hour() + 1) % 12) === 0) {
-					date = time.subtract(11, 'hours');
-
-					// make sure new time is not before minDate
-					if (!date.isBefore(minDate)) {
-						this.setTimestamp(date);
-					}
+			this.onKeyPressed(event, ['right-arrow', 'up-arrow'], () => {
+				if (((this.get('paper.date').hour() + 1) % 12) === 0) {
+					this.get('paper').subtract(11, 'hours');
 				} else {
-					date = time.add(1, 'hours');
-
-					// make sure new time is not after maxDate
-					if (!date.isAfter(maxDate)) {
-						this.setTimestamp(date);
-					}
+					this.get('paper').add(1, 'hours');
 				}
-			}
+			});
+
 			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-			else if (code ===37 || code === 40) {
-
-				// if current hour is 0 (12), add 11 instead. Otherwise just subtract 1 hour.
-				if ((time.hour() % 12) === 0) {
-					date = time.add(11, 'hours');
-
-					// make sure new time is not after maxDate
-					if (!date.isAfter(maxDate)) {
-						this.setTimestamp(date);
-					}
+			this.onKeyPressed(event, ['left-arrow', 'down-arrow'], () => {
+				if ((this.get('paper.date').hour() % 12) === 0) {
+					this.get('paper').add(11, 'hours');
 				} else {
-					date = time.subtract(1, 'hours');
-
-					// make sure new time is not before minDate
-					if (!date.isBefore(minDate)) {
-						this.setTimestamp(date);
-					}
+					this.get('paper').subtract(1, 'hours');
 				}
-			}
+			});
+
+			// enter key will close the picker
+			this.onKeyPressed(event, ['enter'], () => {
+				this.send('closeAction');
+			});
 		},
 
 		/**
@@ -513,47 +445,35 @@ export default Ember.Component.extend({
 		 * @event keyUpDownHandler
 		 */
 		keyUpDownHandler(period) {
-			// make sure key has gone up before re triggering changes
-			if (this.get('keyHasGoneUp') === true) {
-				this.onlyAllowArrows(event);
-
-				const code = event.keyCode || event.which;
-				const time = this.getMomentDate(this.get('timestamp'));
-				const minDate = this.getMomentDate(this.get('minDate'));
-				const maxDate = this.getMomentDate(this.get('maxDate'));
-
-				let date;
-
-				// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-				if (code === 38 || code === 39) {
-					date = time.add(1, period);
-
-					// make sure new time is not after maxDate
-					if (!date.isAfter(maxDate)) {
-						this.setTimestamp(date);
-					}
-				}
-				// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-				else if (code === 37 || code === 40) {
-					date = time.subtract(1, period);
-
-					// make sure new time is not before minDate
-					if (!date.isBefore(minDate)) {
-						this.setTimestamp(date);
-					}
-				}
-
-				this.set('keyHasGoneUp', true);
+			if (!this.throttleKey(event)) {
+				return false;
 			}
-		},
 
-		/**
-		 * allows keyup/keydown handlers to work for calendar inputs
-		 *
-		 * @event resetKeyUp
-		 */
-		resetKeyUp() {
-			this.set('keyHasGoneUp', true);
+			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
+				return false;
+			}
+
+			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
+			this.onKeyPressed(event, ['right-arrow', 'up-arrow'], () => {
+				this.get('paper').add(1, period);
+			});
+
+			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
+			this.onKeyPressed(event, ['left-arrow', 'down-arrow'], () => {
+				this.get('paper').subtract(1, period);
+			});
+
+			// enter key will close the picker
+			this.onKeyPressed(event, ['enter'], () => {
+				this.send('closeAction');
+			});
+
+			// enter key will close the picker
+			this.onKeyPressed(event, ['tab'], () => {
+				if (event.shiftKey) {
+					this.send('closeAction');
+				}
+			});
 		},
 
 		/**
@@ -562,37 +482,38 @@ export default Ember.Component.extend({
 		 * @event meridianKeyHandler
 		 */
 		meridianKeyHandler() {
-			this.onlyAllowArrows(event);
-
-			const code = event.keyCode || event.which;
-			const time = this.getMomentDate(this.get('timestamp'));
-			const minDate = this.getMomentDate(this.get('minDate'));
-			const maxDate = this.getMomentDate(this.get('maxDate'));
-
-			let date;
-
-			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-			if (code === 37 || code === 38 || code === 39 || code === 40) {
-
-				// if meridian is am, add 12 hours, else subtract 12 hours
-				if (time.format('A') === 'AM') {
-					date = time.add(12, 'hours');
-
-					if (!date.isAfter(maxDate)) {
-						this.setTimestamp(date);
-					}
-				} else {
-					date = time.subtract(12, 'hours');
-
-					if (!date.isBefore(minDate)) {
-						this.setTimestamp(date);
-					}
-				}
-			// is tab is hit on last input, remove dialog
-			} else if (code === 9) {
-				this.set('closeOnTab', true);
+			if (!this.throttleKey(event)) {
+				return false;
 			}
-		}
+
+			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
+				return false;
+			}
+
+			this.onKeyPressed(event, ['right-arrow', 'up-arrow', 'left-arrow', 'down-arrow'], () => {
+				if(this.get('paper.date').format('A') === 'AM') {
+					this.get('paper').add(12, 'hours');
+				} else {
+					this.get('paper').subtract(12, 'hours');
+				}
+			});
+
+			// enter key will close the picker
+			this.onKeyPressed(event, ['enter'], () => {
+				this.send('closeAction');
+			});
+
+			// enter key will close the picker
+			this.onKeyPressed(event, ['tab'], () => {
+				if (!event.shiftKey) {
+					this.send('closeAction');
+				}
+			});
+		},
+
+		update(state, timestamp) {
+			this.focusState(state);
+			this.setTimestamp(timestamp);
+		},
 	}
 });

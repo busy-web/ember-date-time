@@ -5,7 +5,6 @@
 import Ember from 'ember';
 import { Assert } from 'busy-utils';
 import moment from 'moment';
-import PaperDate from 'ember-paper-time-picker/utils/paper-date';
 
 /***/
 const TimePicker = Ember.Object.extend();
@@ -78,14 +77,24 @@ export default TimePicker.reopenClass({
 	 * @param maxDate {number|Moment}
 	 * @return {object|} {isBefore: boolean, isAfter: boolean}
 	 */
-	isDateInBounds(date, minDate, maxDate, isMilliseconds=false) {
-		Assert.funcNumArgs(arguments, 4);
+	isDateInBounds(date, minDate, maxDate) {
+		Assert.funcNumArgs(arguments, 3);
+		Assert.isMoment(date);
+
+		const isBefore = this.isDateBefore(date, minDate);
+		const isAfter = this.isDateAfter(date, maxDate);
+
+		return { isBefore, isAfter };
+	},
+
+	isDateBefore(date, minDate) {
+		Assert.funcNumArgs(arguments, 2);
 		Assert.isMoment(date);
 
 		let isBefore = false;
 		if (!Ember.isNone(minDate)) {
 			if (typeof minDate === 'number' && !isNaN(minDate)) {
-				minDate = this.getMomentDate(minDate, isMilliseconds);
+				minDate = this.getMomentDate(minDate);
 			}
 
 			if (typeof minDate === 'object' && this.isValidDate(minDate)) {
@@ -94,11 +103,17 @@ export default TimePicker.reopenClass({
 				Assert.throw('Invalid minDate passed to isDateInBounds');
 			}
 		}
+		return isBefore;
+	},
+
+	isDateAfter(date, maxDate) {
+		Assert.funcNumArgs(arguments, 2);
+		Assert.isMoment(date);
 
 		let isAfter = false;
 		if (!Ember.isNone(maxDate)) {
 			if (typeof maxDate === 'number' && !isNaN(maxDate)) {
-				maxDate = this.getMomentDate(maxDate, isMilliseconds);
+				maxDate = this.getMomentDate(maxDate);
 			}
 
 			if (typeof maxDate === 'object' && this.isValidDate(maxDate)) {
@@ -107,8 +122,7 @@ export default TimePicker.reopenClass({
 				Assert.throw('Invalid maxDate passed to isDateInBounds');
 			}
 		}
-
-		return { isBefore, isAfter };
+		return isAfter;
 	},
 
 	/**
@@ -119,19 +133,14 @@ export default TimePicker.reopenClass({
 	 * @param timestamp {number}
 	 * @return {moment}
 	 */
-	getMomentDate(timestamp, isMilliseconds=false) {
-		Assert.funcNumArgs(arguments, 2);
+	getMomentDate(timestamp) {
+		Assert.funcNumArgs(arguments, 1);
 
 		let date = null;
 		if (!Ember.isNone(timestamp)) {
 			Assert.isNumber(timestamp);
-			Assert.isBoolean(isMilliseconds);
 
-			if (isMilliseconds) {
-				date = moment.utc(timestamp);
-			} else {
-				date = moment.utc(timestamp*1000);
-			}
+			date = moment(timestamp);
 
 			// ensure the timestamp passed in created a valid date
 			Assert.isMoment(date);
@@ -148,32 +157,63 @@ export default TimePicker.reopenClass({
 	 * @return {boolean}
 	 */
 	isValidDate(date) {
-		Assert.isObject(date);
-    return (moment.isMoment(date) && date.isValid());
+    return (!Ember.isNone(date) && typeof date === 'object' && moment.isMoment(date) && date.isValid());
 	},
 
-	createPaperDate(options) {
-		const date = PaperDate.create();
+	/**
+	 * validates a timestamp or unix timestamp
+	 *
+	 * @public
+	 * @method isValidTimestamp
+	 * @param timestamp {number}
+	 * @return {boolean}
+	 */
+	isValidTimestamp(timestamp) {
+		let isValid = false;
+		if (typeof timestamp === 'number' && !isNaN(timestamp)) {
+			const date = this.getMomentDate(timestamp);
+			isValid = this.isValidDate(date);
+		}
+		return isValid;
+	},
 
-		if (options.timestamp && !options.unix) {
-			options.unix = Math.floor(options.timestamp/1000);
+	getUnix(timestamp) {
+		return moment(timestamp).unix();
+	},
+
+	getTimstamp(unix) {
+		return moment.unix(unix).valueOf();
+	},
+
+	utcToLocal(timestamp, isUnix=false) {
+		let time = timestamp;
+		if (isUnix) {
+			time = TimePicker.getTimstamp(timestamp);
 		}
 
-		if (options.unix && !options.timestamp) {
-			options.timestamp = options.unix * 1000;
+		const offset = moment.utc(time).local().utcOffset();
+		const date = moment.utc(time).subtract(offset, 'minutes');
+
+		if (isUnix) {
+			return date.unix();
+		} else {
+			return date.valueOf();
+		}
+	},
+
+	utcFromLocal(timestamp, isUnix=false) {
+		let time = timestamp;
+		if (isUnix) {
+			time = TimePicker.getTimstamp(timestamp);
 		}
 
-		if (options.timestamp && !options.date) {
-			Assert.isNumber(options.timestamp);
-			options.date = this.getMomentDate(options.timestamp, true);
-		}
+		const offset = moment(time).utcOffset();
+		const date = moment(time).add(offset, 'minutes');
 
-		if (options.date && !options.dayOfMonth) {
-			Assert.isMoment(options.date);
-			options.dayOfMonth = options.date.date();
+		if (isUnix) {
+			return date.unix();
+		} else {
+			return date.valueOf();
 		}
-
-		date.setProperties(options);
-		return date;
 	},
 });
