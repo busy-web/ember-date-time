@@ -519,17 +519,29 @@ export default Ember.Component.extend({
 
 	setupCircles(type, start, end) {
 		const id = this.$().attr('id');
+		const container = this.$().find(`.outside-container.${type}`);
+		const height = container.height();
+		const width = container.width();
+		const centerX = width/2;
+		const centerY = height/2;
+		const radius = centerX;
+		const timeRadius = type === 'hours' ? radius*0.14 : radius*0.12;
+		const clockPadding = width * 0.0306;
+
 		const clock = new SnapUtils.snap(`#${id} #clocks-${type}-svg`);
+		clock.attr({viewBox: `0 0 ${width} ${height}`});
+
 		const circle = clock.select(`#big-circle-${type}`);
-		const centerX = parseFloat(circle.attr('cx'));
-		const centerY = parseFloat(circle.attr('cy'));
-		const bbox = circle.node.getBBox();
-		const clockPadding = 13;
+		circle.attr({cx: centerX, cy: centerY, r: radius});
+
+		const centerPoint = clock.select(`#center-point-${type}`);
+		centerPoint.attr({cx: centerX, cy: centerY, r: (radius*0.0283)});
 
 		for (let i=start; i<=end; i++) {
 			// bbox width - the padding inside which is 2 times the x value then divide
 			// that by two for the radius and finally subtract an amount of desired padding for looks.
-			const lineLength = (( ( bbox.width - ( bbox.x * 2 ) ) / 2 ) - clockPadding );
+			//const lineLength = (( ( bbox.width - ( bbox.x * 2 ) ) / 2 ) - clockPadding );
+			const lineLength = (radius - timeRadius) - clockPadding;
 
 			// get the degree for the time
 			const degree = this.getDegree(type, i);
@@ -544,7 +556,7 @@ export default Ember.Component.extend({
 
 			// calculate circle coords
 			const circle = clock.select(`#${strings.circle}`);
-			circle.attr({cx: x, cy: y});
+			circle.attr({cx: x, cy: y, r: timeRadius});
 
 			// calculate text position if there is a text
 			// at this number
@@ -560,8 +572,8 @@ export default Ember.Component.extend({
 			// calculate section position for click areas on minutes
 			const section = clock.select(`#${strings.section}`);
 			if (!Ember.isNone(section)) {
-				const tLength = lineLength + clockPadding;
-				const bLength = lineLength - clockPadding;
+				const tLength = radius;
+				const bLength = lineLength - (timeRadius*2);
 
 				const places = type === kHourFlag ? 12 : 60;
 				const space = ((360/places)/2);
