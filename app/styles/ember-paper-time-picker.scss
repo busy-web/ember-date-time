@@ -111,7 +111,11 @@ $ept-color-8: false !default;
 
 
 // set this number to adjust picker size
-$picker-width: 330px;
+$ept-width: 330px !default;
+
+@if $ept-width < 280 {
+	$ept-width: 280px;
+}
 
 @import 'time-picker/interfaces/time-picker';
 @import 'time-picker/interfaces/date-picker';

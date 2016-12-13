@@ -1,6 +1,8 @@
 
+$day-size: ($ept-width * .1213);
+
 .paper-date-picker {
-	width: $picker-width;
+	width: $ept-width;
 
 	& > .calendar-container {
 		width: 100%;
@@ -94,7 +96,7 @@
 					width: 100%;
 					font-size: 14px;
 					font-weight: lighter;
-					line-height: 40px;
+					line-height: $day-size + 3;
 					text-align: center;
 
 					& > tr {
@@ -103,7 +105,7 @@
 
 						& > th {
 							font-weight: inherit;
-							line-height: 40px;
+							line-height: $day-size + 3;
 						}
 
 						& > td {
@@ -114,10 +116,10 @@
 
 							& > span {
 								display: inline-block;
-								width: 40px;
-								height: 40px;
+								width: $day-size;
+								height: $day-size;
 								border-radius: 20px;
-								line-height: 40px;
+								line-height: $day-size + 3;
 							}
 
 							&.outside {
