@@ -288,7 +288,7 @@ export default Ember.Component.extend(keyEvents, {
 				state: '',
 				isOpen: false,
 				isTop: false,
-		 	});
+			 });
 			this.set('activeState', activeState);
 		}
 
@@ -330,6 +330,17 @@ export default Ember.Component.extend(keyEvents, {
 	},
 
 	actions: {
+
+		getCaretPosition() {
+			var selection = this.$('.caret')[0].selectionStart + 1;
+			var val = this.$('.caret')[0].value;
+			// console.log(el[0].selectionStart, el[0].selectionEnd);
+			// console.log(val.slice(0, el[0].selectionStart).length);
+
+			let strings = val.split(' ');
+			let word = val[selection];
+			console.log(strings , word);
+		},
 
 		/**
 		 * figures out if the dialog should go above or below the input and changes activeState so combined-picker can make the correct changes
