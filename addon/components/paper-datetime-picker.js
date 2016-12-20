@@ -252,6 +252,16 @@ export default Ember.Component.extend(keyEvents, {
 	}),
 
 	/**
+	 * observes the timestamp/unix and updates paper values if they are changed outside of time picker
+	 *
+	 * @private
+	 * @method updatePaperOnTimestampChange
+	 */
+	updatePaperOnTimestampChange: Ember.observer('timestamp', 'unix', function() {
+		this.setPaperDate(this.get('timestamp'), this.get('unix'));
+	}),
+
+	/**
 	 * receives a moment object and sets it to timestamp
 	 *
 	 * @private
@@ -288,7 +298,7 @@ export default Ember.Component.extend(keyEvents, {
 				state: '',
 				isOpen: false,
 				isTop: false,
-		 	});
+			 });
 			this.set('activeState', activeState);
 		}
 
