@@ -1,93 +1,109 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
+import Ember from 'ember';
+import paperDate from 'ember-paper-time-picker/utils/paper-date';
+import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import moment from 'moment';
-import Time from 'busy-utils/time';
 
 moduleForComponent('interfaces/time-picker', 'Integration | Component | time picker', {
   integration: true
 });
 
+const timestamp = moment().valueOf();
+
+const paper = paperDate({
+	timestamp: timestamp,
+});
+
+const activeState = Ember.Object.create({
+	state: '',
+	isOpen: false,
+	isTop: false,
+});
+
 test('it renders', function(assert) {
+	this.set('paper', paper);
+	this.set('activeState', activeState);
 
-  this.set('timestamp', moment().unix());
-
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp}}`);
+  this.render(hbs`{{interfaces/time-picker paperDate=paper activeState=activeState}}`);
 
   assert.ok(this.$().text().trim());
 });
 
 test('changes from hours to minutes', function(assert) {
+	activeState.set('state', 'hour');
+	this.set('paper', paper);
+	this.set('activeState', activeState);
 
-  this.set('timestamp', moment().unix());
-  this.set('isHourPicker', true);
+  this.render(hbs`{{interfaces/time-picker paperDate=paper activeState=activeState}}`);
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp isHourPicker=isHourPicker}}`);
+  assert.ok(this.$('.paper-time-picker').hasClass('hours'), 'State is Hours');
 
-  assert.equal(this.$('.hours-header').hasClass('active'), true);
-  assert.equal(this.$('.minutes-header').hasClass('inactive'), true);
+	activeState.set('state', 'minute');
 
-  this.$('.minutes-header').click();
-
-  assert.equal(this.$('.hours-header').hasClass('inactive'), true);
-  assert.equal(this.$('.minutes-header').hasClass('active'), true);
-
+  assert.ok(this.$('.paper-time-picker').hasClass('minutes'), 'State is Minutes');
 });
 
 test('changes from pm to am and back', function(assert) {
+	activeState.set('state', 'hour');
+	this.set('paper', paper);
+	this.set('activeState', activeState);
 
-  this.set('timestamp', moment().unix());
-  this.set('minuteOrHour', 'hour');
+	let meridian = { start: moment(this.get('paper.timestamp')).format('A'), next: 'PM' };
 
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour isMilliseconds=false instanceNumber="one"}}`);
+	this.set('update', (flag, timestamp) => {
+		const _meridian = moment(timestamp).format('A');
+		meridian.next = _meridian;
+	});
 
-  if (Time.date(this.get('timestamp')).format('A') === 'AM')
-  {
-      assert.equal(this.$('.am-button').hasClass('am-active'), true);
-      assert.equal(this.$('.pm-button').hasClass('pm-inactive'), true);
+  this.render(hbs`{{interfaces/time-picker paperDate=paper activeState=activeState onUpdate=(action update)}}`);
 
-      this.$('.pm-button').click();
+	// if it is pm then swith to am to start tests
+	if (meridian.start === 'PM') {
+		this.$('.am-pm-container > .button.am').click();
+		meridian.start = meridian.next;
+	}
 
-      assert.equal(this.$('.pm-button').hasClass('pm-active'), true);
-      assert.equal(this.$('.am-button').hasClass('am-inactive'), true);
-  }
-  else
-  {
-      assert.equal(this.$('.pm-button').hasClass('pm-active'), true);
-      assert.equal(this.$('.am-button').hasClass('am-inactive'), true);
+	// click the pm button
+	this.$('.am-pm-container > .button.pm').click();
 
-      this.$('.am-button').click();
+	assert.ok(meridian.start !== meridian.next, 'AM to PM switch');
 
-      assert.equal(this.$('.am-button').hasClass('am-active'), true);
-      assert.equal(this.$('.pm-button').hasClass('pm-inactive'), true);
-  }
+	// set new start meridian
+	meridian.start = meridian.next;
+	// click the am button
+	this.$('.am-pm-container > .button.am').click();
+
+	assert.ok(meridian.start !== meridian.next, 'PM to AM switch');
 });
 
 test('test hour and minute headers', function(assert) {
+	this.set('paper', paper);
+	this.set('activeState', activeState);
 
-  this.set('timestamp', moment().unix());
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp isMilliseconds=false instanceNumber="one"}}`);
+  this.render(hbs`{{interfaces/time-picker paperDate=paper activeState=activeState}}`);
 
-  let hour = Time.date(this.get('timestamp')).hour();
-  let minute = Time.date(this.get('timestamp')).minute();
+  let hour = moment(this.get('paper.timestamp')).hour();
+  let minute = moment(this.get('paper.timestamp')).minute();
 
-  if (hour === 0 || hour === 12) { hour = '12';} else { hour = ('0' + (hour % 12)).slice(-2); }
+	hour = TimePicker.formatNumber(hour % 12);
   minute = ('0' + minute).slice(-2);
 
-  assert.equal(this.$('.hours-header').text().trim(), hour);
-  assert.equal(this.$('.minutes-header').text().trim(), minute);
+  assert.equal(this.$('.numbers-container > .hours').text().trim(), hour);
+  assert.equal(this.$('.numbers-container > .minutes').text().trim(), minute);
 });
 
 test('click random minute sectionMin', function(assert) {
+	activeState.set('state', 'minute');
+	this.set('paper', paper);
+	this.set('activeState', activeState);
 
-  this.set('timestamp', moment().unix());
-  this.set('minuteOrHour', 'minute');
-
-  this.render(hbs`{{interfaces/time-picker timestamp=timestamp minuteOrHour=minuteOrHour isMilliseconds=false instanceNumber="one"}}`);
+  this.render(hbs`{{interfaces/time-picker paperDate=paper activeState=activeState}}`);
 
   let randomSection = ('0' + Math.round(Math.random() * (60 - 1) + 1)).slice(-2);
-  let id = '#sectionMin' + randomSection;
+  let id = '#section-minutes-' + randomSection;
 
   this.$(id).click();
 
-  assert.equal(this.$('.minutes-header').text().trim(), randomSection);
+  assert.equal(this.$('.numbers-container > .minutes').text().trim(), randomSection);
 });

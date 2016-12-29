@@ -1,14 +1,26 @@
 import { moduleForComponent, test } from 'ember-qunit';
+import paperDate from 'ember-paper-time-picker/utils/paper-date';
 import moment from 'moment';
 
 moduleForComponent('interfaces/date-picker', 'Unit | Component | interfaces/date picker', {
   unit: true
 });
 
-test('it renders', function(assert) {
+const timestamp = moment().valueOf();
 
-  const time = moment().unix() * 1000;
-  const args = {'timestamp': time};
+const paper = paperDate({
+	timestamp: timestamp,
+});
+
+const calendar = paperDate({
+	timestamp: timestamp,
+});
+
+test('it renders', function(assert) {
+  const args = {
+		paperDate: paper,
+		paperCalendar: calendar
+	};
 
   this.subject(args);
   this.render();
@@ -16,32 +28,29 @@ test('it renders', function(assert) {
 });
 
 test('set timestamp', function(assert) {
-
-  const time = moment().unix();
-  const args = {'timestamp': time, 'isMilliseconds': false , instanceNumber: "one"};
+  const args = {
+		paperDate: paper,
+		paperCalendar: calendar
+	};
 
   let component = this.subject(args);
   let newTimestamp = moment().add('1', 'days');
 
   component.setTimestamp(newTimestamp);
 
-  assert.equal(component.get('timestamp'), newTimestamp.unix());
-
-  // assert.throws(() => { component.setTimestamp('test'); }, /Type error/, 'Type error');
-
+  assert.equal(component.get('timestamp'), newTimestamp.valueOf());
 });
 
-test('set calender date', function(assert) {
-
-  const time = moment().unix();
-  const args = {'timestamp': time, 'isMilliseconds': false, instanceNumber: "one"};
+test('set calendar date', function(assert) {
+  const args = {
+		paperDate: paper,
+		paperCalendar: calendar
+	};
 
   let component = this.subject(args);
   let newTimestamp = moment().add('6', 'days');
 
-  component.setCalenderDate(newTimestamp);
+  component.setCalendarDate(newTimestamp);
 
-  assert.equal(component.get('calenderDate'), newTimestamp.unix());
-
-  // assert.throws(() => { component.setCalenderDate('test'); }, /Type error/, 'Type error');
+	assert.equal(component.get('calendarDate'), newTimestamp.valueOf());
 });

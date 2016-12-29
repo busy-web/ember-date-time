@@ -5,6 +5,6 @@ module('Unit | Utility | paper date');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = paperDate();
+  let result = paperDate;
   assert.ok(result);
 });

@@ -39,5 +39,5 @@ test('test elementNames', function(assert) {
 	assert.equal('hours-text-12', strings.text);
 	assert.equal('hours-line-12', strings.line);
 	assert.equal('hours-circle-12', strings.circle);
-	assert.equal('seconds-hours-12', strings.section);
+	assert.equal('section-hours-12', strings.section);
 });

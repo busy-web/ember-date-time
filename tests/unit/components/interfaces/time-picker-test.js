@@ -1,112 +1,38 @@
 import { moduleForComponent, test } from 'ember-qunit';
+import paper from 'ember-paper-time-picker/utils/paper-date';
 import moment from 'moment';
-import Time from 'busy-utils/time';
-
 
 moduleForComponent('interfaces/time-picker', 'Unit | Component | interfaces/time picker', {
-  needs: ['util:snap-utils', 'util:time-picker'],
-  unit: true
+	needs: ['util:snap-utils', 'util:time-picker'],
+	unit: true
 });
 
+const timestamp = moment().valueOf();
+
 test('it renders', function(assert) {
+	const paperDate = paper({timestamp: timestamp});
 
-  const time = moment().unix() * 1000;
-  const args = {'timestamp': time, instanceNumber:"one"};
-
-  this.subject(args);
-  this.render();
-  assert.ok(this.$().text().trim());
+	this.subject({ paperDate });
+	this.render();
+	assert.ok(this.$().text().trim());
 });
 
 test('set minute to timestamp', function(assert) {
+	const paperDate = paper({ timestamp: timestamp });
+	const component = this.subject({ paperDate });
+	const minute = Math.floor(Math.random() * (59 - 0 + 1)) + 0;
 
-  const time = moment().unix();
-  const args = {'timestamp': time, 'isMilliseconds': false, instanceNumber: "one"};
+	component.setTimestamp('minutes', minute);
 
-  let component = this.subject(args);
-  let minute = Math.floor(Math.random() * (59 - 0 + 1)) + 0;
-
-  component.setMinuteToTimestamp(minute);
-
-  assert.equal(Time.date(component.get('timestamp')).minute(), minute);
-
-  // assert.throws(() => { component.setMinuteToTimestamp('test'); }, /Type error/, 'Type error');
+	assert.equal(moment(component.get('timestamp')).minute(), minute);
 });
 
-test('convertToTimestamp', function(assert) {
+test('save a date object', function(assert) {
+	const paperDate = paper({ timestamp: timestamp });
+	const component = this.subject({ paperDate });
+	const momentObject = moment().add('1', 'hour');
 
-  const time = moment().unix();
-  const args = {'timestamp': time, 'isMilliseconds': false, instanceNumber: "one"};
+	component.saveTimestamp(momentObject);
 
-  let component = this.subject(args);
-  let momentObject = moment().add('1', 'hour');
-  let unix = momentObject.unix();
-
-  this.subject(args);
-
-  component.convertToTimestamp(momentObject);
-
-  assert.equal(component.get('timestamp'), unix);
-
-  // assert.throws(() => { component.convertToTimestamp(26543216584); }, /Type error/, 'Type error');
-});
-
-
-test('hourOverMaxMin', function(assert) {
-
-  const time = moment().unix() * 1000;
-  const min = (moment().subtract('6', 'hours')).unix() * 1000;
-  const max = (moment().add('6', 'hours')).unix() * 1000;
-
-  const args = {'timestamp': time, 'minDate': min, 'maxDate': max, 'isMilliseconds': true, instanceNumber: "one"};
-
-  let component = this.subject(args);
-
-  this.subject(args);
-  let hour = Math.floor(Math.random() * (12 - 1 + 1)) + 1;
-  let returnVal = component.hourOverMaxMin(hour);
-  let setHour = null;
-
-  if (moment(time).format('A') === 'AM')
-  {
-    setHour = moment(time).hour(hour);
-  }
-  else
-  {
-    setHour = moment(time).hour(hour + 12);
-  }
-
-  let customVal = null;
-  if (!setHour.isBefore(moment(min)) && !setHour.isAfter(moment(max)))
-  {
-    customVal = true;
-  }
-  else
-  {
-      customVal = false;
-  }
-
-  assert.equal(returnVal, customVal);
-
-  // assert.throws(() => { component.hourOverMaxMin({'test': test}); }, /hourOverMaxMin param must be an integer or string/, "hourOverMaxMin param must be an integer or string");
-});
-
-test('minuteOverMaxMin', function(assert) {
-
-  const time = moment().unix() * 1000;
-  const min = (moment().subtract('45', 'minutes')).unix() * 1000;
-  const max = (moment().add('45', 'minutes')).unix() * 1000;
-
-  const args = {'timestamp': time, 'minDate': min, 'maxDate': max, 'isMilliseconds': true, instanceNumber: "one"};
-
-  let component = this.subject(args);
-  this.subject(args);
-
-  let minute = Math.floor(Math.random() * (59 - 1 + 1)) + 1;
-  let returnVal = component.minuteOverMaxMin(minute);
-  let setMin = moment(time).minute(minute);
-  let customVal = setMin.isBetween(min, max);
-
-  assert.equal(returnVal, customVal);
-  // assert.throws(() => { component.minuteOverMaxMin({'test': test}); }, /minuteOverMaxMin param must be an integer or string/, "minuteOverMaxMin param must be an integer or string");
+	assert.equal(component.get('timestamp'), momentObject.valueOf());
 });
