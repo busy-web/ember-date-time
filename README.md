@@ -3,6 +3,10 @@
 [![Build Status](https://travis-ci.org/busybusy/webapp-ember-paper-time-picker.svg?branch=master)](https://travis-ci.org/busybusy/webapp-ember-paper-time-picker)
 [![Ember Observer Score](https://emberobserver.com/badges/ember-paper-time-picker.svg)](https://emberobserver.com/addons/ember-paper-time-picker)
 [![Ember badge][ember-badge]][embadge]
+[![Code Climate](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/badges/gpa.svg)](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker)
+[![Test Coverage](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/badges/coverage.svg)](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/coverage)
+[![Issue Count](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/badges/issue_count.svg)](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker)
+
 
 WARNING: This addon is still in development and should not be used in a production environment.
 
