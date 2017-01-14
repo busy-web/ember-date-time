@@ -198,10 +198,10 @@ export default Ember.Component.extend({
    * @private
    * @method didInsertElement
    */
-  //onOpen: Ember.on('didInsertElement', function() {
-	//	this.unbindListeners();
-	//	this.bindListeners();
-	//}),
+  onOpen: Ember.on('didInsertElement', function() {
+		this.unbindListeners();
+		this.bindListeners();
+	}),
 
   /**
    * removes the click handler to close the dialogs if anything outside is clicked

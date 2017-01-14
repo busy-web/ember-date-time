@@ -4,19 +4,19 @@
 		{{#if activeState.showDate}}
 			<div class="input-in-date">
 				<div class="section month">
-					{{input type="text" class="month" type="text"  maxlength="2" value=timestampMonths key-up=(action 'keyReleased') key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'month') click=(action 'focusInput' 'month' bubbles=false)}}
+					{{input class="month" maxlength="2" value=timestampMonths key-up=(action 'keyReleased') key-down=(action 'keyUpDownHandler' 'months') focus-in=(action 'focusInput' 'month') click=(action 'focusInput' 'month' bubbles=false)}}
 				</div>
 
 				<div class="slash" {{action 'focusInput' 'month' bubbles=false}}>/</div>
 
 				<div class="section day">
-					{{input class="day" type="text" maxlength="2" value=timestampDays key-up=(action 'keyReleased') key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'day') click=(action 'focusInput' 'day' bubbles=false)}}
+					{{input class="day" maxlength="2" value=timestampDays key-up=(action 'keyReleased') key-down=(action 'keyUpDownHandler' 'days') focus-in=(action 'focusInput' 'day') click=(action 'focusInput' 'day' bubbles=false)}}
 				</div>
 
 				<div class="slash" {{action 'focusInput' 'day' bubbles=false}}>/</div>
 
 				<div class="section year">
-					{{input class="year" type="text" maxlength="4" value=timestampYears key-up=(action 'keyReleased') key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'year') click=(action 'focusInput' 'year' bubbles=false)}}
+					{{input class="year" maxlength="4" value=timestampYears key-up=(action 'keyReleased') key-down=(action 'keyUpDownHandler' 'years') focus-in=(action 'focusInput' 'year') click=(action 'focusInput' 'year' bubbles=false)}}
 				</div>
 			</div>
 		{{/if}}
@@ -24,23 +24,25 @@
 		{{#if activeState.showTime}}
 			<div class="input-in-time">
 				<div class="section hour">
-					{{input type="text" class="hour" maxlength="2" value=timestampHours key-up=(action 'keyReleased') key-down=(action 'keyUpDownHours') focus-in=(action 'focusInput' 'hour') click=(action 'focusInput' 'hour' bubbles=false)}}
+					{{input class="hour" maxlength="2" value=timestampHours key-up=(action 'keyReleased') key-down=(action 'keyUpDownHours') focus-in=(action 'focusInput' 'hour') click=(action 'focusInput' 'hour' bubbles=false)}}
 				</div>
 
 				<div class="colon">:</div>
 
 				<div class="section minute">
-					{{input type="text" class="minute" maxlength="2" value=timestampMinutes key-up=(action 'keyReleased') key-down=(action 'keyUpDownMinutes') focus-in=(action 'focusInput' 'minute') click=(action 'focusInput' 'minute' bubbles=false)}}
+					{{input class="minute" maxlength="2" value=timestampMinutes key-up=(action 'keyReleased') key-down=(action 'keyUpDownMinutes') focus-in=(action 'focusInput' 'minute') click=(action 'focusInput' 'minute' bubbles=false)}}
 				</div>
 
 				<div class="section meridian">
-					{{input type="text" class="am-pm" maxlength="2" value=timestampMeridian key-up=(action 'keyReleased') key-down=(action 'meridianKeyHandler') focus-in=(action 'focusInput' 'meridian') click=(action 'focusInput' 'meridian' bubbles=false)}}
+					{{input class="am-pm" maxlength="2" value=timestampMeridian key-up=(action 'keyReleased') key-down=(action 'meridianKeyHandler') focus-in=(action 'focusInput' 'meridian') click=(action 'focusInput' 'meridian' bubbles=false)}}
 				</div>
 			</div>
 		{{/if}}
 	</div>
 
 	<div class="dialog-container{{if activeState.isOpen ' show'}}{{if activeState.isTop ' top'}}">
-		{{interfaces/combined-picker paperDate=paper paperCalendar=calendar activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update')}}
+		{{#if activeState.isOpen}}
+			{{interfaces/combined-picker paperDate=paper paperCalendar=calendar activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update')}}
+		{{/if}}
 	</div>
 </div>
