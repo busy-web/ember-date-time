@@ -20,4 +20,4 @@ ember install ember-paper-time-picker
 ```
 
 [embadge]: http://embadge.io/
-[ember-badge]: http://embadge.io/v1/badge.svg?start=2.6.0
+[ember-badge]: http://embadge.io/v1/badge.svg?start=2.11.0

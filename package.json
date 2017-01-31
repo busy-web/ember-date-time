@@ -2,31 +2,32 @@
   "name": "ember-paper-time-picker",
   "version": "0.1.15",
   "description": "Ember addon for a paper like time picker",
+  "keywords": [
+    "ember-addon",
+    "busybusy"
+  ],
+  "license": "MIT",
+  "author": "busy inc",
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
+  "repository": "https://github.com/busybusy/webapp-ember-paper-time-picker.git",
   "scripts": {
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:each"
   },
-  "repository": "https://github.com/busybusy/webapp-ember-paper-time-picker.git",
-  "engines": {
-    "node": ">= 0.12.0"
-  },
-  "author": "busy inc",
-  "license": "MIT",
   "dependencies": {
-    "busy-utils": "^2.1.6",
-    "ember-cli-htmlbars": "^1.0.10",
-    "ember-cli-sass": "^5.3.1",
+    "busy-utils": "2.1.7",
+    "ember-cli-htmlbars": "^1.1.1",
+    "ember-cli-sass": "6.1.1",
     "ember-cli-babel": "^5.1.7"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^2.4.1",
-    "ember-cli": "2.10.0",
+    "ember-cli": "2.11.0",
     "ember-cli-app-version": "^2.0.0",
     "ember-cli-blanket": "0.9.9",
     "ember-cli-dependency-checker": "^1.3.0",
@@ -36,22 +37,23 @@
     "ember-cli-moment-shim": "2.2.0",
     "ember-cli-qunit": "^3.0.1",
     "ember-cli-release": "^0.2.9",
+    "ember-cli-shims": "^1.0.2",
     "ember-cli-sri": "^2.1.0",
     "ember-cli-test-loader": "^1.1.0",
     "ember-cli-uglify": "^1.2.0",
-    "ember-data": "^2.10.0",
+    "ember-data": "^2.11.0",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-export-application-global": "^1.0.5",
-    "ember-load-initializers": "^0.5.1",
+    "ember-load-initializers": "^0.6.0",
     "ember-moment": "6.1.0",
     "ember-resolver": "^2.0.3",
     "ember-snap-svg": "0.0.6",
+    "ember-source": "^2.11.0",
     "loader.js": "^4.0.10"
   },
-  "keywords": [
-    "ember-addon",
-    "busybusy"
-  ],
+  "engines": {
+    "node": ">= 0.12.0"
+  },
   "ember-addon": {
     "configPath": "tests/dummy/config"
   }
