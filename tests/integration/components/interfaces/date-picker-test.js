@@ -4,7 +4,7 @@ import Ember from 'ember';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
 import moment from 'moment';
 
-moduleForComponent('interfaces/date-picker', 'Integration | Component | date picker', {
+moduleForComponent('interfaces/date-picker', 'Integration | Component | Interfaces | DatePicker', {
   integration: true
 });
 

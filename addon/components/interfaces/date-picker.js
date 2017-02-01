@@ -398,9 +398,9 @@ export default Ember.Component.extend({
 				const newYear = day.year();
 
 				let timestamp = TimePicker.getMomentDate(this.get('timestamp'));
-				timestamp.date(newDay);
-				timestamp.month(newMonth);
 				timestamp.year(newYear);
+				timestamp.month(newMonth);
+				timestamp.date(newDay);
 
 				this.setTimestamp(timestamp);
 
