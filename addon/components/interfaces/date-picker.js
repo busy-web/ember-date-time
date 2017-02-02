@@ -296,7 +296,7 @@ export default Ember.Component.extend({
 
 		const daysArray = Ember.A();
     for (let i=0; i<daysInCalendar; i++) {
-			const paper = createPaperDate({timestamp: currentDay.valueOf(), minDate, maxDate});
+			const paper = createPaperDate({timestamp: currentDay.valueOf(), minDate, maxDate, type: 'date'});
 			paper.set('weekNumber', Math.ceil((i+1)/7));
 
 			if (paper.get('date').year() === currentCalendar.year()) {

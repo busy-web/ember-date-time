@@ -23,6 +23,7 @@ const PaperDate = Ember.Object.extend({
 
 	_backupTimestamp: null,
 
+	type: null,
 	minDate: null,
 	maxDate: null,
 
@@ -61,7 +62,11 @@ const PaperDate = Ember.Object.extend({
 	isBefore: Ember.computed('minDate', 'timestamp', function() {
 		let isBefore = false;
 		if (!Ember.isNone(this.get('timestamp'))) {
-			isBefore = TimePicker.isDateBefore(this.get('date'), this.get('minDate'));
+			let date = this.get('date');
+			if (this.get('type') === 'date') {
+				date = TimePicker.getMomentDate(date.valueOf()).endOf('day');
+			}
+			isBefore = TimePicker.isDateBefore(date, this.get('minDate'));
 		}
 		return isBefore;
 	}),
@@ -76,7 +81,11 @@ const PaperDate = Ember.Object.extend({
 	isAfter: Ember.computed('maxDate', 'timestamp', function() {
 		let isAfter = false;
 		if (!Ember.isNone(this.get('timestamp'))) {
-			isAfter = TimePicker.isDateAfter(this.get('date'), this.get('maxDate'));
+			let date = this.get('date');
+			if (this.get('type') === 'date') {
+				date = TimePicker.getMomentDate(date.valueOf()).startOf('day');
+			}
+			isAfter = TimePicker.isDateAfter(date, this.get('maxDate'));
 		}
 		return isAfter;
 	}),
