@@ -7,7 +7,7 @@ import keyEvents from 'ember-paper-time-picker/mixins/key-events';
 import layout from '../templates/components/paper-datetime-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
-import Assert from 'busy-utils/assert';
+import { Assert } from 'busy-utils';
 
 /**
  * `Component/paper-datetime-picker`

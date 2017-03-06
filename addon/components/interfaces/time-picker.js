@@ -4,7 +4,7 @@
  */
 import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
-import Assert from 'busy-utils/assert';
+import { Assert } from 'busy-utils';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
