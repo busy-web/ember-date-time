@@ -234,8 +234,8 @@ export default Ember.Component.extend({
 			let type, min, max;
 			if (state === 'hour') {
 				type = kHourFlag;
-			 	min = kHourMin;
-			 	max = kHourMax;
+				min = kHourMin;
+				max = kHourMax;
 			} else if (state === 'minute'){
 				type = kMinuteFlag;
 				min = kMinuteMin;

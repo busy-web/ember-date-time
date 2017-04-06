@@ -1,13 +1,10 @@
-/* jshint node: true */
+/* eslint-env node */
 'use strict';
 
 module.exports = {
   normalizeEntityName: function() {},
 
   afterInstall: function() {
-    var _this = this;
-    return _this.addAddonToProject('ember-snap-svg@0.0.6').then(function() {
-        return _this.addAddonToProject('ember-moment@6.1.0');
-    });
+    return this.addAddonsToProject({packages: ['ember-snap-svg@0.0.6', 'busy-utils@2.3.6']});
   }
 };

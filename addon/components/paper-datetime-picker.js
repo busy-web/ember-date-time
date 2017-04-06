@@ -298,7 +298,7 @@ export default Ember.Component.extend(keyEvents, {
 				state: '',
 				isOpen: false,
 				isTop: false,
-			 });
+			});
 			this.set('activeState', activeState);
 		}
 
