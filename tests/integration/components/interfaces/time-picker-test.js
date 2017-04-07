@@ -2,7 +2,7 @@ import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import Ember from 'ember';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
-import TimePicker from 'ember-paper-time-picker/utils/time-picker';
+//import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import moment from 'moment';
 
 moduleForComponent('interfaces/time-picker', 'Integration | Component | time picker', {
