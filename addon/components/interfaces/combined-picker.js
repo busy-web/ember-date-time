@@ -255,9 +255,9 @@ export default Ember.Component.extend({
 			const isClock = (current === 'isClock');
 			const state = (isClock ? 'day' : 'hour');
 
-			this.set('isClock', !isClock);
-			this.set('isCalendar', isClock);
-			this.set('activeState.state', state);
+			//this.set('isClock', !isClock);
+			//this.set('isCalendar', isClock);
+			//this.set('activeState.state', state);
 
 			this.sendAction('onUpdate', state, this.get('timestamp'));
 		},
@@ -269,8 +269,8 @@ export default Ember.Component.extend({
 		 */
 		close() {
 			this.set('backupTimestamp', this.get('timestamp'));
-			this.set('isClock', false);
-			this.set('isCalendar', false);
+			//this.set('isClock', false);
+			//this.set('isCalendar', false);
 			this.sendAction('onClose');
 		},
 
@@ -281,13 +281,13 @@ export default Ember.Component.extend({
      */
 		cancel() {
 			this.set('timestamp', this.get('backupTimestamp'));
-			this.set('isClock', false);
-			this.set('isCalendar', false);
+			//this.set('isClock', false);
+			//this.set('isCalendar', false);
 			this.sendAction('onClose');
 		},
 
 		onHeaderSelect(type) {
-			this.set('activeState.state', type);
+			//this.set('activeState.state', type);
 			this.sendAction('onUpdate', type, this.get('timestamp'));
 		},
 	}

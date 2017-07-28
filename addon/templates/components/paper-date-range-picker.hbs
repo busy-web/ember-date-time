@@ -1,0 +1,35 @@
+
+<div class="menu">
+	<a class="button select" {{action 'toggleList'}}>{{selected.name}}</a>
+
+	<span class="arrows">
+		<a class="button arrow left"><span></span></a>
+		<a class="button arrow right"><span></span></a>
+	</span>
+</div>
+
+<ul class="list{{if isListOpen ' active'}}">
+	{{#each actionList as |item idx|}}
+		<li class="item{{if item.selected ' active'}}" {{action 'selectItem' idx}}>{{item.name}}</li>
+	{{/each}}
+
+	<li class="item custom{{if isCustom ' active'}}" {{action 'selectCustom'}}>{{loc "Custom"}}</li>
+	<li class="picker{{if isCustom ' active'}}">
+		<div class="header">
+			<span class="state{{if startActiveState.isOpen ' open'}}">
+				{{paper-datetime-picker unix=startUnix timestamp=startTime minDate=minDate maxDate=maxDate utc=utc hideTime=hideTime hideDate=hideDate lockOpen=true
+					onFocus=(action 'setFocus' 'start') onUpdate=(action 'update')}}
+			</span>
+			<span>{{busy-loc "to"}}</span>
+			<span class="state{{if endActiveState.isOpen ' open'}}">
+				{{paper-datetime-picker unix=endUnix timestamp=endTime minDate=minDate maxDate=maxDate utc=true hideTime=hideTime hideDate=hideDate lockOpen=true
+					onFocus=(action 'setFocus' 'end') onUpdate=(action 'update')}}
+			</span>
+		</div>
+		<div class="body"></div>
+		<div class="footer">
+			<a class="button blue" {{action 'applyRange'}}>{{busy-loc "Apply"}}</a>
+			<a class="button text" {{action 'cancelRange'}}>{{busy-loc "Cancel"}}</a>
+		</div>
+	</li>
+</ul>

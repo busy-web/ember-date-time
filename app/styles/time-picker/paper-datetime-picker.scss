@@ -6,11 +6,12 @@
 	font-family: $ept-font-family;
 
 	& > .main-container {
+		width: 100%;
+
 		& > .input-container {
 			display: block;
 			position: relative;
 			width: 100%;
-			min-width: 250px;
 			height: 40px;
 			padding: 0 10px;
 			border: 1px solid #ccc;
@@ -26,7 +27,7 @@
 
 			&.active,
 			&:hover {
-				border-color: #0277bd;
+				border-color: #30aeef;
 			}
 
 			& > div {

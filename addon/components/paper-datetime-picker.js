@@ -24,7 +24,7 @@ export default Ember.Component.extend(keyEvents, {
 	 * @default paper-datetime-picker
 	 */
 	classNames: ['paper-datetime-picker'],
-	layout: layout,
+	layout,
 
 	/**
 	 * timestamp that is passed in as a milliseconds timestamp
@@ -164,6 +164,8 @@ export default Ember.Component.extend(keyEvents, {
 	hideTime: false,
 	hideDate: false,
 
+	lockOpen: false,
+
 	/**
 	 * checks if timestamp is valid calls updateInputValues
 	 *
@@ -294,21 +296,27 @@ export default Ember.Component.extend(keyEvents, {
 
 	setActiveState(options={}) {
 		if (Ember.isNone(this.get('activeState'))) {
-			const activeState = Ember.Object.create({
+			this.set('activeState', Ember.Object.create({
 				state: '',
-				isOpen: false,
+				isOpen: this.get('lockOpen') ? true : false,
 				isTop: false,
-			});
-			this.set('activeState', activeState);
+			}));
 		}
 
-		if (!Ember.isNone(options.state)) {
-
+		if (!Ember.isEmpty(options.state)) {
 			this.set('activeState.state', options.state);
+		} else {
+			if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
+				this.set('activeState.state', 'day');
+			} else if (!this.get('hideTime') && this.get('lockOpen')) {
+				this.set('activeState.state', 'hour');
+			}
 		}
 
 		if (!Ember.isNone(options.isOpen)) {
-			this.set('activeState.isOpen', options.isOpen);
+			if (!this.get('lockOpen')) {
+				this.set('activeState.isOpen', options.isOpen);
+			}
 		}
 
 		if (!Ember.isNone(options.isTop)) {
@@ -317,10 +325,14 @@ export default Ember.Component.extend(keyEvents, {
 
 		if (!Ember.isNone(options.showDate)) {
 			this.set('activeState.showDate', options.showDate);
+		}	else if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
+			this.set('activeState.showDate', true);
 		}
 
 		if (!Ember.isNone(options.showTime)) {
 			this.set('activeState.showTime', options.showTime);
+		} else if (!this.get('hideTime') && this.get('lockOpen')) {
+			this.set('activeState.showTime', true);
 		}
 	},
 
@@ -334,8 +346,8 @@ export default Ember.Component.extend(keyEvents, {
 		return (distanceTop > distanceBottom && distanceBottom < dialogHeight);
 	},
 
-	focusState(state) {
-		state = Ember.String.singularize(state);
+	focusState() {
+		let state = this.get('activeState.state');
 		this.$(`.section.${state} > input`).focus();
 	},
 
@@ -348,22 +360,29 @@ export default Ember.Component.extend(keyEvents, {
 		 * @event focusInput
 		 */
 		focusInput(state) {
+			let focus = false;
 			if (Ember.isEmpty(state)) {
 				state = 'hour';
 				if (!this.get('activeState.showTime')) {
 					state = 'day';
 				}
-				this.focusState(state);
+				focus = true;
 			}
 
 			const isOpen = true;
 			const isTop = this.shouldPickerOpenTop();
 			this.setActiveState({ state, isOpen, isTop });
+			if (focus) {
+				this.focusState();
+			}
+			this.sendAction('onFocus', Ember.get(this, 'activeState'));
 			return false;
 		},
 
 		closeAction() {
-			this.setActiveState({ state: '', isOpen: false, isTop: false });
+			if (!this.get('lockOpen')) {
+				this.setActiveState({ state: '', isOpen: false, isTop: false });
+			}
 		},
 
 		keyReleased() {
@@ -522,8 +541,11 @@ export default Ember.Component.extend(keyEvents, {
 		},
 
 		update(state, timestamp) {
-			this.focusState(state);
+			state = Ember.String.singularize(state);
+			this.setActiveState({ state });
+			this.focusState();
 			this.setTimestamp(timestamp);
+			this.sendAction('onUpdate', state, timestamp);
 		},
 	}
 });

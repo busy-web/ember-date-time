@@ -177,12 +177,28 @@ export default TimePicker.reopenClass({
 		return isValid;
 	},
 
+	getDaysApart(from, to) {
+		return Math.floor(((((to - from)/1000)/60)/60)/24);
+	},
+
+	getHoursApart(from, to) {
+		return Math.floor((((to - from)/1000)/60)/60);
+	},
+
 	getUnix(timestamp) {
-		return moment(timestamp).unix();
+		if (timestamp) {
+			return moment(timestamp).unix();
+		} else {
+			return moment().unix();
+		}
 	},
 
 	getTimstamp(unix) {
-		return moment.unix(unix).valueOf();
+		if (unix) {
+			return moment.unix(unix).valueOf();
+		} else {
+			return moment().valueOf();
+		}
 	},
 
 	utcToLocal(timestamp, isUnix=false) {
