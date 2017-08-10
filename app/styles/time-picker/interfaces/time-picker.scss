@@ -127,6 +127,7 @@ $clock-hand-stroke: ($ept-width * .0087);
 					font-weight: lighter;
 					line-height: 1;
 					fill: $ept-color-6-1;
+					user-select: none;
 				}
 
 				.cls-text-small {
