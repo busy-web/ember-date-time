@@ -98,6 +98,7 @@ $day-size: ($ept-width * .1213);
 					font-weight: lighter;
 					line-height: $day-size + 3;
 					text-align: center;
+					user-select: none;
 
 					& > tr {
 						color: $ept-color-6-2;
