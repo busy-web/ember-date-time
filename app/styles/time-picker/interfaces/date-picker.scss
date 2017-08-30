@@ -50,43 +50,65 @@ $day-size: ($ept-width * .1213);
 			& > .header {
 				display: inline-block;
 				width: 100%;
-				padding: 4px 25px;
+				padding: 4px 10px;
 				text-align: center;
 				box-sizing: border-box;
 
 				& > div {
 					display: inline-block;
-					width: 7px;
-					height: 7px;
-					margin: 10px 0 0;
-					font-size: 14px;
-					text-align: center;
+					border-radius: 3px;
+					background-color: transparent;
+					box-sizing: border-box;
+
+					&:hover {
+						background-color: $ept-color-5;
+					}
 
 					&.month-year {
 						width: 150px;
 						height: 30px;
-						margin: 0;
 						color: $ept-color-6-1;
-						font-weight: normal;
-						line-height: 30px;
+						font: 14px/30px $ept-font-family;
+						text-align: center;
+						cursor: initial;
+
+						&:hover {
+							background-color: transparent;
+						}
 					}
 
-					&.add-month {
-						float: right;
-						transform: rotate(45deg);
-						border: 2px solid $ept-color-6-1;
-						border-bottom-color: transparent;
-						border-left-color: transparent;
-						cursor: pointer;
-					}
-
-					&.subtract-month {
+					&.arrow {
+						width: 30px;
+						height: 30px;
+						padding: 7px;
 						float: left;
-						transform: rotate(45deg);
-						border: 2px solid $ept-color-6-1;
-						border-top-color: transparent;
-						border-right-color: transparent;
 						cursor: pointer;
+
+						& > span {
+							width: 100%;
+							height: 100%;
+							float: right;
+							border: 2px solid $ept-color-6-1;
+							box-sizing: border-box;
+						}
+
+						&.add-month {
+							float: right;
+
+							& > span {
+								transform: rotate(45deg) translate(-3px, 3px);
+								border-bottom-color: transparent;
+								border-left-color: transparent;
+							}
+						}
+
+						&.subtract-month {
+							& > span {
+								transform: rotate(45deg) translate(3px, -3px);
+								border-top-color: transparent;
+								border-right-color: transparent;
+							}
+						}
 					}
 				}
       }

@@ -246,6 +246,10 @@ export default Ember.Component.extend({
 			this.sendAction('onUpdate', focus, time);
 		},
 
+		change(focus, time) {
+			this.sendAction('onChange', focus, time);
+		},
+
 		/**
      * changes dialog from clock to calendar and vice versa
      *

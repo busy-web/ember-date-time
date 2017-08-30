@@ -117,6 +117,7 @@ $ept-width: 330px !default;
 	$ept-width: 280px;
 }
 
+@import 'time-picker/input-date';
 @import 'time-picker/interfaces/time-picker';
 @import 'time-picker/interfaces/date-picker';
 @import 'time-picker/interfaces/combined-picker';

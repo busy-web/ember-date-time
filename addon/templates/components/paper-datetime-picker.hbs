@@ -42,7 +42,7 @@
 
 	<div class="dialog-container{{if activeState.isOpen ' show'}}{{if activeState.isTop ' top'}}">
 		{{#if activeState.isOpen}}
-			{{interfaces/combined-picker paperDate=paper paperCalendar=calendar activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update')}}
+			{{interfaces/combined-picker paperDate=paper paperCalendar=calendar activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update') onChange=(action 'change')}}
 		{{/if}}
 	</div>
 </div>

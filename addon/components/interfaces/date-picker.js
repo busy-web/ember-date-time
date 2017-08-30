@@ -213,19 +213,21 @@ export default Ember.Component.extend({
    * @method resetCalendarDate
    */
   resetCalendarDate: Ember.observer('timestamp', function() {
-		const timestamp = this.get('timestamp');
-		Assert.isNumber(timestamp);
+		if (!Ember.isNone(this.get('timestamp'))) {
+			//const timestamp = this.get('timestamp');
+			Assert.isNumber(this.get('timestamp'));
 
-		// get moment timestamp
-		const time = TimePicker.getMomentDate(this.get('timestamp'));
-		if (TimePicker.isValidDate(time)) {
-			this.set('calendarDate', this.get('timestamp'));
-			this.set('year', time.format('YYYY'));
-			this.set('month', time.format('MMM'));
-			this.set('day', time.format('DD'));
-			this.set('dayOfWeek', time.format('ddd'));
-		} else {
-			Assert.throw("timestamp must be a valid unix timestamp");
+			// get moment timestamp
+			const time = TimePicker.getMomentDate(this.get('timestamp'));
+			if (TimePicker.isValidDate(time)) {
+				this.set('calendarDate', this.get('timestamp'));
+				this.set('year', time.format('YYYY'));
+				this.set('month', time.format('MMM'));
+				this.set('day', time.format('DD'));
+				this.set('dayOfWeek', time.format('ddd'));
+			} else {
+				Assert.throw("timestamp must be a valid unix timestamp");
+			}
 		}
   }),
 
@@ -405,6 +407,7 @@ export default Ember.Component.extend({
 				this.setTimestamp(timestamp);
 
 				this.sendAction('onUpdate', 'day', this.get('timestamp'));
+				this.sendAction('onChange', 'day', this.get('timestamp'));
 			}
     },
 

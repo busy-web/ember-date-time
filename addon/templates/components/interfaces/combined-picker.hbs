@@ -5,7 +5,7 @@
 	{{/if}}
 
 	{{#if isCalendar}}
-		{{interfaces/date-picker paperDate=paperDate paperCalendar=paperCalendar activeState=activeState onUpdate=(action 'update')}}
+		{{interfaces/date-picker paperDate=paperDate paperCalendar=paperCalendar activeState=activeState onUpdate=(action 'update') onChange=(action 'change')}}
 	{{/if}}
 
 	<div class="picker-footer">

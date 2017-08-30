@@ -540,6 +540,10 @@ export default Ember.Component.extend(keyEvents, {
 			});
 		},
 
+		change(state, timestamp) {
+			this.sendAction('onChange', state, timestamp);
+		},
+
 		update(state, timestamp) {
 			state = Ember.String.singularize(state);
 			this.setActiveState({ state });
