@@ -3,7 +3,6 @@
  *
  */
 import Ember from 'ember';
-import { Assert } from 'busy-utils';
 import moment from 'moment';
 
 /***/
@@ -27,8 +26,6 @@ export default TimePicker.reopenClass({
 		if (typeof value === 'string') {
 			value = this.stringToInteger(value);
 		}
-
-		Assert.isNumber(value);
 		return (value < 10) ? `0${value}` : `${value}`;
 	},
 
@@ -41,7 +38,6 @@ export default TimePicker.reopenClass({
 	 * @return {number}
 	 */
 	stringToInteger(value) {
-		Assert.isString(value);
 		value = value.replace(/\D/g, '');
 		return parseInt(value, 10);
 	},
@@ -78,9 +74,6 @@ export default TimePicker.reopenClass({
 	 * @return {object|} {isBefore: boolean, isAfter: boolean}
 	 */
 	isDateInBounds(date, minDate, maxDate) {
-		Assert.funcNumArgs(arguments, 3);
-		Assert.isMoment(date);
-
 		const isBefore = this.isDateBefore(date, minDate);
 		const isAfter = this.isDateAfter(date, maxDate);
 
@@ -88,9 +81,6 @@ export default TimePicker.reopenClass({
 	},
 
 	isDateBefore(date, minDate) {
-		Assert.funcNumArgs(arguments, 2);
-		Assert.isMoment(date);
-
 		let isBefore = false;
 		if (!Ember.isNone(minDate)) {
 			if (typeof minDate === 'number' && !isNaN(minDate)) {
@@ -100,16 +90,13 @@ export default TimePicker.reopenClass({
 			if (typeof minDate === 'object' && this.isValidDate(minDate)) {
 				isBefore = date.isBefore(minDate);
 			} else {
-				Assert.throw('Invalid minDate passed to isDateInBounds');
+				Ember.assert('Invalid minDate passed to isDateInBounds');
 			}
 		}
 		return isBefore;
 	},
 
 	isDateAfter(date, maxDate) {
-		Assert.funcNumArgs(arguments, 2);
-		Assert.isMoment(date);
-
 		let isAfter = false;
 		if (!Ember.isNone(maxDate)) {
 			if (typeof maxDate === 'number' && !isNaN(maxDate)) {
@@ -119,7 +106,7 @@ export default TimePicker.reopenClass({
 			if (typeof maxDate === 'object' && this.isValidDate(maxDate)) {
 				isAfter = date.isAfter(maxDate);
 			} else {
-				Assert.throw('Invalid maxDate passed to isDateInBounds');
+				Ember.assert('Invalid maxDate passed to isDateInBounds');
 			}
 		}
 		return isAfter;
@@ -134,16 +121,9 @@ export default TimePicker.reopenClass({
 	 * @return {moment}
 	 */
 	getMomentDate(timestamp) {
-		Assert.funcNumArgs(arguments, 1);
-
 		let date = null;
 		if (!Ember.isNone(timestamp)) {
-			Assert.isNumber(timestamp);
-
 			date = moment(timestamp);
-
-			// ensure the timestamp passed in created a valid date
-			Assert.isMoment(date);
 		}
 		return date;
 	},

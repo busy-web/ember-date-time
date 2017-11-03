@@ -5,7 +5,6 @@
 import Ember from 'ember';
 import layout from '../../templates/components/interfaces/combined-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
-//import { Assert } from 'busy-utils';
 
 /**
  * `Component/CompinedPicker`

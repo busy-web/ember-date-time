@@ -3,7 +3,6 @@
  *
  */
 import Ember from 'ember';
-import { Assert } from 'busy-utils';
 
 export default Ember.Mixin.create({
 	_timeout: false,
@@ -35,9 +34,6 @@ export default Ember.Mixin.create({
 	},
 
 	isKey(evt, keys) {
-		Assert.isObject(evt);
-		Assert.isArray(keys);
-
 		const code = this.getKeyCode(evt);
 		const name = this.translate(code);
 		let isKey = false;
@@ -73,9 +69,7 @@ export default Ember.Mixin.create({
 	},
 
 	onKeyPressed(evt, keys, callback, target) {
-		Assert.isObject(evt);
-		Assert.isArray(keys);
-		Assert.test('callback must be a function', typeof callback === 'function');
+		Ember.assert('callback must be a function', typeof callback === 'function');
 
 		// set default target for target
 		target = Ember.isNone(target) ? this : target;

@@ -6,7 +6,6 @@ import Ember from 'ember';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
-import { Assert } from 'busy-utils';
 
 /***/
 const SnapUtils = Ember.Object.extend();
@@ -29,10 +28,6 @@ export default SnapUtils.reopenClass({
 	 * @param parentId {string} the parent element id set by ember
 	 */
 	addElement(type, value, parentId) {
-		Assert.isString(type);
-		Assert.isNumber(value);
-		Assert.isString(parentId);
-
 		value = TimePicker.formatNumber(value);
 
     const clock = new Snap(`#${parentId} #clocks-${type}-svg`);
@@ -58,10 +53,6 @@ export default SnapUtils.reopenClass({
 	 * @param parentId {string} the parent element id set by ember
    */
   activateClockNumber(type, value, parentId) {
-		Assert.isString(type);
-		Assert.isNumber(value);
-		Assert.isString(parentId);
-
 		value = TimePicker.formatNumber(value);
 
     const clock = new Snap(`#${parentId} #clocks-${type}-svg`);

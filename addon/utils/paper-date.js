@@ -3,7 +3,6 @@
  *
  */
 import Ember from 'ember';
-import { Assert } from 'busy-utils';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 
 /**
@@ -164,22 +163,20 @@ const PaperDate = Ember.Object.extend({
 });
 
 export default function paper(options) {
-	Assert.isObject(options);
-
 	const date = PaperDate.create();
 
-	// changed to Assert.test in and removed if statements that are not needed.
+	// changed to Ember.assert in and removed if statements that are not needed.
 	// minDate and maxDate should be null or a timestamp
 	if (options.minDate) {
-		Assert.test("minDate must be a valid timestamp", TimePicker.isValidTimestamp(options.minDate));
+		Ember.assert("minDate must be a valid timestamp", TimePicker.isValidTimestamp(options.minDate));
 	}
 
 	if (options.maxDate) {
-		Assert.test("maxDate must be a valid timestamp", TimePicker.isValidTimestamp(options.maxDate));
+		Ember.assert("maxDate must be a valid timestamp", TimePicker.isValidTimestamp(options.maxDate));
 	}
 
 	// timestamp must be set to a timestamp
-	Assert.test("timestamp must be a valid number in milliseconds representing a date", TimePicker.isValidTimestamp(options.timestamp));
+	Ember.assert("timestamp must be a valid number in milliseconds representing a date", TimePicker.isValidTimestamp(options.timestamp));
 
 	date.setProperties(options);
 	return date;

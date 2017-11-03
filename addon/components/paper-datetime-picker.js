@@ -7,7 +7,6 @@ import keyEvents from 'ember-paper-time-picker/mixins/key-events';
 import layout from '../templates/components/paper-datetime-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
-import { Assert } from 'busy-utils';
 
 /**
  * `Component/paper-datetime-picker`
@@ -221,9 +220,6 @@ export default Ember.Component.extend(keyEvents, {
 	},
 
 	setupPicker: Ember.observer('hideTime', 'hideDate', function() {
-		Assert.isBoolean(this.get('hideTime'));
-		Assert.isBoolean(this.get('hideDate'));
-
 		const showDate = (this.get('hideTime') || !this.get('hideDate'));
 		const showTime = (this.get('hideDate') || !this.get('hideTime'));
 		let state = 'day';

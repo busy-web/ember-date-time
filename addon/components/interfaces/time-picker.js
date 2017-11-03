@@ -4,7 +4,6 @@
  */
 import Ember from 'ember';
 import layout from '../../templates/components/interfaces/time-picker';
-import { Assert } from 'busy-utils';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
 import SnapUtils from 'ember-paper-time-picker/utils/snap-utils';
@@ -291,7 +290,7 @@ export default Ember.Component.extend({
 		} else if (type === kMinuteFlag) {
 			return this.getCurrentMinute();
 		} else {
-			Assert.throw(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`);
+			Ember.assert(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
 		}
 	},
 
@@ -349,7 +348,7 @@ export default Ember.Component.extend({
 			} else if (type === kMinuteFlag) {
 				this.minMaxHandler(kMinuteFlag, kMinuteMin, kMinuteMax);
 			} else {
-				Assert.throw(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`);
+				Ember.assert(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
 			}
 		}
 	},
@@ -362,7 +361,6 @@ export default Ember.Component.extend({
 	 * @param type {string} type to set time for hours or minutes
 	 */
 	setActiveTime(type) {
-		Assert.isString(type);
 		if (!this.get('isDestroyed')) {
 			const el = this.$();
 			if (el && el.length) {
@@ -389,7 +387,6 @@ export default Ember.Component.extend({
 	 * @param date {object} moment object that will be the new timestamp
 	 */
 	saveTimestamp(date) {
-		Assert.isMoment(date);
 		if (!this.get('isDestroyed') && this.get('timestamp') !== date.valueOf()) {
 			const bounds = TimePicker.isDateInBounds(date, this.get('minDate'), this.get('maxDate'));
 			if (bounds.isBefore || bounds.isAfter) {
@@ -402,14 +399,12 @@ export default Ember.Component.extend({
 	},
 
 	setAvailableTimestamp(bounds) {
-		Assert.isObject(bounds);
-
 		if (bounds.isBefore) {
 			this.saveTimestamp(TimePicker.getMomentDate(this.get('minDate')));
 		} else if (bounds.isAfter) {
 			this.saveTimestamp(TimePicker.getMomentDate(this.get('maxDate')));
 		} else {
-			Assert.throw(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`);
+			Ember.assert(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`, false);
 		}
 	},
 
@@ -424,10 +419,6 @@ export default Ember.Component.extend({
 	 * @return {number}
 	 */
 	getDegree(type, value) {
-		Assert.funcNumArgs(arguments, 2, true);
-		Assert.isString(type);
-		Assert.isNumber(value);
-
 		const total = type === kHourFlag ? 12 : 60;
 		return (value * (360 / total)) % 360;
 	},
@@ -443,10 +434,6 @@ export default Ember.Component.extend({
 	 * @return {number}
 	 */
 	getValueFromDegree(type, degree) {
-		Assert.funcNumArgs(arguments, 2, true);
-		Assert.isString(type);
-		Assert.isNumber(degree);
-
 		const total = type === kHourFlag ? kHourMax : kMinuteMax;
 		let result = (degree * total) / 360;
 		if (type === kMinuteFlag) {
@@ -471,9 +458,6 @@ export default Ember.Component.extend({
 	 * @param degree {number} degree from point 1 to point 2
 	 */
 	setTimeForDegree(type, degree) {
-		Assert.isString(type);
-		Assert.isNumber(degree);
-
 		if (!this.get('isDestroyed')) {
 			let time = this.getValueFromDegree(type, degree);
 			this.setTimestamp(type, time);
@@ -488,9 +472,6 @@ export default Ember.Component.extend({
 	 * @param minute {number} minute to be set to timestamp
 	 */
 	setTimestamp(type, value) {
-		Assert.isString(type);
-		Assert.isNumber(value);
-
 		const time = this.getDateFromTime(type, value);
 		this.saveTimestamp(time);
 		this.setActiveTime(type);
@@ -512,7 +493,7 @@ export default Ember.Component.extend({
 		} else if (type === kMinuteFlag) {
 			time.minute(value);
 		} else {
-			Assert.throw(`Invalid type [${type}] passed to setTimestamp, valid types are ${kHourFlag} and ${kMinuteFlag}`);
+			Ember.assert(`Invalid type [${type}] passed to setTimestamp, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
 		}
 		return time;
 	},

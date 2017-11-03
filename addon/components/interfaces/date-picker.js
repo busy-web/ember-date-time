@@ -3,7 +3,6 @@
  *
  */
 import Ember from 'ember';
-import { Assert } from 'busy-utils';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import createPaperDate from 'ember-paper-time-picker/utils/paper-date';
 import layout from '../../templates/components/interfaces/date-picker';
@@ -213,9 +212,6 @@ export default Ember.Component.extend({
    * @method resetCalendarDate
    */
   resetCalendarDate: Ember.observer('timestamp', function() {
-		const timestamp = this.get('timestamp');
-		Assert.isNumber(timestamp);
-
 		// get moment timestamp
 		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		if (TimePicker.isValidDate(time)) {
@@ -225,7 +221,7 @@ export default Ember.Component.extend({
 			this.set('day', time.format('DD'));
 			this.set('dayOfWeek', time.format('ddd'));
 		} else {
-			Assert.throw("timestamp must be a valid unix timestamp");
+			Ember.assert("timestamp must be a valid unix timestamp", false);
 		}
   }),
 
@@ -347,9 +343,6 @@ export default Ember.Component.extend({
    * @return {boolean} true if day is in week, otherwise false
    */
   inRange(lower, upper) {
-    Assert.isNumber(lower);
-    Assert.isNumber(upper);
-
     return function (each, index) {
       return (index >= lower && index < upper);
     };
@@ -363,7 +356,6 @@ export default Ember.Component.extend({
    * @param moment {object} moment object
    */
   setTimestamp(date) {
-    Assert.isMoment(date);
     this.set('timestamp', date.valueOf());
   },
 
@@ -375,7 +367,6 @@ export default Ember.Component.extend({
    * @param moment {object} moment object
    */
   setCalendarDate(date) {
-    Assert.isMoment(date);
     this.set('calendarDate', date.valueOf());
   },
 
@@ -390,9 +381,6 @@ export default Ember.Component.extend({
     dayClicked(paper) {
 			if (!paper.get('isDisabled')) {
 				const day = paper.get('date');
-
-				Assert.isMoment(day);
-
 				const newDay = day.date();
 				const newMonth = day.month();
 				const newYear = day.year();
