@@ -2,11 +2,14 @@
  * @module utils
  *
  */
-import Ember from 'ember';
+import { assert } from '@ember/debug';
+
+import { isNone } from '@ember/utils';
+import EmberObject from '@ember/object';
 import moment from 'moment';
 
 /***/
-const TimePicker = Ember.Object.extend();
+const TimePicker = EmberObject.extend();
 
 /**
  * `Util/TimePicker`
@@ -82,7 +85,7 @@ export default TimePicker.reopenClass({
 
 	isDateBefore(date, minDate) {
 		let isBefore = false;
-		if (!Ember.isNone(minDate)) {
+		if (!isNone(minDate)) {
 			if (typeof minDate === 'number' && !isNaN(minDate)) {
 				minDate = this.getMomentDate(minDate);
 			}
@@ -90,7 +93,7 @@ export default TimePicker.reopenClass({
 			if (typeof minDate === 'object' && this.isValidDate(minDate)) {
 				isBefore = date.isBefore(minDate);
 			} else {
-				Ember.assert('Invalid minDate passed to isDateInBounds');
+				assert('Invalid minDate passed to isDateInBounds');
 			}
 		}
 		return isBefore;
@@ -98,7 +101,7 @@ export default TimePicker.reopenClass({
 
 	isDateAfter(date, maxDate) {
 		let isAfter = false;
-		if (!Ember.isNone(maxDate)) {
+		if (!isNone(maxDate)) {
 			if (typeof maxDate === 'number' && !isNaN(maxDate)) {
 				maxDate = this.getMomentDate(maxDate);
 			}
@@ -106,7 +109,7 @@ export default TimePicker.reopenClass({
 			if (typeof maxDate === 'object' && this.isValidDate(maxDate)) {
 				isAfter = date.isAfter(maxDate);
 			} else {
-				Ember.assert('Invalid maxDate passed to isDateInBounds');
+				assert('Invalid maxDate passed to isDateInBounds');
 			}
 		}
 		return isAfter;
@@ -122,7 +125,7 @@ export default TimePicker.reopenClass({
 	 */
 	getMomentDate(timestamp) {
 		let date = null;
-		if (!Ember.isNone(timestamp)) {
+		if (!isNone(timestamp)) {
 			date = moment(timestamp);
 		}
 		return date;
@@ -137,7 +140,7 @@ export default TimePicker.reopenClass({
 	 * @return {boolean}
 	 */
 	isValidDate(date) {
-    return (!Ember.isNone(date) && typeof date === 'object' && moment.isMoment(date) && date.isValid());
+    return !isNone(date) && typeof date === 'object' && moment.isMoment(date) && date.isValid();
 	},
 
 	/**

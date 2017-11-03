@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
@@ -18,7 +18,7 @@ const calendar = paperDate({
 	timestamp: timestamp,
 });
 
-const activeState = Ember.Object.create({
+const activeState = EmberObject.create({
 	state: '',
 	isOpen: false,
 	isTop: false,

@@ -2,7 +2,12 @@
  * @module Components
  *
  */
-import Ember from 'ember';
+import { isNone } from '@ember/utils';
+
+import { assert } from '@ember/debug';
+import { on } from '@ember/object/evented';
+import { computed, observer } from '@ember/object';
+import Component from '@ember/component';
 import layout from '../../templates/components/interfaces/time-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import DragDrop from 'ember-paper-time-picker/utils/drag-drop';
@@ -21,9 +26,9 @@ const kMinuteFlag = 'minutes';
  *
  * @class TimePicker
  * @namespace Components
- * @extends Ember.Component
+ * @extends Component
  */
-export default Ember.Component.extend({
+export default Component.extend({
 	/**
 	 * @private
 	 * @property classNames
@@ -101,7 +106,7 @@ export default Ember.Component.extend({
 	 * @property hours
 	 * @type String
 	 */
-	hours: Ember.computed('timestamp', function() {
+	hours: computed('timestamp', function() {
 		return TimePicker.formatNumber(this.getCurrentHour());
 	}).readOnly(),
 
@@ -112,7 +117,7 @@ export default Ember.Component.extend({
 	 * @property minutes
 	 * @type String
 	 */
-	minutes: Ember.computed('timestamp', function() {
+	minutes: computed('timestamp', function() {
 		return TimePicker.formatNumber(this.getCurrentMinute());
 	}).readOnly(),
 
@@ -123,11 +128,11 @@ export default Ember.Component.extend({
 	 * @property currentDate
 	 * @type String
 	 */
-	currentDate: Ember.computed('timestamp', 'format', function() {
+	currentDate: computed('timestamp', 'format', function() {
 		return TimePicker.getMomentDate(this.get('timestamp')).format(this.get('format'));
 	}).readOnly(),
 
-	meridian: Ember.computed('timestamp', function() {
+	meridian: computed('timestamp', function() {
 		return TimePicker.getMomentDate(this.get('timestamp')).format('A');
 	}).readOnly(),
 
@@ -205,16 +210,16 @@ export default Ember.Component.extend({
 
 	isHourPicker: true,
 
-	initialize: Ember.on('init', function() {
+	initialize: on('init', function() {
 		this.setupTime();
 	}),
 
-	renderPicker: Ember.on('didInsertElement', function() {
+	renderPicker: on('didInsertElement', function() {
 		this.observesAmPm();
 		this.resetClockHands();
 	}),
 
-	setupTime: Ember.observer('paperDate.timestamp', function() {
+	setupTime: observer('paperDate.timestamp', function() {
 		// TODO:
 		// pass format from parent element
 		//this.set('format', this.get('paperDate.format'));
@@ -223,7 +228,7 @@ export default Ember.Component.extend({
 		this.set('timestamp', this.get('paperDate.timestamp'));
 	}),
 
-	resetClockHands: Ember.observer('timestamp', 'activeState.state', function() {
+	resetClockHands: observer('timestamp', 'activeState.state', function() {
 		let state = this.get('activeState.state');
 		if (state === 'meridian') {
 			state = 'hour';
@@ -253,7 +258,7 @@ export default Ember.Component.extend({
 	 * @private
 	 * @method observesAmPm
 	 */
-	observesAmPm: Ember.observer('meridian', function() {
+	observesAmPm: observer('meridian', function() {
 		if (this.$() && this.$().length) {
 			this.$('.am-pm-container > .button').removeClass('active');
 
@@ -290,7 +295,7 @@ export default Ember.Component.extend({
 		} else if (type === kMinuteFlag) {
 			return this.getCurrentMinute();
 		} else {
-			Ember.assert(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
+			assert(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
 		}
 	},
 
@@ -348,7 +353,7 @@ export default Ember.Component.extend({
 			} else if (type === kMinuteFlag) {
 				this.minMaxHandler(kMinuteFlag, kMinuteMin, kMinuteMax);
 			} else {
-				Ember.assert(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
+				assert(`Invalid type [${type}] passed to removeClockTime, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
 			}
 		}
 	},
@@ -366,7 +371,7 @@ export default Ember.Component.extend({
 			if (el && el.length) {
 				const id = el.attr('id');
 				const lastActive = this.get(`lastActive`);
-				if (!Ember.isNone(lastActive)) {
+				if (!isNone(lastActive)) {
 					SnapUtils.addElement(type, lastActive, id);
 				}
 
@@ -404,7 +409,7 @@ export default Ember.Component.extend({
 		} else if (bounds.isAfter) {
 			this.saveTimestamp(TimePicker.getMomentDate(this.get('maxDate')));
 		} else {
-			Ember.assert(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`, false);
+			assert(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`, false);
 		}
 	},
 
@@ -493,7 +498,7 @@ export default Ember.Component.extend({
 		} else if (type === kMinuteFlag) {
 			time.minute(value);
 		} else {
-			Ember.assert(`Invalid type [${type}] passed to setTimestamp, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
+			assert(`Invalid type [${type}] passed to setTimestamp, valid types are ${kHourFlag} and ${kMinuteFlag}`, false);
 		}
 		return time;
 	},
@@ -542,7 +547,7 @@ export default Ember.Component.extend({
 			// calculate text position if there is a text
 			// at this number
 			const text = clock.select(`#${strings.text}`);
-			if (!Ember.isNone(text)) {
+			if (!isNone(text)) {
 				const bounds = text.node.getBBox();
 				const nx = (x - (bounds.width/2));
 				const ny = (y + (bounds.height/3));
@@ -552,7 +557,7 @@ export default Ember.Component.extend({
 
 			// calculate section position for click areas on minutes
 			const section = clock.select(`#${strings.section}`);
-			if (!Ember.isNone(section)) {
+			if (!isNone(section)) {
 				const tLength = radius;
 				const bLength = lineLength - (timeRadius*2);
 
@@ -629,7 +634,7 @@ export default Ember.Component.extend({
 			 */
 			const start = function() {
 				this.data('origTransform', this.transform().local);
-				if (!Ember.isNone(curTimeElement)) {
+				if (!isNone(curTimeElement)) {
 					curTimeElement.remove();
 					curTimeElement.appendTo(clock);
 					curTimeElement.removeClass('interior-white');
@@ -664,13 +669,13 @@ export default Ember.Component.extend({
 				_this.sendAction('onUpdate', type, _this.get('timestamp'));
 			};
 
-			if (!Ember.isNone(this.get('lastGroup'))) {
+			if (!isNone(this.get('lastGroup'))) {
 				const undragPrevious = this.get('lastGroup');
 				undragPrevious.undrag();
 			}
 
 			const typeArray = [curLine, curCircle];
-			if (!Ember.isNone(curHours)) {
+			if (!isNone(curHours)) {
 				typeArray.push(curHours);
 			}
 

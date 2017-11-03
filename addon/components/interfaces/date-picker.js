@@ -2,7 +2,14 @@
  * @module Components
  *
  */
-import Ember from 'ember';
+import { A } from '@ember/array';
+
+import { camelize } from '@ember/string';
+import { isNone } from '@ember/utils';
+import { assert } from '@ember/debug';
+import { observer } from '@ember/object';
+import { on } from '@ember/object/evented';
+import Component from '@ember/component';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import createPaperDate from 'ember-paper-time-picker/utils/paper-date';
 import layout from '../../templates/components/interfaces/date-picker';
@@ -12,9 +19,9 @@ import layout from '../../templates/components/interfaces/date-picker';
  *
  * @class DatePicker
  * @namespace Components
- * @extends Ember.Component
+ * @extends Component
  */
-export default Ember.Component.extend({
+export default Component.extend({
 
   /**
    * @private
@@ -192,14 +199,14 @@ export default Ember.Component.extend({
    * @method init
    * @constructor
    */
-  initialize: Ember.on('init', function() {
+  initialize: on('init', function() {
 		this.setupTime();
     this.resetCalendarDate();
     this.keepCalendarUpdated();
     this.updateActiveSection();
 	}),
 
-	setupTime: Ember.observer('paperDate.timestamp', function() {
+	setupTime: observer('paperDate.timestamp', function() {
 		this.set('minDate', this.get('paperDate.minDate'));
 		this.set('maxDate', this.get('paperDate.maxDate'));
 		this.set('timestamp', this.get('paperDate.timestamp'));
@@ -211,7 +218,7 @@ export default Ember.Component.extend({
    * @private
    * @method resetCalendarDate
    */
-  resetCalendarDate: Ember.observer('timestamp', function() {
+  resetCalendarDate: observer('timestamp', function() {
 		// get moment timestamp
 		const time = TimePicker.getMomentDate(this.get('timestamp'));
 		if (TimePicker.isValidDate(time)) {
@@ -221,7 +228,7 @@ export default Ember.Component.extend({
 			this.set('day', time.format('DD'));
 			this.set('dayOfWeek', time.format('ddd'));
 		} else {
-			Ember.assert("timestamp must be a valid unix timestamp", false);
+			assert("timestamp must be a valid unix timestamp", false);
 		}
   }),
 
@@ -231,10 +238,10 @@ export default Ember.Component.extend({
    * @private
    * @method updateActiveSection
    */
-  updateActiveSection: Ember.observer('activeState.state', function() {
+  updateActiveSection: observer('activeState.state', function() {
 		let state = this.get('activeState.state');
-		if (!Ember.isNone(state)) {
-			state = Ember.String.camelize(state);
+		if (!isNone(state)) {
+			state = camelize(state);
 			const statusType = ['day', 'month', 'year', 'monthYear'];
 
 			// ensure the active status applies to the calendar
@@ -257,7 +264,7 @@ export default Ember.Component.extend({
    * @private
    * @method keepCalendarUpdated
    */
-  keepCalendarUpdated: Ember.observer('calendarDate', function() {
+  keepCalendarUpdated: observer('calendarDate', function() {
     const calendarObject = TimePicker.getMomentDate(this.get('calendarDate'));
     this.buildDaysArrayForMonth();
     this.set('monthYear', calendarObject.format('MMMM YYYY'));
@@ -290,7 +297,7 @@ export default Ember.Component.extend({
 			daysInCalendar = 35;
 		}
 
-		const daysArray = Ember.A();
+		const daysArray = A();
     for (let i=0; i<daysInCalendar; i++) {
 			const paper = createPaperDate({timestamp: currentDay.valueOf(), minDate, maxDate, type: 'date'});
 			paper.set('weekNumber', Math.ceil((i+1)/7));
@@ -321,7 +328,7 @@ export default Ember.Component.extend({
    * @method groupByWeeks
    */
   groupByWeeks(completeArray) {
-    let grouped = Ember.A([]);
+    let grouped = A([]);
 
     grouped.pushObject(completeArray.filterBy('weekNumber', 1));
     grouped.pushObject(completeArray.filterBy('weekNumber', 2));

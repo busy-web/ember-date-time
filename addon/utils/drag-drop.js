@@ -2,10 +2,10 @@
 * @module utils
 *
 */
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 
 /***/
-const DragDrop = Ember.Object.extend();
+const DragDrop = EmberObject.extend();
 
  /**
   * `Util/DragDrop`

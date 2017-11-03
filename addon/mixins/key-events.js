@@ -2,9 +2,12 @@
  * @module Mixins
  *
  */
-import Ember from 'ember';
+import { isNone } from '@ember/utils';
 
-export default Ember.Mixin.create({
+import { assert } from '@ember/debug';
+import Mixin from '@ember/object/mixin';
+
+export default Mixin.create({
 	_timeout: false,
 
 	throttleKey(evt, time=50) {
@@ -69,10 +72,10 @@ export default Ember.Mixin.create({
 	},
 
 	onKeyPressed(evt, keys, callback, target) {
-		Ember.assert('callback must be a function', typeof callback === 'function');
+		assert('callback must be a function', typeof callback === 'function');
 
 		// set default target for target
-		target = Ember.isNone(target) ? this : target;
+		target = isNone(target) ? this : target;
 
 		if (this.isKey(evt, keys)) {
 			callback.call(target);

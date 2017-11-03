@@ -2,18 +2,20 @@
 * @module utils
 *
 */
-import Ember from 'ember';
+import { isNone } from '@ember/utils';
+
+import EmberObject from '@ember/object';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import Snap from 'snap-svg';
 import mina from 'mina';
 
 /***/
-const SnapUtils = Ember.Object.extend();
+const SnapUtils = EmberObject.extend();
 
- /**
-  * `Util/SnapUtils`
-  *
-  */
+/**
+ * `Util/SnapUtils`
+ *
+ */
 export default SnapUtils.reopenClass({
 
 	snap: Snap,
@@ -34,7 +36,7 @@ export default SnapUtils.reopenClass({
     const strings = TimePicker.elementNames(type, value);
 
     const clockNumber = clock.select(`#${strings.text}`);
-		if (!Ember.isNone(clockNumber)) {
+		if (!isNone(clockNumber)) {
 			clockNumber.removeClass('interior-white');
 		}
 
@@ -59,7 +61,7 @@ export default SnapUtils.reopenClass({
     const strings = TimePicker.elementNames(type, value);
 
 		const clockNumber = clock.select(`#${strings.text}`);
-		if (!Ember.isNone(clockNumber) && !clockNumber.hasClass('interior-white')) {
+		if (!isNone(clockNumber) && !clockNumber.hasClass('interior-white')) {
 			clockNumber.addClass('interior-white');
 			clock.select(`#${strings.line}`).appendTo(clock);
 			clock.select(`#${strings.circle}`).appendTo(clock);
@@ -86,12 +88,12 @@ export default SnapUtils.reopenClass({
     const strings = TimePicker.elementNames(type, value);
 
 		const section = clock.select(`#${strings.section}`);
-		if (!Ember.isNone(section)) {
+		if (!isNone(section)) {
 			section.removeClass('disabled');
 		}
 
 		const clockNumber = clock.select(`#${strings.text}`);
-		if (!Ember.isNone(clockNumber)) {
+		if (!isNone(clockNumber)) {
 			clockNumber.removeClass('disabled');
 		}
 	},
@@ -110,12 +112,12 @@ export default SnapUtils.reopenClass({
     const strings = TimePicker.elementNames(type, value);
 
 		const section = clock.select(`#${strings.section}`);
-		if (!Ember.isNone(section) && !section.hasClass('disabled')) {
+		if (!isNone(section) && !section.hasClass('disabled')) {
 			section.addClass('disabled');
 		}
 
 		const clockNumber = clock.select(`#${strings.text}`);
-		if (!Ember.isNone(clockNumber) && !clockNumber.hasClass('disabled')) {
+		if (!isNone(clockNumber) && !clockNumber.hasClass('disabled')) {
 			clockNumber.addClass('disabled');
 		}
 	}

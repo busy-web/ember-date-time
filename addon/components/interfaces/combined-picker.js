@@ -2,7 +2,12 @@
  * @module Components
  *
  */
-import Ember from 'ember';
+import { isNone } from '@ember/utils';
+
+import $ from 'jquery';
+import { on } from '@ember/object/evented';
+import { computed, observer } from '@ember/object';
+import Component from '@ember/component';
 import layout from '../../templates/components/interfaces/combined-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 
@@ -11,9 +16,9 @@ import TimePicker from 'ember-paper-time-picker/utils/time-picker';
  *
  * @class CombinedPicker
  * @namespace Components
- * @extends Ember.Component
+ * @extends Component
  */
-export default Ember.Component.extend({
+export default Component.extend({
 
   /**
    * @private
@@ -91,7 +96,7 @@ export default Ember.Component.extend({
    * @property currentDate
    * @type String
    */
-  currentDate: Ember.computed('timestamp', function() {
+  currentDate: computed('timestamp', function() {
 		return TimePicker.getMomentDate(this.get('timestamp')).format('MMM DD, YYYY');
 	}).readOnly(),
 
@@ -102,7 +107,7 @@ export default Ember.Component.extend({
    * @property currentTime
    * @type String
    */
-  currentTime: Ember.computed('timestamp', function() {
+  currentTime: computed('timestamp', function() {
 		return TimePicker.getMomentDate(this.get('timestamp')).format('hh:mm A');
 	}).readOnly(),
 
@@ -132,13 +137,13 @@ export default Ember.Component.extend({
    * @method init
    * @constructor
    */
-  initialize: Ember.on('init', function() {
+  initialize: on('init', function() {
 		this.setupTime();
     this.observeActiveSection();
     this.set('backupTimestamp', this.get('timestamp'));
 	}),
 
-	setupTime: Ember.observer('paperDate.timestamp', function() {
+	setupTime: observer('paperDate.timestamp', function() {
 		this.set('minDate', this.get('paperDate.minDate'));
 		this.set('maxDate', this.get('paperDate.maxDate'));
 		this.set('timestamp', this.get('paperDate.timestamp'));
@@ -146,13 +151,13 @@ export default Ember.Component.extend({
 
 	bindListeners() {
     if (this.get('isClock') === true || this.get('isCalendar') === true) {
-      const modal = Ember.$(document);
+      const modal = $(document);
       const thisEl = this.$();
 			const id = thisEl.attr('id');
 
       modal.bind(`click.paper-datetime-picker-${id}`, (evt) => {
         if (!this.get('isDestroyed')) {
-          let el = Ember.$(evt.target);
+          let el = $(evt.target);
 
           let elMain = el.parents('.paper-datetime-picker');
           let thisMain = thisEl.parents('.paper-datetime-picker');
@@ -186,7 +191,7 @@ export default Ember.Component.extend({
   },
 
 	unbindListeners() {
-    let modal = Ember.$(document);
+    let modal = $(document);
 		const id = this.$().attr('id');
     modal.unbind(`click.paper-datetime-picker-${id}`);
     modal.unbind(`keyup.paper-datetime-picker-${id}`);
@@ -197,7 +202,7 @@ export default Ember.Component.extend({
    * @private
    * @method didInsertElement
    */
-  onOpen: Ember.on('didInsertElement', function() {
+  onOpen: on('didInsertElement', function() {
 		this.unbindListeners();
 		this.bindListeners();
 	}),
@@ -207,7 +212,7 @@ export default Ember.Component.extend({
    * @private
    * @method removeClick
    */
-  onClose: Ember.on('willDestroyElement', function() {
+  onClose: on('willDestroyElement', function() {
 		this.unbindListeners();
   }),
 
@@ -217,7 +222,7 @@ export default Ember.Component.extend({
    * @private
    * @method observeCloseOnTab
    */
-	observeCloseOnTab: Ember.observer('activeState.isOpen', function() {
+	observeCloseOnTab: observer('activeState.isOpen', function() {
 		if (this.get('activeState.isOpen')) {
 			this.unbindListeners();
 			this.bindListeners();
@@ -232,9 +237,9 @@ export default Ember.Component.extend({
    * @private
    * @method observeActiveSection
    */
-  observeActiveSection: Ember.observer('activeState.state', function() {
+  observeActiveSection: observer('activeState.state', function() {
     const state = this.get('activeState.state');
-		if (!Ember.isNone(state)) {
+		if (!isNone(state)) {
 			this.set('isClock', (state === 'hour' || state === 'minute' || state === 'meridian'));
 			this.set('isCalendar', (state === 'year' || state === 'month' || state === 'day'));
 		}
