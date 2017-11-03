@@ -7,7 +7,6 @@ import Component from '@ember/component';
 import EmberObject, { observer } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
 import { on } from '@ember/object/evented';
-import { singularize } from 'ember-inflector';
 import keyEvents from 'ember-paper-time-picker/mixins/key-events';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
@@ -336,7 +335,7 @@ export default Component.extend(keyEvents, {
 	},
 
 	focusState(state) {
-		state = singularize(state);
+		state = state.replace(/s$/, '');
 		this.$(`.section.${state} > input`).focus();
 	},
 
