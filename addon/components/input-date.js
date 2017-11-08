@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import { computed } from '@ember/object';
+import Component from '@ember/component';
 import layout from '../templates/components/input-date';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 
-export default Ember.Component.extend({
+export default Component.extend({
 	classNames: ['paper-date-input'],
 
   layout,
@@ -11,11 +12,11 @@ export default Ember.Component.extend({
 	value: null,
 	format: 'MM/DD/YYYY',
 
-	maxlength: Ember.computed('format', function() {
+	maxlength: computed('format', function() {
 		return (this.get('format') || '').length;
 	}),
 
-	_date: Ember.computed('value', function() {
+	_date: computed('value', function() {
 		return TimePicker.getMomentDate(this.get('value') || undefined).format('MM/DD/YYYY');
 	}),
 

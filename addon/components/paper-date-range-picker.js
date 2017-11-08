@@ -2,15 +2,18 @@
  * @module Components
  *
  */
-import Ember from 'ember';
+import { later } from '@ember/runloop';
+import { underscore } from '@ember/string';
+import { on } from '@ember/object/evented';
+import Component from '@ember/component';
+import { isEmpty, isNone } from '@ember/utils';
+import EmberObject, { set, get, computed } from '@ember/object';
 import { Assert, loc } from 'busy-utils';
 import layout from '../templates/components/paper-date-range-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
 
-const { isNone, isEmpty, get, set } = Ember;
-
-export default Ember.Component.extend({
+export default Component.extend({
 	/**
 	 * @private
 	 * @property classNames
@@ -90,17 +93,17 @@ export default Ember.Component.extend({
 	isListOpen: false,
 	isCustom: false,
 
-	disableNext: Ember.computed('selected', '_start', '_max', function() {
+	disableNext: computed('selected', '_start', '_max', function() {
 		const { start } = this.getInterval(1);
 		return get(this, '_max') < start;
 	}),
 
-	disablePrev: Ember.computed('selected', '_end', '_min', function() {
+	disablePrev: computed('selected', '_end', '_min', function() {
 		const { end } = this.getInterval(-1);
 		return get(this, '_min') > end;
 	}),
 
-	selectedDateRange: Ember.computed('selected', '_start', '_end', function() {
+	selectedDateRange: computed('selected', '_start', '_end', function() {
 		const { id } = get(this, 'selected');
 		const start = TimePicker.getMomentDate(this.getStart());
 		const end = TimePicker.getMomentDate(this.getEnd());
@@ -127,7 +130,7 @@ export default Ember.Component.extend({
 		return null;
 	},
 
-	setup: Ember.on('didReceiveAttrs', function() {
+	setup: on('didReceiveAttrs', function() {
 		const utc = get(this, 'utc');
 		const isUnix = !isNone(get(this, 'startUnix')) || !isNone(get(this, 'endUnix'));
 		set(this, '_isUnix', isUnix);
@@ -183,7 +186,7 @@ export default Ember.Component.extend({
 		}
 
 		if (isNone(get(this, 'startActiveState'))) {
-			this.set('startActiveState', Ember.Object.create({
+			this.set('startActiveState', EmberObject.create({
 				state: '',
 				isOpen: true,
 				isTop: false,
@@ -191,7 +194,7 @@ export default Ember.Component.extend({
 		}
 
 		if (isNone(get(this, 'endActiveState'))) {
-			this.set('endActiveState', Ember.Object.create({
+			this.set('endActiveState', EmberObject.create({
 				state: '',
 				isOpen: false,
 				isTop: false,
@@ -206,13 +209,13 @@ export default Ember.Component.extend({
 			let sortKey = 400;
 			actionList.forEach(item => {
 				if (!item.get && !item.set) {
-					item = Ember.Object.create(item);
+					item = EmberObject.create(item);
 				}
 
 				Assert.test("Action list items must contain a `name` property", isNone(get(item, 'name')));
 
 				if (isNone(item, 'id')) {
-					set(item, 'id', Ember.String.underscore(get(item, 'name')));
+					set(item, 'id', underscore(get(item, 'name')));
 				}
 
 				if (isNone(get(item, 'sort'))) {
@@ -235,9 +238,9 @@ export default Ember.Component.extend({
 		// type {string} - the units used to calculate the time {span}
 		// sort {number} - a weighted number used to sort the list
 		// selected {boolean} a true if the item is currently the selected item
-		actionList.push(Ember.Object.create({id: 'daily', name: loc('Daily'), span: 1, type: 'days', sort: 100, selected: false}));
-		actionList.push(Ember.Object.create({id: 'weekly', name: loc('Weekly'), span: 1, type: 'weeks', sort: 200, selected: false}));
-		actionList.push(Ember.Object.create({id: 'monthly', name: loc('Monthly'), span: 1, type: 'months', sort: 300, selected: false}));
+		actionList.push(EmberObject.create({id: 'daily', name: loc('Daily'), span: 1, type: 'days', sort: 100, selected: false}));
+		actionList.push(EmberObject.create({id: 'weekly', name: loc('Weekly'), span: 1, type: 'weeks', sort: 200, selected: false}));
+		actionList.push(EmberObject.create({id: 'monthly', name: loc('Monthly'), span: 1, type: 'months', sort: 300, selected: false}));
 
 		set(this, 'actionList', actionList.sortBy('sort'));
 
@@ -249,7 +252,7 @@ export default Ember.Component.extend({
 	getDefaultAction(list) {
 		if (get(this, 'isCustom')) {
 			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
-			return Ember.Object.create({name: loc('Custom'), span, type: 'days'});
+			return EmberObject.create({name: loc('Custom'), span, type: 'days'});
 		} else if (!isEmpty(get(this, 'defaultAction'))) {
 			return list.findBy('id', get(this, 'defaultAction'));
 		} else {
@@ -303,7 +306,9 @@ export default Ember.Component.extend({
 
 	getInterval(direction=0) {
 		const { span, type } = this.get('selected');
-		const endType = Ember.String.singularize(type);
+		console.log('type before', type);
+		const endType = type.replace(/s$/, '');
+		console.log('type after', type);
 		let start = TimePicker.getMomentDate(this.getStart());
 		let end;
 
@@ -427,7 +432,7 @@ export default Ember.Component.extend({
 
 			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
 			set(this, 'isCustom', true);
-			set(this, 'selected', Ember.Object.create({name: loc('Custom'), span, type: 'days'}));
+			set(this, 'selected', EmberObject.create({name: loc('Custom'), span, type: 'days'}));
 
 			set(this, 'saveAction', action);
 			set(this, 'saveStart', this.getStart());
@@ -460,7 +465,7 @@ export default Ember.Component.extend({
 			if (TimePicker.getMomentDate(timestamp).month() !== TimePicker.getMomentDate(this.getEnd()).month()) {
 				this.setEnd(timestamp);
 			}
-			Ember.run.later(() => {
+			later(() => {
 				this.setActiveState(false);
 			}, 300);
 		},

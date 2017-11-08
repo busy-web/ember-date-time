@@ -2,8 +2,10 @@
  * @module Utils
  *
  */
-import Ember from 'ember';
-import { Assert } from 'busy-utils';
+import { assert } from '@ember/debug';
+
+import { isNone } from '@ember/utils';
+import EmberObject, { observer, computed } from '@ember/object';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 
 /**
@@ -11,7 +13,7 @@ import TimePicker from 'ember-paper-time-picker/utils/time-picker';
  *
  * @class PaperDate
  */
-const PaperDate = Ember.Object.extend({
+const PaperDate = EmberObject.extend({
 	/**
 	 * Must be a timestamp in milliseconds
 	 *
@@ -36,7 +38,7 @@ const PaperDate = Ember.Object.extend({
 	 */
 	date: null,
 
-	dateSetter: Ember.observer('timestamp', function() {
+	dateSetter: observer('timestamp', function() {
 		const date = TimePicker.getMomentDate(this.get('timestamp'));
 		this.set('date', date);
 	}),
@@ -48,7 +50,7 @@ const PaperDate = Ember.Object.extend({
 	 * @property dayOfMonth
 	 * @type number
 	 */
-	dayOfMonth: Ember.computed('timestamp', function() {
+	dayOfMonth: computed('timestamp', function() {
 		return this.get('date').date();
 	}),
 
@@ -59,9 +61,9 @@ const PaperDate = Ember.Object.extend({
 	 * @property isBefore
 	 * @type boolean
 	 */
-	isBefore: Ember.computed('minDate', 'timestamp', function() {
+	isBefore: computed('minDate', 'timestamp', function() {
 		let isBefore = false;
-		if (!Ember.isNone(this.get('timestamp'))) {
+		if (!isNone(this.get('timestamp'))) {
 			let date = this.get('date');
 			if (this.get('type') === 'date') {
 				date = TimePicker.getMomentDate(date.valueOf()).endOf('day');
@@ -78,9 +80,9 @@ const PaperDate = Ember.Object.extend({
 	 * @property isAfter
 	 * @type boolean
 	 */
-	isAfter: Ember.computed('maxDate', 'timestamp', function() {
+	isAfter: computed('maxDate', 'timestamp', function() {
 		let isAfter = false;
-		if (!Ember.isNone(this.get('timestamp'))) {
+		if (!isNone(this.get('timestamp'))) {
 			let date = this.get('date');
 			if (this.get('type') === 'date') {
 				date = TimePicker.getMomentDate(date.valueOf()).startOf('day');
@@ -142,13 +144,13 @@ const PaperDate = Ember.Object.extend({
 	 * @property isDisabled
 	 * @type boolean
 	 */
-	isDisabled: Ember.computed('isBefore', 'isAfter', function() {
+	isDisabled: computed('isBefore', 'isAfter', function() {
 		return (this.get('isBefore') || this.get('isAfter'));
 	}),
 
 	resetTime() {
 		const backup = this.get('_backupTimestamp');
-		if (!Ember.isNone(backup)) {
+		if (!isNone(backup)) {
 			this.set('timestamp', backup);
 			this.set('_backupTimestamp', backup);
 		}
@@ -164,22 +166,20 @@ const PaperDate = Ember.Object.extend({
 });
 
 export default function paper(options) {
-	Assert.isObject(options);
-
 	const date = PaperDate.create();
 
-	// changed to Assert.test in and removed if statements that are not needed.
+	// changed to assert in and removed if statements that are not needed.
 	// minDate and maxDate should be null or a timestamp
 	if (options.minDate) {
-		Assert.test("minDate must be a valid timestamp", TimePicker.isValidTimestamp(options.minDate));
+		assert("minDate must be a valid timestamp", TimePicker.isValidTimestamp(options.minDate));
 	}
 
 	if (options.maxDate) {
-		Assert.test("maxDate must be a valid timestamp", TimePicker.isValidTimestamp(options.maxDate));
+		assert("maxDate must be a valid timestamp", TimePicker.isValidTimestamp(options.maxDate));
 	}
 
 	// timestamp must be set to a timestamp
-	Assert.test("timestamp must be a valid number in milliseconds representing a date", TimePicker.isValidTimestamp(options.timestamp));
+	assert("timestamp must be a valid number in milliseconds representing a date", TimePicker.isValidTimestamp(options.timestamp));
 
 	date.setProperties(options);
 	return date;

@@ -1,7 +1,8 @@
-import Ember from 'ember';
+import { observer } from '@ember/object';
+import Controller from '@ember/controller';
 import moment from 'moment';
 
-export default Ember.Controller.extend({
+export default Controller.extend({
 
 	unix: null,
 	milli: null,
@@ -50,7 +51,7 @@ export default Ember.Controller.extend({
 		this.set('model', model);
 	},
 
-	test: Ember.observer('unix', function() {
+	test: observer('unix', function() {
 		window.console.log('unix changed', this.get('unix'));
 	}),
 });

@@ -37,7 +37,7 @@ Use ember-jsignature in your template:
 Documentation
 ------------------------------------------------------------------------------
 
-Documentation can only be found by cloning the repo and running `ember server` 
+Documentation can only be found by cloning the repo and running `ember server`
 then viewing the page at `localhost:4200` in a browser.
 
 
@@ -74,4 +74,4 @@ License
 [MIT License](https://opensource.org/licenses/mit-license.php)
 
 [embadge]: http://embadge.io/
-[ember-badge]: http://embadge.io/v1/badge.svg?start=2.14.0
+[ember-badge]: http://embadge.io/v1/badge.svg?start=2.16.2

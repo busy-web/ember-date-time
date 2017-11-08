@@ -1,6 +1,6 @@
+import EmberObject from '@ember/object';
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
-import Ember from 'ember';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
 //import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import moment from 'moment';
@@ -15,7 +15,7 @@ const paper = paperDate({
 	timestamp: timestamp,
 });
 
-const activeState = Ember.Object.create({
+const activeState = EmberObject.create({
 	state: '',
 	isOpen: false,
 	isTop: false,

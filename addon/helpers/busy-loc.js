@@ -2,7 +2,7 @@
  * @module Helpers
  *
  */
-import Ember from 'ember';
+import Helper from '@ember/component/helper';
 import { i18n } from 'busy-utils';
 
 /**
@@ -12,7 +12,7 @@ import { i18n } from 'busy-utils';
  * @namespace Helpers
  * @extends Ember.Helper
  */
-export default Ember.Helper.extend({
+export default Helper.extend({
 	/**
 	 * Helpers compute override mehtod and main entry
 	 * mehtod of the template helper

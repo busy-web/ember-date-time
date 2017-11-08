@@ -2,21 +2,24 @@
  * @module Components
  *
  */
-import Ember from 'ember';
+import $ from 'jquery';
+import Component from '@ember/component';
+import EmberObject, { observer, get } from '@ember/object';
+import { isNone, isEmpty } from '@ember/utils';
+import { on } from '@ember/object/evented';
 import keyEvents from 'ember-paper-time-picker/mixins/key-events';
-import layout from '../templates/components/paper-datetime-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
-import { Assert } from 'busy-utils';
+import layout from '../templates/components/paper-datetime-picker';
 
 /**
  * `Component/paper-datetime-picker`
  *
  * @class PaperDatetimePicker
  * @namespace Components
- * @extends Ember.Component
+ * @extends Component
  */
-export default Ember.Component.extend(keyEvents, {
+export default Component.extend(keyEvents, {
 	/**
 	 * @private
 	 * @property classNames
@@ -173,7 +176,7 @@ export default Ember.Component.extend(keyEvents, {
 	 * @method initialize
 	 * @constructor
 	 */
-	initialize: Ember.on('init', function() {
+	initialize: on('init', function() {
 		this.setActiveState();
 		this.setupPicker();
 		this.setPaperDate(this.get('timestamp'), this.get('unix'));
@@ -184,22 +187,22 @@ export default Ember.Component.extend(keyEvents, {
 		let minDate = this.get('minDate');
 		let maxDate = this.get('maxDate');
 
-		if (!Ember.isNone(timestamp)) {
+		if (!isNone(timestamp)) {
 			if (this.get('utc')) {
 				timestamp = TimePicker.utcToLocal(timestamp);
-				if (!Ember.isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
-				if (!Ember.isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
+				if (!isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
+				if (!isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
 			}
-		} else if (!Ember.isNone(unix)) {
+		} else if (!isNone(unix)) {
 			// assume all dates are unix and convert them to milliseconds
 			timestamp = TimePicker.getTimstamp(unix);
-			if (!Ember.isNone(minDate)) { minDate = TimePicker.getTimstamp(minDate); }
-			if (!Ember.isNone(maxDate)) { maxDate = TimePicker.getTimstamp(maxDate); }
+			if (!isNone(minDate)) { minDate = TimePicker.getTimstamp(minDate); }
+			if (!isNone(maxDate)) { maxDate = TimePicker.getTimstamp(maxDate); }
 
 			if (this.get('utc')) {
 				timestamp = TimePicker.utcToLocal(timestamp);
-				if (!Ember.isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
-				if (!Ember.isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
+				if (!isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
+				if (!isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
 			}
 		}
 
@@ -222,10 +225,7 @@ export default Ember.Component.extend(keyEvents, {
 		this.set('calendar', cal);
 	},
 
-	setupPicker: Ember.observer('hideTime', 'hideDate', function() {
-		Assert.isBoolean(this.get('hideTime'));
-		Assert.isBoolean(this.get('hideDate'));
-
+	setupPicker: observer('hideTime', 'hideDate', function() {
 		const showDate = (this.get('hideTime') || !this.get('hideDate'));
 		const showTime = (this.get('hideDate') || !this.get('hideTime'));
 		let state = 'day';
@@ -242,7 +242,7 @@ export default Ember.Component.extend(keyEvents, {
 	 * @private
 	 * @method updateInputValues
 	 */
-	updateInputValues: Ember.observer('paper.timestamp', function() {
+	updateInputValues: observer('paper.timestamp', function() {
 		const time = this.get('paper.date');
 
 		this.set('timestampMeridian', time.format('A'));
@@ -259,7 +259,7 @@ export default Ember.Component.extend(keyEvents, {
 	 * @private
 	 * @method updatePaperOnTimestampChange
 	 */
-	updatePaperOnTimestampChange: Ember.observer('timestamp', 'unix', function() {
+	updatePaperOnTimestampChange: observer('timestamp', 'unix', function() {
 		this.setPaperDate(this.get('timestamp'), this.get('unix'));
 	}),
 
@@ -271,7 +271,7 @@ export default Ember.Component.extend(keyEvents, {
 	 * @param time {Moment|number} moment or timestamp
 	 */
 	setTimestamp(time) {
-		if (!Ember.isNone(time)) {
+		if (!isNone(time)) {
 			if (typeof time === 'object' && typeof time.valueOf === 'function') {
 				time = time.valueOf();
 			}
@@ -281,11 +281,11 @@ export default Ember.Component.extend(keyEvents, {
 				time = TimePicker.utcFromLocal(time);
 			}
 
-			if (!Ember.isNone(this.get('timestamp'))) {
+			if (!isNone(this.get('timestamp'))) {
 				this.set('timestamp', time);
 			}
 
-			if (!Ember.isNone(this.get('unix'))) {
+			if (!isNone(this.get('unix'))) {
 				time = TimePicker.getUnix(time);
 				this.set('unix', time);
 			}
@@ -295,15 +295,15 @@ export default Ember.Component.extend(keyEvents, {
 	},
 
 	setActiveState(options={}) {
-		if (Ember.isNone(this.get('activeState'))) {
-			this.set('activeState', Ember.Object.create({
+		if (isNone(this.get('activeState'))) {
+			this.set('activeState', EmberObject.create({
 				state: '',
 				isOpen: this.get('lockOpen') ? true : false,
 				isTop: false,
 			}));
 		}
 
-		if (!Ember.isEmpty(options.state)) {
+		if (!isEmpty(options.state)) {
 			this.set('activeState.state', options.state);
 		} else {
 			if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
@@ -313,23 +313,23 @@ export default Ember.Component.extend(keyEvents, {
 			}
 		}
 
-		if (!Ember.isNone(options.isOpen)) {
+		if (!isNone(options.isOpen)) {
 			if (!this.get('lockOpen')) {
 				this.set('activeState.isOpen', options.isOpen);
 			}
 		}
 
-		if (!Ember.isNone(options.isTop)) {
+		if (!isNone(options.isTop)) {
 			this.set('activeState.isTop', options.isTop);
 		}
 
-		if (!Ember.isNone(options.showDate)) {
+		if (!isNone(options.showDate)) {
 			this.set('activeState.showDate', options.showDate);
 		}	else if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
 			this.set('activeState.showDate', true);
 		}
 
-		if (!Ember.isNone(options.showTime)) {
+		if (!isNone(options.showTime)) {
 			this.set('activeState.showTime', options.showTime);
 		} else if (!this.get('hideTime') && this.get('lockOpen')) {
 			this.set('activeState.showTime', true);
@@ -337,7 +337,7 @@ export default Ember.Component.extend(keyEvents, {
 	},
 
 	shouldPickerOpenTop() {
-		const documentHeight = Ember.$(document).height();
+		const documentHeight = $(document).height();
 		const dialogHeight = this.$().find('.dialog-container').height() + 50;
 		const elementHeight = this.$().height();
 		const distanceTop = this.$().offset().top;
@@ -361,7 +361,7 @@ export default Ember.Component.extend(keyEvents, {
 		 */
 		focusInput(state) {
 			let focus = false;
-			if (Ember.isEmpty(state)) {
+			if (isEmpty(state)) {
 				state = 'hour';
 				if (!this.get('activeState.showTime')) {
 					state = 'day';
@@ -375,7 +375,7 @@ export default Ember.Component.extend(keyEvents, {
 			if (focus) {
 				this.focusState();
 			}
-			this.sendAction('onFocus', Ember.get(this, 'activeState'));
+			this.sendAction('onFocus', get(this, 'activeState'));
 			return false;
 		},
 
@@ -545,11 +545,13 @@ export default Ember.Component.extend(keyEvents, {
 		},
 
 		update(state, timestamp) {
-			state = Ember.String.singularize(state);
+			console.log('state before', state);
+			state = state.replace(/s$/, '');
+			console.log('state after', state);
 			this.setActiveState({ state });
 			this.focusState();
 			this.setTimestamp(timestamp);
 			this.sendAction('onUpdate', state, timestamp);
-		},
+		}
 	}
 });
