@@ -16,29 +16,24 @@
 	{{/each}}
 
 	<li class="item custom{{if isCustom ' active'}}" {{action 'selectCustom'}}>{{loc "Custom"}}</li>
+
 	<li class="picker{{if isCustom ' active'}}">
 		<div class="header">
-			<span class="state{{if startActiveState.isOpen ' open'}}">
-				{{input-date value=_start onClick=(action 'setFocus' 'start')}}
-
-				{{!paper-datetime-picker timestamp=_start minDate=_min maxDate=_max hideTime=hideTime hideDate=hideDate lockOpen=true
-					onFocus=(action 'setFocus' 'start') onChange=(action 'updateStart')}}
+			<span class="state start{{if isStart ' open'}}">
+				{{input-date value=_start onClick=(action 'setFocus' 'start') onFocus=(action 'setFocus' 'start') onTabKey=(action 'tabAction') onChange=(action 'dateChange')}}
 			</span>
+
 			<span>{{busy-loc "to"}}</span>
-			<span class="state{{if endActiveState.isOpen ' open'}}">
-				{{input-date value=_end onClick=(action 'setFocus' 'end')}}
 
-				{{!paper-datetime-picker timestamp=_end minDate=_min maxDate=_max hideTime=hideTime hideDate=hideDate lockOpen=true
-					onFocus=(action 'setFocus' 'end') onChange=(action 'updateEnd')}}
+			<span class="state end{{if isStart '' ' open'}}">
+				{{input-date value=_end onClick=(action 'setFocus' 'end') onFocus=(action 'setFocus' 'end') onTabKey=(action 'tabAction') onChange=(action 'dateChange')}}
 			</span>
 		</div>
+
 		<div class="body">
-			{{#if startActiveState.isOpen}}
-				{{interfaces/date-picker paperDate=startPaper paperCalendar=startPaperCal activeState=startActiveState onChange=(action 'updateStart')}}
-			{{else}}
-				{{interfaces/date-picker paperDate=endPaper paperCalendar=endPaperCal activeState=endActiveState onChange=(action 'updateEnd')}}
-			{{/if}}
+			{{interfaces/date-picker paperDate=paper activeState=activeState onChange=(action 'updateTime')}}
 		</div>
+
 		<div class="footer">
 			<a class="button blue" {{action 'applyRange'}}>{{busy-loc "Apply"}}</a>
 			<a class="button text" {{action 'cancelRange'}}>{{busy-loc "Cancel"}}</a>

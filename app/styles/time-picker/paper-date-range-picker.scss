@@ -150,7 +150,7 @@
 		}
 
 		& > li {
-			min-width: 180px;
+			min-width: 260px;
 			padding: 10px 20px;
 			font: 14px/1 $ept-font-family;
 			cursor: pointer;
@@ -198,7 +198,30 @@
 						}
 
 						&.state {
+							& > div {
+								& > input {
+									border-color: #ccc;
+									box-shadow: none;
+								}
+							}
 
+							&.open {
+								& > div {
+									& > input {
+										border-color: #337da9;
+									}
+								}
+							}
+
+							//&:last-of-type {
+							//	&.open {
+							//		& > div {
+							//			& > input {
+							//				border-color: $ept-color-7;
+							//			}
+							//		}
+							//	}
+							//}
 						}
 					}
 				}

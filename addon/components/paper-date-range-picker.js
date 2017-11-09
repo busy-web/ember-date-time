@@ -2,13 +2,14 @@
  * @module Components
  *
  */
+import Component from '@ember/component';
+import EmberObject, { set, get, computed } from '@ember/object';
 import { later } from '@ember/runloop';
 import { underscore } from '@ember/string';
 import { on } from '@ember/object/evented';
-import Component from '@ember/component';
 import { isEmpty, isNone } from '@ember/utils';
-import EmberObject, { set, get, computed } from '@ember/object';
-import { Assert, loc } from 'busy-utils';
+import { loc } from '@ember/string';
+import { assert } from '@ember/debug';
 import layout from '../templates/components/paper-date-range-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
@@ -88,10 +89,16 @@ export default Component.extend({
 
 	defaultAction: '',
 
-	startActiveState: null,
-	endActiveState: null,
+	paper: null,
+	calendar: null,
+
+	activeState: null,
+
+	isStart: true,
+
 	isListOpen: false,
 	isCustom: false,
+	activeDates: null,
 
 	disableNext: computed('selected', '_start', '_max', function() {
 		const { start } = this.getInterval(1);
@@ -134,6 +141,10 @@ export default Component.extend({
 		const utc = get(this, 'utc');
 		const isUnix = !isNone(get(this, 'startUnix')) || !isNone(get(this, 'endUnix'));
 		set(this, '_isUnix', isUnix);
+
+		if (isNone(get(this, 'activeDates'))) {
+			set(this, 'activeDates', []);
+		}
 
 		if (!get(this, 'changeFired') && (!isNone(this.getAttr('startTime')) || !isNone(this.getAttr('startUnix')))) {
 			let time = this.getAttr('startTime') || TimePicker.getTimstamp(this.getAttr('startUnix'));
@@ -185,18 +196,12 @@ export default Component.extend({
 			}
 		}
 
-		if (isNone(get(this, 'startActiveState'))) {
-			this.set('startActiveState', EmberObject.create({
+		if (isNone(get(this, 'activeState'))) {
+			this.set('isStart', true);
+
+			this.set('activeState', EmberObject.create({
 				state: '',
 				isOpen: true,
-				isTop: false,
-			}));
-		}
-
-		if (isNone(get(this, 'endActiveState'))) {
-			this.set('endActiveState', EmberObject.create({
-				state: '',
-				isOpen: false,
 				isTop: false,
 			}));
 		}
@@ -212,7 +217,7 @@ export default Component.extend({
 					item = EmberObject.create(item);
 				}
 
-				Assert.test("Action list items must contain a `name` property", isNone(get(item, 'name')));
+				assert("Action list items must contain a `name` property", isNone(get(item, 'name')));
 
 				if (isNone(item, 'id')) {
 					set(item, 'id', underscore(get(item, 'name')));
@@ -300,15 +305,16 @@ export default Component.extend({
 	},
 
 	setActiveState(isStart) {
-		set(this, 'startActiveState.open', isStart);
-		set(this, 'endActiveState.open', !isStart);
+		set(this, 'isStart', isStart);
+
+		// date range uses on date picker so update
+		// the paperDate object to show the seconds date range
+		this.setPaper();
 	},
 
 	getInterval(direction=0) {
 		const { span, type } = this.get('selected');
-		console.log('type before', type);
 		const endType = type.replace(/s$/, '');
-		console.log('type after', type);
 		let start = TimePicker.getMomentDate(this.getStart());
 		let end;
 
@@ -335,38 +341,22 @@ export default Component.extend({
 	},
 
 	setPaper() {
-		const startPaper = paperDate({
-			timestamp: get(this, '_start'),
-			minDate: get(this, '_min'),
-			maxDate: get(this, '_max'),
-			format: get(this, 'format'),
-		});
+		let start = this.getStart();
+		let end = this.getEnd();
 
-		const endPaper = paperDate({
-			timestamp: get(this, '_end'),
-			minDate: get(this, '_min'),
-			maxDate: get(this, '_max'),
-			format: get(this, 'format'),
-		});
+		let timestamp = start;
+		let minDate = get(this, '_min');
+		let maxDate = get(this, '_max');
+		let format = get(this, 'format');
 
-		const startPaperCal = paperDate({
-			timestamp: get(this, '_start'),
-			minDate: get(this, '_min'),
-			maxDate: get(this, '_max'),
-			format: get(this, 'format'),
-		});
+		if (!this.get('isStart')) {
+			timestamp = end;
+		}
 
-		const endPaperCal = paperDate({
-			timestamp: get(this, '_end'),
-			minDate: get(this, '_min'),
-			maxDate: get(this, '_max'),
-			format: get(this, 'format'),
-		});
+		const startRange = TimePicker.getMomentDate(start).startOf('day').valueOf();
+		const endRange = TimePicker.getMomentDate(end).startOf('day').valueOf();
 
-		set(this, 'startPaper', startPaper);
-		set(this, 'startPaperCal', startPaperCal);
-		set(this, 'endPaper', endPaper);
-		set(this, 'endPaperCal', endPaperCal);
+		set(this, 'paper', paperDate({ timestamp, minDate, maxDate, format, range: [startRange, endRange] }));
 	},
 
 	triggerDateChange() {
@@ -387,6 +377,14 @@ export default Component.extend({
 
 		set(this, 'changeFired', true);
 		this.sendAction('onChange', start, end, get(this, 'isCustom'));
+	},
+
+	focusActive(isStart) {
+		if (isStart) {
+			this.$('.state.start > div > input').focus();
+		} else {
+			this.$('.state.end > div > input').focus();
+		}
 	},
 
 	actions: {
@@ -437,6 +435,10 @@ export default Component.extend({
 			set(this, 'saveAction', action);
 			set(this, 'saveStart', this.getStart());
 			set(this, 'saveEnd', this.getEnd());
+
+			later(() => {
+				this.focusActive(get(this, 'isStart'));
+			}, 100);
 		},
 
 		applyRange() {
@@ -460,19 +462,34 @@ export default Component.extend({
 			this.setActiveState(true);
 		},
 
-		updateStart(state, timestamp) {
-			this.setStart(timestamp);
-			if (TimePicker.getMomentDate(timestamp).month() !== TimePicker.getMomentDate(this.getEnd()).month()) {
+		dateChange(timestamp) {
+			let isStart = get(this, 'isStart');
+			if (isStart) {
+				this.setStart(timestamp);
+				if (this.getStart() > this.getEnd()) {
+					this.setEnd(TimePicker.getMomentDate(timestamp).add(1, 'days').valueOf());
+				}
+			} else {
 				this.setEnd(timestamp);
 			}
-			later(() => {
-				this.setActiveState(false);
-			}, 300);
+			this.setActiveState(isStart);
 		},
 
-		updateEnd(state, timestamp) {
-			this.setEnd(timestamp);
-			this.setActiveState(true);
+		updateTime(state, timestamp) {
+			let isStart = get(this, 'isStart');
+			if (isStart) {
+				this.setStart(timestamp);
+			} else {
+				this.setEnd(timestamp);
+			}
+			this.setActiveState(!isStart);
+		},
+
+		tabAction(evt) {
+			evt.stopPropagation();
+			evt.preventDefault();
+			this.focusActive(!get(this, 'isStart'));
+			return false;
 		}
 	}
 });

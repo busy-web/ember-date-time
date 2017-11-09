@@ -32,7 +32,7 @@
 		{{#each groupedArray as |week|}}
 			<tr class="keepOpen week-row">
 				{{#each week as |day|}}
-					<td class="keepOpen day{{if day.isDisabled ' disabled'}}{{if day.isCurrentDay ' current'}}{{if day.isCurrentMonth '' ' outside'}}" {{action 'dayClicked' day bubbles=false}}>
+					<td class="keepOpen day{{if day.isDisabled ' disabled'}}{{if day.isCurrentDay ' current'}}{{if day.isCurrentMonth '' ' outside'}}{{if day.isRange ' range'}}{{if day.isRangeStart ' range-start'}}{{if day.isRangeEnd ' range-end'}}" {{action 'dayClicked' day bubbles=false}}>
 						<span>{{day.dayOfMonth}}</span>
 					</td>
 				{{/each}}

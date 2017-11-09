@@ -120,6 +120,7 @@ $day-size: ($ept-width * .1213);
 					font-weight: lighter;
 					line-height: $day-size + 3;
 					text-align: center;
+					border-collapse: collapse;
 					user-select: none;
 
 					& > tr {
@@ -159,6 +160,48 @@ $day-size: ($ept-width * .1213);
 
 								& > span {
 									background-color: $ept-color-3;
+								}
+							}
+
+							&.range {
+								background-color: $ept-color-2;
+								//color: $ept-color-4;
+
+								&.range-start,
+								&.range-end {
+									position: relative;
+									background-color: transparent;
+
+									& > span {
+										background-color: $ept-color-6-1;
+										color: $ept-color-4;
+									}
+
+									&:before {
+										position: absolute;
+										top: 0;
+										right: 0;
+										width: 50%;
+										height: 100%;
+										background-color: $ept-color-2;
+										content: '\00a0';
+										z-index: -1;
+									}
+								}
+
+								&.range-end {
+									&:before {
+										left: 0;
+									}
+								}
+
+								&.current {
+									&.range-start,
+									&.range-end {
+										& > span {
+											background-color: $ept-color-3;
+										}
+									}
 								}
 							}
 						}

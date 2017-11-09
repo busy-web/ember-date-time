@@ -6,7 +6,7 @@ import { A } from '@ember/array';
 import { camelize } from '@ember/string';
 import { isNone } from '@ember/utils';
 import { assert } from '@ember/debug';
-import { observer } from '@ember/object';
+import { observer, get, set } from '@ember/object';
 import { on } from '@ember/object/evented';
 import Component from '@ember/component';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
@@ -32,7 +32,6 @@ export default Component.extend({
   layout: layout,
 
 	paperDate: null,
-	paperCalendar: null,
 
   /**
    * timestamp that is passed in when using date picker
@@ -51,26 +50,6 @@ export default Component.extend({
    * @type Number
    */
   calendarDate: null,
-
-  /**
-   * can be passed in so a date before the minDate cannot be selected
-   *
-   * @private
-   * @property minDate
-   * @type Number
-   * @optional
-   */
-  minDate: null,
-
-  /**
-   * can be passed in so a date after the maxDate cannot be selected
-   *
-   * @private
-   * @property maxDate
-   * @type Number
-   * @optional
-   */
-  maxDate: null,
 
   /**
    * day of the month shown on the calendar header - based off timestamp
@@ -199,17 +178,15 @@ export default Component.extend({
    * @constructor
    */
   initialize: on('init', function() {
-		this.setupTime();
+		this.updateTime();
     this.resetCalendarDate();
     this.keepCalendarUpdated();
     this.updateActiveSection();
 	}),
 
-	setupTime: observer('paperDate.timestamp', function() {
-		this.set('minDate', this.get('paperDate.minDate'));
-		this.set('maxDate', this.get('paperDate.maxDate'));
-		this.set('timestamp', this.get('paperDate.timestamp'));
-  }),
+	updateTime: observer('paperDate.timestamp', function() {
+		set(this, 'timestamp', get(this, 'paperDate.timestamp'));
+	}),
 
   /**
    * sets the calendarDate to the timestamp and sets the values for the date picker headers
@@ -218,18 +195,15 @@ export default Component.extend({
    * @method resetCalendarDate
    */
   resetCalendarDate: observer('timestamp', function() {
-		if (!isNone(this.get('timestamp'))) {
-			//const timestamp = this.get('timestamp');
-			Assert.isNumber(this.get('timestamp'));
-
+		if (!isNone(get(this, 'timestamp'))) {
 			// get moment timestamp
 			const time = TimePicker.getMomentDate(this.get('timestamp'));
 			if (TimePicker.isValidDate(time)) {
-				this.set('calendarDate', this.get('timestamp'));
-				this.set('year', time.format('YYYY'));
-				this.set('month', time.format('MMM'));
-				this.set('day', time.format('DD'));
-				this.set('dayOfWeek', time.format('ddd'));
+				set(this, 'calendarDate', time.valueOf());
+				set(this, 'year', time.format('YYYY'));
+				set(this, 'month', time.format('MMM'));
+				set(this, 'day', time.format('DD'));
+				set(this, 'dayOfWeek', time.format('ddd'));
 			} else {
 				assert("timestamp must be a valid unix timestamp", false);
 			}
@@ -281,9 +255,10 @@ export default Component.extend({
    * @method buildDaysArrayForMonth
    */
   buildDaysArrayForMonth: function() {
-		const calendarDate = this.get('calendarDate');
-    const minDate =	this.get('minDate');
-    const maxDate = this.get('maxDate');
+		const calendarDate = get(this, 'calendarDate');
+    const minDate =	get(this, 'paperDate.minDate');
+    const maxDate = get(this, 'paperDate.maxDate');
+		let [ startRange, endRange ] = (get(this, 'paperDate.range') || []);
 
 		const currentCalendar = TimePicker.getMomentDate(calendarDate);
     const currentTime = TimePicker.getMomentDate(this.get('timestamp'));
@@ -316,6 +291,19 @@ export default Component.extend({
 
 			if (paper.get('date').year() === currentTime.year() && paper.get('date').month() === currentTime.month() && paper.get('date').date() === currentTime.date()) {
 				paper.set('isCurrentDay', true);
+			}
+
+			if (startRange && endRange) {
+				let mili = paper.get('date').valueOf();
+				if (startRange <= mili && mili <= endRange) {
+					paper.set('isRange', true);
+
+					if (mili === startRange) {
+						paper.set('isRangeStart', true);
+					} else if (mili === endRange) {
+						paper.set('isRangeEnd', true);
+					}
+				}
 			}
 
 			daysArray.pushObject(paper);
