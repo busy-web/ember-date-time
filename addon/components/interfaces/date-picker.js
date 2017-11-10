@@ -242,7 +242,7 @@ export default Component.extend({
    * @private
    * @method keepCalendarUpdated
    */
-  keepCalendarUpdated: observer('calendarDate', function() {
+  keepCalendarUpdated: observer('calendarDate', 'paperDate.range', function() {
     const calendarObject = TimePicker.getMomentDate(this.get('calendarDate'));
     this.buildDaysArrayForMonth();
     this.set('monthYear', calendarObject.format('MMMM YYYY'));
@@ -300,7 +300,9 @@ export default Component.extend({
 
 					if (mili === startRange) {
 						paper.set('isRangeStart', true);
-					} else if (mili === endRange) {
+					}
+
+					if (mili === endRange) {
 						paper.set('isRangeEnd', true);
 					}
 				}
@@ -434,6 +436,6 @@ export default Component.extend({
 			this.set('calendarActiveSection', section);
 
 			this.sendAction('onUpdate', section, this.get('timestamp'));
-		},
+		}
   }
 });

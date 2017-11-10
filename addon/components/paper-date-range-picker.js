@@ -2,6 +2,7 @@
  * @module Components
  *
  */
+import $ from 'jquery';
 import Component from '@ember/component';
 import EmberObject, { set, get, computed } from '@ember/object';
 import { later } from '@ember/runloop';
@@ -250,8 +251,8 @@ export default Component.extend({
 		set(this, 'actionList', actionList.sortBy('sort'));
 
 		const selected = this.getDefaultAction(actionList);
-		set(selected, 'selected', true);
-		set(this, 'selected', selected);
+		this.setSelected(get(selected, 'id'), get(this, 'isCustom'));
+		this.saveState();
 	}),
 
 	getDefaultAction(list) {
@@ -340,6 +341,13 @@ export default Component.extend({
 		this.triggerDateChange();
 	},
 
+	/**
+	 * sets the paper date object for
+	 * the date-picker component to get date information
+	 *
+	 * @public
+	 * @method setPaper
+	 */
 	setPaper() {
 		let start = this.getStart();
 		let end = this.getEnd();
@@ -359,6 +367,13 @@ export default Component.extend({
 		set(this, 'paper', paperDate({ timestamp, minDate, maxDate, format, range: [startRange, endRange] }));
 	},
 
+	/**
+	 * triggeres a date change event to send off
+	 * to listeners of `onChange`
+	 *
+	 * @public
+	 * @method triggerDateChange
+	 */
 	triggerDateChange() {
 		let start = this.getStart();
 		let end = this.getEnd();
@@ -379,11 +394,103 @@ export default Component.extend({
 		this.sendAction('onChange', start, end, get(this, 'isCustom'));
 	},
 
+	/**
+	 * sets the focus to on of the inputs based on the boolean passed in.
+	 *
+	 * true sets focus to the start time input
+	 *
+	 * @public
+	 * @method focusActive
+	 * @params isStart {boolean}
+	 */
 	focusActive(isStart) {
 		if (isStart) {
 			this.$('.state.start > div > input').focus();
 		} else {
 			this.$('.state.end > div > input').focus();
+		}
+	},
+
+	/**
+	 * Update the start or end time date where the date will also set the other
+	 * if it is incalid
+	 *
+	 * @public
+	 * @method updateDates
+	 * @params timestamp {number} miliseconds timestamp
+	 * @params isStart {boolean} true to set the start time
+	 */
+	updateDates(timestamp, isStart) {
+		if (isStart) {
+			this.setStart(timestamp);
+			if (this.getStart() > this.getEnd()) {
+				this.setEnd(timestamp);
+			}
+		} else {
+			this.setEnd(timestamp);
+			if (this.getStart() > this.getEnd()) {
+				this.setStart(timestamp);
+			}
+		}
+	},
+
+	/**
+	 * set the select menu to the selected type by id
+	 *
+	 * @public
+	 * @method setSelected
+	 * @params id {string} the id of the menu type to set as the selected menu item
+	 * @return {object} the selected item
+	 */
+	setSelected(id, isCustom=false) {
+		let selected;
+		if (isCustom) {
+			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
+			selected = EmberObject.create({id: 'custom', name: loc('Custom'), span, type: 'days'});
+		} else {
+			get(this, 'actionList').forEach(item => {
+				if (get(item, 'id') === id) {
+					selected = item;
+				} else {
+					set(item, 'selected', false);
+				}
+			});
+		}
+
+		set(this, 'isCustom', isCustom);
+		set(selected, 'selected', true);
+		set(this, 'selected', selected);
+		return selected;
+	},
+
+	/**
+	 * Save the current state of the select menu and
+	 * start end dates
+	 *
+	 * @public
+	 * @method saveState
+	 */
+	saveState() {
+		set(this, '__saveState', {
+			isCustom: get(this, 'isCustom'),
+			selectedId: get(this, 'selected.id'),
+			start: this.getStart(),
+			end: this.getEnd()
+		});
+	},
+
+	/**
+	 * restore the state to the previous state of the select menu
+	 * and start end dates
+	 *
+	 * @public
+	 * @method restoreState
+	 */
+	restoreState() {
+		if (!isNone(get(this, '__saveState'))) {
+			this.setStart(get(this, '__saveState.start'));
+			this.setEnd(get(this, '__saveState.end'));
+			this.setSelected(get(this, '__saveState.selectedId'), get(this, '__saveState.isCustom'));
 		}
 	},
 
@@ -401,7 +508,18 @@ export default Component.extend({
 		},
 
 		toggleList() {
-			set(this, 'isListOpen', !get(this, 'isListOpen'));
+			let isListOpen = !get(this, 'isListOpen');
+			let elementId = get(this, 'elementId');
+
+			if (isListOpen) {
+				$('body').on(`keydown.${elementId}`, keyDownEventHandler(this));
+				$('body').on(`click.${elementId}`, clickEventHandler(this));
+			} else {
+				$('body').off(`keydown.${elementId}`);
+				$('body').off(`click.${elementId}`);
+			}
+
+			set(this, 'isListOpen', isListOpen);
 		},
 
 		setFocus(val) {
@@ -413,76 +531,42 @@ export default Component.extend({
 		},
 
 		selectItem(id) {
-			const actions = get(this, 'actionList');
-			actions.forEach(item => set(item, 'selected', false));
-
-			set(this, 'isCustom', false);
-			set(this, 'selected', actions.objectAt(id));
-
+			this.saveState();
+			this.setSelected(id, false);
 			set(this, 'isListOpen', false);
 			this.changeInterval();
 		},
 
 		selectCustom() {
-			const actionList = get(this, 'actionList');
-			const action = actionList.findBy('selected', true);
-			actionList.forEach(item => set(item, 'selected', false));
-
-			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
-			set(this, 'isCustom', true);
-			set(this, 'selected', EmberObject.create({name: loc('Custom'), span, type: 'days'}));
-
-			set(this, 'saveAction', action);
-			set(this, 'saveStart', this.getStart());
-			set(this, 'saveEnd', this.getEnd());
-
+			this.saveState();
+			this.setSelected('custom', true);
 			later(() => {
 				this.focusActive(get(this, 'isStart'));
 			}, 100);
 		},
 
 		applyRange() {
-			set(this, 'saveStart', this.getStart());
-			set(this, 'saveEnd', this.getEnd());
+			this.saveState();
 			set(this, 'isListOpen', false);
-
 			this.triggerDateChange();
 		},
 
 		cancelRange() {
-			const action = get(this, 'saveAction');
-			set(action, 'selected', true);
-			set(this, 'selected', action);
-
-			this.setStart(get(this, 'saveStart'));
-			this.setEnd(get(this, 'saveEnd'));
-
-			set(this, 'isCustom', false);
+			this.restoreState();
 			set(this, 'isListOpen', false);
 			this.setActiveState(true);
 		},
 
 		dateChange(timestamp) {
-			let isStart = get(this, 'isStart');
-			if (isStart) {
-				this.setStart(timestamp);
-				if (this.getStart() > this.getEnd()) {
-					this.setEnd(TimePicker.getMomentDate(timestamp).add(1, 'days').valueOf());
-				}
-			} else {
-				this.setEnd(timestamp);
-			}
-			this.setActiveState(isStart);
+			this.updateDates(timestamp, get(this, 'isStart'));
+			this.setActiveState(get(this, 'isStart'));
+			this.saveState();
 		},
 
 		updateTime(state, timestamp) {
-			let isStart = get(this, 'isStart');
-			if (isStart) {
-				this.setStart(timestamp);
-			} else {
-				this.setEnd(timestamp);
-			}
-			this.setActiveState(!isStart);
+			this.updateDates(timestamp, get(this, 'isStart'));
+			this.setActiveState(get(this, 'isStart'));
+			this.saveState();
 		},
 
 		tabAction(evt) {
@@ -493,3 +577,30 @@ export default Component.extend({
 		}
 	}
 });
+
+
+function keyDownEventHandler(target) {
+	return function(evt) {
+		if (get(target, 'isListOpen')) {
+			if (evt.which === 9) {
+				return target.send('tabAction', evt);
+			}
+		}
+		return true;
+	}
+}
+
+function clickEventHandler(target) {
+	return function(evt) {
+		let el = $(evt.target);
+		if (get(target, 'isListOpen')) {
+			if (el.parents('.paper-date-range-picker').length) { // is in date picker
+				if (!el.parents('.date-range-picker-dropdown').length && !el.hasClass('select') && !el.hasClass('date-range-picker-dropdown')) {
+					target.send('toggleList');
+				}
+			} else {
+				target.send('toggleList');
+			}
+		}
+	}
+}

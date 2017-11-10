@@ -2,8 +2,9 @@
  * @module components
  *
  */
-import { computed, get, set } from '@ember/object';
+import EmberObject, { computed, get, set } from '@ember/object';
 import { later } from '@ember/runloop';
+import { isNone } from '@ember/utils';
 import Component from '@ember/component';
 import layout from '../templates/components/input-date';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
@@ -14,6 +15,9 @@ export default Component.extend({
   layout,
 
 	value: null,
+	minDate: null,
+	maxDate: null,
+
 	format: 'MM/DD/YYYY',
 	formatMeta: null,
 
@@ -29,6 +33,21 @@ export default Component.extend({
 	_date: computed('value', function() {
 		return TimePicker.getMomentDate(this.get('value') || undefined).format('MM/DD/YYYY');
 	}),
+
+	isDateInBounds(date) {
+		let maxDate = get(this, 'maxDate');
+		let minDate = get(this, 'minDate');
+		if (isNone(maxDate) && isNone(minDate)) {					// no min or max date
+			return true;
+		} else if (date >= minDate && isNone(maxDate)) {	// date is greater than min date and no max date
+			return true;
+		} else if (isNone(minDate) && date <= maxDate) {	// no min date and date is less than max date
+			return true;
+		} else if (date >= minDate && date <= maxDate) {	// date is greater than min date and date is less than max date
+			return true;
+		}
+		return false;
+	},
 
 	actions: {
 		focusAction() {
@@ -51,6 +70,11 @@ export default Component.extend({
 		keyDownAction(value, evt) {
 			const el = evt.target;
 
+			// TODO:
+			//
+			// add support for number inputs for setting dates
+			//
+
 			if (evt.which === 9) {
 				let res;
 				if(this.get('onTabKey')) {
@@ -72,18 +96,21 @@ export default Component.extend({
 						el.setSelectionRange(start, end);
 					}
 				} else if (evt.which === 38 || evt.which === 40) { // up down arrow keys
-					let { start, end } = meta.get(sIndex);
+					let { start, end } = meta.current(sIndex);
 					let type = this.get('format').substring(start, end);
-					let value = this.get('value')
+					let value = this.get('value');
+					let val;
 					if (evt.which === 38) { // up
-						let val = adjustDate(type, this.get('format'), value, true);
-						set(this, 'value', val);
+						val = adjustDate(type, this.get('format'), value, true);
 					} else { // down
-						let val = adjustDate(type, this.get('format'), value, false);
-						set(this, 'value', val);
+						val = adjustDate(type, this.get('format'), value, false);
 					}
 
-					this.sendAction('onChange', this.get('value'));
+					if (this.isDateInBounds(val)) {
+						set(this, 'value', val);
+						this.sendAction('onChange', this.get('value'));
+					}
+
 					later(() => {
 						el.setSelectionRange(start, end);
 					}, 1);
@@ -96,7 +123,7 @@ export default Component.extend({
 function convertType(type) {
 	// TODO:
 	//
-	// add more conversions to this for more support
+	// add more conversions to this for more support and test more date types
 	//
 	let map = {
 		'DD': 'd',
@@ -123,6 +150,15 @@ function adjustDate(type, format, value, isAdd=true) {
 	}
 }
 
+function normalizeIndex(key, startBound, endBound) {
+	if (key < startBound) {
+		key = startBound;
+	} else if (key > endBound) {
+		key = endBound;
+	}
+	return key;
+}
+
 function setFormatData(format) {
 	const reg = new RegExp(/\/|\.|-|,|]/);
 	let split = format.split(reg);
@@ -146,33 +182,37 @@ function setFormatData(format) {
 		}
 	}
 
-	return {
-		map,
-		format,
-		sections,
-
-		next(key) {
-			key = key < 0 ? 0 : key;
-			key = this.map.get(key);
-			let n = key + 1;
-			if (n >= this.format.length) {
-				n = 0;
-			}
-			return this.sections[n];
-		},
-
-		prev(key) {
-			key = key >= this.format.length ? this.format.length-1 : key;
-			key = this.map.get(key);
-			let n = key - 1;
-			if (n < 0) {
-				n = this.format.length-1;
-			}
-			return this.sections[n];
-		},
-
-		get(key) {
-			return this.sections[this.map.get(key)];
-		}
-	};
+	return CursorManager.create({ format, map, sections });
 }
+
+const CursorManager = EmberObject.extend({
+	format: '',
+	map: null,
+	sections: null,
+
+	next(index) {
+		return this._getter(index, true, false);
+	},
+
+	prev(index) {
+		return this._getter(index, false, true);
+	},
+
+	current(index) {
+		return this._getter(index, false, false);
+	},
+
+	_getter(index, isAdd=false, isSubtract=false) {
+		index = normalizeIndex(index, 0, get(this, 'format.length') - 1);
+		const map = get(this, 'map');
+		const sections = get(this, 'sections');
+
+		let mIndex = map.get(index);
+		if (isAdd) {
+			mIndex = normalizeIndex(mIndex + 1, 0, sections.length-1);
+		} else if (isSubtract) {
+			mIndex = normalizeIndex(mIndex - 1, 0, sections.length-1);
+		}
+		return sections[mIndex];
+	}
+});

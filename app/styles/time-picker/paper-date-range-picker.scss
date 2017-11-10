@@ -201,14 +201,24 @@
 							& > div {
 								& > input {
 									border-color: #ccc;
+									letter-spacing: 2px;
 									box-shadow: none;
+
+									&::selection { background: darken(aliceblue, 10%); }
+									//&::-webkit-selection { background: aliceblue; }
+									//&::-moz-selection { background: aliceblue; }
+									//&::-ms-selection { background: aliceblue; }
+									//&::-o-selection { background: aliceblue; }
 								}
 							}
 
 							&.open {
 								& > div {
 									& > input {
-										border-color: #337da9;
+										border-color: darken(aliceblue, 10%);
+										background-color: aliceblue; //lightskyblue;
+										//color: $ept-color-1;
+										//text-shadow: 0 0 1px #bbb;
 									}
 								}
 							}

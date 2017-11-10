@@ -173,8 +173,8 @@ $day-size: ($ept-width * .1213);
 									background-color: transparent;
 
 									& > span {
-										background-color: $ept-color-6-1;
-										color: $ept-color-4;
+										background-color: $ept-color-3;
+										color: $ept-color-1;
 									}
 
 									&:before {
@@ -190,13 +190,30 @@ $day-size: ($ept-width * .1213);
 								}
 
 								&.range-end {
+									color: $ept-color-1;
+
+									& > span {
+										background-color: $ept-color-3;
+									}
+
 									&:before {
 										left: 0;
 									}
 								}
 
 								&.current {
-									&.range-start,
+									&.range-start {
+										& > span {
+											background-color: $ept-color-3;
+										}
+
+										&.range-end {
+											&:before {
+												background-color: transparent;
+											}
+										}
+									}
+
 									&.range-end {
 										& > span {
 											background-color: $ept-color-3;
