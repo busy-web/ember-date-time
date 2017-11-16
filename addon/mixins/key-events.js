@@ -3,7 +3,6 @@
  *
  */
 import { isNone } from '@ember/utils';
-
 import { assert } from '@ember/debug';
 import Mixin from '@ember/object/mixin';
 
