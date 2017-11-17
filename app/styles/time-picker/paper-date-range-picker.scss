@@ -256,30 +256,24 @@
 								box-shadow: none;
 
 								&::selection { background: darken(aliceblue, 10%); }
-								//&::-webkit-selection { background: aliceblue; }
-								//&::-moz-selection { background: aliceblue; }
-								//&::-ms-selection { background: aliceblue; }
-								//&::-o-selection { background: aliceblue; }
+								&::-webkit-selection { background: darken(aliceblue, 10%); }
+								&::-moz-selection { background: darken(aliceblue, 10%); }
+								&::-ms-selection { background: darken(aliceblue, 10%); }
+								&::-o-selection { background: darken(aliceblue, 10%); }
 							}
-						}
 
-						&.open {
-							& > div {
+							&.open {
 								& > input {
 									border-color: darken(aliceblue, 10%);
-									background-color: aliceblue; //lightskyblue;
-									//color: $ept-color-1;
-									//text-shadow: 0 0 1px #bbb;
+									background-color: aliceblue;
 								}
 							}
 						}
 
 						//&:last-of-type {
 						//	&.open {
-						//		& > div {
-						//			& > input {
-						//				border-color: $ept-color-7;
-						//			}
+						//		& > input {
+						//			border-color: $ept-color-7;
 						//		}
 						//	}
 						//}
