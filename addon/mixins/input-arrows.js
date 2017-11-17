@@ -2,13 +2,7 @@
  * @module Mixins
  *
  */
-import { get, set } from '@ember/object';
-import { on } from '@ember/object/evented';
-import { isNone } from '@ember/utils';
-import { later } from '@ember/runloop';
-import dateFormatParser from 'ember-paper-time-picker/utils/date-format-parser';
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
-import paperTime from 'ember-paper-time-picker/utils/paper-time';
 import Mixin from '@ember/object/mixin';
 
 /**
@@ -16,56 +10,23 @@ import Mixin from '@ember/object/mixin';
  *
  */
 export default Mixin.create({
-	format: '',
-
-	setFormatParser: on('init', function() {
-		if (isNone(get(this, 'formatParser'))) {
-			set(this, 'formatParser', dateFormatParser(get(this, 'format')));
-		}
-	}),
-
-	handleArrowKeys(event, actionName='onChange') {
-		let allowed = ['left-arrow', 'right-arrow', 'up-arrow', 'down-arrow'];
-		let handler = keyEvent({ event, allowed });
-		if (!handler) {
-			return true;
+	keyDown(event) {
+		let handler = this._super(event);
+		if (handler === false) {
+			return false;
 		}
 
-		if (handler.allowed) {
-			const el = event.target;
-			const cursorIndex = el.selectionStart;
-			const parser = get(this, 'formatParser');
-
-			let cursor;
-			if (handler.keyName === 'left-arrow') {
-				cursor = parser.prev(cursorIndex);
-			} else if (handler.keyName === 'right-arrow') {
-				cursor = parser.next(cursorIndex);
-			} else {
-				cursor = parser.current(cursorIndex);
-				let type = parser.getFormatSection(cursorIndex);
-				let value = get(this, 'value');
-
-				let val;
-				if (handler.keyName === 'up-arrow') {
-					val = paperTime(value).addFormatted(1, type);
-				} else {
-					val = paperTime(value).subFormatted(1, type);
+		if (!handler || !handler.allowed) {
+			handler = keyEvent({ event, allowed: ['left-arrow', 'right-arrow', 'up-arrow', 'down-arrow'] });
+			if (handler.allowed) {
+				if (handler.throttle) {
+					return handler.preventDefault();
 				}
 
-				if (val.moment.isValid() && this.isValid(val.milli())) {
-					set(this, 'value', val.milli());
-					this.sendAction(actionName, this.get('value'));
-				}
+				handler.type = 'input-arrows';
+				event.handler = handler;
 			}
-
-			later(() => {
-				el.setSelectionRange(cursor.start, cursor.end);
-			}, 1);
-
-			handler.preventDefault();
-			return true;
 		}
-		return false;
+		return handler;
 	}
 });

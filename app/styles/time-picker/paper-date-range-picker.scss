@@ -1,7 +1,7 @@
 
 .paper-date-range-picker {
 	position: relative;
-	width: 435px;
+	width: 475px;
 	height: 46px;
 	margin: 0;
 	padding: 0;
@@ -131,6 +131,58 @@
 			float: left;
 			color: $ept-color-6-2;
 			font: 14px/46px $ept-font-family;
+
+			&.stacked {
+				height: 100%;
+
+				& > h3 {
+					display: block;
+					height: 0;
+					font: 12px/0 $ept-font-family;
+					text-align: center;
+				}
+
+				&.year {
+					& > .year {
+						height: 20px;
+						margin-top: 14px;
+						font: 16px/20px $ept-font-family;
+					}
+				}
+
+				&.month {
+					& > .month {
+						height: 20px;
+						margin-top: 8px;
+						font: 18px/20px $ept-font-family;
+					}
+
+					& > .year {
+						height: 12px;
+						margin-top: 0;
+						font: 13px/12px $ept-font-family;
+					}
+
+					&.day {
+						& > .year {
+							height: 12px;
+							margin-top: 0;
+							font: 12px/12px $ept-font-family;
+						}
+
+						& > .month {
+							height: 12px;
+							margin-top: 1px;
+							font: 12px/12px $ept-font-family;
+						}
+
+						& > .day {
+							height: 20px;
+							font: 20px/20px $ept-font-family;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -198,41 +250,39 @@
 						}
 
 						&.state {
+							& > input {
+								border-color: #ccc;
+								letter-spacing: 2px;
+								box-shadow: none;
+
+								&::selection { background: darken(aliceblue, 10%); }
+								//&::-webkit-selection { background: aliceblue; }
+								//&::-moz-selection { background: aliceblue; }
+								//&::-ms-selection { background: aliceblue; }
+								//&::-o-selection { background: aliceblue; }
+							}
+						}
+
+						&.open {
 							& > div {
 								& > input {
-									border-color: #ccc;
-									letter-spacing: 2px;
-									box-shadow: none;
-
-									&::selection { background: darken(aliceblue, 10%); }
-									//&::-webkit-selection { background: aliceblue; }
-									//&::-moz-selection { background: aliceblue; }
-									//&::-ms-selection { background: aliceblue; }
-									//&::-o-selection { background: aliceblue; }
+									border-color: darken(aliceblue, 10%);
+									background-color: aliceblue; //lightskyblue;
+									//color: $ept-color-1;
+									//text-shadow: 0 0 1px #bbb;
 								}
 							}
-
-							&.open {
-								& > div {
-									& > input {
-										border-color: darken(aliceblue, 10%);
-										background-color: aliceblue; //lightskyblue;
-										//color: $ept-color-1;
-										//text-shadow: 0 0 1px #bbb;
-									}
-								}
-							}
-
-							//&:last-of-type {
-							//	&.open {
-							//		& > div {
-							//			& > input {
-							//				border-color: $ept-color-7;
-							//			}
-							//		}
-							//	}
-							//}
 						}
+
+						//&:last-of-type {
+						//	&.open {
+						//		& > div {
+						//			& > input {
+						//				border-color: $ept-color-7;
+						//			}
+						//		}
+						//	}
+						//}
 					}
 				}
 

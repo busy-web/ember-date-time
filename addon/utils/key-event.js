@@ -66,6 +66,7 @@ function isAllowed(key, allowed=[]) {
 function _preventDefault(event) {
 	return function() {
 		event.returnValue = false;
+		event.stopPropagation();
 		if(event.preventDefault) {
 			event.preventDefault();
 		}
@@ -80,12 +81,13 @@ export default function keyEvent(options={}) {
 	let keyName = translate(keyCode);
 	let allowed = isAllowed(keyName, options.allowed);
 	let preventDefault = _preventDefault(options.event);
+	let throttle = false;
 
 	if (allowed) {
 		if (shouldThrottleKey(options.event, options.throttle || 50)) {
-			return preventDefault();
+			throttle = true;
 		}
 	}
-	return { keyName, keyCode, allowed, preventDefault };
+	return { keyName, keyCode, allowed, preventDefault, throttle };
 }
 

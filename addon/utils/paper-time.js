@@ -18,9 +18,9 @@ class PaperTime {
 
 		if (test.unix() === date.unix()) {
 			this.__offset = date.utcOffset();
-			this.__date = moment.utc(date.add(this.__offset, 'minutes').valueOf());
+			this.__date = moment(date.add(this.__offset, 'minutes').valueOf());
 		} else {
-			this.__date = moment.utc(date.valueOf());
+			this.__date = moment(date.valueOf());
 		}
 	}
 

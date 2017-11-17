@@ -5,7 +5,7 @@
 import $ from 'jquery';
 import Component from '@ember/component';
 import EmberObject, { set, get, computed } from '@ember/object';
-import { later } from '@ember/runloop';
+import { next, later } from '@ember/runloop';
 import { underscore } from '@ember/string';
 import { on } from '@ember/object/evented';
 import { isEmpty, isNone } from '@ember/utils';
@@ -101,6 +101,14 @@ export default Component.extend({
 	isCustom: false,
 	activeDates: null,
 
+	_startDate: computed('_start', function() {
+		return TimePicker.getMomentDate(get(this, '_start'));
+	}),
+
+	_endDate: computed('_end', function() {
+		return TimePicker.getMomentDate(get(this, '_end'));
+	}),
+
 	disableNext: computed('selected', '_start', '_max', function() {
 		const { start } = this.getInterval(1);
 		return get(this, '_max') < start;
@@ -111,21 +119,57 @@ export default Component.extend({
 		return get(this, '_min') > end;
 	}),
 
+	selectedDayRangeMatch: computed('_startDate', '_endDate', function() {
+		return get(this, '_startDate').day() === get(this, '_endDate').day();
+	}),
+	selectedMonthRangeMatch: computed('_startDate', '_endDate', function() {
+		return get(this, '_startDate').month() === get(this, '_endDate').month();
+	}),
+	selectedYearRangeMatch: computed('_startDate', '_endDate', function() {
+		return get(this, '_startDate').year() === get(this, '_endDate').year();
+	}),
+
+	selectedDayRange: computed('selected', '_startDate', '_endDate', function() {
+		const { id } = get(this, 'selected');
+		if (id !== 'monthly' && get(this, 'selectedMonthRangeMatch') && get(this, 'selectedYearRangeMatch')) {
+			if (!get(this, 'selectedDayRangeMatch')) {
+				return `${get(this, '_startDate').format('Do')} - ${get(this, '_endDate').format('Do')}`;
+			}
+			return get(this, '_startDate').format('Do');
+		}
+		return '';
+	}),
+	selectedMonthRange: computed('_startDate', '_endDate', function() {
+		if (get(this, 'selectedYearRangeMatch')) {
+			if (!get(this, 'selectedMonthRangeMatch')) {
+				return `${get(this, '_startDate').format('MMM Do')} - ${get(this, '_endDate').format('MMM Do')}`;
+			}
+			return get(this, '_startDate').format('MMMM');
+		}
+		return '';
+	}),
+	selectedYearRange: computed('_startDate', '_endDate', function() {
+		if (!get(this, 'selectedYearRangeMatch')) {
+			return `${get(this, '_startDate').format('l')} - ${get(this, '_endDate').format('l')}`;
+		}
+		return get(this, '_startDate').format('YYYY');
+	}),
+
 	selectedDateRange: computed('selected', '_start', '_end', function() {
 		const { id } = get(this, 'selected');
 		const start = TimePicker.getMomentDate(this.getStart());
 		const end = TimePicker.getMomentDate(this.getEnd());
 		if (start.year() !== end.year()) {
-			return start.format('MMM. Do, YYYY') + ' - ' + end.format('MMM. Do, YYYY');
+			return start.format('ll') + ' - ' + end.format('ll');
 		} else if (start.month() !== end.month()) {
-			return start.format('MMM. Do') + ' - ' + end.format('MMM. Do, YYYY');
+			return start.format('ll').replace(', ' + start.format('YYYY'), '') + ' - ' + end.format('ll');
 		} else {
 			if (id === 'monthly') {
 				return start.format('MMMM YYYY');
 			} else if (start.date() === end.date()) {
-				return start.format('MMM. Do, YYYY');
+				return start.format('ll');
 			} else {
-				return start.format('MMM. Do') + ' - ' + end.format('Do, YYYY');
+				return `${start.format('L')} - ${end.format('L')}`;
 			}
 		}
 	}),
@@ -404,11 +448,13 @@ export default Component.extend({
 	 * @params isStart {boolean}
 	 */
 	focusActive(isStart) {
-		if (isStart) {
-			this.$('.state.start > div > input').focus();
-		} else {
-			this.$('.state.end > div > input').focus();
-		}
+		next(() => {
+			if (isStart) {
+				this.$('.state.start > input').focus();
+			} else {
+				this.$('.state.end > input').focus();
+			}
+		});
 	},
 
 	/**
@@ -520,6 +566,10 @@ export default Component.extend({
 			}
 
 			set(this, 'isListOpen', isListOpen);
+
+			if (isListOpen) {
+				this.focusActive(get(this, 'isStart'));
+			}
 		},
 
 		setFocus(val) {
@@ -569,11 +619,8 @@ export default Component.extend({
 			this.saveState();
 		},
 
-		tabAction(evt) {
-			evt.stopPropagation();
-			evt.preventDefault();
+		tabAction() {
 			this.focusActive(!get(this, 'isStart'));
-			return false;
 		}
 	}
 });

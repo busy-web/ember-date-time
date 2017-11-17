@@ -7,7 +7,15 @@
 		<a class="button arrow right{{if disableNext ' disabled'}}" {{action 'intervalForward'}}><span></span></a>
 	</span>
 
-	<span class="date">{{selectedDateRange}}</span>
+	{{#if stacked}}
+		<span class="date stacked{{if selectedDayRange ' day'}}{{if selectedMonthRange ' month'}}{{if selectedYearRange ' year'}}">
+			<h3 class="month">{{selectedMonthRange}}</h3>
+			<h3 class="day">{{selectedDayRange}}</h3>
+			<h3 class="year">{{selectedYearRange}}</h3>
+		</span>
+	{{else}}
+		<span class="date">{{selectedDateRange}}</span>
+	{{/if}}
 </div>
 
 <ul class="date-range-picker-dropdown list{{if isListOpen ' active'}}">
@@ -20,21 +28,21 @@
 	<li class="picker{{if isCustom ' active'}}">
 		<div class="header">
 			<span class="state start{{if isStart ' open'}}">
-				{{input-date value=_start maxDate=paper.maxDate minDate=paper.minDate
-					onClick=(action 'setFocus' 'start')
-					onFocus=(action 'setFocus' 'start')
-					onTabKey=(action 'tabAction')
-					onChange=(action 'dateChange')}}
+				{{input-date timestamp=_start max=paper.maxDate min=paper.minDate format=format
+					onclick=(action 'setFocus' 'start')
+					onfocus=(action 'setFocus' 'start')
+					ontabkey=(action 'tabAction')
+					onchange=(action 'dateChange')}}
 			</span>
 
 			<span>{{busy-loc "to"}}</span>
 
 			<span class="state end{{if isStart '' ' open'}}">
-				{{input-date value=_end maxDate=paper.maxDate minDate=paper.minDate
-					onClick=(action 'setFocus' 'end')
-					onFocus=(action 'setFocus' 'end')
-					onTabKey=(action 'tabAction')
-					onChange=(action 'dateChange')}}
+				{{input-date timestamp=_end max=paper.maxDate min=paper.minDate format=format
+					onclick=(action 'setFocus' 'end')
+					onfocus=(action 'setFocus' 'end')
+					ontabkey=(action 'tabAction')
+					onchange=(action 'dateChange')}}
 			</span>
 		</div>
 
