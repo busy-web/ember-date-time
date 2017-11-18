@@ -92,7 +92,9 @@ export default TextField.extend({
 			set(this, '_date', value.milli());
 			set(this, 'value', value.format(get(this, 'format')));
 			this.sendAction('onchange', value.milli());
+			return true;
 		}
+		return false;
 	},
 
 	getFormatSection() {
@@ -176,21 +178,33 @@ export default TextField.extend({
 		}
 
 		let dateSection = date.format(section);
-		let shifted = shiftDate(dateSection, numberKey, lastNumIndex, min, max);
-		if (shifted.index !== -1) {
-			set(this, 'lastNumIndex', shifted.index);
-		}
+		let shifted = recalcDate(section, dateSection, numberKey, lastNumIndex, min, max);
+		//set(this, 'lastNumIndex', shifted.index);
+
+		//console.log('newDateSection', shifted.value, dateSection, numberKey, lastNumIndex);
+		//let shifted = shiftDate(dateSection, numberKey, lastNumIndex, min, max);
+		//if (shifted.index !== -1) {
+		//	set(this, 'lastNumIndex', shifted.index);
+		//}
 
 		set(this, '__numTimer', paperTime().unix());
 
-		let newDateSection = hasOrd ? localeData.ordinal(parseInt(shifted.str, 10)) : shifted.str;
+		//let newDateSection = hasOrd ? localeData.ordinal(parseInt(shifted.str, 10)) : shifted.str;
+		let newDateSection = hasOrd ? localeData.ordinal(parseInt(shifted.value, 10)) : shifted.value;
 		let nd = mergeString(value, newDateSection, start, end);
 		return paperTime(nd, get(this, 'format'));
 	},
 
 	handleNumberKeys(event, handler) {
 		const date = this.setDateForNumber(handler.keyName);
-		this.submitChange(date);
+		let index = get(this, 'lastNumIndex');
+		if (!this.submitChange(date)) {
+			index = index > 0 ? index-1 : 0;
+		} else {
+			index = index + 1;
+		}
+		set(this, 'lastNumIndex', index);
+
 		this.handleCursor();
 		return handler.preventDefault();
 	},
@@ -248,27 +262,54 @@ export default TextField.extend({
 	}
 });
 
+function recalcDate(format, str, key, index, min, max) {
+	let value = key;
+	if (index === 0) {
+		value = getFromMinValueString(format, key, min);
+		index += 1;
+	} else {
+		value = (str + key).substr(1);
+		index += 1;
+
+		if (parseInt(value, 10) > max) {
+			value = getFromMinValueString(format, key, min);
+			index = 0;
+		}
+	}
+	return { value, index };
+}
+
 function mergeString(str, insert, start, end) {
 	return str.substr(0, start) + insert + str.substr(end);
 }
 
-function shiftDate(str, key, index, min, max, zeroFill=true) {
-	if (index > str.length-1) {
-		return { str: date, index: -1 };
+function getFromMinValueString(str, key, min) {
+	let template = `000000000`.slice(0, str.length);
+	let minVal = mergeString(template, `${min}`, template.length - `${min}`.length, template.length);
+	let value = minVal.substr(0, minVal.length-1) + key;
+	if (parseInt(value, 10) < min) {
+		return getFromMinValueString(str, key + '0', min);
 	}
-
-	let date = mergeString(str, key, index, index+1);
-	if (parseInt(date, 10) > max) {
-		let shifted = shiftDate(str, key, index+1, min, max);
-		if (shifted.str === date && index === 0 && zeroFill) {
-			let template = `000000000`.slice(0, str.length);
-			let minDate = mergeString(template, `${min}`, template.length - `${min}`.length, template.length);
-			return shiftDate(minDate, key, index+1, min, max, false);
-		}
-		return shifted;
-	}
-
-	index = (index >= str.length-1) ? 0 : index + 1;
-	return { str: date, index };
+	return value;
 }
+
+//function shiftDate(str, key, index, min, max, zeroFill=true) {
+//	if (index > str.length-1) {
+//		return { str: date, index: -1 };
+//	}
+//
+//	let date = mergeString(str, key, index, index+1);
+//	if (parseInt(date, 10) > max) {
+//		let shifted = shiftDate(str, key, index+1, min, max);
+//		if (shifted.str === date && index === 0 && zeroFill) {
+//			let template = `000000000`.slice(0, str.length);
+//			let minDate = mergeString(template, `${min}`, template.length - `${min}`.length, template.length);
+//			return shiftDate(minDate, key, index+1, min, max, false);
+//		}
+//		return shifted;
+//	}
+//
+//	index = (index >= str.length-1) ? 0 : index + 1;
+//	return { str: date, index };
+//}
 
