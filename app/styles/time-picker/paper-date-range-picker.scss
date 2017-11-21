@@ -249,26 +249,15 @@
 							line-height: 1;
 						}
 
-						&.state {
-							& > input {
-								border-color: #ccc;
-								letter-spacing: 2px;
-								box-shadow: none;
+						//&.state {
+						//	& > input {
+						//	}
 
-								&::selection { background: darken(aliceblue, 10%); }
-								&::-webkit-selection { background: darken(aliceblue, 10%); }
-								&::-moz-selection { background: darken(aliceblue, 10%); }
-								&::-ms-selection { background: darken(aliceblue, 10%); }
-								&::-o-selection { background: darken(aliceblue, 10%); }
-							}
-
-							&.open {
-								& > input {
-									border-color: darken(aliceblue, 10%);
-									background-color: aliceblue;
-								}
-							}
-						}
+						//	&.open {
+						//		& > input {
+						//		}
+						//	}
+						//}
 
 						//&:last-of-type {
 						//	&.open {

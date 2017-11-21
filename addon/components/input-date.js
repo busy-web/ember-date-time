@@ -2,10 +2,12 @@
  * @module components
  *
  */
-import { get, set } from '@ember/object';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+import { observer, computed, get, set } from '@ember/object';
 import { isNone } from '@ember/utils';
 import { on } from '@ember/object/evented';
-import { later } from '@ember/runloop';
+import { run, later } from '@ember/runloop';
+import { assert } from '@ember/debug';
 import TextField from "@ember/component/text-field"
 import moment from 'moment';
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
@@ -19,6 +21,7 @@ import dateFormatParser from 'ember-paper-time-picker/utils/date-format-parser';
  */
 export default TextField.extend({
 	classNames: ['paper-date-input'],
+	classNameBindings: ['isDateInRange::invalid', 'active'],
 
 	type: 'text',
 
@@ -27,27 +30,38 @@ export default TextField.extend({
 	max: null,
 
 	format: 'MM/DD/YYYY',
-	formatParser: null,
-	localeData: null,
+	__formatParser: null,
+	__localeData: null,
 
-	lastCursorIndex: null,
-	lastNumIndex: null,
+	__lastCursorIndex: null,
+	__lastNumIndex: null,
 
 	_date: null,
 	value: null,
+	active: false,
+
+	isDateInRange: computed('value', '__lastNumIndex', function() {
+		// when value is null or lastNumIndex is null or lastNumIndex is not 0 then it is in a temp state when invalid is ignored
+		if (isNone(get(this, 'value')) || isNone(get(this, '__lastNumIndex')) || get(this, '__lastNumIndex') !== 0) {
+			return true;
+		}
+
+		// get the current value as a date object
+		let date = paperTime(get(this, 'value'), get(this, 'format'));
+
+		// date must be valid and within range to be a valid date range
+		if (date.moment.isValid() && this.isDateInBounds(date)) {
+			return true;
+		}
+		return false;
+	}),
 
 	setupComponent: on('willInsertElement', function() {
 		let format = get(this, 'format');
 
-		// set value
-		let date;
-		if (!isNone(get(this, 'timestamp'))) {
-			date = paperTime(get(this, 'timestamp'));
-		} else {
-			date = paperTime();
-		}
-		set(this, 'value', date.format(format));
-		set(this, '_date', date.milli());
+		assert('Format not supported. Please use a format with only `MM/DD/YYYY` or `L` for localized formats. Delimiter values can be `-/.,|`', !/(Do|Mo|MMM|DDD|[khHmsSAaGgWwEeQ])/.test(format));
+
+		this.timestampChange();
 
 		// store localeData
 		const localeData = moment.localeData();
@@ -60,14 +74,27 @@ export default TextField.extend({
 		}
 
 		// create new format parser
-		if (isNone(get(this, 'formatParser'))) {
-			set(this, 'formatParser', dateFormatParser(format));
+		if (isNone(get(this, '__formatParser'))) {
+			set(this, '__formatParser', dateFormatParser(format));
 		}
+	}),
+
+	timestampChange: observer('timestamp', function() {
+		let date;
+		if (!isNone(get(this, 'timestamp'))) {
+			date = paperTime(get(this, 'timestamp'));
+		} else {
+			date = paperTime();
+		}
+		let format = get(this, 'format');
+		set(this, 'value', date.format(format));
+		set(this, '_date', date.milli());
 	}),
 
 	isValid(date) {
 		if (date.moment.isValid()) {
-			return this.isDateInBounds(date);
+			//return this.isDateInBounds(date);
+			return true;
 		}
 		return false;
 	},
@@ -90,226 +117,255 @@ export default TextField.extend({
 	submitChange(value) {
 		if (this.isValid(value)) {
 			set(this, '_date', value.milli());
-			set(this, 'value', value.format(get(this, 'format')));
+			//set(this, 'value', value.format(get(this, 'format')));
 			this.sendAction('onchange', value.milli());
 			return true;
 		}
 		return false;
 	},
 
-	getFormatSection() {
-		let section = get(this, 'formatParser').getFormatSection(get(this, 'lastCursorIndex'));
-		let { start, end } = get(this, 'formatParser').current(get(this, 'lastCursorIndex'));
-		return { section, start, end };
-	},
-
-	_format() {
-		return get(this, 'formatParser.format');
-	},
-
-	handleCursor(isNext=false, isPrev=false) {
-		const parser = get(this, 'formatParser');
-		const index = get(this, 'lastCursorIndex');
-
-		let cursor;
-		if (isNext) {
-			cursor = parser.next(index);
-		} else if (isPrev) {
-			cursor = parser.prev(index);
-		} else {
-			cursor = parser.current(index);
+	finalizeDateSection() {
+		let date = paperTime(get(this, 'value'), get(this, 'format'));
+		if (date.moment.isValid()) {
+			this.submitChange(date);
+			set(this, '__lastNumIndex', 0);
+			return true;
 		}
-
-		later(() => {
-			this.$().get(0).setSelectionRange(cursor.start, cursor.end);
-			if (index !== cursor.start) {
-				set(this, 'lastCursorIndex', cursor.start);
-				set(this, 'lastNumIndex', 0);
-			}
-		}, 1);
+		return false;
 	},
 
-	forceValidTime(major, minor, lastMajor, max, index) {
-		if (isNaN(minor)) {
-			minor = major - 10;
-			major = 0;
-			lastMajor = 0;
-		}
-
-		let total = major + minor;
-		if (total > max) {
-			if (index === 0) {
-				if (major < max) {
-					total = major;
-				} else if ((lastMajor+major) < max) {
-					total = lastMajor + major;
-				}
-			}
-		}
-		return total
-	},
-
-	setDateForNumber(numberKey) {
+	setDateSection(valueSection, index) {
 		const value = get(this, 'value');
-		const { section, start, end } = this.getFormatSection();
-		const localeData = get(this, 'localeData');
-		let date = paperTime(value, get(this, 'format'));
-		let timeSinceLastKey = paperTime().unix() - get(this, '__numTimer');
+		const { sectionFormat, start } = sectionMeta(this);
+		const end = start + valueSection.length;
 
-		let lastNumIndex = get(this, 'lastNumIndex');
-		if (lastNumIndex === section.length) {
-			lastNumIndex = 0;
-		} else if (timeSinceLastKey > 5) {
-			lastNumIndex = 0;
+		// merge the date string section into the current date string
+		let newVal = mergeString(value, valueSection, start, end);
+
+		set(this, 'value', newVal);
+
+		// set new number index and handle cursor selection
+		if (index >= sectionFormat.length) {
+			// create a new date object
+			if (this.finalizeDateSection()) {
+				moveToNextPosition(this);
+			} else {
+				set(this, '__lastNumIndex', 0);
+				setSelected(this, start-1, end+1);
+				later(() => setSelected(this, start, end), 100);
+			}
+		} else {
+			set(this, '__lastNumIndex', index);
+			setSelected(this, start, end);
 		}
-
-		let max;
-		let min = 0;
-		let hasOrd = false;
-		if (/^D(o|D)?$/.test(section)) { // days of month
-			max = date.moment.daysInMonth();
-			hasOrd = section === 'Do';
-		} else if (/^M(o|M)?$/.test(section)) { // months of year
-			max = 12;
-			hasOrd = section === 'Mo';
-		} else if (/^Y{1,4}$/.test(section)) {
-			max = isNone(get(this, 'max')) ? moment().add(100, 'years').year() : moment(get(this, 'max')).year();
-			min = isNone(get(this, 'max')) ? moment().subtact(100, 'years').year() : moment(get(this, 'min')).year();
-		}
-
-		let dateSection = date.format(section);
-		let shifted = recalcDate(section, dateSection, numberKey, lastNumIndex, min, max);
-		//set(this, 'lastNumIndex', shifted.index);
-
-		//console.log('newDateSection', shifted.value, dateSection, numberKey, lastNumIndex);
-		//let shifted = shiftDate(dateSection, numberKey, lastNumIndex, min, max);
-		//if (shifted.index !== -1) {
-		//	set(this, 'lastNumIndex', shifted.index);
-		//}
-
-		set(this, '__numTimer', paperTime().unix());
-
-		//let newDateSection = hasOrd ? localeData.ordinal(parseInt(shifted.str, 10)) : shifted.str;
-		let newDateSection = hasOrd ? localeData.ordinal(parseInt(shifted.value, 10)) : shifted.value;
-		let nd = mergeString(value, newDateSection, start, end);
-		return paperTime(nd, get(this, 'format'));
 	},
 
 	handleNumberKeys(event, handler) {
-		const date = this.setDateForNumber(handler.keyName);
-		let index = get(this, 'lastNumIndex');
-		if (!this.submitChange(date)) {
-			index = index > 0 ? index-1 : 0;
-		} else {
-			index = index + 1;
-		}
-		set(this, 'lastNumIndex', index);
+		let { value, end } = sectionMeta(this);
+		let { max } = sectionBounds(this);
+		let index = get(this, '__lastNumIndex');
+		let valueSection = createSection(this, handler.keyName, index);
+		index = index + 1;
 
-		this.handleCursor();
+		if(end !== value.length && parseInt(valueSection, 10) > max) {
+			moveToNextPosition(this).then(() => false).then(() => {
+				this.handleNumberKeys(event, handler);
+			});
+		} else {
+			this.setDateSection(valueSection, index);
+		}
+
+		return handler.preventDefault();
+	},
+
+	handlerDeleteKey(event, handler) {
+		let { value } = sectionMeta(this);
+		let index = get(this, '__lastNumIndex');
+		index = index - 1;
+
+		if (index >= 0) {
+			let valueSection = createSection(value, 0, index-1);
+			this.setDateSection(valueSection, index);
+		}
+
 		return handler.preventDefault();
 	},
 
 	handleArrowKeys(event, handler) {
 		if (handler.keyName === 'left-arrow') {
-			this.handleCursor(false, true);
+			handleCursor(this, -1);
 		} else if (handler.keyName === 'right-arrow') {
-			this.handleCursor(true, false);
+			handleCursor(this, 1);
 		} else {
-			let { section } = this.getFormatSection();
+			let { sectionFormat } = sectionMeta(this);
 			let value = get(this, '_date');
 
 			let val;
 			if (handler.keyName === 'up-arrow') {
-				val = paperTime(value).addFormatted(1, section);
+				val = paperTime(value).addFormatted(1, sectionFormat);
 			} else {
-				val = paperTime(value).subFormatted(1, section);
+				val = paperTime(value).subFormatted(1, sectionFormat);
 			}
-			this.submitChange(val);
-			this.handleCursor();
+
+			set(this, 'value', val.format(get(this, 'format')));
+			handleCursor(this, 0);
 		}
+
+		this.finalizeDateSection();
 		return handler.preventDefault();
 	},
 
+	handleFocus(index) {
+		// set cursor index and last num index
+		set(this, '__lastCursorIndex', index);
+		set(this, '__lastNumIndex', 0);
+
+		handleCursor(this, 0);
+		this.set('active', true);
+	},
+
 	focusInEvent: on('focusIn', function(event) {
-		if (isNone(get(this, 'lastCursorIndex'))) {
-			// find the index for the start of the day format string
-			let index = this._format().search(/(d|D)/);
-			set(this, 'lastCursorIndex', index);
-			set(this, 'lastNumIndex', 0);
-		}
-		this.handleCursor();
+		this.handleFocus(0);
 		this.sendAction('onfocus', event);
 	}),
 
+	focusOutEvent: on('focusOut', function(event) {
+		this.set('active', false);
+		this.sendAction('onblur', event);
+	}),
+
 	clickEvent: on('click', function(event) {
+		let index = event.target.selectionStart;
+		this.handleFocus(index);
 		this.sendAction('onclick', event);
 	}),
 
 	keyDown: function(event) {
-		let handler = keyEvent({ event, allowed: ['tab', 'left-arrow', 'right-arrow', 'up-arrow', 'down-arrow', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0] });
+		let handler = keyEvent({ event, disable: ['letters'] }); //'tab', 'delete', 'enter', 'left-arrow', 'right-arrow', 'up-arrow', 'down-arrow', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
 		if (handler.allowed) {
 			if (!handler.throttle) {
 				if (/arrow/.test(handler.keyName)) {
 					return this.handleArrowKeys(event, handler);
 				} else if (/^[0-9]$/.test(handler.keyName)) {
 					return this.handleNumberKeys(event, handler);
-				} else if (handler.keyName === 'tab') {
+				} else if (handler.keyName === 'delete') {
+					return this.handlerDeleteKey(event, handler);
+				} else if (handler.keyName === 'tab' || handler.keyName === 'enter') {
 					this.sendAction('ontabkey', event);
 				}
 			}
-			return handler.preventDefault();
 		}
+		return handler.preventDefault();
 	}
 });
 
-function recalcDate(format, str, key, index, min, max) {
-	let value = key;
-	if (index === 0) {
-		value = getFromMinValueString(format, key, min);
-		index += 1;
-	} else {
-		value = (str + key).substr(1);
-		index += 1;
+//function recalcDate(format, str, key, index, min, max) {
+//	let value = (str + key).substr(1);
+//	if (index === 0) { // || parseInt(value, 10) > max || parseInt(value, 10) < min) {
+//		value = getFromMinValueString(format, key, 0);
+//		//index = 0;
+//	}
+//
+//	index = index+1;
+//	return { value, index };
+//}
 
-		if (parseInt(value, 10) > max) {
-			value = getFromMinValueString(format, key, min);
-			index = 0;
-		}
+function sectionMeta(target) {
+	let value = get(target, 'value');
+	let sectionFormat = get(target, '__formatParser').getFormatSection(get(target, '__lastCursorIndex'));
+	let { start, end } = get(target, '__formatParser').current(get(target, '__lastCursorIndex'));
+	return { value, sectionFormat, start, end };
+}
+
+function sectionBounds(target) {
+	const format = get(target, '__formatParser.format');
+	let max;
+	let min = 0;
+	if (/^D(o|D)?$/.test(format)) { // days of month
+		const date = paperTime(get(target, '_date'));
+		max = date.moment.daysInMonth();
+	} else if (/^M(o|M)?$/.test(format)) { // months of year
+		max = 12;
+	} else if (/^Y{1,4}$/.test(format)) {
+		max = isNone(get(target, 'max')) ? moment().add(100, 'years').year() : moment(get(target, 'max')).year();
+		//min = isNone(get(target, 'max')) ? moment().subtact(100, 'years').year() : moment(get(target, 'min')).year();
 	}
-	return { value, index };
+	return { min, max }
+}
+
+function setSelected(target, start, end) {
+	return new EmberPromise(resolve => {
+		later(() => {
+			const index = get(target, '__lastCursorIndex');
+			target.$().get(0).setSelectionRange(start, end);
+			if (index !== start) {
+				set(target, '__lastCursorIndex', start);
+			}
+			run(null, resolve, null);
+		}, 10);
+	});
+}
+
+function handleCursor(target, action=0) {
+	const parser = get(target, '__formatParser');
+	const index = get(target, '__lastCursorIndex');
+
+	let cursor;
+	if (action === 1) {
+		cursor = parser.next(index);
+	} else if (action === -1) {
+		cursor = parser.prev(index);
+	} else {
+		cursor = parser.current(index);
+	}
+	return setSelected(target, cursor.start, cursor.end);
+}
+
+function moveToNextPosition(target) {
+	const { end } = sectionMeta(target);
+	const format = get(target, '__formatParser.format');
+
+	set(target, '__lastNumIndex', 0);
+	if (end === format.length) {
+		target.sendAction('ontabkey', target.$());
+		return resolve();
+	} else {
+		return handleCursor(target, 1);
+	}
+}
+
+function createSection(target, num, index) {
+	const { value, sectionFormat, start, end } = sectionMeta(target);
+	const substr = value.substring(start, end);
+
+	// calculate new date from input
+	let ds = shiftString(substr, num);
+	if (index === 0) { // || parseInt(value, 10) > max || parseInt(value, 10) < min) {
+		let template = `000000000`.slice(0, sectionFormat.length);
+		ds = shiftString(template, num);
+	}
+	return ds;
+}
+
+function shiftString(str, val) {
+	return (str + val).substr(1)
 }
 
 function mergeString(str, insert, start, end) {
 	return str.substr(0, start) + insert + str.substr(end);
 }
 
-function getFromMinValueString(str, key, min) {
-	let template = `000000000`.slice(0, str.length);
-	let minVal = mergeString(template, `${min}`, template.length - `${min}`.length, template.length);
-	let value = minVal.substr(0, minVal.length-1) + key;
-	if (parseInt(value, 10) < min) {
-		return getFromMinValueString(str, key + '0', min);
-	}
-	return value;
-}
-
-//function shiftDate(str, key, index, min, max, zeroFill=true) {
-//	if (index > str.length-1) {
-//		return { str: date, index: -1 };
+//function getFromMinValueString(str, key, min) {
+//	if (key.length > str.length) {
+//		return str;
 //	}
 //
-//	let date = mergeString(str, key, index, index+1);
-//	if (parseInt(date, 10) > max) {
-//		let shifted = shiftDate(str, key, index+1, min, max);
-//		if (shifted.str === date && index === 0 && zeroFill) {
-//			let template = `000000000`.slice(0, str.length);
-//			let minDate = mergeString(template, `${min}`, template.length - `${min}`.length, template.length);
-//			return shiftDate(minDate, key, index+1, min, max, false);
-//		}
-//		return shifted;
+//	let template = `000000000`.slice(0, str.length);
+//	let minVal = mergeString(template, `${min}`, template.length - `${min}`.length, template.length);
+//	let value = minVal.substr(0, minVal.length-key.length) + key;
+//	if (parseInt(value, 10) < min) {
+//		return getFromMinValueString(str, key + '0', min);
 //	}
-//
-//	index = (index >= str.length-1) ? 0 : index + 1;
-//	return { str: date, index };
+//	return value;
 //}
-
+//

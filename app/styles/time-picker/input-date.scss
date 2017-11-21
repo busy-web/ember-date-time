@@ -3,9 +3,38 @@
 .paper-date-input {
 	width: 100%;
 	height: 40px;
+	border-color: #ccc;
+	letter-spacing: 2px;
+	box-shadow: none;
 
-	& > input {
-		width: 100%;
-		height: 100%;
+	&::selection { background: darken(aliceblue, 10%); }
+	&::-webkit-selection { background: darken(aliceblue, 10%); }
+	&::-moz-selection { background: darken(aliceblue, 10%); }
+	&::-ms-selection { background: darken(aliceblue, 10%); }
+	&::-o-selection { background: darken(aliceblue, 10%); }
+
+	&:active,
+	&:focus,
+	&.active {
+		border-color: darken(aliceblue, 10%);
+		background-color: aliceblue;
+		box-shadow: none;
 	}
+
+	&.invalid {
+		border-color: lighten(indianred, 20%);
+		background-color: lighten(indianred, 35%);
+		//color: #fff;
+
+		&::selection { background: lighten(indianred, 30%); }
+		&::-webkit-selection { background: lighten(indianred, 30%); }
+		&::-moz-selection { background: lighten(indianred, 30%); }
+		&::-ms-selection { background: lighten(indianred, 30%); }
+		&::-o-selection { background: lighten(indianred, 30%); }
+	}
+
+	//& > input {
+	//	width: 100%;
+	//	height: 100%;
+	//}
 }

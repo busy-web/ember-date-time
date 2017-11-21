@@ -22,6 +22,8 @@ class PaperTime {
 		} else {
 			this.__date = moment(date.valueOf());
 		}
+
+		this.__time = this.__date.unix();
 	}
 
 	get moment() {
