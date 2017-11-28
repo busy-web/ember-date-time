@@ -297,36 +297,30 @@ export default Component.extend({
 		actionList.push(EmberObject.create({id: 'monthly', name: loc('Monthly'), span: 1, type: 'months', sort: 300, selected: false}));
 
 		set(this, 'actionList', actionList.sortBy('sort'));
-
 		if (isNone(get(this, 'selected'))) {
-			if (!get(this, 'isCustom')) {
-				const selected = this.getDefaultAction(actionList);
-				this.saveState(get(selected, 'id'));
-			} else {
-				this.saveState('custom');
-			}
+			this.setSelected();
+			this.saveState();
 		}
 
-		console.log('on keydown');
-		$('body').on(`keydown.${get(this, 'elementId')}`, event => {
-			console.log('event', event.which);
-			if ((event.altKey) && event.which === 68) {
-				this.send('toggleList');
-			}
-		});
+		let elementId = get(this, 'elementId');
+		$('body').off(`keydown.${elementId}`);
+		$('body').on(`keydown.${elementId}`, keyDownEventHandler(this));
+
+		$('body').off(`click.${elementId}`);
+		$('body').on(`click.${elementId}`, clickEventHandler(this));
 	}),
 
 	destroy: on('willDestroyElement', function() {
-		console.log('destroy view');
 		$('body').off(`keydown.${get(this, 'elementId')}`);
+		$('body').off(`click.${get(this, 'elementId')}`);
 	}),
 
-	getDefaultAction(list) {
+	getDefaultAction() {
 		if (get(this, 'isCustom')) {
 			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
 			return EmberObject.create({name: loc('Custom'), span, type: 'days'});
 		} else if (!isEmpty(get(this, 'defaultAction'))) {
-			return list.findBy('id', get(this, 'defaultAction'));
+			return get(this, 'actionList').findBy('id', get(this, 'defaultAction'));
 		} else {
 			const start = this.getStart();
 			const end = this.getEnd();
@@ -336,7 +330,7 @@ export default Component.extend({
 			let diff = Number.MAX_VALUE;
 
 			let selected;
-			list.forEach(item => {
+			get(this, 'actionList').forEach(item => {
 				const timeSpan = TimePicker.getMomentDate(start).add(item.span, item.type);
 				const itemSpan = Math.abs(startDate.diff(timeSpan, 'days'));
 				const nDiff = Math.abs(itemSpan - span);
@@ -381,30 +375,31 @@ export default Component.extend({
 
 	getInterval(direction=0) {
 		const { span, type } = this.get('selected');
-		const endType = type.replace(/s$/, '');
-		let start = TimePicker.getMomentDate(this.getStart());
-		let end;
+		let start, end;
+		if (!isEmpty(type) && !isNone(span)) {
+			const endType = type.replace(/s$/, '');
+			start = TimePicker.getMomentDate(this.getStart());
 
-		if (direction === -1) {
-			start = start.subtract(span, type).valueOf();
-		} else if (direction === 1) {
-			start = start.add(span, type).valueOf();
-		} else {
-			start = start.startOf(endType).valueOf();
+			if (direction === -1) {
+				start = start.subtract(span, type).valueOf();
+			} else if (direction === 1) {
+				start = start.add(span, type).valueOf();
+			} else {
+				start = start.startOf(endType).valueOf();
+			}
+
+			end = TimePicker.getMomentDate(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
 		}
-
-		end = TimePicker.getMomentDate(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
-
 		return { start, end };
 	},
 
 	changeInterval(direction=0) {
 		const { start, end } = this.getInterval(direction);
-
-		this.setStart(start);
-		this.setEnd(end);
-
-		this.triggerDateChange();
+		if (!isNone(start) && !isNone(end)) {
+			this.setStart(start);
+			this.setEnd(end);
+			this.triggerDateChange();
+		}
 	},
 
 	/**
@@ -512,14 +507,16 @@ export default Component.extend({
 	 */
 	setSelected(id) {
 		let selected;
-		if (id === 'custom') {
+		if (isNone(id)) {
+			selected = this.getDefaultAction();
+		} else if (id === 'custom') {
 			set(this, 'isCustom', true);
 			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
 			selected = EmberObject.create({id: 'custom', name: loc('Custom'), span, type: 'days'});
 		} else {
 			set(this, 'isCustom', false);
 			get(this, 'actionList').forEach(item => set(item, 'selected', false));
-			selected = get(this, 'actionList').filter(item => get(item, 'id') === id);
+			selected = get(this, 'actionList').findBy('id', id);
 		}
 
 		set(selected, 'selected', true);
@@ -534,8 +531,8 @@ export default Component.extend({
 	 * @public
 	 * @method saveState
 	 */
-	saveState(id) {
-		this.setSelected(id);
+	saveState() {
+		let id = get(this, 'selected.id');
 		set(this, '__saveState', {
 			isCustom: id === 'custom',
 			selectedId: id,
@@ -574,15 +571,7 @@ export default Component.extend({
 
 		toggleList() {
 			let isListOpen = !get(this, 'isListOpen');
-			let elementId = get(this, 'elementId');
-
-			if (isListOpen) {
-				$('body').on(`keydown.${elementId}`, keyDownEventHandler(this));
-				$('body').on(`click.${elementId}`, clickEventHandler(this));
-			} else {
-				$('body').off(`keydown.${elementId}`);
-				$('body').off(`click.${elementId}`);
-			}
+			//let elementId = get(this, 'elementId');
 
 			set(this, 'isListOpen', isListOpen);
 
@@ -600,22 +589,22 @@ export default Component.extend({
 		},
 
 		selectItem(id) {
-			this.saveState(id);
-			//this.setSelected(id);
+			this.saveState();
+			this.setSelected(id);
 			set(this, 'isListOpen', false);
 			this.changeInterval();
 		},
 
 		selectCustom() {
-			this.saveState('custom');
-			//this.setSelected('custom');
+			this.saveState();
+			this.setSelected('custom');
 			later(() => {
 				this.focusActive(get(this, 'isStart'));
 			}, 100);
 		},
 
 		applyRange() {
-			this.saveState('custom');
+			this.saveState();
 			set(this, 'isListOpen', false);
 			this.triggerDateChange();
 		},
@@ -629,13 +618,13 @@ export default Component.extend({
 		dateChange(timestamp) {
 			this.updateDates(timestamp, get(this, 'isStart'));
 			this.setActiveState(get(this, 'isStart'));
-			this.saveState(get(this, 'selected.id'));
+			this.saveState();
 		},
 
 		updateTime(state, timestamp) {
 			this.updateDates(timestamp, get(this, 'isStart'));
 			this.setActiveState(get(this, 'isStart'));
-			this.saveState(get(this, 'selected.id'));
+			this.saveState();
 		},
 
 		tabAction() {
@@ -646,10 +635,24 @@ export default Component.extend({
 
 
 function keyDownEventHandler(target) {
-	return function(evt) {
-		if (get(target, 'isListOpen')) {
-			if (evt.which === 9) {
-				return target.send('tabAction', evt);
+	return function(event) {
+		let isOpen = get(target, 'isListOpen');
+		let isCustom = get(target, 'isCustom');
+
+		if (event.which === 9) {
+			if (isOpen) {
+				return target.send('tabAction', event);
+			}
+		}
+
+		if (event.altKey) {
+			if (event.which === 68) {
+				target.send('toggleList');
+			} else if (event.which === 67) {
+				target.send('toggleList');
+				if (!isOpen && !isCustom) {
+					target.send('selectCustom');
+				}
 			}
 		}
 		return true;
@@ -659,7 +662,8 @@ function keyDownEventHandler(target) {
 function clickEventHandler(target) {
 	return function(evt) {
 		let el = $(evt.target);
-		if (get(target, 'isListOpen')) {
+		let isOpen = get(target, 'isListOpen');
+		if (isOpen) {
 			if (el.parents('.paper-date-range-picker').length) { // is in date picker
 				if (!el.parents('.date-range-picker-dropdown').length && !el.hasClass('select') && !el.hasClass('date-range-picker-dropdown')) {
 					target.send('toggleList');
