@@ -28,21 +28,23 @@
 	<li class="picker{{if isCustom ' active'}}">
 		<div class="header">
 			<span class="state start{{if isStart ' open'}}">
-				{{input-date timestamp=_start max=paper.maxDate min=paper.minDate format=format
+				{{input-date timestamp=_start max=paper.maxDate min=paper.minDate format=format name=inputDataName
 					onclick=(action 'setFocus' 'start')
 					onfocus=(action 'setFocus' 'start')
 					ontabkey=(action 'tabAction')
-					onchange=(action 'dateChange')}}
+					onchange=(action 'dateChange')
+					onsubmit=(action 'applyRange')}}
 			</span>
 
 			<span>{{busy-loc "to"}}</span>
 
 			<span class="state end{{if isStart '' ' open'}}">
-				{{input-date timestamp=_end max=paper.maxDate min=paper.minDate format=format
+				{{input-date timestamp=_end max=paper.maxDate min=paper.minDate format=format name=inputDataName
 					onclick=(action 'setFocus' 'end')
 					onfocus=(action 'setFocus' 'end')
 					ontabkey=(action 'tabAction')
-					onchange=(action 'dateChange')}}
+					onchange=(action 'dateChange')
+					onsubmit=(action 'applyRange')}}
 			</span>
 		</div>
 

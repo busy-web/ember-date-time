@@ -101,6 +101,10 @@ export default Component.extend({
 	isCustom: false,
 	activeDates: null,
 
+	inputDataName: computed('elementId', function() {
+		return `range-picker-${get(this, 'elementId')}`;
+	}),
+
 	_startDate: computed('_start', function() {
 		return TimePicker.getMomentDate(get(this, '_start'));
 	}),
@@ -294,9 +298,27 @@ export default Component.extend({
 
 		set(this, 'actionList', actionList.sortBy('sort'));
 
-		const selected = this.getDefaultAction(actionList);
-		this.setSelected(get(selected, 'id'), get(this, 'isCustom'));
-		this.saveState();
+		if (isNone(get(this, 'selected'))) {
+			if (!get(this, 'isCustom')) {
+				const selected = this.getDefaultAction(actionList);
+				this.saveState(get(selected, 'id'));
+			} else {
+				this.saveState('custom');
+			}
+		}
+
+		console.log('on keydown');
+		$('body').on(`keydown.${get(this, 'elementId')}`, event => {
+			console.log('event', event.which);
+			if ((event.altKey) && event.which === 68) {
+				this.send('toggleList');
+			}
+		});
+	}),
+
+	destroy: on('willDestroyElement', function() {
+		console.log('destroy view');
+		$('body').off(`keydown.${get(this, 'elementId')}`);
 	}),
 
 	getDefaultAction(list) {
@@ -449,11 +471,11 @@ export default Component.extend({
 	 */
 	focusActive(isStart) {
 		next(() => {
-			if (isStart) {
-				this.$('.state.start > input').focus();
-			} else {
-				this.$('.state.end > input').focus();
-			}
+			let input = (isStart) ? 'start' : 'end';
+			let el = this.$(`.state.${input} > input`);
+			el.data('selection', 0);
+			el.data('position', 0);
+			el.focus();
 		});
 	},
 
@@ -488,22 +510,18 @@ export default Component.extend({
 	 * @params id {string} the id of the menu type to set as the selected menu item
 	 * @return {object} the selected item
 	 */
-	setSelected(id, isCustom=false) {
+	setSelected(id) {
 		let selected;
-		if (isCustom) {
+		if (id === 'custom') {
+			set(this, 'isCustom', true);
 			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
 			selected = EmberObject.create({id: 'custom', name: loc('Custom'), span, type: 'days'});
 		} else {
-			get(this, 'actionList').forEach(item => {
-				if (get(item, 'id') === id) {
-					selected = item;
-				} else {
-					set(item, 'selected', false);
-				}
-			});
+			set(this, 'isCustom', false);
+			get(this, 'actionList').forEach(item => set(item, 'selected', false));
+			selected = get(this, 'actionList').filter(item => get(item, 'id') === id);
 		}
 
-		set(this, 'isCustom', isCustom);
 		set(selected, 'selected', true);
 		set(this, 'selected', selected);
 		return selected;
@@ -516,10 +534,11 @@ export default Component.extend({
 	 * @public
 	 * @method saveState
 	 */
-	saveState() {
+	saveState(id) {
+		this.setSelected(id);
 		set(this, '__saveState', {
-			isCustom: get(this, 'isCustom'),
-			selectedId: get(this, 'selected.id'),
+			isCustom: id === 'custom',
+			selectedId: id,
 			start: this.getStart(),
 			end: this.getEnd()
 		});
@@ -536,7 +555,7 @@ export default Component.extend({
 		if (!isNone(get(this, '__saveState'))) {
 			this.setStart(get(this, '__saveState.start'));
 			this.setEnd(get(this, '__saveState.end'));
-			this.setSelected(get(this, '__saveState.selectedId'), get(this, '__saveState.isCustom'));
+			this.setSelected(get(this, '__saveState.selectedId'));
 		}
 	},
 
@@ -581,22 +600,22 @@ export default Component.extend({
 		},
 
 		selectItem(id) {
-			this.saveState();
-			this.setSelected(id, false);
+			this.saveState(id);
+			//this.setSelected(id);
 			set(this, 'isListOpen', false);
 			this.changeInterval();
 		},
 
 		selectCustom() {
-			this.saveState();
-			this.setSelected('custom', true);
+			this.saveState('custom');
+			//this.setSelected('custom');
 			later(() => {
 				this.focusActive(get(this, 'isStart'));
 			}, 100);
 		},
 
 		applyRange() {
-			this.saveState();
+			this.saveState('custom');
 			set(this, 'isListOpen', false);
 			this.triggerDateChange();
 		},
@@ -610,13 +629,13 @@ export default Component.extend({
 		dateChange(timestamp) {
 			this.updateDates(timestamp, get(this, 'isStart'));
 			this.setActiveState(get(this, 'isStart'));
-			this.saveState();
+			this.saveState(get(this, 'selected.id'));
 		},
 
 		updateTime(state, timestamp) {
 			this.updateDates(timestamp, get(this, 'isStart'));
 			this.setActiveState(get(this, 'isStart'));
-			this.saveState();
+			this.saveState(get(this, 'selected.id'));
 		},
 
 		tabAction() {
