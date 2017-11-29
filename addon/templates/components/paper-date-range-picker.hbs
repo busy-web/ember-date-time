@@ -1,5 +1,40 @@
 
 <div class="menu">
+	{{#if stacked}}
+		<span class="date stacked-range{{if selectedDayRangeMatch ' match'}}">
+			{{#if selectedMonthRangeMatch}}
+				<h3 class="month">{{format-date _start 'MMMM'}}</h3>
+			{{else}}
+				<h3 class="month range">{{format-date _start 'MMM'}}</h3>
+				<span>-</span>
+				<h3 class="month range">{{format-date _end 'MMM'}}</h3>
+			{{/if}}
+			{{#if selectedDayRangeMatch}}
+				<h3 class="day">{{format-date _start 'Do'}}</h3>
+			{{else}}
+				<h3 class="day range">{{format-date _start 'Do'}}</h3>
+				<span>-</span>
+				<h3 class="day range">{{format-date _end 'Do'}}</h3>
+			{{/if}}
+			{{#if selectedYearRangeMatch}}
+				<h3 class="year">{{format-date _start 'YYYY'}}</h3>
+			{{else}}
+				<h3 class="year range">{{format-date _start 'YYYY'}}</h3>
+				<span>-</span>
+				<h3 class="year range">{{format-date _end 'YYYY'}}</h3>
+			{{/if}}
+		</span>
+		{{!--
+		<span class="date stacked{{if selectedDayRange ' day'}}{{if selectedMonthRange ' month'}}{{if selectedYearRange ' year'}}">
+			<h3 class="month">{{selectedMonthRange}}</h3>
+			<h3 class="day">{{selectedDayRange}}</h3>
+			<h3 class="year">{{selectedYearRange}}</h3>
+		</span>
+		--}}
+	{{else}}
+		<span class="date">{{selectedDateRange}}</span>
+	{{/if}}
+
 	<a class="button select" {{action 'toggleList'}}>{{selected.name}}</a>
 
 	<span class="arrows">
@@ -7,15 +42,6 @@
 		<a class="button arrow right{{if disableNext ' disabled'}}" {{action 'intervalForward'}}><span></span></a>
 	</span>
 
-	{{#if stacked}}
-		<span class="date stacked{{if selectedDayRange ' day'}}{{if selectedMonthRange ' month'}}{{if selectedYearRange ' year'}}">
-			<h3 class="month">{{selectedMonthRange}}</h3>
-			<h3 class="day">{{selectedDayRange}}</h3>
-			<h3 class="year">{{selectedYearRange}}</h3>
-		</span>
-	{{else}}
-		<span class="date">{{selectedDateRange}}</span>
-	{{/if}}
 </div>
 
 <ul class="date-range-picker-dropdown list{{if isListOpen ' active'}}">
@@ -25,7 +51,7 @@
 
 	<li class="item custom{{if isCustom ' active'}}" {{action 'selectCustom'}}>{{loc "Custom"}}</li>
 
-	<li class="picker{{if isCustom ' active'}}">
+	<li class="date-range-picker-menu picker{{if isCustom ' active'}}">
 		<div class="header">
 			<span class="state start{{if isStart ' open'}}">
 				{{input-date timestamp=_start max=paper.maxDate min=paper.minDate format=format name=inputDataName

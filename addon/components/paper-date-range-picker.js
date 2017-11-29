@@ -11,9 +11,11 @@ import { on } from '@ember/object/evented';
 import { isEmpty, isNone } from '@ember/utils';
 import { loc } from '@ember/string';
 import { assert } from '@ember/debug';
+import moment from 'moment';
 import layout from '../templates/components/paper-date-range-picker';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
+import keyEvent from 'ember-paper-time-picker/utils/key-event';
 
 export default Component.extend({
 	/**
@@ -124,7 +126,7 @@ export default Component.extend({
 	}),
 
 	selectedDayRangeMatch: computed('_startDate', '_endDate', function() {
-		return get(this, '_startDate').day() === get(this, '_endDate').day();
+		return get(this, '_startDate').date() === get(this, '_endDate').date();
 	}),
 	selectedMonthRangeMatch: computed('_startDate', '_endDate', function() {
 		return get(this, '_startDate').month() === get(this, '_endDate').month();
@@ -134,46 +136,50 @@ export default Component.extend({
 	}),
 
 	selectedDayRange: computed('selected', '_startDate', '_endDate', function() {
-		const { id } = get(this, 'selected');
-		if (id !== 'monthly' && get(this, 'selectedMonthRangeMatch') && get(this, 'selectedYearRangeMatch')) {
+		//const { id } = get(this, 'selected');
+		//if (id !== 'monthly' && get(this, 'selectedMonthRangeMatch') && get(this, 'selectedYearRangeMatch')) {
 			if (!get(this, 'selectedDayRangeMatch')) {
 				return `${get(this, '_startDate').format('Do')} - ${get(this, '_endDate').format('Do')}`;
 			}
 			return get(this, '_startDate').format('Do');
-		}
-		return '';
+		//}
+		//return '';
 	}),
 	selectedMonthRange: computed('_startDate', '_endDate', function() {
-		if (get(this, 'selectedYearRangeMatch')) {
+		//if (get(this, 'selectedYearRangeMatch')) {
 			if (!get(this, 'selectedMonthRangeMatch')) {
-				return `${get(this, '_startDate').format('MMM Do')} - ${get(this, '_endDate').format('MMM Do')}`;
+				//return `${get(this, '_startDate').format('MMM Do')} - ${get(this, '_endDate').format('MMM Do')}`;
+				return `${get(this, '_startDate').format('MMM')} - ${get(this, '_endDate').format('MMM')}`;
 			}
 			return get(this, '_startDate').format('MMMM');
-		}
-		return '';
+		//}
+		//return '';
 	}),
 	selectedYearRange: computed('_startDate', '_endDate', function() {
 		if (!get(this, 'selectedYearRangeMatch')) {
-			return `${get(this, '_startDate').format('l')} - ${get(this, '_endDate').format('l')}`;
+			//let f = get(this, 'format');
+			//return `${get(this, '_startDate').format(f)} - ${get(this, '_endDate').format(f)}`;
+			return `${get(this, '_startDate').format('YY')} - ${get(this, '_endDate').format('YY')}`;
 		}
 		return get(this, '_startDate').format('YYYY');
 	}),
 
-	selectedDateRange: computed('selected', '_start', '_end', function() {
+	selectedDateRange: computed('selected', '_start', '_end', 'format', function() {
 		const { id } = get(this, 'selected');
+		let format = get(this, 'format');
 		const start = TimePicker.getMomentDate(this.getStart());
 		const end = TimePicker.getMomentDate(this.getEnd());
 		if (start.year() !== end.year()) {
-			return start.format('ll') + ' - ' + end.format('ll');
+			return `${start.format(format)} - ${end.format(format)}`;
 		} else if (start.month() !== end.month()) {
-			return start.format('ll').replace(', ' + start.format('YYYY'), '') + ' - ' + end.format('ll');
+			return `${start.format(format)} - ${end.format(format)}`;
 		} else {
 			if (id === 'monthly') {
 				return start.format('MMMM YYYY');
 			} else if (start.date() === end.date()) {
-				return start.format('ll');
+				return start.format(format);
 			} else {
-				return `${start.format('L')} - ${end.format('L')}`;
+				return `${start.format(format)} - ${end.format(format)}`;
 			}
 		}
 	}),
@@ -186,10 +192,27 @@ export default Component.extend({
 		return null;
 	},
 
-	setup: on('didReceiveAttrs', function() {
+	setup: on('willInsertElement', function() {
 		const utc = get(this, 'utc');
 		const isUnix = !isNone(get(this, 'startUnix')) || !isNone(get(this, 'endUnix'));
 		set(this, '_isUnix', isUnix);
+
+		// get locale converted format str
+		let format = get(this, 'format');
+		const localeData = moment.localeData();
+		const lFormat = localeData.longDateFormat(format);
+		if (!isNone(lFormat)) {
+			format = lFormat;
+		}
+
+		assert(
+			`Moment format "${get(this, 'format')}" is not supported. All format strings must be a combination of "DD" "MM" "YYYY" with one of the following delimeters [ -./, ] and no spaces`,
+			/^(DD.MM.YYYY|DD.YYYY.MM|MM.DD.YYYY|MM.YYYY.DD|YYYY.MM.DD|YYYY.DD.MM)$/.test(format)
+		);
+
+		let dayIndex = format.search(/D(D|o)/);
+		set(this, '__dayIndex', dayIndex);
+		set(this, '__format', format);
 
 		if (isNone(get(this, 'activeDates'))) {
 			set(this, 'activeDates', []);
@@ -394,12 +417,21 @@ export default Component.extend({
 	},
 
 	changeInterval(direction=0) {
+		let intervalWait = get(this, '__intervalWait');
+		if (!isNone(intervalWait)) {
+			clearTimeout(intervalWait);
+			intervalWait = null;
+		}
+
 		const { start, end } = this.getInterval(direction);
 		if (!isNone(start) && !isNone(end)) {
 			this.setStart(start);
 			this.setEnd(end);
-			this.triggerDateChange();
+			intervalWait = setTimeout(() => {
+				this.triggerDateChange();
+			}, 500);
 		}
+		set(this, '__intervalWait', intervalWait);
 	},
 
 	/**
@@ -464,13 +496,14 @@ export default Component.extend({
 	 * @method focusActive
 	 * @params isStart {boolean}
 	 */
-	focusActive(isStart) {
+	focusActive(isStart, selection=0) {
 		next(() => {
 			let input = (isStart) ? 'start' : 'end';
 			let el = this.$(`.state.${input} > input`);
-			el.data('selection', 0);
+			el.data('selection', selection);
 			el.data('position', 0);
 			el.focus();
+			set(this, '__saveFocus', { isStart, selection });
 		});
 	},
 
@@ -506,6 +539,9 @@ export default Component.extend({
 	 * @return {object} the selected item
 	 */
 	setSelected(id) {
+		// reset selected list
+		get(this, 'actionList').forEach(item => set(item, 'selected', false));
+
 		let selected;
 		if (isNone(id)) {
 			selected = this.getDefaultAction();
@@ -515,7 +551,6 @@ export default Component.extend({
 			selected = EmberObject.create({id: 'custom', name: loc('Custom'), span, type: 'days'});
 		} else {
 			set(this, 'isCustom', false);
-			get(this, 'actionList').forEach(item => set(item, 'selected', false));
 			selected = get(this, 'actionList').findBy('id', id);
 		}
 
@@ -556,6 +591,29 @@ export default Component.extend({
 		}
 	},
 
+	closeMenu() {
+		let focus = this.$('.date-range-picker-dropdown > .focus');
+		if (focus.length) {
+			focus.removeClass('focus');
+		}
+		set(this, 'isListOpen', false);
+	},
+
+	openMenu() {
+		set(this, 'isListOpen', true);
+		this.focusActive(get(this, 'isStart'));
+	},
+
+	click(event) {
+		if (get(this, 'isListOpen')) {
+			let el = $(event.target);
+			if (el.parents('.date-range-picker-menu').length || el.hasClass('date-range-picker-menu')) {
+				let focus = get(this, '__saveFocus');
+				this.focusActive(focus.isStart, focus.selected);
+			}
+		}
+	},
+
 	actions: {
 		intervalBack() {
 			if (!get(this, 'disablePrev')) {
@@ -570,28 +628,28 @@ export default Component.extend({
 		},
 
 		toggleList() {
-			let isListOpen = !get(this, 'isListOpen');
-			//let elementId = get(this, 'elementId');
-
-			set(this, 'isListOpen', isListOpen);
-
-			if (isListOpen) {
-				this.focusActive(get(this, 'isStart'));
+			if (!get(this, 'isListOpen')) {
+				this.openMenu();
+			} else {
+				this.closeMenu();
 			}
 		},
 
-		setFocus(val) {
+		setFocus(val, event) {
+			let index = event.target.selectionStart;
 			if (val === 'start') {
 				this.setActiveState(true);
+				set(this, '__saveFocus', { isStart: true, selected: index });
 			} else if (val === 'end') {
 				this.setActiveState(false);
+				set(this, '__saveFocus', { isStart: false, selected: index });
 			}
 		},
 
 		selectItem(id) {
 			this.saveState();
 			this.setSelected(id);
-			set(this, 'isListOpen', false);
+			this.closeMenu();
 			this.changeInterval();
 		},
 
@@ -605,13 +663,15 @@ export default Component.extend({
 
 		applyRange() {
 			this.saveState();
-			set(this, 'isListOpen', false);
+			this.setSelected('custom');
+			this.closeMenu();
+			this.setActiveState(true);
 			this.triggerDateChange();
 		},
 
 		cancelRange() {
 			this.restoreState();
-			set(this, 'isListOpen', false);
+			this.closeMenu();
 			this.setActiveState(true);
 		},
 
@@ -625,6 +685,7 @@ export default Component.extend({
 			this.updateDates(timestamp, get(this, 'isStart'));
 			this.setActiveState(get(this, 'isStart'));
 			this.saveState();
+			this.focusActive(!get(this, 'isStart'), get(this, '__dayIndex'));
 		},
 
 		tabAction() {
@@ -633,31 +694,117 @@ export default Component.extend({
 	}
 });
 
+function findAction(target, key) {
+	let actions = get(target, 'actionList').map(i => {
+		let id = i.id;
+		let regx = new RegExp('^' + id.charAt(0).toUpperCase() + '$');
+		return { id, regx };
+	});
+	actions.push({ id: 'custom', regx: /^C$/});
+	let res = actions.find(i => i.regx.test(key));
+	if (isNone(res)) {
+		res = { id: null, regx: null };
+	}
+	return res;
+}
+
+function handleAltKeys(target, keyName, isOpen) {
+	let selectedId = get(target, 'selected.id');
+	let { id } = findAction(target, keyName);
+	if (keyName === 'P') {
+		target.send('toggleList');
+	} else {
+		if (!isNone(id)) {
+			if (selectedId !== id) {
+				if (id === 'custom') {
+					if (!isOpen) {
+						target.send('selectCustom');
+					}
+					target.send('toggleList');
+				} else {
+					target.send('selectItem', id);
+				}
+			}
+		}
+	}
+}
 
 function keyDownEventHandler(target) {
 	return function(event) {
 		let isOpen = get(target, 'isListOpen');
-		let isCustom = get(target, 'isCustom');
-
-		if (event.which === 9) {
-			if (isOpen) {
-				return target.send('tabAction', event);
-			}
-		}
-
+		let handler = keyEvent({ event });
 		if (event.altKey) {
-			if (event.which === 68) {
-				target.send('toggleList');
-			} else if (event.which === 67) {
-				target.send('toggleList');
-				if (!isOpen && !isCustom) {
-					target.send('selectCustom');
+			if (handler.type === 'letters') {
+				handleAltKeys(target, handler.keyName, isOpen);
+			}
+		} else {
+			if (handler.keyName === 'tab') {
+				if (isOpen) {
+					target.send('tabAction', event);
+				}
+			} else if (handler.keyName === 'esc') {
+				if (isOpen) {
+					target.send('toggleList');
+				}
+			} else if (handler.keyName === 'left-arrow') {
+				if (!isOpen) {
+					target.send('intervalBack');
+				}
+			} else if (handler.keyName === 'right-arrow') {
+				if (!isOpen) {
+					target.send('intervalForward');
+				}
+			} else if (handler.keyName === 'down-arrow') {
+				if (isOpen) {
+					nextListItem(target);
+				}
+			} else if (handler.keyName === 'up-arrow') {
+				if (isOpen) {
+					prevListItem(target);
+				}
+			} else if (handler.keyName === 'enter') {
+				if (isOpen) {
+					let selected = target.$('.date-range-picker-dropdown > .focus');
+					if (selected.length) {
+						selected.click();
+					}
 				}
 			}
 		}
 		return true;
 	}
 }
+
+function nextListItem(target) {
+	let element = target.$('.date-range-picker-dropdown');
+	let active = element.find('.focus');
+	if (!active.length) {
+		active = element.find('.active');
+	}
+
+	let next = active.next('.item');
+	if (!next.length) {
+		next = element.children().first();
+	}
+	next.addClass('focus');
+	active.removeClass('focus');
+}
+
+function prevListItem(target) {
+	let element = target.$('.date-range-picker-dropdown');
+	let active = element.find('.focus');
+	if (!active.length) {
+		active = element.find('.active');
+	}
+
+	let next = active.prev('.item');
+	if (!next.length) {
+		next = element.children('.item').last();
+	}
+	next.addClass('focus');
+	active.removeClass('focus');
+}
+
 
 function clickEventHandler(target) {
 	return function(evt) {

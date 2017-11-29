@@ -11,7 +11,7 @@ import { assert } from '@ember/debug';
  *
  */
 const KEY_MAP = {
-	'9': 'tab', '13': 'enter', '8': 'delete', '16': 'shift', '27': 'esc',
+	'9': 'tab', '13': 'enter', '8': 'delete', '16': 'shift', '27': 'esc', '18': 'alt',
 	'37': 'left-arrow', '38': 'up-arrow', '39': 'right-arrow', '40': 'down-arrow',
 	'191': 'forward-slash', '220': 'back-slash',
 	'187': 'equal', '189': 'dash',
@@ -20,8 +20,8 @@ const KEY_MAP = {
 	'188': 'comma', '190': 'period', '192': 'tilda'
 };
 
-const DISABLE_MAP = {
-	tab: /^tab$/, enter: /^enter$/, delete: /^delete$/, shift: /^shift$/, esc: /^esc$/,
+const TYPE_MAP = {
+	tab: /^tab$/, enter: /^enter$/, delete: /^delete$/, shift: /^shift$/, esc: /^esc$/, alt: /^alt$/,
 	semicolon: /^semi-colon$/, singlequote: /^single-quote$/, comma: /^comma$/, period: /^period$/, tilda: /^tilda$/,
 	arrows: /^(left|right|up|down)-arrow$/,
 	backslash: /^back-slash$/, forwardslash: /^forward-slash&/, slash: /^(back|forward)-slash$/,
@@ -87,16 +87,26 @@ function _preventDefault(event) {
 	}
 }
 
+function getTypeForKey(key) {
+	for (let i in TYPE_MAP) {
+		if (TYPE_MAP[i].test(`${key}`)) {
+			return i;
+		}
+	}
+	return null;
+}
+
 export default function keyEvent(options={}) {
 	assert('options.event is required', typeof options.event === 'object' && options.event.target !== undefined);
 
 	let keyCode = getKeyCode(options.event);
 	let keyName = translate(keyCode);
+	let type = getTypeForKey(keyName);
 
 	let disable = [];
 	if (options.disable && options.disable.length) {
 		options.disable.forEach(item => {
-			disable.push(DISABLE_MAP[item]);
+			disable.push(TYPE_MAP[item]);
 		});
 	}
 
@@ -109,6 +119,6 @@ export default function keyEvent(options={}) {
 			throttle = true;
 		}
 	}
-	return { keyName, keyCode, allowed, preventDefault, throttle };
+	return { keyName, keyCode, type, allowed, preventDefault, throttle };
 }
 

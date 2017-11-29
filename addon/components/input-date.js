@@ -262,9 +262,10 @@ export default TextField.extend({
 	}),
 
 	clickEvent: on('click', function(event) {
+		event.stopPropagation();
 		let index = event.target.selectionStart;
 		handleFocus(this, index, 0);
-		this.sendAction('onclick', event);
+		this.sendAction('onclick', event, index);
 	}),
 
 	keyDown(event) {

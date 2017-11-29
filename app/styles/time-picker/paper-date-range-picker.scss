@@ -2,6 +2,7 @@
 .paper-date-range-picker {
 	position: relative;
 	width: 475px;
+	max-width: 100%;
 	height: 46px;
 	margin: 0;
 	padding: 0;
@@ -104,6 +105,7 @@
 	& > .menu {
 		width: 100%;
 		height: 100%;
+		cursor: initial;
 
 		& > .select {
 			float: left;
@@ -128,9 +130,55 @@
 
 		& > .date {
 			padding: 0 0 0 10px;
-			float: left;
+			float: right;
 			color: $ept-color-6-2;
 			font: 14px/46px $ept-font-family;
+
+			&.stacked-range {
+				height: 100%;
+				padding: 0;
+
+				& > h3 {
+					width: 100%;
+					height: 12px;
+					margin-top: 1px;
+					font: 12px/12px $ept-font-family;
+					text-align: center;
+
+					&.range {
+						width: 45%;
+						float: left;
+					}
+
+					&.day {
+						height: 20px;
+						font: 20px/20px $ept-font-family;
+					}
+
+				}
+
+				& > span {
+					width: 10%;
+					height: 12px;
+					margin-top: 1px;
+					float: left;
+					font: 12px/12px $ept-font-family;
+					text-align: center;
+					visibility: hidden;
+				}
+
+				& > .day + span {
+					height: 20px;
+					font: 20px/20px $ept-font-family;
+					visibility: visible;
+				}
+
+				&.match {
+					& > span {
+						visibility: visible;
+					}
+				}
+			}
 
 			&.stacked {
 				height: 100%;
@@ -217,12 +265,17 @@
 				color: $ept-color-3;
 			}
 
+			&.focus {
+				background-color: aliceblue;
+			}
+
 			&.picker {
 				display: none;
 				position: relative;
 				width: 300px;
 				padding: 0;
 				border-top: 1px solid $ept-color-6-3;
+				cursor: initial;
 
 				& > .header {
 					display: inline-block;
@@ -333,6 +386,37 @@
 				& > span {
 					width: 12px;
 					height: 12px;
+				}
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 450px) {
+	.paper-date-range-picker {
+		display: inline-block;
+		width: 100%;
+		//height: 100px;
+
+		& > .menu {
+			& > .date {
+				display: inline-block;
+				//height: 50%;
+				//margin: 0 auto;
+				//float: none;
+
+				&.stacked-range {
+					width: 80px;
+
+					& > h3 {
+						&.day {
+							font-size: 15px;
+						}
+					}
+
+					& > .day + span {
+						font-size: 17px;
+					}
 				}
 			}
 		}
