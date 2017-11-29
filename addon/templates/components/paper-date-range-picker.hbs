@@ -1,5 +1,12 @@
 
 <div class="menu">
+	<a class="button select" {{action 'toggleList'}}>{{selected.name}}</a>
+
+	<span class="arrows">
+		<a class="button arrow left{{if disablePrev ' disabled'}}" {{action 'intervalBack'}}><span></span></a>
+		<a class="button arrow right{{if disableNext ' disabled'}}" {{action 'intervalForward'}}><span></span></a>
+	</span>
+
 	{{#if stacked}}
 		<span class="date stacked-range{{if selectedDayRangeMatch ' match'}}">
 			{{#if selectedMonthRangeMatch}}
@@ -34,14 +41,6 @@
 	{{else}}
 		<span class="date">{{selectedDateRange}}</span>
 	{{/if}}
-
-	<a class="button select" {{action 'toggleList'}}>{{selected.name}}</a>
-
-	<span class="arrows">
-		<a class="button arrow left{{if disablePrev ' disabled'}}" {{action 'intervalBack'}}><span></span></a>
-		<a class="button arrow right{{if disableNext ' disabled'}}" {{action 'intervalForward'}}><span></span></a>
-	</span>
-
 </div>
 
 <ul class="date-range-picker-dropdown list{{if isListOpen ' active'}}">

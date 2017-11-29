@@ -1,8 +1,7 @@
 
 .paper-date-range-picker {
 	position: relative;
-	width: 475px;
-	max-width: 100%;
+	width: 400px;
 	height: 46px;
 	margin: 0;
 	padding: 0;
@@ -108,10 +107,12 @@
 		cursor: initial;
 
 		& > .select {
+			margin-right: 58px;
 			float: left;
 		}
 
 		& > .arrows {
+			margin-left: -58px;
 			padding: 0 0 0 10px;
 			float: left;
 
@@ -130,7 +131,7 @@
 
 		& > .date {
 			padding: 0 0 0 10px;
-			float: right;
+			float: left;
 			color: $ept-color-6-2;
 			font: 14px/46px $ept-font-family;
 
@@ -154,7 +155,6 @@
 						height: 20px;
 						font: 20px/20px $ept-font-family;
 					}
-
 				}
 
 				& > span {
