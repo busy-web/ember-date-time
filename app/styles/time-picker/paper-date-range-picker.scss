@@ -143,12 +143,14 @@
 					width: 100%;
 					height: 12px;
 					margin-top: 1px;
+					float: left;
+					clear: right;
 					font: 12px/12px $ept-font-family;
 					text-align: center;
 
 					&.range {
 						width: 45%;
-						float: left;
+						clear: none;
 					}
 
 					&.day {
@@ -171,6 +173,10 @@
 					height: 20px;
 					font: 20px/20px $ept-font-family;
 					visibility: visible;
+				}
+
+				& > span + h3 {
+					clear: right;
 				}
 
 				&.match {

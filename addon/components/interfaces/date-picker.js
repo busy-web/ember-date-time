@@ -5,12 +5,12 @@
 import { A } from '@ember/array';
 import { camelize } from '@ember/string';
 import { isNone } from '@ember/utils';
-import { assert } from '@ember/debug';
+import { assert, deprecate } from '@ember/debug';
 import { observer, get, set } from '@ember/object';
 import { on } from '@ember/object/evented';
 import Component from '@ember/component';
-import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import createPaperDate from 'ember-paper-time-picker/utils/paper-date';
+import paperTime from 'ember-paper-time-picker/utils/paper-time';
 import layout from '../../templates/components/interfaces/date-picker';
 
 /**
@@ -184,8 +184,15 @@ export default Component.extend({
     this.updateActiveSection();
 	}),
 
-	updateTime: observer('paperDate.timestamp', function() {
-		set(this, 'timestamp', get(this, 'paperDate.timestamp'));
+	updateTime: observer('paperDate.timestamp', 'paperDate.calendarDate', function() {
+		let timestamp = get(this, 'paperDate.timestamp');
+		let calendarDate = get(this, 'paperDate.calendarDate');
+		if (isNone(calendarDate)) {
+			deprecate('passing only timestamp to date-picker is deprecated, please pass calendarDate as well', true, { id: 'date-picker.updateTime', until: 'v2.0' });
+			calendarDate = timestamp;
+		}
+		set(this, 'timestamp', timestamp);
+		set(this, 'calendarDate', calendarDate);
 	}),
 
   /**
@@ -194,12 +201,11 @@ export default Component.extend({
    * @private
    * @method resetCalendarDate
    */
-  resetCalendarDate: observer('timestamp', function() {
-		if (!isNone(get(this, 'timestamp'))) {
+  resetCalendarDate: observer('calendarDate', function() {
+		if (!isNone(get(this, 'calendarDate'))) {
 			// get moment timestamp
-			const time = TimePicker.getMomentDate(this.get('timestamp'));
-			if (TimePicker.isValidDate(time)) {
-				set(this, 'calendarDate', time.valueOf());
+			const time = paperTime(get(this, 'calendarDate'));
+			if (paperTime.isValidDate(time)) {
 				set(this, 'year', time.format('YYYY'));
 				set(this, 'month', time.format('MMM'));
 				set(this, 'day', time.format('DD'));
@@ -217,7 +223,7 @@ export default Component.extend({
    * @method updateActiveSection
    */
   updateActiveSection: observer('activeState.state', function() {
-		let state = this.get('activeState.state');
+		let state = get(this, 'activeState.state');
 		if (!isNone(state)) {
 			state = camelize(state);
 			const statusType = ['day', 'month', 'year', 'monthYear'];
@@ -225,13 +231,13 @@ export default Component.extend({
 			// ensure the active status applies to the calendar
 			if (statusType.indexOf(state) !== -1) {
 				// reset active status
-				this.set('dayActive', false);
-				this.set('monthActive', false);
-				this.set('yearActive', false);
-				this.set('monthYearActive', false);
+				set(this, 'dayActive', false);
+				set(this, 'monthActive', false);
+				set(this, 'yearActive', false);
+				set(this, 'monthYearActive', false);
 
 				// set new active status
-				this.set(`${state}Active`, true);
+				set(this, `${state}Active`, true);
 			}
 		}
   }),
@@ -243,9 +249,9 @@ export default Component.extend({
    * @method keepCalendarUpdated
    */
   keepCalendarUpdated: observer('calendarDate', 'paperDate.range', function() {
-    const calendarObject = TimePicker.getMomentDate(this.get('calendarDate'));
+    const calendarObject = paperTime(get(this, 'calendarDate'));
     this.buildDaysArrayForMonth();
-    this.set('monthYear', calendarObject.format('MMMM YYYY'));
+    set(this, 'monthYear', calendarObject.format('MMMM YYYY'));
   }),
 
   /**
@@ -260,17 +266,23 @@ export default Component.extend({
     const maxDate = get(this, 'paperDate.maxDate');
 		let [ startRange, endRange ] = (get(this, 'paperDate.range') || []);
 
-		const currentCalendar = TimePicker.getMomentDate(calendarDate);
-    const currentTime = TimePicker.getMomentDate(this.get('timestamp'));
-    const firstDay = TimePicker.getMomentDate(calendarDate).startOf('month');
-    const lastDay = TimePicker.getMomentDate(calendarDate).endOf('month').date();
+		const currentCalendar = paperTime(calendarDate);
+    const currentTime = paperTime(get(this, 'timestamp'));
+    const firstDay = paperTime(calendarDate).startOf('month');
+    const lastDay = paperTime(calendarDate).endOf('month').date();
 
-		const start = firstDay.day();
+		let start = firstDay.day();
     let currentDay = firstDay;
-		currentDay.subtract(start, 'days');
+
+		if (start === 0) {
+			currentDay.subtract(7, 'days');
+			start = 7;
+		} else {
+			currentDay.subtract(start, 'days');
+		}
 
 		let daysInCalendar = 28;
-		if ((start + lastDay) > 35) {
+		if ((start + lastDay) >= 35) {
 			daysInCalendar = 42;
 		} else if ((start + lastDay) > 28) {
 			daysInCalendar = 35;
@@ -331,7 +343,7 @@ export default Component.extend({
     grouped.pushObject(completeArray.filterBy('weekNumber', 5));
     grouped.pushObject(completeArray.filterBy('weekNumber', 6));
 
-    this.set('groupedArray', grouped);
+    set(this, 'groupedArray', grouped);
   },
 
   /**
@@ -357,7 +369,7 @@ export default Component.extend({
    * @param moment {object} moment object
    */
   setTimestamp(date) {
-    this.set('timestamp', date.valueOf());
+    set(this, 'timestamp', date.valueOf());
   },
 
   /**
@@ -368,7 +380,7 @@ export default Component.extend({
    * @param moment {object} moment object
    */
   setCalendarDate(date) {
-    this.set('calendarDate', date.valueOf());
+    set(this, 'calendarDate', date.valueOf());
   },
 
   actions: {
@@ -386,15 +398,15 @@ export default Component.extend({
 				const newMonth = day.month();
 				const newYear = day.year();
 
-				let timestamp = TimePicker.getMomentDate(this.get('timestamp'));
+				let timestamp = paperTime(get(this, 'timestamp'));
 				timestamp.year(newYear);
 				timestamp.month(newMonth);
 				timestamp.date(newDay);
 
 				this.setTimestamp(timestamp);
 
-				this.sendAction('onUpdate', 'day', this.get('timestamp'));
-				this.sendAction('onChange', 'day', this.get('timestamp'));
+				this.sendAction('onUpdate', 'day', get(this, 'timestamp'), get(this, 'calendarDate'));
+				this.sendAction('onChange', 'day', get(this, 'timestamp'));
 			}
     },
 
@@ -404,15 +416,15 @@ export default Component.extend({
      * @event subtractMonth
      */
     subtractMonth() {
-      const calDate = TimePicker.getMomentDate(this.get('calendarDate'));
+      const calDate = paperTime(get(this, 'calendarDate'));
 			calDate.subtract('1', 'months').endOf('month');
 
-			if (!TimePicker.isDateBefore(calDate, this.get('minDate'))) {
+			if (!paperTime.isDateBefore(calDate, get(this, 'minDate'))) {
 				this.setCalendarDate(calDate);
-				this.set('calendarActiveSection', 'month-year');
+				set(this, 'calendarActiveSection', 'month-year');
 			}
 
-			this.sendAction('onUpdate', 'day', this.get('timestamp'));
+			this.sendAction('onUpdate', 'month', get(this, 'timestamp'), calDate.valueOf());
     },
 
     /**
@@ -421,21 +433,21 @@ export default Component.extend({
      * @event addMonth
      */
     addMonth() {
-      const calDate = TimePicker.getMomentDate(this.get('calendarDate'));
+      const calDate = paperTime(get(this, 'calendarDate'));
       calDate.add('1', 'months').startOf('month');
 
-			if (!TimePicker.isDateAfter(calDate, this.get('maxDate'))) {
+			if (!paperTime.isDateAfter(calDate, get(this, 'maxDate'))) {
 				this.setCalendarDate(calDate);
-				this.set('calendarActiveSection', 'month-year');
+				set(this, 'calendarActiveSection', 'month-year');
 			}
 
-			this.sendAction('onUpdate', 'day', this.get('timestamp'));
+			this.sendAction('onUpdate', 'month', get(this, 'timestamp'), calDate.valueOf());
     },
 
 		activateHeader(section) {
-			this.set('calendarActiveSection', section);
+			set(this, 'calendarActiveSection', section);
 
-			this.sendAction('onUpdate', section, this.get('timestamp'));
+			this.sendAction('onUpdate', section, get(this, 'timestamp'), get(this, 'calendarDate'));
 		}
   }
 });

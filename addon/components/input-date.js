@@ -10,7 +10,6 @@ import { on } from '@ember/object/evented';
 import { run, later } from '@ember/runloop';
 import { assert } from '@ember/debug';
 import TextField from "@ember/component/text-field"
-import moment from 'moment';
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
 import paperTime from 'ember-paper-time-picker/utils/paper-time';
 import dateFormatParser from 'ember-paper-time-picker/utils/date-format-parser';
@@ -55,7 +54,7 @@ export default TextField.extend({
 		const date = paperTime(value, get(this, 'format'));
 
 		// date must be valid and within range to be a valid date range
-		if (date.moment.isValid() && this.isDateInBounds(date)) {
+		if (date.isValid() && this.isDateInBounds(date)) {
 			return true;
 		}
 		return false;
@@ -69,7 +68,7 @@ export default TextField.extend({
 		this.timestampChange();
 
 		// store localeData
-		const localeData = moment.localeData();
+		const localeData = paperTime.localeData();
 		set(this, 'localeData', localeData);
 
 		// get locale converted format str
@@ -99,7 +98,7 @@ export default TextField.extend({
 			date = paperTime();
 		}
 		this.setValue(date.format(get(this, 'format')));
-		set(this, '_date', date.milli());
+		set(this, '_date', date.timestamp());
 	}),
 
 	setValue(value) {
@@ -108,7 +107,7 @@ export default TextField.extend({
 	},
 
 	isValid(date) {
-		if (date.moment.isValid()) {
+		if (date.isValid()) {
 			return true;
 		}
 		return false;
@@ -119,11 +118,11 @@ export default TextField.extend({
 		const min = get(this, 'min');
 		if (isNone(max) && isNone(min)) {	// no min or max date
 			return true;
-		} else if (date.milli() >= min && isNone(max)) { // date is greater than min date and no max date
+		} else if (date.timestamp() >= min && isNone(max)) { // date is greater than min date and no max date
 			return true;
-		} else if (isNone(min) && date.milli() <= max) { // no min date and date is less than max date
+		} else if (isNone(min) && date.timestamp() <= max) { // no min date and date is less than max date
 			return true;
-		} else if (date.milli() >= min && date.milli() <= max) { // date is greater than min date and date is less than max date
+		} else if (date.timestamp() >= min && date.timestamp() <= max) { // date is greater than min date and date is less than max date
 			return true;
 		}
 		return false;
@@ -131,7 +130,7 @@ export default TextField.extend({
 
 	submitChange(value) {
 		if (this.isValid(value)) {
-			let val = value.milli();
+			let val = value.timestamp();
 			set(this, '_date', val);
 			this.sendAction('onchange', val);
 			return true;
@@ -141,7 +140,7 @@ export default TextField.extend({
 
 	finalizeDateSection() {
 		let date = paperTime(get(this, 'value'), get(this, 'format'));
-		if (date.moment.isValid()) {
+		if (date.isValid()) {
 			this.submitChange(date);
 			setData(this, 'position', 0);
 			return true;
@@ -339,12 +338,12 @@ function sectionBounds(target) {
 	let min = 1;
 	if (/^D(o|D)?$/.test(sectionFormat)) { // days of month
 		const date = paperTime(get(target, '_date'));
-		max = date.moment.daysInMonth();
+		max = date.daysInMonth();
 	} else if (/^M(o|M)?$/.test(sectionFormat)) { // months of year
 		max = 12;
 	} else if (/^Y{1,4}$/.test(sectionFormat)) {
-		max = isNone(get(target, 'max')) ? moment().add(100, 'years').endOf('year').year() : moment(get(target, 'max')).endOf('year').year();
-		min = isNone(get(target, 'min')) ? moment().subtract(100, 'years').startOf('year').year() : moment(get(target, 'min')).startOf('year').year();
+		max = isNone(get(target, 'max')) ? paperTime().add(100, 'years').endOf('year').year() : paperTime(get(target, 'max')).endOf('year').year();
+		min = isNone(get(target, 'min')) ? paperTime().subtract(100, 'years').startOf('year').year() : paperTime(get(target, 'min')).startOf('year').year();
 	}
 	return { min, max }
 }

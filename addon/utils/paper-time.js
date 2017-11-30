@@ -3,6 +3,8 @@
  *
  */
 import moment from 'moment';
+import { isNone } from '@ember/utils';
+import { assert } from '@ember/debug';
 
 /**
  * Time utils for working with dates that will not
@@ -11,43 +13,13 @@ import moment from 'moment';
  *
  * @class PaperTime
  */
-class PaperTime {
+class PaperTime extends moment.fn.constructor {
 	constructor(...args) {
-		const date = moment(...args);
-		const test = moment();
-
-		if (test.unix() === date.unix()) {
-			this.__offset = date.utcOffset();
-			this.__date = moment(date.add(this.__offset, 'minutes').valueOf());
-		} else {
-			this.__date = moment(date.valueOf());
-		}
-
-		this.__time = this.__date.unix();
+		super(...args);
 	}
 
-	get moment() {
-		return this.__date;
-	}
-
-	milli() {
-		return this.__date.valueOf()
-	}
-
-	unix() {
-		return this.__date.unix();
-	}
-
-	valueOf() {
-		return this.unix();
-	}
-
-	toString() {
-		return this.__date.format();
-	}
-
-	format(f) {
-		return this.__date.format(f);
+	timestamp() {
+		return this.valueOf();
 	}
 
 	addFormatted(value, format) {
@@ -57,7 +29,7 @@ class PaperTime {
 				type = 'h';
 				value = value * 12;
 			}
-			this.__date.add(value, type);
+			this.add(value, type);
 		} else {
 			throw new Error('Format not found for ' + type);
 		}
@@ -71,7 +43,7 @@ class PaperTime {
 				type = 'h';
 				value = value * 12;
 			}
-			this.__date.subtract(value, type);
+			this.subtract(value, type);
 		} else {
 			throw new Error('Format not found for ' + type);
 		}
@@ -79,10 +51,73 @@ class PaperTime {
 	}
 }
 
-export default function paperTime(...args) {
-	return new PaperTime(...args);
+function paperTime(...args) {
+	const m = moment.apply(this, args);
+	return new PaperTime(m);
 }
+paperTime.unix = time => new PaperTime(moment.unix(time));
+paperTime.utc = time => new PaperTime(moment.utc(time));
+paperTime.localeData = () => moment.localeData();
+paperTime.duration = (time, type) => moment.duration(time, type);
 
+paperTime.daysApart = (start, end) => Math.floor(moment.duration(end - start, 'ms').asDays());
+paperTime.hoursApart = (start, end) => Math.floor(moment.duration(end - start, 'ms').asHours());
+
+paperTime.utcToLocal = function(time) {
+	const m = moment.utc(time)
+		.subtract(moment.utc(time).local().utcOffset(), 'minutes');
+	return new PaperTime(m);
+};
+
+paperTime.utcFromLocal = function(time) {
+	const m = moment(time)
+		.add(moment(time).utcOffset(), 'minutes');
+	return new PaperTime(m);
+};
+
+/**
+	* validates a moment date object
+	*
+	* @public
+	* @method isValidDate
+	* @param date {Moment}
+	* @return {boolean}
+	*/
+paperTime.isValidDate = function(date) {
+	return !isNone(date) && typeof date === 'object' && moment.isMoment(date) && date.isValid();
+};
+
+paperTime.isDateBefore = function(date, minDate) {
+	let isBefore = false;
+	if (!isNone(minDate)) {
+		if (typeof minDate === 'number' && !isNaN(minDate)) {
+			minDate = paperTime(minDate);
+		}
+
+		if (typeof minDate === 'object' && paperTime.isValidDate(minDate)) {
+			isBefore = date.isBefore(minDate);
+		} else {
+			assert('Invalid minDate passed to isDateInBounds');
+		}
+	}
+	return isBefore;
+};
+
+paperTime.isDateAfter = function(date, maxDate) {
+	let isAfter = false;
+	if (!isNone(maxDate)) {
+		if (typeof maxDate === 'number' && !isNaN(maxDate)) {
+			maxDate = paperTime(maxDate);
+		}
+
+		if (typeof maxDate === 'object' && paperTime.isValidDate(maxDate)) {
+			isAfter = date.isAfter(maxDate);
+		} else {
+			assert('Invalid maxDate passed to isDateInBounds');
+		}
+	}
+	return isAfter;
+};
 
 function convertType(type) {
 	let map = {
@@ -110,3 +145,5 @@ function convertType(type) {
 	});
 	return res;
 }
+
+export default paperTime;

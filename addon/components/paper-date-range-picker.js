@@ -13,8 +13,8 @@ import { loc } from '@ember/string';
 import { assert } from '@ember/debug';
 import moment from 'moment';
 import layout from '../templates/components/paper-date-range-picker';
-import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
+import paperTime from 'ember-paper-time-picker/utils/paper-time';
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
 
 export default Component.extend({
@@ -108,11 +108,11 @@ export default Component.extend({
 	}),
 
 	_startDate: computed('_start', function() {
-		return TimePicker.getMomentDate(get(this, '_start'));
+		return paperTime(get(this, '_start'));
 	}),
 
 	_endDate: computed('_end', function() {
-		return TimePicker.getMomentDate(get(this, '_end'));
+		return paperTime(get(this, '_end'));
 	}),
 
 	disableNext: computed('selected', '_start', '_max', function() {
@@ -167,8 +167,8 @@ export default Component.extend({
 	selectedDateRange: computed('selected', '_start', '_end', 'format', function() {
 		const { id } = get(this, 'selected');
 		let format = get(this, 'format');
-		const start = TimePicker.getMomentDate(this.getStart());
-		const end = TimePicker.getMomentDate(this.getEnd());
+		const start = paperTime(getStart(this));
+		const end = paperTime(getEnd(this));
 		if (start.year() !== end.year()) {
 			return `${start.format(format)} - ${end.format(format)}`;
 		} else if (start.month() !== end.month()) {
@@ -219,23 +219,23 @@ export default Component.extend({
 		}
 
 		if (!get(this, 'changeFired') && (!isNone(this.getAttr('startTime')) || !isNone(this.getAttr('startUnix')))) {
-			let time = this.getAttr('startTime') || TimePicker.getTimstamp(this.getAttr('startUnix'));
+			let time = this.getAttr('startTime') || paperTime.unix(this.getAttr('startUnix')).timestamp();
 			if (utc) {
-				time = TimePicker.utcToLocal(time);
+				time = paperTime.utcToLocal(time).timestamp();
 			}
-			this.setStart(time);
-		} else if (isNone(this.getStart())) {
-			this.setStart(TimePicker.getTimstamp());
+			setStart(this, time);
+		} else if (isNone(getStart(this))) {
+			setStart(this, paperTime().timestamp());
 		}
 
 		if (!get(this, 'changeFired') && (!isNone(this.getAttr('endTime')) || !isNone(this.getAttr('endUnix')))) {
-			let time = this.getAttr('endTime') || TimePicker.getTimstamp(this.getAttr('endUnix'));
+			let time = this.getAttr('endTime') || paperTime.unix(this.getAttr('endUnix')).timestamp();
 			if (utc) {
-				time = TimePicker.utcToLocal(time);
+				time = paperTime.utcToLocal(time).timestamp();
 			}
-			this.setEnd(time);
-		} else if (isNone(this.getEnd())) {
-			this.setEnd(TimePicker.getTimstamp());
+			setEnd(this, time);
+		} else if (isNone(getEnd(this))) {
+			setEnd(this, paperTime().timestamp());
 		}
 
 		if (get(this, 'changeFired')) {
@@ -247,9 +247,9 @@ export default Component.extend({
 		if (!isNone(this.getAttr('minDate'))) {
 			let min = this.getAttr('minDate');
 			if (isUnix) {
-				min = TimePicker.getTimstamp(min);
+				min = paperTime.unix(min).timestamp();
 			}
-			min = TimePicker.getMomentDate(min).startOf('day').valueOf();
+			min = paperTime(min).startOf('day').timestamp();
 
 			if (get(this, '_min') !== min) {
 				set(this, '_min', min);
@@ -259,9 +259,9 @@ export default Component.extend({
 		if (!isNone(get(this, 'maxDate'))) {
 			let max = get(this, 'maxDate');
 			if (isUnix) {
-				max = TimePicker.getTimstamp(max);
+				max = paperTime.unix(max).timestamp();
 			}
-			max = TimePicker.getMomentDate(max).endOf('day').valueOf();
+			max = paperTime(max).endOf('day').valueOf();
 
 			if (get(this, '_max') !== max) {
 				set(this, '_max', max);
@@ -340,21 +340,21 @@ export default Component.extend({
 
 	getDefaultAction() {
 		if (get(this, 'isCustom')) {
-			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
+			const span = paperTime.daysApart(getStart(this), getEnd(this)) + 1;
 			return EmberObject.create({name: loc('Custom'), span, type: 'days'});
 		} else if (!isEmpty(get(this, 'defaultAction'))) {
 			return get(this, 'actionList').findBy('id', get(this, 'defaultAction'));
 		} else {
-			const start = this.getStart();
-			const end = this.getEnd();
-			const startDate = TimePicker.getMomentDate(start);
-			const endDate = TimePicker.getMomentDate(end);
+			const start = getStart(this);
+			const end = getEnd(this);
+			const startDate = paperTime(start);
+			const endDate = paperTime(end);
 			let span = Math.abs(startDate.diff(endDate, 'days'));
 			let diff = Number.MAX_VALUE;
 
 			let selected;
 			get(this, 'actionList').forEach(item => {
-				const timeSpan = TimePicker.getMomentDate(start).add(item.span, item.type);
+				const timeSpan = paperTime(start).add(item.span, item.type);
 				const itemSpan = Math.abs(startDate.diff(timeSpan, 'days'));
 				const nDiff = Math.abs(itemSpan - span);
 				if (diff > nDiff) {
@@ -366,34 +366,13 @@ export default Component.extend({
 		}
 	},
 
-	getStart() {
-		return get(this, '_start');
-	},
-
-	getEnd() {
-		return get(this, '_end');
-	},
-
-	setStart(time) {
-		time = TimePicker.getMomentDate(time).startOf('day').valueOf();
-		if (this.getStart() !== time) {
-			set(this, '_start', time);
-		}
-	},
-
-	setEnd(time) {
-		time = TimePicker.getMomentDate(time).endOf('day').valueOf();
-		if (this.getEnd() !== time) {
-			set(this, '_end', time);
-		}
-	},
 
 	setActiveState(isStart) {
 		set(this, 'isStart', isStart);
 
 		// date range uses on date picker so update
 		// the paperDate object to show the seconds date range
-		this.setPaper();
+		//this.setPaper();
 	},
 
 	getInterval(direction=0) {
@@ -401,7 +380,7 @@ export default Component.extend({
 		let start, end;
 		if (!isEmpty(type) && !isNone(span)) {
 			const endType = type.replace(/s$/, '');
-			start = TimePicker.getMomentDate(this.getStart());
+			start = paperTime(getStart(this));
 
 			if (direction === -1) {
 				start = start.subtract(span, type).valueOf();
@@ -411,7 +390,7 @@ export default Component.extend({
 				start = start.startOf(endType).valueOf();
 			}
 
-			end = TimePicker.getMomentDate(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
+			end = paperTime(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
 		}
 		return { start, end };
 	},
@@ -425,8 +404,8 @@ export default Component.extend({
 
 		const { start, end } = this.getInterval(direction);
 		if (!isNone(start) && !isNone(end)) {
-			this.setStart(start);
-			this.setEnd(end);
+			setStart(this, start);
+			setEnd(this, end);
 			intervalWait = setTimeout(() => {
 				this.triggerDateChange();
 			}, 500);
@@ -442,10 +421,11 @@ export default Component.extend({
 	 * @method setPaper
 	 */
 	setPaper() {
-		let start = this.getStart();
-		let end = this.getEnd();
+		let start = getStart(this);
+		let end = getEnd(this);
 
 		let timestamp = start;
+		let calendarDate = get(this, 'calendarDate');
 		let minDate = get(this, '_min');
 		let maxDate = get(this, '_max');
 		let format = get(this, 'format');
@@ -454,10 +434,10 @@ export default Component.extend({
 			timestamp = end;
 		}
 
-		const startRange = TimePicker.getMomentDate(start).startOf('day').valueOf();
-		const endRange = TimePicker.getMomentDate(end).startOf('day').valueOf();
+		const startRange = paperTime(start).startOf('day').valueOf();
+		const endRange = paperTime(end).startOf('day').valueOf();
 
-		set(this, 'paper', paperDate({ timestamp, minDate, maxDate, format, range: [startRange, endRange] }));
+		set(this, 'paper', paperDate({ timestamp, calendarDate, minDate, maxDate, format, range: [startRange, endRange] }));
 	},
 
 	/**
@@ -468,17 +448,17 @@ export default Component.extend({
 	 * @method triggerDateChange
 	 */
 	triggerDateChange() {
-		let start = this.getStart();
-		let end = this.getEnd();
+		let start = getStart(this);
+		let end = getEnd(this);
 
 		if (get(this, 'utc')) {
-			start = TimePicker.utcFromLocal(start);
-			end = TimePicker.utcFromLocal(end);
+			start = paperTime.utcFromLocal(start);
+			end = paperTime.utcFromLocal(end);
 		}
 
 		if (get(this, '_isUnix')) {
-			start = TimePicker.getUnix(start);
-			end = TimePicker.getUnix(end);
+			start = paperTime(start).unix();
+			end = paperTime(end).unix();
 		}
 
 		this.setPaper();
@@ -517,17 +497,27 @@ export default Component.extend({
 	 * @params isStart {boolean} true to set the start time
 	 */
 	updateDates(timestamp, isStart) {
-		if (isStart) {
-			this.setStart(timestamp);
-			if (this.getStart() > this.getEnd()) {
-				this.setEnd(timestamp);
-			}
-		} else {
-			this.setEnd(timestamp);
-			if (this.getStart() > this.getEnd()) {
-				this.setStart(timestamp);
-			}
+		// try to guess the user intention by inferring that
+		// when the user selects a start date after the endDate,
+		// then the user is most likely trying to adjust the end time
+		// and the opposite is true for start time.
+		//if (isStart && timestamp > getEnd(this)) {
+		//	isStart = false;
+		//} else
+		if (!isStart && timestamp < getStart(this)) {
+			isStart = true;
+			set(this, 'isStart', isStart);
 		}
+
+		//if (get(this, 'isStart') !== isStart) {
+		//}
+
+		if (isStart) {
+			setStart(this, timestamp);
+		} else {
+			setEnd(this, timestamp);
+		}
+		set(this, 'calendarDate', timestamp);
 	},
 
 	/**
@@ -547,7 +537,7 @@ export default Component.extend({
 			selected = this.getDefaultAction();
 		} else if (id === 'custom') {
 			set(this, 'isCustom', true);
-			const span = TimePicker.getDaysApart(this.getStart(), this.getEnd()) + 1;
+			const span = paperTime.daysApart(getStart(this), getEnd(this)) + 1;
 			selected = EmberObject.create({id: 'custom', name: loc('Custom'), span, type: 'days'});
 		} else {
 			set(this, 'isCustom', false);
@@ -571,8 +561,8 @@ export default Component.extend({
 		set(this, '__saveState', {
 			isCustom: id === 'custom',
 			selectedId: id,
-			start: this.getStart(),
-			end: this.getEnd()
+			start: getStart(this),
+			end: getEnd(this)
 		});
 	},
 
@@ -585,8 +575,8 @@ export default Component.extend({
 	 */
 	restoreState() {
 		if (!isNone(get(this, '__saveState'))) {
-			this.setStart(get(this, '__saveState.start'));
-			this.setEnd(get(this, '__saveState.end'));
+			setStart(this, get(this, '__saveState.start'));
+			setEnd(this, get(this, '__saveState.end'));
 			this.setSelected(get(this, '__saveState.selectedId'));
 		}
 	},
@@ -666,7 +656,7 @@ export default Component.extend({
 			this.setSelected('custom');
 			this.closeMenu();
 			this.setActiveState(true);
-			this.triggerDateChange();
+			this.changeInterval();
 		},
 
 		cancelRange() {
@@ -678,21 +668,69 @@ export default Component.extend({
 		dateChange(timestamp) {
 			this.updateDates(timestamp, get(this, 'isStart'));
 			this.setActiveState(get(this, 'isStart'));
-			this.saveState();
+			this.setPaper();
 		},
 
 		updateTime(state, timestamp) {
 			this.updateDates(timestamp, get(this, 'isStart'));
+
+			if (get(this, 'isStart')) {
+				this.updateDates(timestamp, !get(this, 'isStart'));
+			}
+
+			// set the active state
 			this.setActiveState(get(this, 'isStart'));
-			this.saveState();
+
+			// update the dates for the calendar
+			this.setPaper();
+
+			// resets the focus after the user clicks a day
 			this.focusActive(!get(this, 'isStart'), get(this, '__dayIndex'));
 		},
 
 		tabAction() {
+			// change focus to next input
 			this.focusActive(!get(this, 'isStart'));
+		},
+
+		calendarChange(type, time, calendar) {
+			if (type === 'month') {
+				// TODO:
+				// add advanced logic to better guess what the
+				// user might do next after selecting a new month
+				// based off if the user has chosen the first or second date.
+				//
+				set(this, 'calendarDate', calendar);
+			}
+
+			// this is to reset the focus after clicking the calendar buttons
+			this.focusActive(get(this, 'isStart'), get(this, '__dayIndex'));
 		}
 	}
 });
+
+
+function getStart(target) {
+	return get(target, '_start');
+}
+
+function getEnd(target) {
+	return get(target, '_end');
+}
+
+function setStart(target, time) {
+	time = paperTime(time).startOf('day').valueOf();
+	if (getStart(target) !== time) {
+		set(target, '_start', time);
+	}
+}
+
+function setEnd(target, time) {
+	time = paperTime(time).endOf('day').valueOf();
+	if (getEnd(target) !== time) {
+		set(target, '_end', time);
+	}
+}
 
 function findAction(target, key) {
 	let actions = get(target, 'actionList').map(i => {
