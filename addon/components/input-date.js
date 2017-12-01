@@ -8,11 +8,11 @@ import { observer, computed, get, set } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
 import { on } from '@ember/object/evented';
 import { run, later } from '@ember/runloop';
-import { assert } from '@ember/debug';
+//import { assert } from '@ember/debug';
 import TextField from "@ember/component/text-field"
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
 import paperTime from 'ember-paper-time-picker/utils/paper-time';
-import dateFormatParser from 'ember-paper-time-picker/utils/date-format-parser';
+import { dateFormatParser, longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
 
 /***/
 
@@ -31,7 +31,6 @@ export default TextField.extend({
 	max: null,
 
 	format: 'MM/DD/YYYY',
-	__localeData: null,
 
 	_date: null,
 	value: null,
@@ -43,15 +42,14 @@ export default TextField.extend({
 
 	isDateInRange: computed('value', function() {
 		const { position } = getMeta(this);
-		const value = get(this, 'value');
 
 		// when value is null or lastNumIndex is null or lastNumIndex is not 0 then it is in a temp state when invalid is ignored
-		if (isNone(value) || isNone(position) || position !== 0) {
+		if (isNone(getValue(this)) || isNone(position) || position !== 0) {
 			return true;
 		}
 
 		// get the current value as a date object
-		const date = paperTime(value, get(this, 'format'));
+		const date = paperTime(getValue(this), get(this, 'format'));
 
 		// date must be valid and within range to be a valid date range
 		if (date.isValid() && this.isDateInBounds(date)) {
@@ -62,29 +60,20 @@ export default TextField.extend({
 
 	setupComponent: on('willInsertElement', function() {
 		let format = get(this, 'format');
+		format = longFormatDate(format);
 
-		assert('Format not supported. Please use a format with only `MM/DD/YYYY` or `L` for localized formats. Delimiter values can be `-/.,|`', !/(Do|Mo|MMM|DDD|[khHmsSAaGgWwEeQ])/.test(format));
+		//assert('Format not supported. Please use a format with only `MM/DD/YYYY` or `L` for localized formats. Delimiter values can be `-/.,|`', !/(Do|Mo|MMM|DDD|[khHmsSAaGgWwEeQ])/.test(format));
 
 		this.timestampChange();
 
-		// store localeData
-		const localeData = paperTime.localeData();
-		set(this, 'localeData', localeData);
-
-		// get locale converted format str
-		const lFormat = localeData.longDateFormat(format);
-		if (!isNone(lFormat)) {
-			format = lFormat;
-		}
-
-		setData(this, 'format', format);
-		setData(this, 'selection', 0);
-		setData(this, 'position', 0);
-		setData(this, 'linked', null);
+		setData(this.$(), 'format', format);
+		setData(this.$(), 'selection', 0);
+		setData(this.$(), 'position', 0);
+		setData(this.$(), 'linked', null);
 
 		// create new format parser
-		if (isNone(getData(this, 'parser', null))) {
-			setData(this, 'parser', dateFormatParser(format));
+		if (isNone(getData(this.$(), 'parser', null))) {
+			setData(this.$(), 'parser', dateFormatParser(format));
 		}
 
 		set(this, 'keyboard', getKeyboardStyle());
@@ -97,14 +86,9 @@ export default TextField.extend({
 		} else {
 			date = paperTime();
 		}
-		this.setValue(date.format(get(this, 'format')));
+		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
 	}),
-
-	setValue(value) {
-		set(this, 'value', value);
-		//setData(this, 'value', value);
-	},
 
 	isValid(date) {
 		if (date.isValid()) {
@@ -139,70 +123,70 @@ export default TextField.extend({
 	},
 
 	finalizeDateSection() {
-		let date = paperTime(get(this, 'value'), get(this, 'format'));
+		let date = paperTime(getValue(this), get(this, 'format'));
 		if (date.isValid()) {
 			this.submitChange(date);
-			setData(this, 'position', 0);
+			setData(this.$(), 'position', 0);
 			return true;
 		}
 		return false;
 	},
 
 	fixDate() {
-		const value = get(this, 'value');
 		let { start, end } = getMeta(this);
 		let { min, max } = sectionBounds(this);
-		let valueSection = value.substring(start, end);
+		let valueSection = getValue(this).substring(start, end);
 
 		if (parseInt(valueSection, 10) < min) {
-			valueSection = ('0000000' + min).substr(-(valueSection.length));
+			valueSection = ('0000000' + min).substr(-(`${max}`.length));
 		} else if (parseInt(valueSection, 10) > max) {
-			valueSection = '' + max;
+			valueSection = `${max}`;
 		}
-		let newVal = mergeString(value, valueSection, start, end);
-		this.setValue(newVal);
+		let newVal = mergeString(getValue(this), valueSection, start, end);
+		setValue(this, newVal);
 	},
 
 	setDateSection(valueSection, position) {
-		const value = get(this, 'value');
 		let { sectionFormat, start, end } = getMeta(this);
+		let { min, max } = sectionBounds(this);
+
+		// moves the start ahead on position when the valueSection
+		// is intended for a format section that has less position
+		// than the max numbers positions.
+		if (sectionFormat.length < `${max}`.length) {
+			if (position > sectionFormat.length) {
+				start += 1;
+			}
+		}
 
 		// merge the date string section into the current date string
-		let newVal = mergeString(value, valueSection, start, end);
+		let newVal = mergeString(getValue(this), valueSection, start, end);
 
-		this.setValue(newVal);
+		setValue(this, newVal);
 
 		// set new number position and handle cursor selection
-		if (position >= sectionFormat.length) {
+		let num = parseInt(valueSection, 10);
+		if ((position >= `${max}`.length) || (num > min && num*10 > max)) {
 			// create a new date object
 			this.fixDate();
 			this.finalizeDateSection();
-			later(() => moveToNextPosition(this), 1);
+			moveToNextPosition(this);
 		} else {
-			setData(this, 'position', position);
-			setSelected(this, start, end);
+			setData(this.$(), 'position', position);
+			handleCursor(this, '');
 		}
 	},
 
 	handleNumberKeys(event, handler) {
-		const value = get(this, 'value');
-		let { end, position } = getMeta(this);
-		let { max } = sectionBounds(this);
+		let { sectionFormat, position } = getMeta(this);
+		if (!/^(D(o|D))|(M(o|M))|(Y{1,4})|(hh?)|(HH?)|(mm?)|(ss?)$/.test(sectionFormat)) {
+			return handler.preventDefault();
+		}
+
 		let valueSection = createSection(this, handler.keyName, position, false);
 		position = position + 1;
 
-		if(end !== value.length && parseInt(valueSection, 10) > max) {
-			moveToNextPosition(this).then(result => {
-				if (result.isNewInput) {
-					let e = $.Event( 'keydown', { which: event.which } );
-					result.input.trigger('keydown', e);
-				} else {
-					this.handleNumberKeys(event, handler);
-				}
-			});
-		} else {
-			this.setDateSection(valueSection, position);
-		}
+		this.setDateSection(valueSection, position);
 		return handler.preventDefault();
 	},
 
@@ -226,22 +210,26 @@ export default TextField.extend({
 	},
 
 	handleArrowKeys(event, handler) {
-		if (handler.keyName === 'left-arrow') {
+		if (/^[*/><^]$/.test(handler.keyName)) {
+			return handler.preventDefault();
+		}
+
+		if (handler.keyName === 'ArrowLeft') {
 			handleCursor(this, 'prev');
-		} else if (handler.keyName === 'right-arrow') {
+		} else if (handler.keyName === 'ArrowRight') {
 			handleCursor(this, 'next');
 		} else {
 			const { sectionFormat } = getMeta(this);
 			const _date = get(this, '_date');
 
 			let val;
-			if (handler.keyName === 'up-arrow') {
+			if (handler.keyName === 'ArrowUp' || handler.keyName === '=' || handler.keyName === '+') {
 				val = paperTime(_date).addFormatted(1, sectionFormat);
-			} else {
+			} else if (handler.keyName === 'ArrowDown' || handler.keyName === '-' || handler.keyName === '_') {
 				val = paperTime(_date).subFormatted(1, sectionFormat);
 			}
 
-			this.setValue(val.format(get(this, 'format')));
+			setValue(this, val.format(get(this, 'format')));
 			handleCursor(this, '');
 		}
 
@@ -250,9 +238,11 @@ export default TextField.extend({
 	},
 
 	focusInEvent: on('focusIn', function(event) {
-		let { selection, position } = getMeta($(event.target));
+		let { selection, position } = getMeta(this, $(event.target));
 		handleFocus(this, selection, position);
-		this.sendAction('onfocus', event);
+
+		let type = sectionFormatType(this);
+		this.sendAction('onfocus', event, type);
 	}),
 
 	focusOutEvent: on('focusOut', function(event) {
@@ -264,7 +254,9 @@ export default TextField.extend({
 		event.stopPropagation();
 		let index = event.target.selectionStart;
 		handleFocus(this, index, 0);
-		this.sendAction('onclick', event, index);
+
+		let type = sectionFormatType(this);
+		this.sendAction('onclick', event, index, type);
 	}),
 
 	keyDown(event) {
@@ -272,18 +264,18 @@ export default TextField.extend({
 			return true;
 		}
 
-		let handler = keyEvent({ event, disable: ['letters'] });
+		let handler = keyEvent({ event, disable: ['letter'] });
 		if (handler.allowed) {
 			if (!handler.throttle) {
-				if (/arrow/.test(handler.keyName)) {
+				if (handler.type === 'arrow' || handler.type === 'math' || handler.keyName === '_') {
 					return this.handleArrowKeys(event, handler);
-				} else if (/^[0-9]$/.test(handler.keyName)) {
+				} else if (handler.type === 'number') {
 					return this.handleNumberKeys(event, handler);
-				} else if (handler.keyName === 'delete') {
+				} else if (handler.keyName === 'Backspace') {
 					return this.handleDeleteKey(event, handler);
-				} else if (handler.keyName === 'tab') {
+				} else if (handler.keyName === 'Tab') {
 					this.sendAction('ontabkey', event);
-				} else if (handler.keyName === 'enter') {
+				} else if (handler.keyName === 'Enter') {
 					this.sendAction('onsubmit', event);
 				}
 			}
@@ -291,6 +283,14 @@ export default TextField.extend({
 		return handler.preventDefault();
 	}
 });
+
+function setValue(target, value) {
+	set(target, 'value', value);
+}
+
+function getValue(target) {
+	return get(target, 'value');
+}
 
 function isModifierKeyActive(target, event) {
 	let keyboard = getKeyboardStyle();
@@ -313,79 +313,111 @@ function getKeyboardStyle() {
 	}
 }
 
-function getMeta(target) {
-	if (target.$) {
-		target = target.$();
-	}
-	let format = getData(target, 'format');
-	let selection = getData(target, 'selection', 0);
-	let position = getData(target, 'position', 0);
+function getMeta(target, el) {
+	el = el || target.$();
+	let format = getData(el, 'format');
+	let selection = getData(el, 'selection', 0);
+	let position = getData(el, 'position', 0);
 
-	let parser = getData(target, 'parser', null);
+	let parser = getData(el, 'parser', null);
 	let start, end, sectionFormat;
 	if (!isNone(parser)) {
-		sectionFormat = parser.getFormatSection(selection);
-		let cursor = parser.current(selection);
-		start = cursor.start;
-		end = cursor.end;
+		let value = getValue(target);
+		sectionFormat = parser.getFormatSection(selection, value);
+		let cursor = parser.current(selection, value);
+		if (!isNone(cursor)) {
+			start = cursor.start;
+			end = cursor.end;
+		}
 	}
 	return { format, selection, position, sectionFormat, start, end, parser };
 }
 
 function sectionBounds(target) {
-	const { sectionFormat } = getMeta(target);
-	let max;
-	let min = 1;
-	if (/^D(o|D)?$/.test(sectionFormat)) { // days of month
+	let type = sectionFormatType(target);
+	let max, min = 1;
+	if (type === 'days') {
 		const date = paperTime(get(target, '_date'));
 		max = date.daysInMonth();
-	} else if (/^M(o|M)?$/.test(sectionFormat)) { // months of year
+	} else if (type === 'months') {
 		max = 12;
-	} else if (/^Y{1,4}$/.test(sectionFormat)) {
+	} else if (type === 'years') {
 		max = isNone(get(target, 'max')) ? paperTime().add(100, 'years').endOf('year').year() : paperTime(get(target, 'max')).endOf('year').year();
 		min = isNone(get(target, 'min')) ? paperTime().subtract(100, 'years').startOf('year').year() : paperTime(get(target, 'min')).startOf('year').year();
+	} else if (type === 'hours') {
+		max = 12;
+	} else if (type === 'm-hours') {
+		min = 0;
+		max = 24;
+	} else if (type === 'minutes') {
+		min = 0;
+		max = 59;
+	} else if (type === 'seconds') {
+		min = 0;
+		max = 59;
 	}
 	return { min, max }
 }
 
-function setSelected(target, start, end) {
+function sectionFormatType(target) {
+	const { sectionFormat } = getMeta(target);
+	if (/^D(o|D)?$/.test(sectionFormat)) { // days of month
+		return 'days';
+	} else if (/^M(o|M)?$/.test(sectionFormat)) { // months of year
+		return 'months';
+	} else if (/^Y{1,4}$/.test(sectionFormat)) {
+		return 'years';
+	} else if (/^hh?$/.test(sectionFormat)) {
+		return 'hours';
+	} else if (/^HH?$/.test(sectionFormat)) {
+		return 'm-hours';
+	} else if (/^mm?$/.test(sectionFormat)) {
+		return 'minutes';
+	} else if (/^ss?$/.test(sectionFormat)) {
+		return 'seconds';
+	} else if (/^A|a$/.test(sectionFormat)) {
+		return 'meridian';
+	}
+}
+
+function handleFocus(target, index=0, num=0) {
+	// set cursor index and last num index
+	setData(target.$(), 'selection', index);
+	setData(target.$(), 'position', num);
+
+	handleCursor(target, '').then(() => {
+		let type = sectionFormatType(target);
+		target.sendAction('oncursor', type);
+	});
+	set(target, 'active', true);
+}
+
+function handleCursor(target, action='') {
 	return new EmberPromise(resolve => {
 		later(() => {
-			const { selection } = getMeta(target);
-			setSelectionRange(target, start, end);
-			if (selection !== start) {
-				setData(target, 'selection', start);
+			const { parser, selection } = getMeta(target);
+			const value = getValue(target);
+
+			let cursor;
+			if (action === 'next') {
+				cursor = parser.next(selection, value);
+			} else if (action === 'prev') {
+				cursor = parser.prev(selection, value);
+			} else {
+				cursor = parser.current(selection, value);
+			}
+
+			setSelectionRange(target.$(), cursor.start, cursor.end);
+			if (selection !== cursor.start) {
+				setData(target.$(), 'selection', cursor.start);
 			}
 			run(null, resolve, null);
 		}, 10);
 	});
 }
 
-function handleFocus(target, index=0, num=0) {
-	// set cursor index and last num index
-	setData(target, 'selection', index);
-	setData(target, 'position', num);
-
-	handleCursor(target, '');
-	set(target, 'active', true);
-}
-
-function handleCursor(target, action='') {
-	const { parser, selection } = getMeta(target);
-
-	let cursor;
-	if (action === 'next') {
-		cursor = parser.next(selection);
-	} else if (action === 'prev') {
-		cursor = parser.prev(selection);
-	} else {
-		cursor = parser.current(selection);
-	}
-	return setSelected(target, cursor.start, cursor.end);
-}
-
 function linkedInputData(target) {
-	let inputData = getData(target, 'linked');
+	let inputData = getData(target.$(), 'linked');
 	if (isNone(inputData)) {
 		let link = get(target, 'name');
 		if (!isEmpty(link)) {
@@ -395,7 +427,7 @@ function linkedInputData(target) {
 			let index = inputs.index(self);
 
 			inputData = { inputs, self, index };
-			setData(target, 'linked', inputData);
+			setData(target.$(), 'linked', inputData);
 		}
 	}
 	return inputData;
@@ -423,7 +455,7 @@ function inputFor(target, type='') {
 function moveToNextPosition(target) {
 	const { format, end } = getMeta(target);
 
-	setData(target, 'position', 0);
+	setData(target.$(), 'position', 0);
 	if (end === format.length) {
 		let { input } = inputFor(target, 'next');
 		input = $(input);
@@ -433,7 +465,7 @@ function moveToNextPosition(target) {
 		return resolve({ isNewInput: true, input });
 	} else {
 		return handleCursor(target, 'next').then(() => {
-			setData(target, 'position', 0);
+			setData(target.$(), 'position', 0);
 			return { isNewInput: false, input: target };
 		});
 	}
@@ -448,18 +480,22 @@ function moveToPrevPosition(target) {
 		setData(input, 'selection', format.length);
 		setData(input, 'position', sectionFormat.length);
 		input.focus();
-		return resolve({ isNewInput: true, input });
+		return EmberPromise(resolve => {
+			later(() => {
+				run(null, resolve, { isNewInput: true, input });
+			}, 1);
+		});
 	} else {
 		return handleCursor(target, 'prev').then(() => {
 			const { sectionFormat } = getMeta(target);
-			setData(target, 'position', sectionFormat.length);
+			setData(target.$(), 'position', sectionFormat.length);
 			return { isNewInput: false, input: target };
 		});
 	}
 }
 
 function createSection(target, num, position, isReverse=false) {
-	const value = get(target, 'value');
+	const value = getValue(target);
 	const { sectionFormat, start, end } = getMeta(target);
 	const substr = value.substring(start, end);
 	let ds;
@@ -489,24 +525,15 @@ function mergeString(str, insert, start, end) {
 	return str.substr(0, start) + insert + str.substr(end);
 }
 
-function setSelectionRange(target, start, end) {
-	if (target.$) {
-		target = target.$();
-	}
-	target.get(0).setSelectionRange(start, end);
+function setSelectionRange(el, start, end) {
+	el.get(0).setSelectionRange(start, end);
 }
 
-function setData(target, key, value) {
-	if (target.$) {
-		target = target.$();
-	}
-	target.data(key, value);
+function setData(el, key, value) {
+	el.data(key, value);
 }
 
-function getData(target, key, defaultValue=null) {
-	if (target.$) {
-		target = target.$();
-	}
-	return target.data(key) || defaultValue;
+function getData(el, key, defaultValue=null) {
+	return el.data(key) || defaultValue;
 }
 

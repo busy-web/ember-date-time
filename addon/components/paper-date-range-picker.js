@@ -11,12 +11,15 @@ import { on } from '@ember/object/evented';
 import { isEmpty, isNone } from '@ember/utils';
 import { loc } from '@ember/string';
 import { assert } from '@ember/debug';
-import moment from 'moment';
 import layout from '../templates/components/paper-date-range-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
 import paperTime from 'ember-paper-time-picker/utils/paper-time';
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
+import { longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
 
+/**
+ *
+ */
 export default Component.extend({
 	/**
 	 * @private
@@ -199,19 +202,15 @@ export default Component.extend({
 
 		// get locale converted format str
 		let format = get(this, 'format');
-		const localeData = moment.localeData();
-		const lFormat = localeData.longDateFormat(format);
-		if (!isNone(lFormat)) {
-			format = lFormat;
-		}
+		format = longFormatDate(format);
 
 		assert(
 			`Moment format "${get(this, 'format')}" is not supported. All format strings must be a combination of "DD" "MM" "YYYY" with one of the following delimeters [ -./, ] and no spaces`,
 			/^(DD.MM.YYYY|DD.YYYY.MM|MM.DD.YYYY|MM.YYYY.DD|YYYY.MM.DD|YYYY.DD.MM)$/.test(format)
 		);
 
-		let dayIndex = format.search(/D(D|o)/);
-		set(this, '__dayIndex', dayIndex);
+		set(this, '__dayIndex', format.search(/D(D|o)/));
+		set(this, '__monthIndex', format.search(/M(M|o)/));
 		set(this, '__format', format);
 
 		if (isNone(get(this, 'activeDates'))) {
@@ -369,10 +368,6 @@ export default Component.extend({
 
 	setActiveState(isStart) {
 		set(this, 'isStart', isStart);
-
-		// date range uses on date picker so update
-		// the paperDate object to show the seconds date range
-		//this.setPaper();
 	},
 
 	getInterval(direction=0) {
@@ -476,15 +471,16 @@ export default Component.extend({
 	 * @method focusActive
 	 * @params isStart {boolean}
 	 */
-	focusActive(isStart, selection=0) {
-		next(() => {
-			let input = (isStart) ? 'start' : 'end';
-			let el = this.$(`.state.${input} > input`);
-			el.data('selection', selection);
-			el.data('position', 0);
-			el.focus();
-			set(this, '__saveFocus', { isStart, selection });
-		});
+	focusActive(selection=0) {
+		let isStart = get(this, 'isStart');
+		set(this, '__saveFocus', { isStart, selection });
+
+		let input = (isStart) ? 'start' : 'end';
+		let el = this.$(`.state.${input} > input`);
+		el.data('selection', selection);
+		el.data('position', 0);
+
+		next(() => el.focus());
 	},
 
 	/**
@@ -493,31 +489,55 @@ export default Component.extend({
 	 *
 	 * @public
 	 * @method updateDates
-	 * @params timestamp {number} miliseconds timestamp
-	 * @params isStart {boolean} true to set the start time
+	 * @params type {string} the type of setter day or month
+	 * @params timestamp {number} milliseconds timestamp
+	 * @params calendar {number} milliseconds timestamp
+	 * @params singleSet {boolean} flag to only set start or end time unless a special case exists. This is for keyboards inputs
 	 */
-	updateDates(timestamp, isStart) {
-		// try to guess the user intention by inferring that
-		// when the user selects a start date after the endDate,
-		// then the user is most likely trying to adjust the end time
-		// and the opposite is true for start time.
-		//if (isStart && timestamp > getEnd(this)) {
-		//	isStart = false;
-		//} else
-		if (!isStart && timestamp < getStart(this)) {
-			isStart = true;
-			set(this, 'isStart', isStart);
-		}
+	updateDates(type, time, calendar, singleSet=false) {
+		let isStart = get(this, 'isStart');
+		if (type === 'day') {
+			if (!singleSet && !isStart && time < getStart(this)) {
+				isStart = true;
+			}
 
-		//if (get(this, 'isStart') !== isStart) {
-		//}
+			// set the start or end time
+			// based off the current active state
+			if (isStart) {
+				setStart(this, time);
+			} else {
+				setEnd(this, time);
+			}
 
-		if (isStart) {
-			setStart(this, timestamp);
+			if (!singleSet && isStart) {
+				// if active state is the start and its
+				// not a singleSet mode then set the end as well
+				setEnd(this, time);
+			} else if (isStart && time > getEnd(this)) {
+				// if active state is start and the time
+				// is greater than the end then set the end time
+				setEnd(this, time);
+			} else if (!isStart && time < getStart(this)) {
+				// if active state is end and the time
+				// is less than the start then set the start time
+				setStart(this, time);
+			}
+
+			// always set the calendar for start times and all
+			// single set times
+			if (isStart || singleSet) {
+				set(this, 'calendarDate', time);
+			}
+
+			// set the active state
+			this.setActiveState(get(this, 'isStart'));
+
+			// update the dates for the calendar
+			this.setPaper();
 		} else {
-			setEnd(this, timestamp);
+			set(this, 'calendarDate', calendar);
 		}
-		set(this, 'calendarDate', timestamp);
+		return isStart;
 	},
 
 	/**
@@ -591,7 +611,7 @@ export default Component.extend({
 
 	openMenu() {
 		set(this, 'isListOpen', true);
-		this.focusActive(get(this, 'isStart'));
+		this.focusActive();
 	},
 
 	click(event) {
@@ -599,7 +619,8 @@ export default Component.extend({
 			let el = $(event.target);
 			if (el.parents('.date-range-picker-menu').length || el.hasClass('date-range-picker-menu')) {
 				let focus = get(this, '__saveFocus');
-				this.focusActive(focus.isStart, focus.selected);
+				this.setActiveState(focus.isStart);
+				this.focusActive(focus.selected);
 			}
 		}
 	},
@@ -647,7 +668,7 @@ export default Component.extend({
 			this.saveState();
 			this.setSelected('custom');
 			later(() => {
-				this.focusActive(get(this, 'isStart'));
+				this.focusActive();
 			}, 100);
 		},
 
@@ -665,46 +686,39 @@ export default Component.extend({
 			this.setActiveState(true);
 		},
 
-		dateChange(timestamp) {
-			this.updateDates(timestamp, get(this, 'isStart'));
-			this.setActiveState(get(this, 'isStart'));
-			this.setPaper();
+		dateChange(time) {
+			this.updateDates('day', time, null, true);
 		},
 
-		updateTime(state, timestamp) {
-			this.updateDates(timestamp, get(this, 'isStart'));
-
-			if (get(this, 'isStart')) {
-				this.updateDates(timestamp, !get(this, 'isStart'));
-			}
-
-			// set the active state
-			this.setActiveState(get(this, 'isStart'));
-
-			// update the dates for the calendar
-			this.setPaper();
+		updateTime(state, time) {
+			let isStart = this.updateDates('day', time);
+			this.setActiveState(!isStart);
 
 			// resets the focus after the user clicks a day
-			this.focusActive(!get(this, 'isStart'), get(this, '__dayIndex'));
+			this.focusActive(get(this, '__dayIndex'));
 		},
 
 		tabAction() {
+			this.setActiveState(!get(this, 'isStart'));
 			// change focus to next input
-			this.focusActive(!get(this, 'isStart'));
+			this.focusActive();
 		},
 
+		/**
+		 * update the clicked value for days and months
+		 * and set the focus back to the input when done
+		 *
+		 */
 		calendarChange(type, time, calendar) {
-			if (type === 'month') {
-				// TODO:
-				// add advanced logic to better guess what the
-				// user might do next after selecting a new month
-				// based off if the user has chosen the first or second date.
-				//
-				set(this, 'calendarDate', calendar);
+			let isStart;
+			if (type === 'day') {
+				isStart = this.updateDates(type, time, calendar);
+				this.setActiveState(!isStart);
+				this.focusActive(get(this, '__dayIndex'));
+			} else {
+				this.updateDates(type, time, calendar);
+				this.focusActive(get(this, '__monthIndex'));
 			}
-
-			// this is to reset the focus after clicking the calendar buttons
-			this.focusActive(get(this, 'isStart'), get(this, '__dayIndex'));
 		}
 	}
 });
@@ -735,7 +749,7 @@ function setEnd(target, time) {
 function findAction(target, key) {
 	let actions = get(target, 'actionList').map(i => {
 		let id = i.id;
-		let regx = new RegExp('^' + id.charAt(0).toUpperCase() + '$');
+		let regx = new RegExp('^' + id.charAt(0).toLowerCase() + '$');
 		return { id, regx };
 	});
 	actions.push({ id: 'custom', regx: /^C$/});
@@ -747,11 +761,11 @@ function findAction(target, key) {
 }
 
 function handleAltKeys(target, keyName, isOpen) {
-	let selectedId = get(target, 'selected.id');
-	let { id } = findAction(target, keyName);
-	if (keyName === 'P') {
+	if (keyName === '/') {
 		target.send('toggleList');
 	} else {
+		let selectedId = get(target, 'selected.id');
+		let { id } = findAction(target, keyName);
 		if (!isNone(id)) {
 			if (selectedId !== id) {
 				if (id === 'custom') {
@@ -772,35 +786,35 @@ function keyDownEventHandler(target) {
 		let isOpen = get(target, 'isListOpen');
 		let handler = keyEvent({ event });
 		if (event.altKey) {
-			if (handler.type === 'letters') {
+			if (handler.type === 'letter' || handler.type === 'math') {
 				handleAltKeys(target, handler.keyName, isOpen);
 			}
 		} else {
-			if (handler.keyName === 'tab') {
+			if (handler.keyName === 'Tab') {
 				if (isOpen) {
 					target.send('tabAction', event);
 				}
-			} else if (handler.keyName === 'esc') {
+			} else if (handler.keyName === 'Escape') {
 				if (isOpen) {
 					target.send('toggleList');
 				}
-			} else if (handler.keyName === 'left-arrow') {
+			} else if (handler.keyName === 'ArrowLeft') {
 				if (!isOpen) {
 					target.send('intervalBack');
 				}
-			} else if (handler.keyName === 'right-arrow') {
+			} else if (handler.keyName === 'ArrowRight') {
 				if (!isOpen) {
 					target.send('intervalForward');
 				}
-			} else if (handler.keyName === 'down-arrow') {
+			} else if (handler.keyName === 'ArrowDown') {
 				if (isOpen) {
 					nextListItem(target);
 				}
-			} else if (handler.keyName === 'up-arrow') {
+			} else if (handler.keyName === 'ArrowUp') {
 				if (isOpen) {
 					prevListItem(target);
 				}
-			} else if (handler.keyName === 'enter') {
+			} else if (handler.keyName === 'Enter') {
 				if (isOpen) {
 					let selected = target.$('.date-range-picker-dropdown > .focus');
 					if (selected.length) {

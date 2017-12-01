@@ -1,5 +1,12 @@
 
 <div class="main-container">
+	{{input-date timestamp=paper.timestamp max=paper.maxDate min=paper.minDate format=paper.format name=inputDataName
+		onfocus=(action 'focusInput')
+		oncursor=(action 'stateChange')
+		onchange=(action 'dateChange')
+		onsubmit=(action 'applyChange')}}
+
+{{!--
 	<div class="input-container{{if activeState.isOpen ' active'}}" {{action 'focusInput' ''}}>
 		{{#if activeState.showDate}}
 			<div class="input-in-date">
@@ -39,6 +46,7 @@
 			</div>
 		{{/if}}
 	</div>
+--}}
 
 	<div class="dialog-container{{if activeState.isOpen ' show'}}{{if activeState.isTop ' top'}}">
 		{{#if activeState.isOpen}}

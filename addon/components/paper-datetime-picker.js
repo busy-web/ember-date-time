@@ -4,12 +4,13 @@
  */
 import $ from 'jquery';
 import Component from '@ember/component';
-import EmberObject, { observer, get } from '@ember/object';
+import EmberObject, { observer, get, set } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
 import { on } from '@ember/object/evented';
 import keyEvents from 'ember-paper-time-picker/mixins/key-events';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
+import { longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
 import layout from '../templates/components/paper-datetime-picker';
 
 /**
@@ -78,7 +79,7 @@ export default Component.extend(keyEvents, {
 
 	lastSaveTime: null,
 
-	format: 'MMM DD, YYYY',
+	format: 'L LT',
 
 	/**
 	 * Merdian (AM/PM) that is shown in the input bar
@@ -162,7 +163,6 @@ export default Component.extend(keyEvents, {
 	 * @type object
 	 */
 	paper: null,
-	calendar: null,
 
 	hideTime: false,
 	hideDate: false,
@@ -177,15 +177,22 @@ export default Component.extend(keyEvents, {
 	 * @constructor
 	 */
 	initialize: on('init', function() {
+		// get locale converted format str
+		let format = get(this, 'format');
+		format = longFormatDate(format);
+		console.log('format', format);
+		set(this, '__format', format);
+
 		this.setActiveState();
 		this.setupPicker();
-		this.setPaperDate(this.get('timestamp'), this.get('unix'));
+		this.setPaperDate(get(this, 'timestamp'), get(this, 'unix'));
 		this.updateInputValues();
 	}),
 
 	setPaperDate: function(timestamp, unix) {
-		let minDate = this.get('minDate');
-		let maxDate = this.get('maxDate');
+		let minDate = get(this, 'minDate');
+		let maxDate = get(this, 'maxDate');
+		let format = get(this, '__format');
 
 		if (!isNone(timestamp)) {
 			if (this.get('utc')) {
@@ -206,23 +213,10 @@ export default Component.extend(keyEvents, {
 			}
 		}
 
-		const paper = paperDate({
-			timestamp: timestamp,
-			minDate: minDate,
-			maxDate: maxDate,
-			format: this.get('format'),
-		});
+		const paper = paperDate({ timestamp, minDate, maxDate, format });
+		const cal = paperDate({ timestamp, minDate, maxDate, format });
 
-		this.set('paper', paper);
-
-		const cal = paperDate({
-			timestamp: timestamp,
-			minDate: minDate,
-			maxDate: maxDate,
-			format: this.get('format'),
-		});
-
-		this.set('calendar', cal);
+		set(this, 'paper', paper);
 	},
 
 	setupPicker: observer('hideTime', 'hideDate', function() {
@@ -353,6 +347,38 @@ export default Component.extend(keyEvents, {
 
 	actions: {
 
+		dateChange(time) {
+			console.log('dateChange', time);
+		},
+
+		applyChange() {
+
+		},
+
+		stateChange(state) {
+			console.log('state', state);
+
+			if (state === 'm-hours' || state === 'hours') {
+				state = 'hour';
+			} else if (/s$/.test(state)) {
+				state = state.substr(0, state.length-1);
+			}
+
+			console.log('state after', state);
+			//let focus = false;
+			//if (isEmpty(state)) {
+			//	state = 'hour';
+			//	if (!this.get('activeState.showTime')) {
+			//		state = 'day';
+			//	}
+			//	focus = true;
+			//}
+
+			const isOpen = true;
+			const isTop = this.shouldPickerOpenTop();
+			this.setActiveState({ state, isOpen, isTop });
+		},
+
 		/**
 		 * figures out if the dialog should go above or below the input and changes activeState so combined-picker can make the correct changes
 		 *
@@ -360,21 +386,7 @@ export default Component.extend(keyEvents, {
 		 * @event focusInput
 		 */
 		focusInput(state) {
-			let focus = false;
-			if (isEmpty(state)) {
-				state = 'hour';
-				if (!this.get('activeState.showTime')) {
-					state = 'day';
-				}
-				focus = true;
-			}
-
-			const isOpen = true;
-			const isTop = this.shouldPickerOpenTop();
-			this.setActiveState({ state, isOpen, isTop });
-			if (focus) {
-				this.focusState();
-			}
+			//if (focus) { this.focusState(); }
 			this.sendAction('onFocus', get(this, 'activeState'));
 			return false;
 		},

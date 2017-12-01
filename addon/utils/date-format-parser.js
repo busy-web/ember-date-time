@@ -5,6 +5,26 @@
 import EmberObject, { get } from '@ember/object';
 import { isEmpty } from '@ember/utils';
 import { assert } from '@ember/debug';
+import moment from 'moment';
+
+export function longFormatDate(format) {
+	const localeData = moment.localeData();
+	let parts = format.split(' ');
+
+	let lf = parts.reduce((a, b) => {
+		let str = localeData.longDateFormat(b)
+		if (!isEmpty(str)) {
+			return a + ' ' + str;
+		}
+		return a;
+	}, '');
+
+	lf = lf.trim();
+	if (!isEmpty(lf)) {
+		format = lf;
+	}
+	return format;
+}
 
 /**
  * Create a new date format parser
@@ -14,11 +34,16 @@ import { assert } from '@ember/debug';
  * @params format {string} a moment() date format string
  * @return {DateFormatParser}
  */
-export default function dateFormatParser(format) {
+export function dateFormatParser(format) {
 	assert('dateFormatParser expects a date format string passed in', !isEmpty(format) && typeof format === 'string');
+	const { map, sections } = createSectionMap(format);
+	return DateFormatParser.create({ format, map, sections });
+}
 
-	const reg = new RegExp(/\/|\.|-|,|]/);
-	let split = format.split(reg);
+function createSectionMap(str) {
+	const reg = new RegExp(/\/|\.|-|,|]| |\[|:/);
+	let split = str.split(reg);
+
 	let end = 0;
 	let sections = [];
 	split.forEach(p => {
@@ -30,15 +55,15 @@ export default function dateFormatParser(format) {
 
 	let index = 0;
 	let map = new window.Map();
-	for(let i=0; i<format.length; i++) {
-		if (reg.test(format[i])) {
+	for(let i=0; i<str.length; i++) {
+		if (reg.test(str[i])) {
 			map.set(i, index);
 			index += 1;
 		} else {
 			map.set(i, index);
 		}
 	}
-	return DateFormatParser.create({ format, map, sections });
+	return { map, sections };
 }
 
 /**
@@ -90,16 +115,16 @@ const DateFormatParser = EmberObject.extend({
 	 */
 	sections: null,
 
-	next(index) {
-		return this._getter(index, true, false);
+	next(index, value) {
+		return this._getter(index, value, true, false);
 	},
 
-	prev(index) {
-		return this._getter(index, false, true);
+	prev(index, value) {
+		return this._getter(index, value, false, true);
 	},
 
-	current(index) {
-		return this._getter(index, false, false);
+	current(index, value) {
+		return this._getter(index, value, false, false);
 	},
 
 	getFormatSection(index) {
@@ -107,10 +132,15 @@ const DateFormatParser = EmberObject.extend({
 		return get(this, 'format').substring(start, end);
 	},
 
-	_getter(index, isAdd=false, isSubtract=false) {
+	_getter(index, value, isAdd=false, isSubtract=false) {
 		index = normalizeIndex(index, 0, get(this, 'format.length') - 1);
-		const map = get(this, 'map');
-		const sections = get(this, 'sections');
+		let map = get(this, 'map');
+		let sections = get(this, 'sections');
+		if (!isEmpty(value)) {
+			let valueMap = createSectionMap(value);
+			map = valueMap.map;
+			sections = valueMap.sections;
+		}
 
 		let mIndex = map.get(index);
 		if (isAdd) {
