@@ -1,7 +1,6 @@
 
 <div class="main-container">
 	{{input-date timestamp=paper.timestamp max=paper.maxDate min=paper.minDate format=paper.format name=inputDataName
-		onfocus=(action 'focusInput')
 		oncursor=(action 'stateChange')
 		onchange=(action 'dateChange')
 		onsubmit=(action 'applyChange')}}
@@ -50,7 +49,7 @@
 
 	<div class="dialog-container{{if activeState.isOpen ' show'}}{{if activeState.isTop ' top'}}">
 		{{#if activeState.isOpen}}
-			{{interfaces/combined-picker paperDate=paper activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update') onChange=(action 'change')}}
+			{{interfaces/combined-picker paperDate=paper activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update')}}
 		{{/if}}
 	</div>
 </div>

@@ -405,8 +405,8 @@ export default Component.extend({
 
 				this.setTimestamp(timestamp);
 
-				this.sendAction('onUpdate', 'day', get(this, 'timestamp'), get(this, 'calendarDate'));
-				this.sendAction('onChange', 'day', get(this, 'timestamp'));
+				this.sendAction('onUpdate', 'days', get(this, 'timestamp'), get(this, 'calendarDate'));
+				this.sendAction('onChange', 'days', get(this, 'timestamp'));
 			}
     },
 
@@ -424,7 +424,7 @@ export default Component.extend({
 				set(this, 'calendarActiveSection', 'month-year');
 			}
 
-			this.sendAction('onUpdate', 'month', get(this, 'timestamp'), calDate.valueOf());
+			this.sendAction('onUpdate', 'months', get(this, 'timestamp'), calDate.valueOf());
     },
 
     /**
@@ -441,7 +441,7 @@ export default Component.extend({
 				set(this, 'calendarActiveSection', 'month-year');
 			}
 
-			this.sendAction('onUpdate', 'month', get(this, 'timestamp'), calDate.valueOf());
+			this.sendAction('onUpdate', 'months', get(this, 'timestamp'), calDate.valueOf());
     },
 
 		activateHeader(section) {

@@ -231,16 +231,16 @@ export default Component.extend({
 	resetClockHands: observer('timestamp', 'activeState.state', function() {
 		let state = this.get('activeState.state');
 		if (state === 'meridian') {
-			state = 'hour';
+			state = 'hours';
 		}
 
-		if (state === 'hour' || state === 'minute') {
+		if (state === 'hours' || state === 'minutes') {
 			let type, min, max;
-			if (state === 'hour') {
+			if (state === 'hours') {
 				type = kHourFlag;
 				min = kHourMin;
 				max = kHourMax;
-			} else if (state === 'minute'){
+			} else if (state === 'minutes') {
 				type = kMinuteFlag;
 				min = kMinuteMin;
 				max = kMinuteMax;

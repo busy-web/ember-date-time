@@ -75,6 +75,46 @@ paperTime.utcFromLocal = function(time) {
 	return new PaperTime(m);
 };
 
+paperTime.formatStringType = function(fmt) {
+	if (/^D(o|D)?$/.test(fmt)) {
+		return 'days';
+	} else if (/^M(o|M)?$/.test(fmt)) {
+		return 'months';
+	} else if (/^Y{1,4}$/.test(fmt)) {
+		return 'years';
+	} else if (/^hh?$/.test(fmt)) {
+		return 'hours';
+	} else if (/^HH?$/.test(fmt)) {
+		return 'm-hours';
+	} else if (/^mm?$/.test(fmt)) {
+		return 'minutes';
+	} else if (/^ss?$/.test(fmt)) {
+		return 'seconds';
+	} else if (/^A|a$/.test(fmt)) {
+		return 'meridian';
+	}
+};
+
+paperTime.typeExp = function(type) {
+	if (type === 'days') {
+		return /D(o|D)?/;
+	} else if (type === 'months') {
+		return /M(o|M)?/;
+	} else if (type === 'years') {
+		return /Y{1,4}/;
+	} else if (type === 'hours') {
+		return /hh?/;
+	} else if (type === 'm-hours') {
+		return /HH?/;
+	} else if (type === 'minutes') {
+		return /mm?/;
+	} else if (type === 'seconds') {
+		return /ss?/;
+	} else if (type === 'meridian') {
+		return /A|a/;
+	}
+};
+
 /**
 	* validates a moment date object
 	*

@@ -10,7 +10,8 @@ import { on } from '@ember/object/evented';
 import keyEvents from 'ember-paper-time-picker/mixins/key-events';
 import TimePicker from 'ember-paper-time-picker/utils/time-picker';
 import paperDate from 'ember-paper-time-picker/utils/paper-date';
-import { longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
+import paperTime from 'ember-paper-time-picker/utils/paper-time';
+import { splitFormat, longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
 import layout from '../templates/components/paper-datetime-picker';
 
 /**
@@ -77,63 +78,7 @@ export default Component.extend(keyEvents, {
 	 */
 	utc: false,
 
-	lastSaveTime: null,
-
 	format: 'L LT',
-
-	/**
-	 * Merdian (AM/PM) that is shown in the input bar
-	 *
-	 * @private
-	 * @property timestampMeridian
-	 * @type String
-	 */
-	timestampMeridian: null,
-
-	/**
-	 * minutes that are shown in the input bar
-	 *
-	 * @private
-	 * @property timestampMinutes
-	 * @type String
-	 */
-	timestampMinutes: null,
-
-	/**
-	 * hours that are shown in the input bar
-	 *
-	 * @private
-	 * @property timestampHours
-	 * @type String
-	 */
-	timestampHours: null,
-
-	/**
-	 * days that are shown in the input bar
-	 *
-	 * @private
-	 * @property timestampDays
-	 * @type String
-	 */
-	timestampDays: null,
-
-	/**
-	 * months that are shown in the input bar
-	 *
-	 * @private
-	 * @property timestampMonths
-	 * @type String
-	 */
-	timestampMonths: null,
-
-	/**
-	 * years that are shown in the input bar
-	 *
-	 * @private
-	 * @property timestampYears
-	 * @type String
-	 */
-	timestampYears: null,
 
 	/**
 	 * active state of the picker view this is an object
@@ -166,8 +111,12 @@ export default Component.extend(keyEvents, {
 
 	hideTime: false,
 	hideDate: false,
-
 	lockOpen: false,
+
+	__timestamp: null,
+	__calendar: null,
+	__min: null,
+	__max: null,
 
 	/**
 	 * checks if timestamp is valid calls updateInputValues
@@ -176,26 +125,19 @@ export default Component.extend(keyEvents, {
 	 * @method initialize
 	 * @constructor
 	 */
-	initialize: on('init', function() {
+	initialize: on('willInsertElement', function() {
 		// get locale converted format str
 		let format = get(this, 'format');
 		format = longFormatDate(format);
-		console.log('format', format);
-		set(this, '__format', format);
+		setPrivate(this, 'format', format);
 
-		this.setActiveState();
-		this.setupPicker();
-		this.setPaperDate(get(this, 'timestamp'), get(this, 'unix'));
-		this.updateInputValues();
-	}),
-
-	setPaperDate: function(timestamp, unix) {
+		let timestamp = get(this, 'timestamp');
+		let unix = get(this, 'unix');
 		let minDate = get(this, 'minDate');
 		let maxDate = get(this, 'maxDate');
-		let format = get(this, '__format');
 
 		if (!isNone(timestamp)) {
-			if (this.get('utc')) {
+			if (get(this, 'utc')) {
 				timestamp = TimePicker.utcToLocal(timestamp);
 				if (!isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
 				if (!isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
@@ -206,87 +148,43 @@ export default Component.extend(keyEvents, {
 			if (!isNone(minDate)) { minDate = TimePicker.getTimstamp(minDate); }
 			if (!isNone(maxDate)) { maxDate = TimePicker.getTimstamp(maxDate); }
 
-			if (this.get('utc')) {
+			if (get(this, 'utc')) {
 				timestamp = TimePicker.utcToLocal(timestamp);
 				if (!isNone(minDate)) { minDate = TimePicker.utcToLocal(minDate); }
 				if (!isNone(maxDate)) { maxDate = TimePicker.utcToLocal(maxDate); }
 			}
 		}
 
-		const paper = paperDate({ timestamp, minDate, maxDate, format });
-		const cal = paperDate({ timestamp, minDate, maxDate, format });
+		setPrivate(this, 'timestamp', timestamp);
+		setPrivate(this, 'calendar', timestamp);
+		setPrivate(this, 'min', minDate);
+		setPrivate(this, 'max', maxDate);
 
-		set(this, 'paper', paper);
+		this.setActiveState();
+		this.setupPicker();
+		this.setPaper();
+	}),
+
+	setPaper() {
+		let timestamp = getPrivate(this, 'timestamp');
+		let calendarDate = getPrivate(this, 'calendar');
+		let minDate = getPrivate(this, 'min');
+		let maxDate = getPrivate(this, 'max');
+		let format = getPrivate(this, 'format');
+
+		set(this, 'paper', paperDate({ timestamp, calendarDate, minDate, maxDate, format }));
 	},
 
 	setupPicker: observer('hideTime', 'hideDate', function() {
 		const showDate = (this.get('hideTime') || !this.get('hideDate'));
 		const showTime = (this.get('hideDate') || !this.get('hideTime'));
-		let state = 'day';
+		let state = 'days';
 		if (!showDate) {
-			state = 'hour';
+			state = 'hours';
 		}
 
 		this.setActiveState({ state, showDate, showTime });
 	}),
-
-	/**
-	 * observes the timestamp and updates the input values accordingly
-	 *
-	 * @private
-	 * @method updateInputValues
-	 */
-	updateInputValues: observer('paper.timestamp', function() {
-		const time = this.get('paper.date');
-
-		this.set('timestampMeridian', time.format('A'));
-		this.set('timestampMinutes', time.format('mm'));
-		this.set('timestampHours', time.format('hh'));
-		this.set('timestampDays', time.format('DD'));
-		this.set('timestampMonths', time.format('MM'));
-		this.set('timestampYears', time.format('YYYY'));
-	}),
-
-	/**
-	 * observes the timestamp/unix and updates paper values if they are changed outside of time picker
-	 *
-	 * @private
-	 * @method updatePaperOnTimestampChange
-	 */
-	updatePaperOnTimestampChange: observer('timestamp', 'unix', function() {
-		this.setPaperDate(this.get('timestamp'), this.get('unix'));
-	}),
-
-	/**
-	 * receives a moment object and sets it to timestamp
-	 *
-	 * @private
-	 * @method setTimestamp
-	 * @param time {Moment|number} moment or timestamp
-	 */
-	setTimestamp(time) {
-		if (!isNone(time)) {
-			if (typeof time === 'object' && typeof time.valueOf === 'function') {
-				time = time.valueOf();
-			}
-			this.set('lastSaveTime', time);
-
-			if (this.get('utc')) {
-				time = TimePicker.utcFromLocal(time);
-			}
-
-			if (!isNone(this.get('timestamp'))) {
-				this.set('timestamp', time);
-			}
-
-			if (!isNone(this.get('unix'))) {
-				time = TimePicker.getUnix(time);
-				this.set('unix', time);
-			}
-
-			this.setPaperDate(this.get('timestamp'), this.get('unix'));
-		}
-	},
 
 	setActiveState(options={}) {
 		if (isNone(this.get('activeState'))) {
@@ -298,12 +196,17 @@ export default Component.extend(keyEvents, {
 		}
 
 		if (!isEmpty(options.state)) {
-			this.set('activeState.state', options.state);
+			if (get(this, 'activeState.state') !== options.state) {
+				this.set('activeState.state', options.state);
+				this.focusState(options.state);
+			}
 		} else {
 			if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
-				this.set('activeState.state', 'day');
+				this.set('activeState.state', 'days');
+				this.focusState('days');
 			} else if (!this.get('hideTime') && this.get('lockOpen')) {
-				this.set('activeState.state', 'hour');
+				this.set('activeState.state', 'hours');
+				this.focusState('hours');
 			}
 		}
 
@@ -330,6 +233,18 @@ export default Component.extend(keyEvents, {
 		}
 	},
 
+	focusState(state) {
+		let el = this.$(`input`);
+		let index;
+		if (!isEmpty(state)) {
+			index = findSectionIndex(this, state);
+		} else {
+			index = findSectionIndex(this, 'hours');
+		}
+		el.data('selection', index);
+		el.focus();
+	},
+
 	shouldPickerOpenTop() {
 		const documentHeight = $(document).height();
 		const dialogHeight = this.$().find('.dialog-container').height() + 50;
@@ -340,230 +255,104 @@ export default Component.extend(keyEvents, {
 		return (distanceTop > distanceBottom && distanceBottom < dialogHeight);
 	},
 
-	focusState() {
-		let state = this.get('activeState.state');
-		this.$(`.section.${state} > input`).focus();
+	/**
+	 * triggeres a date change event to send off
+	 * to listeners of `onChange`
+	 *
+	 * @public
+	 * @method triggerDateChange
+	 */
+	triggerDateChange() {
+		let time = getPrivate(this, 'timestamp');
+		if (get(this, 'utc')) {
+			time = paperTime.utcFromLocal(time);
+		}
+
+		let unix = paperTime(time).unix();
+		set(this, 'timestamp', time);
+		set(this, 'unix', unix);
+
+		this.setPaper();
+		this.sendAction('onChange', time, unix);
+	},
+
+	updateTime(type, time, calendar) {
+		if (type === 'months') {
+			if (!isNone(calendar)) {
+				setPrivate(this, 'calendar', calendar);
+				this.setPaper();
+			}
+		} else {
+			setPrivate(this, 'timestamp', time);
+			setPrivate(this, 'calendar', time);
+			this.triggerDateChange();
+		}
 	},
 
 	actions: {
-
 		dateChange(time) {
-			console.log('dateChange', time);
+			this.updateTime('days', time);
 		},
 
-		applyChange() {
+		applyChange(time) {
+			this.updateTime('days', time);
+			this.send('closeAction');
+		},
 
+		update(state, time, calendar) {
+			this.updateTime(state, time, calendar);
+			this.setActiveState({ state });
 		},
 
 		stateChange(state) {
-			console.log('state', state);
-
-			if (state === 'm-hours' || state === 'hours') {
-				state = 'hour';
-			} else if (/s$/.test(state)) {
-				state = state.substr(0, state.length-1);
-			}
-
-			console.log('state after', state);
-			//let focus = false;
-			//if (isEmpty(state)) {
-			//	state = 'hour';
-			//	if (!this.get('activeState.showTime')) {
-			//		state = 'day';
-			//	}
-			//	focus = true;
-			//}
-
 			const isOpen = true;
 			const isTop = this.shouldPickerOpenTop();
 			this.setActiveState({ state, isOpen, isTop });
-		},
-
-		/**
-		 * figures out if the dialog should go above or below the input and changes activeState so combined-picker can make the correct changes
-		 *
-		 * @param active {string} string of which input field was selected
-		 * @event focusInput
-		 */
-		focusInput(state) {
-			//if (focus) { this.focusState(); }
-			this.sendAction('onFocus', get(this, 'activeState'));
-			return false;
 		},
 
 		closeAction() {
 			if (!this.get('lockOpen')) {
 				this.setActiveState({ state: '', isOpen: false, isTop: false });
 			}
-		},
-
-		keyReleased() {
-			if (this.get('lastSaveTime') !== this.get('paper.timestamp')) {
-				this.setTimestamp(this.get('paper.timestamp'));
-			}
-		},
-
-		/**
-		 * handles up and down arrows pressed while in the minutes input fields
-		 *
-		 * @event keyUpDownHours
-		 */
-		keyUpDownMinutes() {
-			if (!this.throttleKey(event)) {
-				return false;
-			}
-
-			if (!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
-				return false;
-			}
-
-			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-			this.onKeyPressed(event, ['right-arrow', 'up-arrow'], () => {
-				if ((this.get('paper.date').minutes() + 1) > 59) {
-					this.get('paper').subtract(59, 'minutes');
-				} else {
-					this.get('paper').add(1, 'minutes');
-				}
-			});
-
-			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-			this.onKeyPressed(event, ['left-arrow', 'down-arrow'], () => {
-				if ((this.get('paper.date').minutes() - 1) < 0) {
-					this.get('paper').add(59, 'minutes');
-				} else {
-					this.get('paper').subtract(1, 'minutes');
-				}
-			});
-
-			// enter key will close the picker
-			this.onKeyPressed(event, ['enter'], () => {
-				this.send('closeAction');
-			});
-		},
-
-		/**
-		 * handles up and down arrows pressed while in the hours input fields
-		 *
-		 * @event keyUpDownHours
-		 */
-		keyUpDownHours() {
-			if (!this.throttleKey(event)) {
-				return false;
-			}
-
-			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
-				return false;
-			}
-
-			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-			this.onKeyPressed(event, ['right-arrow', 'up-arrow'], () => {
-				if (((this.get('paper.date').hour() + 1) % 12) === 0) {
-					this.get('paper').subtract(11, 'hours');
-				} else {
-					this.get('paper').add(1, 'hours');
-				}
-			});
-
-			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-			this.onKeyPressed(event, ['left-arrow', 'down-arrow'], () => {
-				if ((this.get('paper.date').hour() % 12) === 0) {
-					this.get('paper').add(11, 'hours');
-				} else {
-					this.get('paper').subtract(1, 'hours');
-				}
-			});
-
-			// enter key will close the picker
-			this.onKeyPressed(event, ['enter'], () => {
-				this.send('closeAction');
-			});
-		},
-
-		/**
-		 * handles up and down arrows pressed while in the days, months, or years input fields
-		 *
-		 * @param {string} 'days', 'years,', or 'months'
-		 * @event keyUpDownHandler
-		 */
-		keyUpDownHandler(period) {
-			if (!this.throttleKey(event)) {
-				return false;
-			}
-
-			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
-				return false;
-			}
-
-			// 38 -> up arrow being pressed, 39 -> right arrow being pressed
-			this.onKeyPressed(event, ['right-arrow', 'up-arrow'], () => {
-				this.get('paper').add(1, period);
-			});
-
-			// 40 -> down arrow being pressed, 37 -> left arrow being pressed
-			this.onKeyPressed(event, ['left-arrow', 'down-arrow'], () => {
-				this.get('paper').subtract(1, period);
-			});
-
-			// enter key will close the picker
-			this.onKeyPressed(event, ['enter'], () => {
-				this.send('closeAction');
-			});
-
-			// enter key will close the picker
-			this.onKeyPressed(event, ['tab'], () => {
-				if (event.shiftKey) {
-					this.send('closeAction');
-				}
-			});
-		},
-
-		/**
-		 * handles up and down arrows pressed while in the meridian input fields
-		 *
-		 * @event meridianKeyHandler
-		 */
-		meridianKeyHandler() {
-			if (!this.throttleKey(event)) {
-				return false;
-			}
-
-			if(!this.isAllowedKey(event, ['left-arrow', 'up-arrow', 'down-arrow', 'right-arrow', 'tab', 'enter'])) {
-				return false;
-			}
-
-			this.onKeyPressed(event, ['right-arrow', 'up-arrow', 'left-arrow', 'down-arrow'], () => {
-				if(this.get('paper.date').format('A') === 'AM') {
-					this.get('paper').add(12, 'hours');
-				} else {
-					this.get('paper').subtract(12, 'hours');
-				}
-			});
-
-			// enter key will close the picker
-			this.onKeyPressed(event, ['enter'], () => {
-				this.send('closeAction');
-			});
-
-			// enter key will close the picker
-			this.onKeyPressed(event, ['tab'], () => {
-				if (!event.shiftKey) {
-					this.send('closeAction');
-				}
-			});
-		},
-
-		change(state, timestamp) {
-			this.sendAction('onChange', state, timestamp);
-		},
-
-		update(state, timestamp) {
-			console.log('state before', state);
-			state = state.replace(/s$/, '');
-			console.log('state after', state);
-			this.setActiveState({ state });
-			this.focusState();
-			this.setTimestamp(timestamp);
-			this.sendAction('onUpdate', state, timestamp);
 		}
 	}
 });
+
+function getPrivate(target, name) {
+	return get(target, `__${name}`);
+}
+
+function setPrivate(target, name, value) {
+	set(target, `__${name}`, value);
+}
+
+function findSectionIndex(target, type) {
+	let format = getPrivate(target, 'format');
+	let value = paperTime(getPrivate(target, 'timestamp')).format(format);
+	let f = splitFormat(format);
+	let v = splitFormat(value);
+
+	let exp;
+	if (type === 'hours') {
+		exp = paperTime.typeExp(`m-${type}`);
+		if (!exp.test(format)) {
+			exp = paperTime.typeExp(type);
+		}
+	} else {
+		exp = paperTime.typeExp(type);
+	}
+
+	let done = false;
+	let length = 0;
+	f.forEach((sec, idx) => {
+		if (exp.test(sec)) {
+			done = true;
+		}
+
+		if (!done) {
+			length = length + v[idx].length + 1;
+		}
+	});
+	return length;
+}
+

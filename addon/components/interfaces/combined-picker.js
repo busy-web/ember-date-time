@@ -30,7 +30,6 @@ export default Component.extend({
   layout: layout,
 
 	paperDate: null,
-	paperCalendar: null,
 
   /**
    * timestamp that is passed in when using combined-picker
@@ -240,18 +239,18 @@ export default Component.extend({
   observeActiveSection: observer('activeState.state', function() {
     const state = this.get('activeState.state');
 		if (!isNone(state)) {
-			this.set('isClock', (state === 'hour' || state === 'minute' || state === 'meridian'));
-			this.set('isCalendar', (state === 'year' || state === 'month' || state === 'day'));
+			this.set('isClock', (state === 'hours' || state === 'minutes' || state === 'meridian'));
+			this.set('isCalendar', (state === 'years' || state === 'months' || state === 'days'));
 		}
   }),
 
 	actions: {
-		update(focus, time) {
-			this.sendAction('onUpdate', focus, time);
+		update(focus, time, calendar) {
+			this.sendAction('onUpdate', focus, time, calendar);
 		},
 
-		change(focus, time) {
-			this.sendAction('onChange', focus, time);
+		change(focus, time, calendar) {
+			this.sendAction('onChange', focus, time, calendar);
 		},
 
 		/**
@@ -261,7 +260,7 @@ export default Component.extend({
      */
 		togglePicker(current) {
 			const isClock = (current === 'isClock');
-			const state = (isClock ? 'day' : 'hour');
+			const state = (isClock ? 'days' : 'hours');
 
 			//this.set('isClock', !isClock);
 			//this.set('isCalendar', isClock);

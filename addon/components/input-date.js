@@ -12,7 +12,7 @@ import { run, later } from '@ember/runloop';
 import TextField from "@ember/component/text-field"
 import keyEvent from 'ember-paper-time-picker/utils/key-event';
 import paperTime from 'ember-paper-time-picker/utils/paper-time';
-import { dateFormatParser, longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
+import { getCursorPosition, getFormatSection, longFormatDate } from 'ember-paper-time-picker/utils/date-format-parser';
 
 /***/
 
@@ -71,11 +71,6 @@ export default TextField.extend({
 		setData(this.$(), 'position', 0);
 		setData(this.$(), 'linked', null);
 
-		// create new format parser
-		if (isNone(getData(this.$(), 'parser', null))) {
-			setData(this.$(), 'parser', dateFormatParser(format));
-		}
-
 		set(this, 'keyboard', getKeyboardStyle());
 	}),
 
@@ -125,7 +120,9 @@ export default TextField.extend({
 	finalizeDateSection() {
 		let date = paperTime(getValue(this), get(this, 'format'));
 		if (date.isValid()) {
-			this.submitChange(date);
+			if (get(this, '_date') !== date.timestamp()) {
+				this.submitChange(date);
+			}
 			setData(this.$(), 'position', 0);
 			return true;
 		}
@@ -209,6 +206,42 @@ export default TextField.extend({
 		return handler.preventDefault();
 	},
 
+	upDownArrows(keyName) {
+		const { sectionFormat, start, end } = getMeta(this);
+		const type = sectionFormatType(this);
+		const _date = get(this, '_date');
+
+		let isUp = ['ArrowUp', '=', '+'].indexOf(keyName) !== -1;
+		let isDown = ['ArrowDown', '-', '_'].indexOf(keyName) !== -1;
+
+		// for am pm up down arrows increase the time or decrease
+		// the time accordingly so that the day does not change.
+		// So hitting up arrow 2 times will change from 'am' => 'pm' => 'am'
+		// and the actual date has not changed.
+		if (type === 'meridian') {
+			const substr = getValue(this).substring(start, end);
+			if (isUp && substr.toLowerCase() === 'pm') {
+				isUp = false;
+				isDown = true;
+			} else if (isDown && substr.toLowerCase() === 'am') {
+				isDown = false;
+				isUp = true;
+			}
+		}
+
+		let val;
+		if (isUp) {
+			val = paperTime(_date).addFormatted(1, sectionFormat);
+		} else if (isDown) {
+			val = paperTime(_date).subFormatted(1, sectionFormat);
+		}
+
+		if (val) {
+			setValue(this, val.format(get(this, 'format')));
+			handleCursor(this, '');
+		}
+	},
+
 	handleArrowKeys(event, handler) {
 		if (/^[*/><^]$/.test(handler.keyName)) {
 			return handler.preventDefault();
@@ -219,18 +252,7 @@ export default TextField.extend({
 		} else if (handler.keyName === 'ArrowRight') {
 			handleCursor(this, 'next');
 		} else {
-			const { sectionFormat } = getMeta(this);
-			const _date = get(this, '_date');
-
-			let val;
-			if (handler.keyName === 'ArrowUp' || handler.keyName === '=' || handler.keyName === '+') {
-				val = paperTime(_date).addFormatted(1, sectionFormat);
-			} else if (handler.keyName === 'ArrowDown' || handler.keyName === '-' || handler.keyName === '_') {
-				val = paperTime(_date).subFormatted(1, sectionFormat);
-			}
-
-			setValue(this, val.format(get(this, 'format')));
-			handleCursor(this, '');
+			this.upDownArrows(handler.keyName);
 		}
 
 		this.finalizeDateSection();
@@ -239,7 +261,7 @@ export default TextField.extend({
 
 	focusInEvent: on('focusIn', function(event) {
 		let { selection, position } = getMeta(this, $(event.target));
-		handleFocus(this, selection, position);
+		handleFocus(this, selection, position, true);
 
 		let type = sectionFormatType(this);
 		this.sendAction('onfocus', event, type);
@@ -253,6 +275,7 @@ export default TextField.extend({
 	clickEvent: on('click', function(event) {
 		event.stopPropagation();
 		let index = event.target.selectionStart;
+		set(this, '__lastType', null);
 		handleFocus(this, index, 0);
 
 		let type = sectionFormatType(this);
@@ -260,6 +283,8 @@ export default TextField.extend({
 	}),
 
 	keyDown(event) {
+		// TODO:
+		// handle arrows for am pm and allow letters for am pm
 		if (isModifierKeyActive(this, event)) {
 			return true;
 		}
@@ -319,18 +344,15 @@ function getMeta(target, el) {
 	let selection = getData(el, 'selection', 0);
 	let position = getData(el, 'position', 0);
 
-	let parser = getData(el, 'parser', null);
 	let start, end, sectionFormat;
-	if (!isNone(parser)) {
-		let value = getValue(target);
-		sectionFormat = parser.getFormatSection(selection, value);
-		let cursor = parser.current(selection, value);
-		if (!isNone(cursor)) {
-			start = cursor.start;
-			end = cursor.end;
-		}
+	let value = getValue(target);
+	sectionFormat = getFormatSection(format, value, selection);
+	let cursor = getCursorPosition(format, value, selection);
+	if (!isNone(cursor)) {
+		start = cursor.start;
+		end = cursor.end;
 	}
-	return { format, selection, position, sectionFormat, start, end, parser };
+	return { format, selection, position, sectionFormat, start, end };
 }
 
 function sectionBounds(target) {
@@ -361,56 +383,47 @@ function sectionBounds(target) {
 
 function sectionFormatType(target) {
 	const { sectionFormat } = getMeta(target);
-	if (/^D(o|D)?$/.test(sectionFormat)) { // days of month
-		return 'days';
-	} else if (/^M(o|M)?$/.test(sectionFormat)) { // months of year
-		return 'months';
-	} else if (/^Y{1,4}$/.test(sectionFormat)) {
-		return 'years';
-	} else if (/^hh?$/.test(sectionFormat)) {
-		return 'hours';
-	} else if (/^HH?$/.test(sectionFormat)) {
-		return 'm-hours';
-	} else if (/^mm?$/.test(sectionFormat)) {
-		return 'minutes';
-	} else if (/^ss?$/.test(sectionFormat)) {
-		return 'seconds';
-	} else if (/^A|a$/.test(sectionFormat)) {
-		return 'meridian';
-	}
+	return paperTime.formatStringType(sectionFormat);
 }
 
-function handleFocus(target, index=0, num=0) {
+function handleFocus(target, index=0, num=0, triggerChange=true) {
 	// set cursor index and last num index
 	setData(target.$(), 'selection', index);
 	setData(target.$(), 'position', num);
 
-	handleCursor(target, '').then(() => {
-		let type = sectionFormatType(target);
-		target.sendAction('oncursor', type);
-	});
+	handleCursor(target, '', triggerChange);
 	set(target, 'active', true);
 }
 
-function handleCursor(target, action='') {
+function handleCursor(target, action='', triggerChange=true) {
 	return new EmberPromise(resolve => {
 		later(() => {
-			const { parser, selection } = getMeta(target);
+			const { format, selection } = getMeta(target);
 			const value = getValue(target);
 
 			let cursor;
 			if (action === 'next') {
-				cursor = parser.next(selection, value);
+				cursor = getCursorPosition(format, value, selection, true, false);
 			} else if (action === 'prev') {
-				cursor = parser.prev(selection, value);
+				cursor = getCursorPosition(format, value, selection, false, true);
 			} else {
-				cursor = parser.current(selection, value);
+				cursor = getCursorPosition(format, value, selection, false, false);
 			}
 
 			setSelectionRange(target.$(), cursor.start, cursor.end);
 			if (selection !== cursor.start) {
 				setData(target.$(), 'selection', cursor.start);
 			}
+
+			if (triggerChange) {
+				let lastType = get(target, '__lastType');
+				let type = sectionFormatType(target);
+				if (lastType !== type) {
+					set(target, '__lastType', type);
+					target.sendAction('oncursor', type);
+				}
+			}
+
 			run(null, resolve, null);
 		}, 10);
 	});
