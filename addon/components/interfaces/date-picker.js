@@ -406,7 +406,6 @@ export default Component.extend({
 				this.setTimestamp(timestamp);
 
 				this.sendAction('onUpdate', 'days', get(this, 'timestamp'), get(this, 'calendarDate'));
-				this.sendAction('onChange', 'days', get(this, 'timestamp'));
 			}
     },
 

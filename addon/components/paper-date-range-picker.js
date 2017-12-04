@@ -139,29 +139,19 @@ export default Component.extend({
 	}),
 
 	selectedDayRange: computed('selected', '_startDate', '_endDate', function() {
-		//const { id } = get(this, 'selected');
-		//if (id !== 'monthly' && get(this, 'selectedMonthRangeMatch') && get(this, 'selectedYearRangeMatch')) {
 			if (!get(this, 'selectedDayRangeMatch')) {
 				return `${get(this, '_startDate').format('Do')} - ${get(this, '_endDate').format('Do')}`;
 			}
 			return get(this, '_startDate').format('Do');
-		//}
-		//return '';
 	}),
 	selectedMonthRange: computed('_startDate', '_endDate', function() {
-		//if (get(this, 'selectedYearRangeMatch')) {
 			if (!get(this, 'selectedMonthRangeMatch')) {
-				//return `${get(this, '_startDate').format('MMM Do')} - ${get(this, '_endDate').format('MMM Do')}`;
 				return `${get(this, '_startDate').format('MMM')} - ${get(this, '_endDate').format('MMM')}`;
 			}
 			return get(this, '_startDate').format('MMMM');
-		//}
-		//return '';
 	}),
 	selectedYearRange: computed('_startDate', '_endDate', function() {
 		if (!get(this, 'selectedYearRangeMatch')) {
-			//let f = get(this, 'format');
-			//return `${get(this, '_startDate').format(f)} - ${get(this, '_endDate').format(f)}`;
 			return `${get(this, '_startDate').format('YY')} - ${get(this, '_endDate').format('YY')}`;
 		}
 		return get(this, '_startDate').format('YYYY');
@@ -496,7 +486,7 @@ export default Component.extend({
 	 */
 	updateDates(type, time, calendar, singleSet=false) {
 		let isStart = get(this, 'isStart');
-		if (type === 'day') {
+		if (type === 'days') {
 			if (!singleSet && !isStart && time < getStart(this)) {
 				isStart = true;
 			}
@@ -687,11 +677,11 @@ export default Component.extend({
 		},
 
 		dateChange(time) {
-			this.updateDates('day', time, null, true);
+			this.updateDates('days', time, null, true);
 		},
 
 		updateTime(state, time) {
-			let isStart = this.updateDates('day', time);
+			let isStart = this.updateDates('days', time);
 			this.setActiveState(!isStart);
 
 			// resets the focus after the user clicks a day
@@ -711,7 +701,7 @@ export default Component.extend({
 		 */
 		calendarChange(type, time, calendar) {
 			let isStart;
-			if (type === 'day') {
+			if (type === 'days') {
 				isStart = this.updateDates(type, time, calendar);
 				this.setActiveState(!isStart);
 				this.focusActive(get(this, '__dayIndex'));
