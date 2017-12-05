@@ -265,6 +265,16 @@ export default TextField.extend({
 
 		let type = sectionFormatType(this);
 		this.sendAction('onfocus', event, type);
+		let os = getOSType();
+		if (os === 'iOS') {
+			if (!getData(this.$(), 'overrideFocus')) {
+				this.$().blur();
+			} else {
+				setData(this.$(), 'overrideFocus', false);
+			}
+		} else if (os === 'Android') {
+			this.$().blur();
+		}
 	}),
 
 	focusOutEvent: on('focusOut', function(event) {
@@ -277,9 +287,15 @@ export default TextField.extend({
 		let index = event.target.selectionStart;
 		set(this, '__lastType', null);
 		handleFocus(this, index, 0);
-
 		let type = sectionFormatType(this);
 		this.sendAction('onclick', event, index, type);
+
+		// hand mobile focus
+		let os = getOSType();
+		if (os === 'iOS' || os === 'Android') {
+			setData(this.$(), 'overrideFocus', true);
+			later(() => this.$().focus(), 10);
+		}
 	}),
 
 	keyDown(event) {
@@ -289,7 +305,7 @@ export default TextField.extend({
 			return true;
 		}
 
-		let handler = keyEvent({ event, disable: ['letter'] });
+		let handler = keyEvent({ event, disable: ['letter', 'composition'] });
 		if (handler.allowed) {
 			if (!handler.throttle) {
 				if (handler.type === 'arrow' || handler.type === 'math' || handler.keyName === '_') {
@@ -308,6 +324,14 @@ export default TextField.extend({
 		return handler.preventDefault();
 	}
 });
+
+function getOSType() {
+	if (/(iPhone|iPad|iPod)/.test(window.navigator.userAgent)) {
+		return 'iOS';
+	} else if (/Android/.test(window.navigator.userAgent)) {
+		return 'Android';
+	}
+}
 
 function setValue(target, value) {
 	set(target, 'value', value);

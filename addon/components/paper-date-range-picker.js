@@ -128,51 +128,21 @@ export default Component.extend({
 		return get(this, '_min') > end;
 	}),
 
-	selectedDayRangeMatch: computed('_startDate', '_endDate', function() {
-		return get(this, '_startDate').date() === get(this, '_endDate').date();
-	}),
-	selectedMonthRangeMatch: computed('_startDate', '_endDate', function() {
-		return get(this, '_startDate').month() === get(this, '_endDate').month();
-	}),
-	selectedYearRangeMatch: computed('_startDate', '_endDate', function() {
-		return get(this, '_startDate').year() === get(this, '_endDate').year();
-	}),
-
-	selectedDayRange: computed('selected', '_startDate', '_endDate', function() {
-			if (!get(this, 'selectedDayRangeMatch')) {
-				return `${get(this, '_startDate').format('Do')} - ${get(this, '_endDate').format('Do')}`;
-			}
-			return get(this, '_startDate').format('Do');
-	}),
-	selectedMonthRange: computed('_startDate', '_endDate', function() {
-			if (!get(this, 'selectedMonthRangeMatch')) {
-				return `${get(this, '_startDate').format('MMM')} - ${get(this, '_endDate').format('MMM')}`;
-			}
-			return get(this, '_startDate').format('MMMM');
-	}),
-	selectedYearRange: computed('_startDate', '_endDate', function() {
-		if (!get(this, 'selectedYearRangeMatch')) {
-			return `${get(this, '_startDate').format('YY')} - ${get(this, '_endDate').format('YY')}`;
-		}
-		return get(this, '_startDate').format('YYYY');
-	}),
-
 	selectedDateRange: computed('selected', '_start', '_end', 'format', function() {
 		const { id } = get(this, 'selected');
-		let format = get(this, 'format');
 		const start = paperTime(getStart(this));
 		const end = paperTime(getEnd(this));
 		if (start.year() !== end.year()) {
-			return `${start.format(format)} - ${end.format(format)}`;
+			return `${start.format('ll')} - ${end.format('ll')}`;
 		} else if (start.month() !== end.month()) {
-			return `${start.format(format)} - ${end.format(format)}`;
+			return `${start.format('MMM DD')} - ${end.format('MMM DD')}`;
 		} else {
 			if (id === 'monthly') {
-				return start.format('MMMM YYYY');
+				return start.format('MMMM');
 			} else if (start.date() === end.date()) {
-				return start.format(format);
+				return `${start.format('MMM DD')} - ${end.format('MMM DD')}`;
 			} else {
-				return `${start.format(format)} - ${end.format(format)}`;
+				return `${start.format('MMM DD')} - ${end.format('MMM DD')}`;
 			}
 		}
 	}),

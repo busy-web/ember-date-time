@@ -28,6 +28,8 @@ const KEY_MAP = {
 	'144': 'NumLock', '145': 'ScrollLock',
 	'186': ';', '187': '=', '188': ',', '189': '-', '190': '.', '191': '/', '192': '`',
 	'219': '[', '220': '\\', '221': ']', '222': "'",
+
+	'229': 'Composition',
 };
 
 const SHIFT_KEY_MAP = {
@@ -50,7 +52,8 @@ const TYPE_MAP = {
 	qoute: /^['"`]$/,
 	puctuation: /^[.,;:?!]/,
 	symbol: /^[@&#$%(){}\[\]\\|~_]$/,
-	math: /^[+\-*/^><=]$/
+	math: /^[+\-*/^><=]$/,
+	composition: /^Composition$/
 };
 
 function getKeyCode(event) {
@@ -74,7 +77,7 @@ function translate(event) {
 
 	if (isNone(name)) {
 		name = -1;
-		window.console.log('Key not defined', key);
+		window.console.log('Key not defined', key, event);
 	}
 	return name;
 }
