@@ -305,6 +305,9 @@ export default Component.extend(keyEvents, {
 		},
 
 		stateChange(state) {
+			if (state === 'm-hours') {
+				state = 'hours';
+			}
 			const isOpen = true;
 			const isTop = this.shouldPickerOpenTop();
 			this.setActiveState({ state, isOpen, isTop });
