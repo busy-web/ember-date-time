@@ -31,7 +31,7 @@ test('it renders', function(assert) {
 });
 
 test('changes from hours to minutes', function(assert) {
-	activeState.set('state', 'hour');
+	activeState.set('state', 'hours');
 	this.set('paper', paper);
 	this.set('activeState', activeState);
 
@@ -39,13 +39,13 @@ test('changes from hours to minutes', function(assert) {
 
   assert.ok(this.$('.paper-time-picker').hasClass('hours'), 'State is Hours');
 
-	activeState.set('state', 'minute');
+	this.set('activeState.state', 'minutes');
 
   assert.ok(this.$('.paper-time-picker').hasClass('minutes'), 'State is Minutes');
 });
 
 test('changes from pm to am and back', function(assert) {
-	activeState.set('state', 'hour');
+	activeState.set('state', 'hours');
 	this.set('paper', paper);
 	this.set('activeState', activeState);
 
@@ -97,7 +97,7 @@ test('changes from pm to am and back', function(assert) {
 //});
 
 test('click random minute sectionMin', function(assert) {
-	activeState.set('state', 'minute');
+	activeState.set('state', 'minutes');
 	this.set('paper', paper);
 	this.set('activeState', activeState);
 

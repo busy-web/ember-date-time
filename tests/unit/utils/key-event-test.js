@@ -5,6 +5,6 @@ module('Unit | Utility | key event');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = keyEvent();
+  let result = keyEvent;
   assert.ok(result);
 });

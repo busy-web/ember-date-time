@@ -5,6 +5,6 @@ module('Unit | Utility | date format parser');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = dateFormatParser();
+  let result = dateFormatParser;
   assert.ok(result);
 });

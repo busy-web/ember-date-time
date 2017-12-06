@@ -3,7 +3,7 @@
  *
  */
 import Helper from '@ember/component/helper';
-import { i18n } from 'busy-utils';
+import { loc as i18n } from '@ember/string';
 
 /**
  * `Helper/BusyLoc`

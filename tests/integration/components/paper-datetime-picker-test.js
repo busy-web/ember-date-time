@@ -7,11 +7,9 @@ moduleForComponent('paper-datetime-picker', 'Integration | Component | paper dat
 });
 
 test('it renders', function(assert) {
-
   this.set('timestamp', moment().unix() * 1000);
 
   this.render(hbs`{{paper-datetime-picker timestamp=timestamp}}`);
 
-  assert.ok(this.$().text().trim());
-
+  assert.equal(this.$().text().trim(), '');
 });

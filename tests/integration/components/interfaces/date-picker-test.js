@@ -79,10 +79,12 @@ test('click on day', function(assert) {
 	this.set('activeState', activeState);
   this.set('nextDay', moment().startOf('month'));
 
-  this.render(hbs`{{interfaces/date-picker paperDate=paper paperCalendar=calender activeState=activeState}}`);
+	this.set('clickAction', (state, time) => {
+		assert.equal(moment(time).date() + '', prevDay.text().trim());
+	});
 
-	const prevDay = this.$('.day.current').prev();
+  this.render(hbs`{{interfaces/date-picker paperDate=paper paperCalendar=calender activeState=activeState onUpdate=clickAction}}`);
+
+	const prevDay = this.$('.week-row > .day.current').prev();
   prevDay.click();
-
-  assert.equal(this.$('.day.current').text().trim(), prevDay.text().trim());
 });

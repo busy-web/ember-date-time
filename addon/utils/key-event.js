@@ -51,7 +51,7 @@ const TYPE_MAP = {
 	number: /^[0-9]$/,
 	qoute: /^['"`]$/,
 	puctuation: /^[.,;:?!]/,
-	symbol: /^[@&#$%(){}\[\]\\|~_]$/,
+	symbol: /^[@&#$%(){}[\]\\|~_]$/,
 	math: /^[+\-*/^><=]$/,
 	composition: /^Composition$/
 };
