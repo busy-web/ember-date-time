@@ -1,0 +1,43 @@
+
+.busyweb {
+	&.emberdatetime {
+		.p-date-time-menu {
+			position: relative;
+			border-radius: 2px;
+			background: $ept-color-1;
+			box-shadow: 0 10px 27px 0 #999;
+
+			& > .picker-container {
+				display: inline-block;
+				width: 100%;
+
+				& > .picker-footer {
+					display: inline-block;
+					width: 100%;
+					padding: 0 30px;
+					box-sizing: border-box;
+
+					& > div {
+						display: inline-block;
+						padding: 20px 15px;
+						float: right;
+						color: $ept-color-8;
+						font-size: 14px;
+						font-weight: normal;
+						text-transform: uppercase;
+						cursor: pointer;
+
+						&.current-date {
+							padding: 20px 15px 20px 0;
+							float: left;
+						}
+
+						&.ok {
+							padding: 20px 0 20px 15px;
+						}
+					}
+				}
+			}
+		}
+	}
+}

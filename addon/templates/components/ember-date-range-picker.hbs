@@ -1,0 +1,52 @@
+
+<div class="menu">
+	<a class="button select" {{action 'toggleList'}}>{{selected.name}}</a>
+
+	<span class="arrows">
+		<a class="button arrow left{{if disablePrev ' disabled'}}" {{action 'intervalBack'}}><span></span></a>
+		<a class="button arrow right{{if disableNext ' disabled'}}" {{action 'intervalForward'}}><span></span></a>
+	</span>
+
+	<span class="date">{{selectedDateRange}}</span>
+</div>
+
+<ul class="date-range-picker-dropdown list{{if isListOpen ' active'}}">
+	{{#each actionList as |item|}}
+		<li class="item{{if item.selected ' active'}}" {{action 'selectItem' item.id}}>{{item.name}}</li>
+	{{/each}}
+
+	<li class="item custom{{if isCustom ' active'}}" {{action 'selectCustom'}}>{{loc "Custom"}}</li>
+
+	<li class="date-range-picker-menu picker{{if isCustom ' active'}}">
+		<div class="header">
+			<span class="state start{{if isStart ' open'}}">
+				{{private/date-input timestamp=_start max=activeState.maxDate min=activeState.minDate format=format name=inputDataName
+					onclick=(action 'setFocus' 'start')
+					onfocus=(action 'setFocus' 'start')
+					ontabkey=(action 'tabAction')
+					onchange=(action 'dateChange')
+					onsubmit=(action 'applyRange')}}
+			</span>
+
+			<span>{{busy-loc "to"}}</span>
+
+			<span class="state end{{if isStart '' ' open'}}">
+				{{private/date-input timestamp=_end max=activeState.maxDate min=activeState.minDate format=format name=inputDataName
+					onclick=(action 'setFocus' 'end')
+					onfocus=(action 'setFocus' 'end')
+					ontabkey=(action 'tabAction')
+					onchange=(action 'dateChange')
+					onsubmit=(action 'applyRange')}}
+			</span>
+		</div>
+
+		<div class="body">
+			{{private/date-picker activeState=activeState onUpdate=(action 'calendarChange')}}
+		</div>
+
+		<div class="footer">
+			<a class="button blue" {{action 'applyRange'}}>{{busy-loc "Apply"}}</a>
+			<a class="button text" {{action 'cancelRange'}}>{{busy-loc "Cancel"}}</a>
+		</div>
+	</li>
+</ul>

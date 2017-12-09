@@ -1,0 +1,234 @@
+
+$day-size: ($ept-width * .1213);
+
+.busyweb {
+	&.emberdatetime {
+		&.p-date-picker {
+			width: $ept-width;
+
+			& > .calendar-container {
+				width: 100%;
+
+				& > .header-container {
+					display: inline-block;
+					width: 100%;
+					padding: 14px 30px;
+					background-color: $ept-color-7;
+					box-sizing: border-box;
+
+					& > div {
+						display: inline-block;
+						width: 100%;
+
+						& > div {
+							display: inline-block;
+							padding: 0 10px 0 0;
+							float: left;
+							color: $ept-color-4;
+							font-size: 34px;
+							font-weight: normal;
+							line-height: 40px;
+							text-align: left;
+						}
+
+						&.year-container {
+							& > div {
+								padding: 0;
+								color: $ept-color-4-1;
+								font-size: 16px;
+								font-weight: lighter;
+								line-height: 24px;
+							}
+						}
+					}
+				}
+
+				& > .calendar-body {
+					display: inline-block;
+					width: 100%;
+					padding: 10px 5px;
+					box-sizing: border-box;
+
+					& > .header {
+						display: inline-block;
+						width: 100%;
+						padding: 4px 10px;
+						text-align: center;
+						box-sizing: border-box;
+
+						& > div {
+							display: inline-block;
+							border-radius: 3px;
+							background-color: transparent;
+							box-sizing: border-box;
+
+							&:hover {
+								background-color: $ept-color-5;
+							}
+
+							&.month-year {
+								width: 150px;
+								height: 30px;
+								color: $ept-color-6-1;
+								font: 14px/30px $ept-font-family;
+								text-align: center;
+								cursor: initial;
+
+								&:hover {
+									background-color: transparent;
+								}
+							}
+
+							&.arrow {
+								width: 30px;
+								height: 30px;
+								padding: 7px;
+								float: left;
+								cursor: pointer;
+
+								& > span {
+									width: 100%;
+									height: 100%;
+									float: right;
+									border: 2px solid $ept-color-6-1;
+									box-sizing: border-box;
+								}
+
+								&.add-month {
+									float: right;
+
+									& > span {
+										transform: rotate(45deg) translate(-3px, 3px);
+										border-bottom-color: transparent;
+										border-left-color: transparent;
+									}
+								}
+
+								&.subtract-month {
+									& > span {
+										transform: rotate(45deg) translate(3px, -3px);
+										border-top-color: transparent;
+										border-right-color: transparent;
+									}
+								}
+							}
+						}
+					}
+
+					& > table {
+						&.calendar {
+							width: 100%;
+							font-size: 14px;
+							font-weight: lighter;
+							line-height: $day-size + 3;
+							text-align: center;
+							border-collapse: collapse;
+							user-select: none;
+
+							& > tr {
+								color: $ept-color-6-2;
+								font-weight: inherit;
+
+								& > th {
+									font-weight: inherit;
+									line-height: $day-size + 3;
+								}
+
+								& > td {
+									color: $ept-color-6-1;
+									font-weight: inherit;
+									cursor: pointer;
+									vertical-align: middle;
+
+									& > span {
+										display: inline-block;
+										width: $day-size;
+										height: $day-size;
+										border-radius: 20px;
+										line-height: $day-size + 3;
+									}
+
+									&.outside {
+										color: $ept-color-6-2;
+									}
+
+									&.disabled {
+										color: $ept-color-6-3;
+										cursor: not-allowed;
+									}
+
+									&.current {
+										color: $ept-color-4;
+
+										& > span {
+											background-color: $ept-color-3;
+										}
+									}
+
+									&.range {
+										background-color: $ept-color-2;
+										//color: $ept-color-4;
+
+										&.range-start,
+										&.range-end {
+											position: relative;
+											background-color: transparent;
+
+											& > span {
+												background-color: $ept-color-3;
+												color: $ept-color-1;
+											}
+
+											&:before {
+												position: absolute;
+												top: 0;
+												right: 0;
+												width: 50%;
+												height: 100%;
+												background-color: $ept-color-2;
+												content: '\00a0';
+												z-index: -1;
+											}
+										}
+
+										&.range-end {
+											color: $ept-color-1;
+
+											& > span {
+												background-color: $ept-color-3;
+											}
+
+											&:before {
+												left: 0;
+											}
+										}
+
+										&.current {
+											&.range-start {
+												& > span {
+													background-color: $ept-color-3;
+												}
+
+												&.range-end {
+													&:before {
+														background-color: transparent;
+													}
+												}
+											}
+
+											&.range-end {
+												& > span {
+													background-color: $ept-color-3;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

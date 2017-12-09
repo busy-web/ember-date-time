@@ -1,0 +1,69 @@
+
+.busyweb {
+	&.emberdatetime {
+		&.p-date-input {
+			width: 100%;
+			height: 40px;
+			border-color: #ccc;
+			color: darkgrey;
+			letter-spacing: 2px;
+			box-shadow: none;
+			cursor: pointer;
+			caret-color: transparent; // sass-lint:disable-line no-misspelled-properties
+
+			&:hover {
+				border-color: darken(aliceblue, 20%);
+			}
+
+			&::selection {
+				//background: darken(aliceblue, 10%);
+				color: #30aeef;
+			}
+
+			&::-webkit-selection {
+				//background: darken(aliceblue, 10%);
+				color: #30aeef;
+			}
+
+			&::-moz-selection {
+				//background: darken(aliceblue, 10%);
+				color: #30aeef;
+			}
+
+			&::-ms-selection {
+				//background: darken(aliceblue, 10%);
+				color: #30aeef;
+			}
+
+			&::-o-selection {
+				//background: darken(aliceblue, 10%);
+				color: #30aeef;
+			}
+
+			&:active,
+			&:focus,
+			&.active {
+				border-color: darken(aliceblue, 10%);
+				background-color: lighten(aliceblue, 2%);
+				box-shadow: none;
+			}
+
+			&.invalid {
+				border-color: lighten(indianred, 20%);
+				background-color: lighten(indianred, 35%);
+				//color: #fff;
+
+				&::selection { background: lighten(indianred, 30%); }
+				&::-webkit-selection { background: lighten(indianred, 30%); }
+				&::-moz-selection { background: lighten(indianred, 30%); }
+				&::-ms-selection { background: lighten(indianred, 30%); }
+				&::-o-selection { background: lighten(indianred, 30%); }
+			}
+
+			//& > input {
+			//	width: 100%;
+			//	height: 100%;
+			//}
+		}
+	}
+}

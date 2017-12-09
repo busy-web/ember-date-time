@@ -1,10 +1,11 @@
 {
-  "name": "ember-paper-time-picker",
+  "name": "@busy-web/ember-paper-time",
   "version": "1.3.0",
   "description": "Ember addon for a paper like time picker",
   "keywords": [
     "ember-addon",
-    "busybusy"
+    "busybusy",
+    "busyweb"
   ],
   "license": "MIT",
   "author": "busy inc",

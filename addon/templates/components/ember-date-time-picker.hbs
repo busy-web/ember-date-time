@@ -1,0 +1,13 @@
+
+<div class="main-container">
+	{{private/date-input timestamp=activeState.timestamp max=activeState.maxDate min=activeState.minDate format=activeState.format name=inputDataName defaultFocus=__defaultFocus
+		oncursor=(action 'stateChange')
+		onchange=(action 'dateChange')
+		onsubmit=(action 'applyChange')}}
+
+	<div class="dialog-container{{if activeState.isOpen ' show'}}{{if activeState.isTop ' top'}}">
+		{{#if activeState.isOpen}}
+			{{private/date-time-menu activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update')}}
+		{{/if}}
+	</div>
+</div>

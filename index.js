@@ -2,5 +2,5 @@
 'use strict';
 
 module.exports = {
-  name: 'ember-paper-time-picker'
+  name: '@busy-web/ember-date-time'
 };

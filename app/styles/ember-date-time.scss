@@ -1,0 +1,125 @@
+
+$ept-font-family: Geneva, sans-serif !default;
+
+$dark-theme: false !default;
+
+$light-1: #fff;
+$light-2: #f0f4f7;
+$light-3: #30aeef;
+$light-4: #fff;
+$light-4-1: rgba(255, 255, 255, .6);
+$light-5: #ccc;
+$light-6: #fff;
+$light-6-1: rgba(79, 79, 79, .8);
+$light-6-2: rgba(79, 79, 79, .6);
+$light-6-3: rgba(79, 79, 79, .2);
+$light-7: #384d60;
+$light-8: #30aeef;
+
+
+$dark-1: #2d3e50;
+$dark-2: #384d60;
+$dark-3: #68a3b5;
+$dark-4: #fff;
+$dark-4-1: rgba(255, 255, 255, .6);
+$dark-5: #ccc;
+$dark-6: #fff;
+$dark-6-1: rgba(255, 255, 255, .6);
+$dark-6-2: rgba(155, 155, 155, .6);
+$dark-6-3: rgba(255, 255, 255, .1);
+$dark-7: #384d60;
+$dark-8: #68a3b5;
+
+@if $dark-theme == true {
+	$light-1: $dark-1;
+	$light-2: $dark-2;
+	$light-3: $dark-3;
+	$light-4: $dark-4;
+	$light-4-1: $dark-4-1;
+	$light-5: $dark-5;
+	$light-6: $dark-6;
+	$light-6-1: $dark-6-1;
+	$light-6-2: $dark-6-2;
+	$light-6-3: $dark-6-3;
+	$light-7: $dark-7;
+	$light-8: $dark-8;
+}
+
+
+// define default colors
+$ept-color-1: false !default;
+$ept-color-2: false !default;
+$ept-color-3: false !default;
+$ept-color-4: false !default;
+$ept-color-4-1: false !default;
+$ept-color-5: false !default;
+$ept-color-6: false !default;
+$ept-color-6-1: false !default;
+$ept-color-6-2: false !default;
+$ept-color-6-3: false !default;
+$ept-color-7: false !default;
+$ept-color-8: false !default;
+
+@if $ept-color-1 == false {
+	$ept-color-1: $light-1;
+}
+
+@if $ept-color-2 == false {
+	$ept-color-2: $light-2;
+}
+
+@if $ept-color-3 == false {
+	$ept-color-3: $light-3;
+}
+
+@if $ept-color-4 == false {
+	$ept-color-4: $light-4;
+}
+
+@if $ept-color-4-1 == false {
+	$ept-color-4-1: $light-4-1;
+}
+
+@if $ept-color-5 == false {
+	$ept-color-5: $light-5;
+}
+
+@if $ept-color-6 == false {
+	$ept-color-6: $light-6;
+}
+
+@if $ept-color-6-1 == false {
+	$ept-color-6-1: $light-6-1;
+}
+
+@if $ept-color-6-2 == false {
+	$ept-color-6-2: $light-6-2;
+}
+
+@if $ept-color-6-3 == false {
+	$ept-color-6-3: $light-6-3;
+}
+
+@if $ept-color-7 == false {
+	$ept-color-7: $light-7;
+}
+
+@if $ept-color-8 == false {
+	$ept-color-8: $light-8;
+}
+
+
+
+// set this number to adjust picker size
+$ept-width: 330px !default;
+
+@if $ept-width < 280 {
+	$ept-width: 280px;
+}
+
+@import 'components/private/date-input';
+@import 'components/private/time-picker';
+@import 'components/private/date-picker';
+@import 'components/private/date-time-menu';
+@import 'components/date-time-picker';
+@import 'components/date-range-picker';
