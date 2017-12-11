@@ -11,7 +11,7 @@
 </div>
 
 <ul class="date-range-picker-dropdown list{{if isListOpen ' active'}}">
-	{{#each actionList as |item|}}
+	{{#each __actionList as |item|}}
 		<li class="item{{if item.selected ' active'}}" {{action 'selectItem' item.id}}>{{item.name}}</li>
 	{{/each}}
 

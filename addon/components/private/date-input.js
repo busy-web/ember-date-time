@@ -190,6 +190,17 @@ export default TextField.extend({
 	},
 
 	handleLetterKeys(event, handler) {
+		let { sectionFormat } = getMeta(this);
+		if (!/^(MMMM?|A|a)$/.test(sectionFormat)) {
+			return handler.preventDefault();
+		}
+
+		if (/^[aA]$/.test(sectionFormat)) {
+			meridianLetters(this, handler.keyName);
+		} else {
+			monthLetters(this, handler.keyName);
+		}
+
 		return handler.preventDefault();
 	},
 
@@ -459,6 +470,17 @@ function handleCursor(target, action='', triggerChange=true) {
 					setData(target.$(), 'selection', cursor.start);
 				}
 
+				// test for section with escape chars and skip the section
+				// if they are found.
+				let { start, sectionFormat } = getMeta(target);
+				if (/^\[([\s\S])*\]$/.test(sectionFormat)) {
+					if (action !== '') {
+						handleCursor(target, action, triggerChange);
+					} else {
+						handleCursor(target, (start === 0 ? 'next' : 'prev'), triggerChange);
+					}
+				}
+
 				if (triggerChange) {
 					let lastType = get(target, '__lastType');
 					let type = sectionFormatType(target);
@@ -551,6 +573,51 @@ function moveToPrevPosition(target) {
 			setData(target.$(), 'position', sectionFormat.length);
 			return { isNewInput: false, input: target };
 		});
+	}
+}
+
+function meridianLetters(target, keyName) {
+	const value = getValue(target);
+	let newVal;
+	if (/^[aA]$/.test(keyName)) {
+		newVal = value.replace(/[AP]M/, 'AM').replace(/[ap]m/, 'am');
+	} else if (/^[pP]$/.test(keyName)) {
+		newVal = value.replace(/[AP]M/, 'PM').replace(/[ap]m/, 'pm');
+	} else if (/^[mM]$/.test(keyName)) {
+		target.finalizeDateSection();
+		moveToNextPosition(target);
+	}
+
+	if (!isEmpty(newVal)) {
+		setValue(target, newVal);
+		handleCursor(target, '');
+	}
+}
+
+function monthLetters(target, keyName) {
+	const { sectionFormat, position, start, end }  = getMeta(target);
+	const value = getValue(target);
+	const current = value.substr(start, end-start);
+	const localeData = _time.localeData();
+	let monthData = localeData._monthsShort;
+	if (sectionFormat === 'MMMM') {
+		monthData = localeData._months;
+	}
+
+	let startStr = current.substr(0, position) + keyName;
+	let reg = new RegExp('^' + startStr, 'i');
+
+	let results = monthData.filter(i => reg.test(i));
+	let first = results[0];
+	if (!isEmpty(first)) {
+		let newVal = value.replace(current, first);
+		setValue(target, newVal);
+		if (results.length > 1) {
+			setData(target.$(), 'position', position+1);
+		} else {
+			target.finalizeDateSection();
+			moveToNextPosition(target);
+		}
 	}
 }
 

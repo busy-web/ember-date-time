@@ -5,7 +5,7 @@
 import { isEmpty } from '@ember/utils';
 import moment from 'moment';
 
-const REGX = new RegExp(/\/|\.|-|,|]| |\[|:/);
+const REGX = new RegExp(/\/|\.|-|,| |:/);
 
 export function longFormatDate(format) {
 	const localeData = moment.localeData();

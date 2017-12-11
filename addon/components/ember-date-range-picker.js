@@ -155,7 +155,6 @@ export default Component.extend({
 	},
 
 	setup: on('willInsertElement', function() {
-		const utc = get(this, 'utc');
 		const isUnix = !isNone(get(this, 'startUnix')) || !isNone(get(this, 'endUnix'));
 		set(this, '_isUnix', isUnix);
 
@@ -177,21 +176,13 @@ export default Component.extend({
 		}
 
 		if (!get(this, 'changeFired') && (!isNone(this.getAttr('startTime')) || !isNone(this.getAttr('startUnix')))) {
-			let time = this.getAttr('startTime') || _time.unix(this.getAttr('startUnix')).timestamp();
-			if (utc) {
-				time = _time.utcToLocal(time).timestamp();
-			}
-			setStart(this, time);
+			setStart(this, setUserStart(this, (this.getAttr('startTime') || this.getAttr('startUnix'))));
 		} else if (isNone(getStart(this))) {
 			setStart(this, _time().timestamp());
 		}
 
 		if (!get(this, 'changeFired') && (!isNone(this.getAttr('endTime')) || !isNone(this.getAttr('endUnix')))) {
-			let time = this.getAttr('endTime') || _time.unix(this.getAttr('endUnix')).timestamp();
-			if (utc) {
-				time = _time.utcToLocal(time).timestamp();
-			}
-			setEnd(this, time);
+			setEnd(this, setUserEnd(this, (this.getAttr('endTime') || this.getAttr('endUnix'))));
 		} else if (isNone(getEnd(this))) {
 			setEnd(this, _time().timestamp());
 		}
@@ -226,19 +217,21 @@ export default Component.extend({
 			}
 		}
 
-		let actionList = this.getAttr('actionList') || [];
+		let actionList = get(this, '__actionList') || [];
 		if (isEmpty(actionList)) {
 			let tList = [];
 			let sortKey = 400;
-			actionList.forEach(item => {
+			(this.getAttr('actionList') || []).forEach(item => {
 				if (!item.get && !item.set) {
 					item = EmberObject.create(item);
 				}
 
-				assert("Action list items must contain a `name` property", isNone(get(item, 'name')));
+				let name = get(item, 'name');
+
+				assert("Action list items must contain a `name` property", !isEmpty(name));
 
 				if (isNone(item, 'id')) {
-					set(item, 'id', underscore(get(item, 'name')));
+					set(item, 'id', underscore(name));
 				}
 
 				if (isNone(get(item, 'sort'))) {
@@ -256,7 +249,7 @@ export default Component.extend({
 			//
 			// id {string} - string id passed around for reference to a list item
 			// name {string} - the label to display in the list
-			// span {number} - the time span in time relational to {type}
+			// span {number|function} - the time span in time relational to {type} if function is provided it will be passed the current timestamp
 			// type {string} - the units used to calculate the time {span}
 			// sort {number} - a weighted number used to sort the list
 			// selected {boolean} a true if the item is currently the selected item
@@ -265,7 +258,7 @@ export default Component.extend({
 			actionList.push(EmberObject.create({id: 'monthly', name: loc('Monthly'), span: 1, type: 'months', sort: 300, selected: false}));
 
 			actionList = actionList.sort((a, b) => get(a, 'sort') > get(b, 'sort') ? 1 : -1);
-			set(this, 'actionList', actionList);
+			set(this, '__actionList', actionList);
 		}
 
 		if (isNone(get(this, 'selected'))) {
@@ -291,7 +284,7 @@ export default Component.extend({
 			const span = _time.daysApart(getStart(this), getEnd(this)) + 1;
 			return EmberObject.create({name: loc('Custom'), span, type: 'days'});
 		} else if (!isEmpty(get(this, 'defaultAction'))) {
-			return get(this, 'actionList').findBy('id', get(this, 'defaultAction'));
+			return get(this, '__actionList').findBy('id', get(this, 'defaultAction'));
 		} else {
 			const start = getStart(this);
 			const end = getEnd(this);
@@ -301,13 +294,15 @@ export default Component.extend({
 			let diff = Number.MAX_VALUE;
 
 			let selected;
-			get(this, 'actionList').forEach(item => {
-				const timeSpan = _time(start).add(item.span, item.type);
-				const itemSpan = Math.abs(startDate.diff(timeSpan, 'days'));
-				const nDiff = Math.abs(itemSpan - span);
-				if (diff > nDiff) {
-					selected = item;
-					diff = nDiff;
+			get(this, '__actionList').forEach(item => {
+				if (typeof item.span !== 'function') {
+					const timeSpan = _time(start).add(item.span, item.type);
+					const itemSpan = Math.abs(startDate.diff(timeSpan, 'days'));
+					const nDiff = Math.abs(itemSpan - span);
+					if (diff > nDiff) {
+						selected = item;
+						diff = nDiff;
+					}
 				}
 			});
 			return selected;
@@ -320,21 +315,31 @@ export default Component.extend({
 	},
 
 	getInterval(direction=0) {
-		const { span, type } = this.get('selected');
+		let { span, type } = this.get('selected');
 		let start, end;
 		if (!isEmpty(type) && !isNone(span)) {
 			const endType = type.replace(/s$/, '');
 			start = _time(getStart(this));
 
-			if (direction === -1) {
-				start = start.subtract(span, type).valueOf();
-			} else if (direction === 1) {
-				start = start.add(span, type).valueOf();
-			} else {
-				start = start.startOf(endType).valueOf();
-			}
+			if (typeof span === 'function') {
+				start = getUserStart(this);
+				end = getUserEnd(this);
 
-			end = _time(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
+				// get range defined by span function
+				let range = span.call(this.get('selected'), start, end, direction);
+				start = setUserStart(this, range.start);
+				end = setUserEnd(this, range.end);
+			} else {
+				if (direction === -1) {
+					start = start.subtract(span, type).valueOf();
+				} else if (direction === 1) {
+					start = start.add(span, type).valueOf();
+				} else {
+					start = start.startOf(endType).valueOf();
+				}
+
+				end = _time(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
+			}
 		}
 		return { start, end };
 	},
@@ -407,18 +412,8 @@ export default Component.extend({
 	 * @method triggerDateChange
 	 */
 	triggerDateChange() {
-		let start = getStart(this);
-		let end = getEnd(this);
-
-		if (get(this, 'utc')) {
-			start = _time.utcFromLocal(start).timestamp();
-			end = _time.utcFromLocal(end).timestamp();
-		}
-
-		if (get(this, '_isUnix')) {
-			start = _time(start).unix();
-			end = _time(end).unix();
-		}
+		let start = getUserStart(this);
+		let end = getUserEnd(this);
 
 		this.setState();
 
@@ -514,7 +509,7 @@ export default Component.extend({
 	 */
 	setSelected(id) {
 		// reset selected list
-		get(this, 'actionList').forEach(item => set(item, 'selected', false));
+		get(this, '__actionList').forEach(item => set(item, 'selected', false));
 
 		let selected;
 		if (isNone(id)) {
@@ -525,7 +520,7 @@ export default Component.extend({
 			selected = EmberObject.create({id: 'custom', name: loc('Custom'), span, type: 'days'});
 		} else {
 			set(this, 'isCustom', false);
-			selected = get(this, 'actionList').findBy('id', id);
+			selected = get(this, '__actionList').findBy('id', id);
 		}
 
 		set(selected, 'selected', true);
@@ -687,6 +682,51 @@ export default Component.extend({
 	}
 });
 
+function getUserStart(target) {
+	let time = getStart(target);
+	if (get(target, 'utc')) {
+		time = _time.utcFromLocal(time).timestamp();
+	}
+
+	if (get(target, '_isUnix')) {
+		time = _time(time).unix();
+	}
+	return time;
+}
+
+function getUserEnd(target) {
+	let time = getEnd(target);
+	if (get(target, 'utc')) {
+		time = _time.utcFromLocal(time).timestamp();
+	}
+
+	if (get(target, '_isUnix')) {
+		time = _time(time).unix();
+	}
+	return time;
+}
+
+function setUserStart(target, time) {
+	if (get(target, '_isUnix')) {
+		time = _time.unix(time).timestamp();
+	}
+
+	if (get(target, 'utc')) {
+		time = _time.utcToLocal(time).timestamp();
+	}
+	return time;
+}
+
+function setUserEnd(target, time) {
+	if (get(target, '_isUnix')) {
+		time = _time.unix(time).timestamp();
+	}
+
+	if (get(target, 'utc')) {
+		time = _time.utcToLocal(time).timestamp();
+	}
+	return time;
+}
 
 function getStart(target) {
 	return get(target, '_start');
@@ -711,7 +751,7 @@ function setEnd(target, time) {
 }
 
 function findAction(target, key) {
-	let actions = get(target, 'actionList').map(i => {
+	let actions = get(target, '__actionList').map(i => {
 		let id = i.id;
 		let regx = new RegExp('^' + id.charAt(0).toLowerCase() + '$');
 		return { id, regx };

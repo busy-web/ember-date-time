@@ -50,20 +50,14 @@
 
 			&.invalid {
 				border-color: lighten(indianred, 20%);
-				background-color: lighten(indianred, 35%);
-				//color: #fff;
+				background-color: lighten(indianred, 40%);
 
-				&::selection { background: lighten(indianred, 30%); }
-				&::-webkit-selection { background: lighten(indianred, 30%); }
-				&::-moz-selection { background: lighten(indianred, 30%); }
-				&::-ms-selection { background: lighten(indianred, 30%); }
-				&::-o-selection { background: lighten(indianred, 30%); }
+				//&::selection { background: lighten(indianred, 30%); }
+				//&::-webkit-selection { background: lighten(indianred, 30%); }
+				//&::-moz-selection { background: lighten(indianred, 30%); }
+				//&::-ms-selection { background: lighten(indianred, 30%); }
+				//&::-o-selection { background: lighten(indianred, 30%); }
 			}
-
-			//& > input {
-			//	width: 100%;
-			//	height: 100%;
-			//}
 		}
 	}
 }
