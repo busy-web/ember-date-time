@@ -1,8 +1,8 @@
 
-<div class="paper-datetime-picker-main">
+<div class="ember-date-time-picker-main">
 	<div class="component">
 		<header>
-			<div><span>ember</span><span>paper</span><span>datetime</span></div>
+			<div><span>ember</span><span>date</span><span>time</span></div>
 		</header>
 
 		<div>
@@ -15,11 +15,11 @@
 				</ul>
 				<h3>Code:</h3>
 				<code>
-					\{{paper-datetime-picker timestamp=milliseconds}}
+					\{{ember-date-time-picker timestamp=milliseconds}}
 				</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker timestamp=model.picker0.standard.timestamp}}
+					{{ember-date-time-picker timestamp=model.picker0.standard.timestamp}}
 				</span>
 			</section>
 
@@ -32,11 +32,11 @@
 				</ul>
 				<h3>Code:</h3>
 				<code>
-					\{{paper-datetime-picker unix=seconds}}
+					\{{ember-date-time-picker unix=seconds}}
 				</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker unix=model.picker1.seconds.timestamp}}
+					{{ember-date-time-picker unix=model.picker1.seconds.timestamp}}
 				</span>
 			</section>
 
@@ -51,11 +51,11 @@
 				</ul>
 				<h3>Code:</h3>
 				<code>
-					\{{paper-datetime-picker timestamp=milliseconds minDate=milliseconds maxDate=milliseconds}}
+					\{{ember-date-time-picker timestamp=milliseconds minDate=milliseconds maxDate=milliseconds}}
 				</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker timestamp=model.picker2.standard.timestamp minDate=model.picker2.standard.minDate maxDate=model.picker2.standard.maxDate}}
+					{{ember-date-time-picker timestamp=model.picker2.standard.timestamp minDate=model.picker2.standard.minDate maxDate=model.picker2.standard.maxDate}}
 				</span>
 			</section>
 
@@ -70,11 +70,11 @@
 				</ul>
 				<h3>Code:</h3>
 				<code>
-					\{{paper-datetime-picker timestamp=seconds minDate=seconds maxDate=seconds}}
+					\{{ember-date-time-picker timestamp=seconds minDate=seconds maxDate=seconds}}
 				</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker timestamp=model.picker3.seconds.timestamp minDate=model.picker3.seconds.minDate maxDate=model.picker3.seconds.maxDate}}
+					{{ember-date-time-picker timestamp=model.picker3.seconds.timestamp minDate=model.picker3.seconds.minDate maxDate=model.picker3.seconds.maxDate}}
 				</span>
 			</section>
 
@@ -87,10 +87,10 @@
 					<li><b>utc</b><i>boolean</i><span>defaults to false, if set to true: unix, minDate, and maxDate will not be converted to local time zones</span></li>
 				</ul>
 				<h3>Code:</h3>
-				<code>\{{paper-datetime-picker timestamp=milliseconds utc=true}}</code>
+				<code>\{{ember-date-time-picker timestamp=milliseconds utc=true}}</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker timestamp=model.picker4.standardUTC.timestamp utc=true}}
+					{{ember-date-time-picker timestamp=model.picker4.standardUTC.timestamp utc=true}}
 				</span>
 			</section>
 
@@ -105,10 +105,10 @@
 					<li><b>utc</b><i>boolean</i><span>defaults to false, if set to true: unix, minDate, and maxDate will not be converted to local time zones</span></li>
 				</ul>
 				<h3>Code:</h3>
-				<code>\{{paper-datetime-picker unix=seconds minDate=seconds maxDate=seconds utc=true}}</code>
+				<code>\{{ember-date-time-picker unix=seconds minDate=seconds maxDate=seconds utc=true}}</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker unix=model.picker5.secondsUTC.timestamp minDate=model.picker5.secondsUTC.minDate maxDate=model.picker5.secondsUTC.maxDate utc=true}}
+					{{ember-date-time-picker unix=model.picker5.secondsUTC.timestamp minDate=model.picker5.secondsUTC.minDate maxDate=model.picker5.secondsUTC.maxDate utc=true}}
 				</span>
 			</section>
 
@@ -121,10 +121,10 @@
 					<li><b>hideTime</b><i>boolean</i><span>set to true to hide time picker</span></li>
 				</ul>
 				<h3>Code:</h3>
-				<code>\{{paper-datetime-picker timestamp=milliseconds hideTime=true}}</code>
+				<code>\{{ember-date-time-picker timestamp=milliseconds hideTime=true}}</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker timestamp=model.picker6.standard.timestamp hideTime=true}}
+					{{ember-date-time-picker timestamp=model.picker6.standard.timestamp hideTime=true}}
 				</span>
 			</section>
 
@@ -137,10 +137,10 @@
 					<li><b>hideDate</b><i>boolean</i><span>set to true to hide date picker</span></li>
 				</ul>
 				<h3>Code:</h3>
-				<code>\{{paper-datetime-picker timestamp=milliseconds hideDate=true}}</code>
+				<code>\{{ember-date-time-picker timestamp=milliseconds hideDate=true}}</code>
 				<h3>Result:</h3>
 				<span class="code-result">
-					{{paper-datetime-picker timestamp=model.picker7.standard.timestamp hideDate=true}}
+					{{ember-date-time-picker timestamp=model.picker7.standard.timestamp hideDate=true}}
 				</span>
 			</section>
 		</div>

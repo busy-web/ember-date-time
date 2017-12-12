@@ -3,7 +3,7 @@
  *
  */
 import { helper } from '@ember/component/helper';
-import paperTime from 'ember-paper-time-picker/utils/paper-time';
+import paperTime from '@busy-web/ember-date-time/utils/time';
 
 export function formatDate(params) {
 	const timestamp = params[0];

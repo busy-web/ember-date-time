@@ -1,1 +1,1 @@
-export { default } from 'ember-paper-time-picker/utils/string';
+export { default } from '@busy-web/ember-date-time/utils/string';

@@ -1,1 +1,1 @@
-export { default } from 'ember-paper-time-picker/utils/snap-utils';
+export { default } from '@busy-web/ember-date-time/utils/snap-utils';

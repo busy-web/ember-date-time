@@ -1,7 +1,7 @@
 {
-  "name": "@busy-web/ember-paper-time",
+  "name": "@busy-web/ember-date-time",
   "version": "1.3.0",
-  "description": "Ember addon for a paper like time picker",
+  "description": "Date time & and range picker for ember addon",
   "keywords": [
     "ember-addon",
     "busybusy",
@@ -13,7 +13,7 @@
     "doc": "doc",
     "test": "tests"
   },
-  "repository": "https://github.com/busybusy/webapp-ember-paper-time-picker.git",
+  "repository": "https://github.com/busy-web/ember-date-time.git",
   "scripts": {
     "build": "ember build",
     "start": "ember server",

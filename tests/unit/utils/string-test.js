@@ -5,6 +5,6 @@ module('Unit | Utility | string');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = string();
+  let result = string;
   assert.ok(result);
 });

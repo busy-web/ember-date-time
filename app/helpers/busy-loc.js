@@ -1,1 +1,1 @@
-export { default, busyLoc } from 'ember-paper-time-picker/helpers/busy-loc';
+export { default, busyLoc } from '@busy-web/ember-date-time/helpers/busy-loc';

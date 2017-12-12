@@ -1,5 +1,5 @@
 import EmberObject from '@ember/object';
-import KeyEventsMixin from 'ember-paper-time-picker/mixins/key-events';
+import KeyEventsMixin from '@busy-web/ember-date-time/mixins/key-events';
 import { module, test } from 'qunit';
 
 module('Unit | Mixin | key events');

@@ -1,1 +1,1 @@
-export { default, formatDate } from 'ember-paper-time-picker/helpers/format-date';
+export { default, formatDate } from '@busy-web/ember-date-time/helpers/format-date';

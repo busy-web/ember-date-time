@@ -18,7 +18,7 @@ const activeState = _state({
 test('it renders', function(assert) {
 	this.set('activeState', activeState);
 
-  this.render(hbs`{{privates/date-picker activeState=activeState}}`);
+  this.render(hbs`{{private/date-picker activeState=activeState}}`);
 
   assert.ok(this.$().text().trim());
 });
@@ -26,7 +26,7 @@ test('it renders', function(assert) {
 test('check calender values', function(assert) {
 	this.set('activeState', activeState);
 
-  this.render(hbs`{{privates/date-picker activeState=activeState}}`);
+  this.render(hbs`{{private/date-picker activeState=activeState}}`);
 
   assert.equal(this.$('.month-container > .week-day').text().trim(), moment(this.get('paper.timestamp')).format('ddd') + ',', 'Day of the week');
 	assert.equal(this.$('.month-container > .month').text().trim(), moment(this.get('paper.timestamp')).format('MMM'), 'Month');
@@ -44,7 +44,7 @@ test('add and subtract months from calender', function(assert) {
 
 	this.set('activeState', activeState);
 
-	this.render(hbs`{{privates/date-picker activeState=activeState}}`);
+	this.render(hbs`{{private/date-picker activeState=activeState}}`);
 
   this.$('.add-month').click();
   assert.equal(this.$('.month-year').text().trim(), addMonth, 'Add 1 month');
@@ -62,7 +62,7 @@ test('click on day', function(assert) {
 		assert.equal(moment(time).date() + '', prevDay.text().trim());
 	});
 
-  this.render(hbs`{{privates/date-picker activeState=activeState onUpdate=clickAction}}`);
+  this.render(hbs`{{private/date-picker activeState=activeState onUpdate=clickAction}}`);
 
 	const prevDay = this.$('.week-row > .day.current').prev();
   prevDay.click();

@@ -1,38 +1,26 @@
 import { moduleForComponent, test } from 'ember-qunit';
-import paperDate from 'ember-paper-time-picker/utils/paper-date';
+import _state from '@busy-web/ember-date-time/utils/state';
 import moment from 'moment';
 
-moduleForComponent('interfaces/date-picker', 'Unit | Component | interfaces/date picker', {
+moduleForComponent('private/date-picker', 'Unit | Component | private/date picker', {
   unit: true
 });
 
 const timestamp = moment().valueOf();
 
-const paper = paperDate({
-	timestamp: timestamp,
-});
-
-const calendar = paperDate({
+const activeState = _state({
 	timestamp: timestamp,
 });
 
 test('it renders', function(assert) {
-  const args = {
-		paperDate: paper,
-		paperCalendar: calendar
-	};
-
+  const args = { activeState };
   this.subject(args);
   this.render();
   assert.ok(this.$().text().trim());
 });
 
 test('set timestamp', function(assert) {
-  const args = {
-		paperDate: paper,
-		paperCalendar: calendar
-	};
-
+  const args = { activeState };
   let component = this.subject(args);
   let newTimestamp = moment().add('1', 'days');
 
@@ -42,11 +30,7 @@ test('set timestamp', function(assert) {
 });
 
 test('set calendar date', function(assert) {
-  const args = {
-		paperDate: paper,
-		paperCalendar: calendar
-	};
-
+  const args = { activeState };
   let component = this.subject(args);
   let newTimestamp = moment().add('6', 'days');
 

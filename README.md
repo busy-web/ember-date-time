@@ -1,25 +1,25 @@
-ember-paper-time-picker
+@busy-web/ember-date-time
 ==============================================================================
 
-[![npm version](https://badge.fury.io/js/ember-paper-time-picker.svg)](https://badge.fury.io/js/ember-paper-time-picker)
+[![npm version](https://badge.fury.io/js/busy-web/ember-date-time.svg)](https://badge.fury.io/js/busy-web/ember-date-time)
 
-[![Build Status](https://travis-ci.org/busybusy/webapp-ember-paper-time-picker.svg?branch=master)](https://travis-ci.org/busybusy/webapp-ember-paper-time-picker)
+[![Build Status](https://travis-ci.org/busy-web/ember-date-time.svg?branch=master)](https://travis-ci.org/busy-web/ember-date-time)
 
-[![Ember Observer Score](https://emberobserver.com/badges/ember-paper-time-picker.svg)](https://emberobserver.com/addons/ember-paper-time-picker)
+[![Ember Observer Score](https://emberobserver.com/badges/busy-web/ember-date-time.svg)](https://emberobserver.com/addons/busy-web/ember-date-time)
 [![Ember badge][ember-badge]][embadge]
 
-[![Code Climate](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/badges/gpa.svg)](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker)
-[![Test Coverage](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/badges/coverage.svg)](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/coverage)
-[![Issue Count](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker/badges/issue_count.svg)](https://codeclimate.com/github/busybusy/webapp-ember-paper-time-picker)
+[![Code Climate](https://codeclimate.com/github/busy-web/ember-date-time/badges/gpa.svg)](https://codeclimate.com/github/busy-web/ember-date-time)
+[![Test Coverage](https://codeclimate.com/github/busy-web/ember-date-time/badges/coverage.svg)](https://codeclimate.com/github/busy-web/ember-date-time/coverage)
+[![Issue Count](https://codeclimate.com/github/busy-web/ember-date-time/badges/issue_count.svg)](https://codeclimate.com/github/busy-web/ember-date-time)
 
-[ember cli](https://ember-cli.com/) addon for a Paper like date picker
+[ember cli](https://ember-cli.com/) Date time picker and date range picker for ember addon
 
 Installation
 ------------------------------------------------------------------------------
 
 Install this addon using ember-cli
 ```
-ember install ember-paper-time-picker
+ember install @busy-web/ember-date-time
 ```
 
 Usage
@@ -28,10 +28,10 @@ Usage
 Use ember-jsignature in your template:
 ```
 // basic datetime picker
-{{paper-datetime-picker timestamp=model.picker0.standard.timestamp}}
+{{ember-date-time-picker timestamp=model.picker0.standard.timestamp}}
 
 // basic datetime picker with unix timestamp
-{{paper-datetime-picker unix=model.picker1.seconds.timestamp}}
+{{ember-date-time-picker unix=model.picker1.seconds.timestamp}}
 ```
 
 Documentation

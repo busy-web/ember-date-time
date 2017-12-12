@@ -18,7 +18,7 @@ const activeState = _state({
 test('it renders', function(assert) {
 	this.set('activeState', activeState);
 
-  this.render(hbs`{{privates/time-picker activeState=activeState}}`);
+  this.render(hbs`{{private/time-picker activeState=activeState}}`);
 
   assert.ok(this.$().text().trim());
 });
@@ -26,14 +26,13 @@ test('it renders', function(assert) {
 test('changes from hours to minutes', function(assert) {
 	activeState.set('section', 'hours');
 	this.set('activeState', activeState);
+  this.render(hbs`{{private/time-picker activeState=activeState}}`);
 
-  this.render(hbs`{{privates/time-picker activeState=activeState}}`);
-
-  assert.ok(this.$('.c-time-picker').hasClass('hours'), 'State is Hours');
+  assert.ok(this.$('.p-time-picker').hasClass('hours'), 'State is Hours');
 
 	this.set('activeState.section', 'minutes');
 
-  assert.ok(this.$('.c-time-picker').hasClass('minutes'), 'State is Minutes');
+  assert.ok(this.$('.p-time-picker').hasClass('minutes'), 'State is Minutes');
 });
 
 test('changes from pm to am and back', function(assert) {
@@ -46,7 +45,7 @@ test('changes from pm to am and back', function(assert) {
 		meridian.next = _meridian;
 	});
 
-  this.render(hbs`{{privates/time-picker activeState=activeState onUpdate=(action update)}}`);
+  this.render(hbs`{{private/time-picker activeState=activeState onUpdate=(action update)}}`);
 
 	// if it is pm then swith to am to start tests
 	if (meridian.start === 'PM') {
@@ -67,31 +66,13 @@ test('changes from pm to am and back', function(assert) {
 	assert.ok(meridian.start !== meridian.next, 'PM to AM switch');
 });
 
-// this test is failing sometimes and not failing sometimes
-//
-//
-//test('test hour and minute headers', function(assert) {
-//	this.set('activeState', activeState);
-//
-//  this.render(hbs`{{privates/time-picker activeState=activeState}}`);
-//
-//  let hour = moment(this.get('paper.timestamp')).hour();
-//  let minute = moment(this.get('paper.timestamp')).minute();
-//
-//	hour = formatNumber(hour % 12);
-//  minute = ('0' + minute).slice(-2);
-//
-//  assert.equal(this.$('.numbers-container > .hours').text().trim(), hour);
-//  assert.equal(this.$('.numbers-container > .minutes').text().trim(), minute);
-//});
-
 test('click random minute sectionMin', function(assert) {
 	activeState.set('section', 'minutes');
 	this.set('activeState', activeState);
 
-  this.render(hbs`{{privates/time-picker activeState=activeState}}`);
+  this.render(hbs`{{private/time-picker activeState=activeState}}`);
 
-  let randomSection = ('0' + Math.round(Math.random() * (60 - 1) + 1)).slice(-2);
+  let randomSection = ('0' + Math.round(Math.random() * (59 - 1) + 1)).slice(-2);
   let id = '#section-minutes-' + randomSection;
 
   this.$(id).click();
