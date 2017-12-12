@@ -436,10 +436,12 @@ export default Component.extend({
 
 		let input = (isStart) ? 'start' : 'end';
 		let el = this.$(`.state.${input} > input`);
-		el.data('selection', selection);
-		el.data('position', 0);
+		if (el && el.data) {
+			el.data('selection', selection);
+			el.data('position', 0);
 
-		next(() => el.focus());
+			next(() => el.focus());
+		}
 	},
 
 	/**
