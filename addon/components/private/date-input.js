@@ -35,7 +35,7 @@ export default TextField.extend({
 	format: 'MM/DD/YYYY',
 
 	_date: null,
-	value: null,
+	//value: '',
 	active: false,
 
 	name: null,
@@ -44,7 +44,13 @@ export default TextField.extend({
 	defaultFocus: 0,
 
 	isDateInRange: computed('value', function() {
-		const { position } = getMeta(this);
+		// before render the position has not been set so
+		// resume calculations as if position were 0
+		let position = 0;
+		if (!this.$().length && !isEmpty(getData(this.$(), 'format'))) {
+			let meta = getMeta(this);
+			position = meta.position;
+		}
 
 		// when value is null or lastNumIndex is null or lastNumIndex is not 0 then it is in a temp state when invalid is ignored
 		if (isNone(getValue(this)) || isNone(position) || position !== 0) {
@@ -61,28 +67,40 @@ export default TextField.extend({
 		return false;
 	}),
 
-	setupComponent: on('willInsertElement', function() {
-		let format = get(this, 'format');
-		format = longFormatDate(format);
-
-		this.timestampChange();
-
-		setData(this.$(), 'format', format);
-		setData(this.$(), 'selection', 0);
-		setData(this.$(), 'position', 0);
-		setData(this.$(), 'linked', null);
-
-		setValue(this, getValue(this));
-		set(this, 'keyboard', getKeyboardStyle());
-	}),
-
-	timestampChange: observer('timestamp', function() {
+	/**
+	 * initialize the value before the component
+	 * is rendered.
+	 *
+	 */
+	setupComponent: on('init', function() {
 		let date;
 		if (!isNone(get(this, 'timestamp'))) {
 			date = _time(get(this, 'timestamp'));
 		} else {
 			date = _time();
 		}
+		setValue(this, date.format(get(this, 'format')));
+	}),
+
+	/**
+	 * initialize the DOM object after render has
+	 * finished.
+	 *
+	 */
+	finishSetup: on('didInsertElement', function() {
+		let format = get(this, 'format');
+		format = longFormatDate(format);
+
+		setData(this.$(), 'format', format);
+		setData(this.$(), 'selection', 0);
+		setData(this.$(), 'position', 0);
+		setData(this.$(), 'linked', null);
+
+		set(this, 'keyboard', getKeyboardStyle());
+	}),
+
+	timestampChange: observer('timestamp', function() {
+		let date = _time(get(this, 'timestamp'));
 		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
 	}),
