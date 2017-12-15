@@ -3,14 +3,13 @@
 
 [![npm version](https://badge.fury.io/js/%40busy-web%2Fember-date-time.svg)](https://badge.fury.io/js/%40busy-web%2Fember-date-time)
 
-[![Build Status](https://travis-ci.org/busy-web/ember-date-time.svg?branch=master)](https://travis-ci.org/busy-web/ember-date-time)
+[comment]: # [![Build Status](https://travis-ci.org/busy-web/ember-date-time.svg?branch=master)](https://travis-ci.org/busy-web/ember-date-time)
 
 [![Ember Observer Score](https://emberobserver.com/badges/busy-web/ember-date-time.svg)](https://emberobserver.com/addons/busy-web/ember-date-time)
 [![Ember badge][ember-badge]][embadge]
 
-[![Code Climate](https://codeclimate.com/github/busy-web/ember-date-time/badges/gpa.svg)](https://codeclimate.com/github/busy-web/ember-date-time)
-[![Test Coverage](https://codeclimate.com/github/busy-web/ember-date-time/badges/coverage.svg)](https://codeclimate.com/github/busy-web/ember-date-time/coverage)
-[![Issue Count](https://codeclimate.com/github/busy-web/ember-date-time/badges/issue_count.svg)](https://codeclimate.com/github/busy-web/ember-date-time)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/33200deefc810162f315/test_coverage)](https://codeclimate.com/repos/5a34307eeeb19e02d300012d/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/33200deefc810162f315/maintainability)](https://codeclimate.com/repos/5a34307eeeb19e02d300012d/maintainability)
 
 [ember cli](https://ember-cli.com/) Date time picker and date range picker for ember addon
 
