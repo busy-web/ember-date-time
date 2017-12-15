@@ -1,7 +1,7 @@
 @busy-web/ember-date-time
 ==============================================================================
 
-[![npm version](https://badge.fury.io/js/busy-web/ember-date-time.svg)](https://badge.fury.io/js/busy-web/ember-date-time)
+[![npm version](https://badge.fury.io/js/%40busy-web%2Fember-date-time.svg)](https://badge.fury.io/js/%40busy-web%2Fember-date-time)
 
 [![Build Status](https://travis-ci.org/busy-web/ember-date-time.svg?branch=master)](https://travis-ci.org/busy-web/ember-date-time)
 
