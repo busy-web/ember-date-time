@@ -5,8 +5,11 @@
 import { isNone } from '@ember/utils';
 import EmberObject from '@ember/object';
 import { formatNumber } from './string';
-import Snap from 'snap-svg';
-import mina from 'mina';
+//import Snap from 'snapsvg';
+//import mina from 'mina';
+
+const Snap = {};
+const mina = {};
 
 /***/
 const SnapUtils = EmberObject.extend();
