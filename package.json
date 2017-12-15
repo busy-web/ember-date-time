@@ -8,7 +8,7 @@
     "busyweb"
   ],
   "license": "MIT",
-  "author": "busy inc",
+  "author": "@busy-web",
   "directories": {
     "doc": "doc",
     "test": "tests"
