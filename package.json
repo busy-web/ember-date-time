@@ -13,7 +13,10 @@
     "doc": "doc",
     "test": "tests"
   },
-  "repository": "https://github.com/busy-web/ember-date-time.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/busy-web/ember-date-time.git"
+  },
   "scripts": {
     "build": "ember build",
     "start": "ember server",
@@ -52,5 +55,10 @@
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/busy-web/ember-date-time/issues"
+  },
+  "homepage": "https://github.com/busy-web/ember-date-time#readme",
+  "main": "index.js"
 }
