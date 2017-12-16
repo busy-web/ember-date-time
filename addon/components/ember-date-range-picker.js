@@ -295,7 +295,6 @@ export default Component.extend({
 
 			let selected;
 			get(this, '__actionList').forEach(item => {
-				console.log('item.span', item.span);
 				if (typeof item.span !== 'function') {
 					const timeSpan = _time(start).add(item.span, item.type);
 					const itemSpan = Math.abs(startDate.diff(timeSpan, 'days'));
