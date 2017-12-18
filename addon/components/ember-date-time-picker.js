@@ -114,7 +114,7 @@ export default Component.extend(keyEvents, {
 	 * @method initialize
 	 * @constructor
 	 */
-	initialize: on('willInsertElement', function() {
+	initialize: on('init', function() {
 		// get locale converted format str
 		let format = get(this, 'format');
 		format = longFormatDate(format);
@@ -232,14 +232,16 @@ export default Component.extend(keyEvents, {
 
 	focusState(section) {
 		let el = this.$(`input`);
-		let index;
-		if (!isEmpty(section)) {
-			index = findSectionIndex(this, section);
-		} else {
-			index = findSectionIndex(this, 'hours');
+		if (el && el.length) {
+			let index;
+			if (!isEmpty(section)) {
+				index = findSectionIndex(this, section);
+			} else {
+				index = findSectionIndex(this, 'hours');
+			}
+			el.data('selection', index);
+			el.focus();
 		}
-		el.data('selection', index);
-		el.focus();
 	},
 
 	shouldPickerOpenTop() {

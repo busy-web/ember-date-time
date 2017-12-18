@@ -47,7 +47,7 @@ export default TextField.extend({
 		// before render the position has not been set so
 		// resume calculations as if position were 0
 		let position = 0;
-		if (!this.$().length && !isEmpty(getData(this.$(), 'format'))) {
+		if (this.$() && this.$().length && !isEmpty(getData(this.$(), 'format'))) {
 			let meta = getMeta(this);
 			position = meta.position;
 		}
