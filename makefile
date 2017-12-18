@@ -1,5 +1,5 @@
 ###
-# busybusy ember-cli update script
+# busy-web ember-cli install and update script
 #
 ###
 
@@ -14,50 +14,27 @@ NODE_FILES := $(shell stat -f %N ./node_modules 2>/dev/null)
 DIST_FILES := $(shell stat -f %N ./dist 2>/dev/null)
 TMP_FILES := $(shell stat -f %N ./tmp 2>/dev/null)
 
-# user permission
-PERMISSION := $(shell stat -f %Su:%Sg ~/.ssh 2>/dev/null)
-
 # standard commands
 all: clean install
 
 # Install project packages
 install:
-	yarn install
-
-build:
 	yarn
 
-patch:
-	npm version patch
-	npm publish --access=public
-
-minor:
-	npm version minor
-	npm publish --access=public
+lockfile: clean
+	rm -f yarn.lock
+	yarn install
 
 # cleanup files and clear caches
 clean:
 ifdef NODE_FILES # remove node files
-	rm -r ./node_modules
+	rm -rf ./node_modules
 endif
 ifdef DIST_FILES # remove dist files
-	rm -r ./dist
+	rm -rf ./dist
 endif
 ifdef TMP_FILES # remove tmp files
-	rm -r ./tmp
-endif
-
-# Change node file permission so sudo is not required for
-# global installs.
-permission:
-ifdef PERMISSION
-ifeq ($(UNAME_S),Darwin)
-	sudo chown $(PERMISSION) /usr/local/bin/npm
-else
-	sudo chown $(PERMISSION) /usr/bin/npm
-endif
-	sudo chown -R $(PERMISSION) /usr/local/lib/node_modules
-	sudo chown -R $(PERMISSION) ~/.npm
+	rm -rf ./tmp
 endif
 
 help:
@@ -76,10 +53,6 @@ help:
 	@echo "  install: "
 	@echo "    * Set up dev environment dependency packes"
 	@echo ""
-	@echo "  build: "
-	@echo "    * Update packes to current available packages according to package.json"
-	@echo "     * Use this to update packages when ember-cli reports out of date packes"
-	@echo ""
 	@echo "  lockfile: "
-	@echo "    * Updates the lock file for yarn"
+	@echo "    * Deletes the yarn.lock file regenerates a new lock file after install"
 	@echo ""
