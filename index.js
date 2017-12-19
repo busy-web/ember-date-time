@@ -23,7 +23,7 @@ module.exports = {
   included() {
     this._super.included.apply(this, arguments);
     //this.import('vendor/eve/eve.js', { using: [ { transformation: 'amd', as: 'eve' } ] });
-    this.import('vendor/snapsvg/snap.svg.js', { using: [ { transformation: 'global', as: 'snapsvg' } ] });
+    this.import('vendor/snapsvg/snap.svg.js', { using: [ { transformation: 'global', as: 'snapsvg', export: ['Snap', 'mina'] } ] });
   },
 
 	importTransforms() {
@@ -32,8 +32,9 @@ module.exports = {
         transform: (tree, options) => {
           let amdTransform = stew.map(tree, (content, relativePath) => {
             const name = options[relativePath].as;
+            const _export = options[relativePath].export;
             if (name) {
-							return defineValue(name, content);
+							return defineValue(name, _export, content);
             } else {
               return content;
             }
@@ -43,16 +44,21 @@ module.exports = {
         },
         processOptions: (assetPath, entry, options) => {
           if (!entry.as) {
-            throw new Error(`while importing ${assetPath}: amd transformation requires an \`as\` argument that specifies the desired module name`);
+            throw new Error(`while importing ${assetPath}: global transformation requires an \`as\` argument that specifies the desired module name`);
+          }
+
+					if (!entry.export) {
+            throw new Error(`while importing ${assetPath}: global transformation requires an \`export\` argument [] that specifies the desired export values`);
           }
 
           // If the import is specified to be a different name we must break because of the broccoli rewrite behavior.
           if (Object.keys(options).indexOf(assetPath) !== -1 && options[assetPath].as !== entry.as) {
-            throw new Error(`Highlander error while importing ${assetPath}. You may not import an AMD transformed asset at different module names.`);
+            throw new Error(`Highlander error while importing ${assetPath}. You may not import an global transformed asset at different module names.`);
           }
 
           options[assetPath] = {
             as: entry.as,
+						export: entry.export
           };
 
           return options;
@@ -62,18 +68,13 @@ module.exports = {
   }
 };
 
-function defineValue(name, content) {
-return `define(['${name}'], function() {
-	return (function(self) {
-		const window = Object.assign({}, self);
-		return (function() {
-			${content}
-			let result = Object.keys(window).filter(i => !self.hasOwnProperty(i));
-			let ret = {};
-			result.forEach(key => ret[key] = window[key]);
-			console.log(ret);
-			return ret;
-		}).bind(window)();
-	})(window);
-});`
+function defineValue(name, _export, content) {
+	return `define(['${name}'], function() { ` +
+		`return (function() {\n` +
+			`${content}\n` +
+			`let ret = {};` +
+			`'${_export.join(',')}'.split(',').forEach(key => ret[key] = window[key]);` +
+			`return ret;` +
+		`}).bind(window)();` +
+	`});`;
 }

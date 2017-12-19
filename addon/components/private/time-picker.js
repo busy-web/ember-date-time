@@ -6,11 +6,17 @@ import Component from '@ember/component';
 import { isNone } from '@ember/utils';
 import { assert } from '@ember/debug';
 import { on } from '@ember/object/evented';
+import { Snap } from 'snapsvg';
 import { get, set, computed, observer } from '@ember/object';
 import _time from '@busy-web/ember-date-time/utils/time';
 import { formatNumber, stringToInteger } from '@busy-web/ember-date-time/utils/string';
 import DragDrop from '@busy-web/ember-date-time/utils/drag-drop';
-import SnapUtils from '@busy-web/ember-date-time/utils/snap-utils';
+import {
+	enableClockNumber,
+	disableClockNumber,
+	addElement,
+	activateClockNumber
+} from '@busy-web/ember-date-time/utils/snap-utils';
 import layout from '../../templates/components/private/time-picker';
 
 /***/
@@ -299,12 +305,12 @@ export default Component.extend({
 			const id = el.attr('id');
 			for (let time=rangeStart; time<=rangeEnd; time++) {
 				const strings = this.elementNames(type, time);
-				SnapUtils.enableClockNumber(type, strings, time, id);
+				enableClockNumber(type, strings, time, id);
 
 				const date = this.getDateFromTime(type, time);
 				const bounds = _time.isDateInBounds(date, get(this, 'minDate'), get(this, 'maxDate'));
 				if (bounds.isBefore || bounds.isAfter) {
-					SnapUtils.disableClockNumber(type, strings, time, id);
+					disableClockNumber(type, strings, time, id);
 				}
 			}
 		}
@@ -341,7 +347,7 @@ export default Component.extend({
 
 			for (let time=rangeStart; time<=rangeEnd; time++) {
 				const strings = this.elementNames(type, time);
-				SnapUtils.addElement(type, strings, time, id);
+				addElement(type, strings, time, id);
 			}
 
 			if (type === kHourFlag) {
@@ -369,12 +375,12 @@ export default Component.extend({
 				const lastActive = get(this, `lastActive`);
 				if (!isNone(lastActive)) {
 					let strings = this.elementNames(type, lastActive);
-					SnapUtils.addElement(type, strings, lastActive, id);
+					addElement(type, strings, lastActive, id);
 				}
 
 				const value = this.getCurrentTimeByType(type);
 				let clockStrings = this.elementNames(type, value);
-				SnapUtils.activateClockNumber(type, clockStrings, value, id);
+				activateClockNumber(type, clockStrings, value, id);
 
 				set(this, `lastActive`, value);
 				this.newDrag(type, value);
@@ -512,7 +518,7 @@ export default Component.extend({
 		const timeRadius = type === 'hours' ? radius*0.14 : radius*0.12;
 		const clockPadding = width * 0.0306;
 
-		const clock = new SnapUtils.snap(`#${id} #clocks-${type}-svg`);
+		const clock = new Snap(`#${id} #clocks-${type}-svg`);
 		clock.attr({viewBox: `0 0 ${width} ${height}`});
 
 		const circle = clock.select(`#big-circle-${type}`);
@@ -586,7 +592,7 @@ export default Component.extend({
 		degree = (degree + 270) % 360;
 
 		// convert degrees to radians
-		let rads = SnapUtils.snap.rad(degree);
+		let rads = Snap.rad(degree);
 
 		// calculate x and y
 		let x = x1 + length * Math.cos(rads);
@@ -608,7 +614,7 @@ export default Component.extend({
 		if (!get(this, 'isDestroyed')) {
 			const _this = this;
 			const id = this.$().attr('id');
-			const clock = new SnapUtils.snap(`#${id} #clocks-${type}-svg`);
+			const clock = new Snap(`#${id} #clocks-${type}-svg`);
 			const strings = this.elementNames(type, value);
 			const curTimeElement = clock.select(`#${strings.text}`);
 

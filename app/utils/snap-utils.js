@@ -1,1 +1,6 @@
-export { default } from '@busy-web/ember-date-time/utils/snap-utils';
+export {
+	addElement,
+	enableClockNumber,
+	disableClockNumber,
+	activateClockNumber
+} from '@busy-web/ember-date-time/utils/snap-utils';
