@@ -218,7 +218,7 @@ export default Component.extend({
 		}
 
 		let actionList = get(this, '__actionList') || [];
-		if (!isEmpty(actionList)) {
+		if (isEmpty(actionList)) {
 			let tList = [];
 			let sortKey = 400;
 			(this.getAttr('actionList') || []).forEach(item => {
@@ -244,22 +244,22 @@ export default Component.extend({
 			});
 
 			actionList = tList;
+
+			// action list is the list used in the select menu.
+			//
+			// id {string} - string id passed around for reference to a list item
+			// name {string} - the label to display in the list
+			// span {number|function} - the time span in time relational to {type} if function is provided it will be passed the current timestamp
+			// type {string} - the units used to calculate the time {span}
+			// sort {number} - a weighted number used to sort the list
+			// selected {boolean} a true if the item is currently the selected item
+			actionList.push(EmberObject.create({id: 'daily', name: loc('Daily'), span: 1, type: 'days', sort: 100, selected: false}));
+			actionList.push(EmberObject.create({id: 'weekly', name: loc('Weekly'), span: 1, type: 'weeks', sort: 200, selected: false}));
+			actionList.push(EmberObject.create({id: 'monthly', name: loc('Monthly'), span: 1, type: 'months', sort: 300, selected: false}));
+
+			actionList = actionList.sort((a, b) => get(a, 'sort') > get(b, 'sort') ? 1 : -1);
+			set(this, '__actionList', actionList);
 		}
-
-		// action list is the list used in the select menu.
-		//
-		// id {string} - string id passed around for reference to a list item
-		// name {string} - the label to display in the list
-		// span {number|function} - the time span in time relational to {type} if function is provided it will be passed the current timestamp
-		// type {string} - the units used to calculate the time {span}
-		// sort {number} - a weighted number used to sort the list
-		// selected {boolean} a true if the item is currently the selected item
-		actionList.push(EmberObject.create({id: 'daily', name: loc('Daily'), span: 1, type: 'days', sort: 100, selected: false}));
-		actionList.push(EmberObject.create({id: 'weekly', name: loc('Weekly'), span: 1, type: 'weeks', sort: 200, selected: false}));
-		actionList.push(EmberObject.create({id: 'monthly', name: loc('Monthly'), span: 1, type: 'months', sort: 300, selected: false}));
-
-		actionList = actionList.sort((a, b) => get(a, 'sort') > get(b, 'sort') ? 1 : -1);
-		set(this, '__actionList', actionList);
 
 
 		if (isNone(get(this, 'selected'))) {
