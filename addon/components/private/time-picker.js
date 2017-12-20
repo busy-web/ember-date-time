@@ -210,6 +210,11 @@ export default Component.extend({
 
 	isHourPicker: true,
 
+	visibleNumHours: 12,
+	clickableNumHours: 12,
+	visibleNumMin: 12,
+	clickableNumMin: 60,
+
 	initialize: on('init', function() {
 		this.setupTime();
 	}),
@@ -233,6 +238,7 @@ export default Component.extend({
 		if (section === 'meridian') {
 			section = 'hours';
 		}
+		set(this, 'isHourPicker', section === 'hours');
 
 		if (section === 'hours' || section === 'minutes') {
 			let type, min, max;
@@ -317,14 +323,14 @@ export default Component.extend({
 	},
 
 	resetTimeElements(type, min, max) {
-		this.$().removeClass(kHourFlag);
-		this.$().removeClass(kMinuteFlag);
+		//this.$().removeClass(kHourFlag);
+		//this.$().removeClass(kMinuteFlag);
 
 		// switch active header
-		this.$().addClass(type);
+		//this.$().addClass(type);
 
-		this.setupCircles(type, min, max);
-		this.removeClockTime(type, min, max);
+		//this.setupCircles(type, min, max);
+		//this.removeClockTime(type, min, max);
 
 		const time = this.getCurrentTimeByType(type);
 		set(this, 'lastActive', time);
@@ -371,19 +377,19 @@ export default Component.extend({
 		if (!get(this, 'isDestroyed')) {
 			const el = this.$();
 			if (el && el.length) {
-				const id = el.attr('id');
-				const lastActive = get(this, `lastActive`);
-				if (!isNone(lastActive)) {
-					let strings = this.elementNames(type, lastActive);
-					addElement(type, strings, lastActive, id);
-				}
+				//const id = el.attr('id');
+				//const lastActive = get(this, `lastActive`);
+				//if (!isNone(lastActive)) {
+				//	let strings = this.elementNames(type, lastActive);
+				//	addElement(type, strings, lastActive, id);
+				//}
 
 				const value = this.getCurrentTimeByType(type);
-				let clockStrings = this.elementNames(type, value);
-				activateClockNumber(type, clockStrings, value, id);
+				//let clockStrings = this.elementNames(type, value);
+				//activateClockNumber(type, clockStrings, value, id);
 
 				set(this, `lastActive`, value);
-				this.newDrag(type, value);
+				//this.newDrag(type, value);
 			}
 		}
 	},
@@ -708,6 +714,21 @@ export default Component.extend({
 	},
 
 	actions: {
+		clickHours(hour) {
+			// set time and remove last active
+			this.setTimestamp(kHourFlag, hour);
+
+			// notify event listeners that an update has occurred
+			this.sendAction('onUpdate', kHourFlag, get(this, 'timestamp'));
+		},
+
+		clickMinutes(minute) {
+			// set time and remove last active
+			this.setTimestamp(kMinuteFlag, minute);
+
+			// notify event listeners that an update has occurred
+			this.sendAction('onUpdate', kMinuteFlag, get(this, 'timestamp'));
+		},
 
 		/**
 		 * sets the clicked hour to active and makes the active hour draggable

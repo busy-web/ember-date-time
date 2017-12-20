@@ -97,6 +97,15 @@ export default Component.extend(keyEvents, {
 	 */
 	activeState: null,
 
+	/**
+	 * Round the minutes by this amount of minutes.
+	 * Must be one of the following 1, 5, 10, 15, 30
+	 *
+	 * @property round
+	 * @type {number}
+	 */
+	round: 1,
+
 	hideTime: false,
 	hideDate: false,
 	lockOpen: false,
@@ -166,7 +175,9 @@ export default Component.extend(keyEvents, {
 		let format = getPrivate(this, 'format');
 
 		if (isNone(get(this, 'activeState'))) {
-			set(this, 'activeState', _state({ timestamp, calendarDate, minDate, maxDate, format }));
+			let round = get(this, 'round');
+
+			set(this, 'activeState', _state({ timestamp, calendarDate, minDate, maxDate, format, round }));
 		} else {
 			set(this, 'activeState.timestamp', timestamp);
 			set(this, 'activeState.calendarDate', calendarDate);

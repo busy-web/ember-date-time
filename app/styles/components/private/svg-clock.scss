@@ -1,0 +1,116 @@
+
+.busyweb {
+	&.emberdatetime {
+		&.p-svg-clock {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+
+			$clock-font: ($ept-width * .0522);
+			$clock-font-small: ($ept-width * .0478);
+			$clock-hand-stroke: ($ept-width * .0087);
+
+			& > svg {
+				pointer-events: all;
+
+				.cls-dark-fill {
+					fill: $ept-color-2;
+				}
+
+				.cls-bright-fill {
+					fill: $ept-color-3;
+				}
+
+				.cls-bright-stroke {
+					stroke: $ept-color-3;
+				}
+
+				.cls-cursor {
+					cursor: pointer;
+				}
+
+				& > .cls-line {
+					display: none;
+					fill: none;
+					stroke-miterlimit: 10;
+					stroke-width: $clock-hand-stroke;
+
+					&.selected {
+						display: block;
+					}
+				}
+
+				& > .cls-text {
+					font-size: $clock-font;
+					font-weight: lighter;
+					line-height: 1;
+					fill: $ept-color-6-1;
+					user-select: none;
+
+					&.selected {
+						fill: $ept-color-6 !important;
+					}
+				}
+
+				& > .cls-text-small {
+					font-size: $clock-font-small;
+					font-weight: lighter;
+					line-height: 1;
+					fill: $ept-color-6-1;
+					user-select: none;
+
+					&.selected {
+						fill: $ept-color-6 !important;
+					}
+				}
+
+				.cls-transparent {
+					fill: transparent !important;
+				}
+
+				& > path {
+					&.disabled {
+						pointer-events: none;
+					}
+				}
+
+				& > circle {
+					display: none;
+
+					&.selected {
+						display: block;
+					}
+
+					.cls-2 {
+						cursor: pointer;
+					}
+				}
+
+				& > text {
+					&.disabled {
+						pointer-events: none;
+						fill: $ept-color-6-2;
+					}
+
+					&.interior-white {
+						fill: $ept-color-6 !important;
+					}
+				}
+
+				& > g {
+					& > text {
+						&.interior-white {
+							fill: $ept-color-6 !important;
+						}
+
+						&.disabled {
+							pointer-events: none;
+							fill: $ept-color-6-2;
+						}
+					}
+				}
+			}
+		}
+	}
+}

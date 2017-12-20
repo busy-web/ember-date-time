@@ -13,6 +13,19 @@
 		</span>
 	</div>
 
+
+	{{#if isHourPicker}}
+		<div class="outside-container hours">
+			{{private/svg-clock type="hours" timestamp=activeState.timestamp minDate=activeState.minDate maxDate=activeState.maxDate onclick=(action 'clickHours')}}
+		</div>
+	{{else}}
+		<div class="outside-container minutes">
+			{{private/svg-clock type="minutes" clickableNum=clickableNumMin visibleNum=visibleNumMin
+				timestamp=activeState.timestamp minDate=activeState.minDate maxDate=activeState.maxDate onclick=(action 'clickMinutes')}}
+		</div>
+	{{/if}}
+</div>
+	<!--
 	<div class="outside-container hours">
 		<svg id="clocks-hours-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
 				<defs></defs>
@@ -324,3 +337,5 @@
 		</svg>
 	</div>
 </div>
+
+-->
