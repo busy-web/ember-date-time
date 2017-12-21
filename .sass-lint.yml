@@ -170,7 +170,7 @@ rules:
 
   # enforce a convention for class names
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/class-name-format.md
-  class-name-format: 2
+  class-name-format: 0
 
   # enforce a convention for function names
   # https://github.com/sasstools/sass-lint/blob/master/docs/rules/function-name-format.md

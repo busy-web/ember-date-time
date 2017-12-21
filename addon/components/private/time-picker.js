@@ -10,13 +10,8 @@ import { Snap } from 'snapsvg';
 import { get, set, computed, observer } from '@ember/object';
 import _time from '@busy-web/ember-date-time/utils/time';
 import { formatNumber, stringToInteger } from '@busy-web/ember-date-time/utils/string';
+import { createMetaFor, metaFor } from '@busy-web/ember-date-time/utils/clock';
 import DragDrop from '@busy-web/ember-date-time/utils/drag-drop';
-import {
-	enableClockNumber,
-	disableClockNumber,
-	addElement,
-	activateClockNumber
-} from '@busy-web/ember-date-time/utils/snap-utils';
 import layout from '../../templates/components/private/time-picker';
 
 /***/
@@ -217,10 +212,17 @@ export default Component.extend({
 
 	initialize: on('init', function() {
 		this.setupTime();
+
+		// create hours clock meta object
+		createMetaFor(this, 'hours', 1, 12, 1);
+
+		// create minutes clock meta object
+		createMetaFor(this, 'minutes', 0, 59, 5);
 	}),
 
 	renderPicker: on('didInsertElement', function() {
 		this.observesAmPm();
+		console.log('renderPicker');
 		this.resetClockHands();
 	}),
 
@@ -233,7 +235,8 @@ export default Component.extend({
 		set(this, 'timestamp', get(this, 'activeState.timestamp'));
 	}),
 
-	resetClockHands: observer('timestamp', 'activeState.section', function() {
+	resetClockHands() { //observer('activeState.timestamp', 'activeState.section', function() {
+		console.log('resetClockHands');
 		let section = get(this, 'activeState.section');
 		if (section === 'meridian') {
 			section = 'hours';
@@ -256,7 +259,7 @@ export default Component.extend({
 				this.resetTimeElements(type, min, max);
 			}
 		}
-	}),
+	}, //),
 
 	/**
 	 * applies and removes correct classes to AM PM buttons
@@ -305,36 +308,38 @@ export default Component.extend({
 		}
 	},
 
-	minMaxHandler(type, rangeStart, rangeEnd) {
+	minMaxHandler(type /*, rangeStart, rangeEnd */) {
 		const el = this.$();
 		if (el && el.length) {
-			const id = el.attr('id');
-			for (let time=rangeStart; time<=rangeEnd; time++) {
-				const strings = this.elementNames(type, time);
-				enableClockNumber(type, strings, time, id);
+			const clock = metaFor(this, type);
+			clock.each(point => {
+				//for (let time=rangeStart; time<=rangeEnd; time++) {
+				clock.enablePlot(point.num);
 
-				const date = this.getDateFromTime(type, time);
+				const date = this.getDateFromTime(type, point.num);
 				const bounds = _time.isDateInBounds(date, get(this, 'minDate'), get(this, 'maxDate'));
 				if (bounds.isBefore || bounds.isAfter) {
-					disableClockNumber(type, strings, time, id);
+					clock.disablePlot(point.num);
 				}
-			}
+			});
 		}
 	},
 
 	resetTimeElements(type, min, max) {
-		//this.$().removeClass(kHourFlag);
-		//this.$().removeClass(kMinuteFlag);
+		this.$().removeClass(kHourFlag);
+		this.$().removeClass(kMinuteFlag);
 
 		// switch active header
-		//this.$().addClass(type);
+		this.$().addClass(type);
 
-		//this.setupCircles(type, min, max);
-		//this.removeClockTime(type, min, max);
+		this.setupCircles(type, min, max);
+		this.removeClockTime(type, min, max);
 
 		const time = this.getCurrentTimeByType(type);
-		set(this, 'lastActive', time);
-		this.setTimestamp(type, time);
+		if (get(this, 'lastActive') !== time) {
+			set(this, 'lastActive', time);
+			this.setTimestamp(type, time);
+		}
 	},
 
 	/**
@@ -346,15 +351,14 @@ export default Component.extend({
 	 * @param rangeStart {number}
 	 * @param rangeEnd {number}
 	 */
-	removeClockTime(type, rangeStart, rangeEnd) {
+	removeClockTime(type /*, rangeStart, rangeEnd */) {
 		const el = this.$();
 		if (el && el.length) {
-			const id = el.attr('id');
+			const clock = metaFor(this, type);
 
-			for (let time=rangeStart; time<=rangeEnd; time++) {
-				const strings = this.elementNames(type, time);
-				addElement(type, strings, time, id);
-			}
+			clock.each(p => {
+				clock.unselectPlot(p.num);
+			});
 
 			if (type === kHourFlag) {
 				this.minMaxHandler(kHourFlag, kHourMin, kHourMax);
@@ -377,19 +381,20 @@ export default Component.extend({
 		if (!get(this, 'isDestroyed')) {
 			const el = this.$();
 			if (el && el.length) {
-				//const id = el.attr('id');
-				//const lastActive = get(this, `lastActive`);
-				//if (!isNone(lastActive)) {
-				//	let strings = this.elementNames(type, lastActive);
-				//	addElement(type, strings, lastActive, id);
-				//}
+				const clock = metaFor(this, type);
+
+				const lastActive = get(this, `lastActive`);
+				if (!isNone(lastActive)) {
+					clock.unselectPlot(lastActive);
+				}
 
 				const value = this.getCurrentTimeByType(type);
-				//let clockStrings = this.elementNames(type, value);
-				//activateClockNumber(type, clockStrings, value, id);
+				clock.selectPlot(value);
+
+				console.log('setActiveTime', lastActive, value);
 
 				set(this, `lastActive`, value);
-				//this.newDrag(type, value);
+				this.newDrag(type, value);
 			}
 		}
 	},
@@ -514,26 +519,25 @@ export default Component.extend({
 	},
 
 	setupCircles(type, start, end) {
-		const id = this.$().attr('id');
-		const container = this.$().find(`.outside-container.${type}`);
-		const height = container.height();
-		const width = container.width();
+		const clock = metaFor(this, type);
+		const height = clock.container.height();
+		const width = clock.container.width();
 		const centerX = width/2;
 		const centerY = height/2;
 		const radius = centerX;
 		const timeRadius = type === 'hours' ? radius*0.14 : radius*0.12;
 		const clockPadding = width * 0.0306;
 
-		const clock = new Snap(`#${id} #clocks-${type}-svg`);
-		clock.attr({viewBox: `0 0 ${width} ${height}`});
+		const snap = clock.snap();
+		const { svg, face, pivot } = snap;
 
-		const circle = clock.select(`#big-circle-${type}`);
-		circle.attr({cx: centerX, cy: centerY, r: radius});
-
-		const centerPoint = clock.select(`#center-point-${type}`);
-		centerPoint.attr({cx: centerX, cy: centerY, r: (radius*0.0283)});
+		svg.attr({viewBox: `0 0 ${width} ${height}`});
+		face.attr({cx: centerX, cy: centerY, r: radius});
+		pivot.attr({cx: centerX, cy: centerY, r: (radius*0.0283)});
 
 		for (let i=start; i<=end; i++) {
+			const { arm, plot, path, text } = snap.at(i);
+
 			// bbox width - the padding inside which is 2 times the x value then divide
 			// that by two for the radius and finally subtract an amount of desired padding for looks.
 			//const lineLength = (( ( bbox.width - ( bbox.x * 2 ) ) / 2 ) - clockPadding );
@@ -542,19 +546,15 @@ export default Component.extend({
 			// get the degree for the time
 			const degree = this.getDegree(type, i);
 			const { x, y } = this.getPointFromAngle(degree, lineLength, centerX, centerY);
-			const strings = this.elementNames(type, i);
 
 			// calculate line coords
-			const line = clock.select(`#${strings.line}`);
-			line.attr({x1: x, y1: y, x2: centerY, y2: centerX});
+			arm.attr({x1: x, y1: y, x2: centerY, y2: centerX});
 
 			// calculate circle coords
-			const circle = clock.select(`#${strings.circle}`);
-			circle.attr({cx: x, cy: y, r: timeRadius});
+			plot.attr({cx: x, cy: y, r: timeRadius});
 
 			// calculate text position if there is a text
 			// at this number
-			const text = clock.select(`#${strings.text}`);
 			if (!isNone(text)) {
 				const bounds = text.node.getBBox();
 				const nx = (x - (bounds.width/2));
@@ -564,8 +564,7 @@ export default Component.extend({
 			}
 
 			// calculate section position for click areas on minutes
-			const section = clock.select(`#${strings.section}`);
-			if (!isNone(section)) {
+			if (!isNone(path)) {
 				const tLength = radius;
 				const bLength = lineLength - (timeRadius*2);
 
@@ -587,7 +586,7 @@ export default Component.extend({
 				const bp = this.getPointFromAngle(degree, tLength, centerX, centerY);
 
 				// build the path string
-				section.attr({d: `M${lph.x} ${lph.y} Q ${bp.x} ${bp.y} ${rph.x} ${rph.y} L ${rp.x} ${rp.y} ${lp.x} ${lp.y} Z`});
+				path.attr({d: `M${lph.x} ${lph.y} Q ${bp.x} ${bp.y} ${rph.x} ${rph.y} L ${rp.x} ${rp.y} ${lp.x} ${lp.y} Z`});
 			}
 		}
 	},
@@ -618,34 +617,30 @@ export default Component.extend({
 	 */
 	newDrag(type, value) {
 		if (!get(this, 'isDestroyed')) {
-			const _this = this;
-			const id = this.$().attr('id');
-			const clock = new Snap(`#${id} #clocks-${type}-svg`);
-			const strings = this.elementNames(type, value);
-			const curTimeElement = clock.select(`#${strings.text}`);
+			const target = this;
+			const clock = metaFor(this, type);
+			const snap = clock.snap();
+			const { svg, face } = snap;
+			const { text, arm, plot } = snap.at(value);
 
-			const circle = clock.select(`#big-circle-${type}`);
-			const centerX = parseFloat(circle.attr('cx'));
-			const centerY = parseFloat(circle.attr('cy'));
+			const centerX = parseFloat(face.attr('cx'));
+			const centerY = parseFloat(face.attr('cy'));
 
 			const startAngle = this.getDegree(type, value);
 			let endAngle = startAngle;
 
-			const curHours = clock.select(`#${strings.text}`);
-			const curLine = clock.select(`#${strings.line}`);
-			const curCircle = clock.select(`#${strings.circle}`);
-			const startX = parseFloat(curCircle.attr('cx'));
-			const startY = parseFloat(curCircle.attr('cy'));
+			const startX = parseFloat(plot.attr('cx'));
+			const startY = parseFloat(plot.attr('cy'));
 
 			/**
 			 * allows for the hours group to start being dragged
 			 */
 			const start = function() {
 				this.data('origTransform', this.transform().local);
-				if (!isNone(curTimeElement)) {
-					curTimeElement.remove();
-					curTimeElement.appendTo(clock);
-					curTimeElement.removeClass('interior-white');
+				if (!isNone(text)) {
+					text.remove();
+					text.appendTo(svg);
+					text.removeClass('interior-white');
 				}
 			};
 
@@ -671,10 +666,10 @@ export default Component.extend({
 			 */
 			const stop = function() {
 				// set the time according to the new angle
-				_this.setTimeForDegree(type, endAngle);
+				target.setTimeForDegree(type, endAngle);
 
 				// notify listeners an update has occured
-				_this.sendAction('onUpdate', type, get(_this, 'timestamp'));
+				target.sendAction('onUpdate', type, get(target, 'timestamp'));
 			};
 
 			if (!isNone(get(this, 'lastGroup'))) {
@@ -682,35 +677,16 @@ export default Component.extend({
 				undragPrevious.undrag();
 			}
 
-			const typeArray = [curLine, curCircle];
-			if (!isNone(curHours)) {
-				typeArray.push(curHours);
+			const typeArray = [arm, plot];
+			if (!isNone(text)) {
+				typeArray.push(text);
 			}
 
-			const curGroup = clock.g.apply(clock, typeArray);
+			const curGroup = svg.g.apply(svg, typeArray);
 			curGroup.drag(move, start, stop);
 
 			set(this, 'lastGroup', curGroup);
 		}
-	},
-
-	/**
-		* Returns a set of id names for a given time integer
-		*
-		* @public
-		* @method elementNames
-		* @param type {string}
-		* @param value {number}
-		* @return {object}
-		*/
-	elementNames(type, value) {
-		value = formatNumber(value);
-		return {
-			"text": `${type}-text-${value}`,
-			"line": `${type}-line-${value}`,
-			"circle": `${type}-circle-${value}`,
-			"section": `section-${type}-${value}`
-		};
 	},
 
 	actions: {
@@ -723,11 +699,13 @@ export default Component.extend({
 		},
 
 		clickMinutes(minute) {
-			// set time and remove last active
-			this.setTimestamp(kMinuteFlag, minute);
+			if (get(this, 'lastActive') !== minute) {
+				// set time and remove last active
+				this.setTimestamp(kMinuteFlag, minute);
 
-			// notify event listeners that an update has occurred
-			this.sendAction('onUpdate', kMinuteFlag, get(this, 'timestamp'));
+				// notify event listeners that an update has occurred
+				this.sendAction('onUpdate', kMinuteFlag, get(this, 'timestamp'));
+			}
 		},
 
 		/**

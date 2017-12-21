@@ -13,18 +13,49 @@
 		</span>
 	</div>
 
+	<div class="body">
+		<div class="outside-container --svg-clock__hours{{if isHourPicker ' active'}}">
+			<div class="svg-clock">
+				<svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg">
+					<defs></defs>
+					<title>{{busy-loc "hours"}}</title>
+					<circle class="--svg-face cls-dark-fill" />
+					<circle class="--svg-pivot cls-bright-fill" />
 
-	{{#if isHourPicker}}
-		<div class="outside-container hours">
-			{{private/svg-clock type="hours" timestamp=activeState.timestamp minDate=activeState.minDate maxDate=activeState.maxDate onclick=(action 'clickHours')}}
+					{{#each __hours__meta.points as |point|}}
+						<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{action 'clickHours' point.num}} />
+						<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
+						<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
+						{{#if point.isVisible}}
+							<text class="--svg-text-{{point.value}} cls-text cls-cursor" {{action 'clickHours' point.num}}>{{point.value}}</text>
+						{{/if}}
+					{{/each}}
+				</svg>
+			</div>
 		</div>
-	{{else}}
-		<div class="outside-container minutes">
-			{{private/svg-clock type="minutes" clickableNum=clickableNumMin visibleNum=visibleNumMin
-				timestamp=activeState.timestamp minDate=activeState.minDate maxDate=activeState.maxDate onclick=(action 'clickMinutes')}}
+
+		<div class="outside-container --svg-clock__minutes{{if isHourPicker '' ' active'}}">
+			<div class="svg-clock">
+				<svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg">
+					<defs></defs>
+					<title>{{busy-loc "minutes"}}</title>
+					<circle class="--svg-face cls-dark-fill" />
+					<circle class="--svg-pivot cls-bright-fill" />
+
+					{{#each __minutes__meta.points as |point|}}
+						<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{action 'clickMinutes' point.num}} />
+						<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
+						<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
+						{{#if point.isVisible}}
+							<text class="--svg-text-{{point.value}} cls-text cls-cursor" {{action 'clickMinutes' point.num}}>{{point.value}}</text>
+						{{/if}}
+					{{/each}}
+				</svg>
+			</div>
 		</div>
-	{{/if}}
+	</div>
 </div>
+
 	<!--
 	<div class="outside-container hours">
 		<svg id="clocks-hours-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
