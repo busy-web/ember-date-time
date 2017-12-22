@@ -119,95 +119,87 @@
 							text-align: center;
 						}
 
+						$clock-font: ($ept-width * .0522);
+						$clock-font-small: ($ept-width * .0478);
+						$clock-hand-stroke: ($ept-width * .0087);
 
-						& > .svg-clock {
-							position: relative;
-							width: 100%;
-							height: 100%;
-							overflow: hidden;
+						& > svg {
+							pointer-events: all;
 
-							$clock-font: ($ept-width * .0522);
-							$clock-font-small: ($ept-width * .0478);
-							$clock-hand-stroke: ($ept-width * .0087);
+							.cls-dark-fill {
+								fill: $ept-color-2;
+							}
 
-							& > svg {
-								pointer-events: all;
+							.cls-bright-fill {
+								fill: $ept-color-3;
+							}
 
-								.cls-dark-fill {
-									fill: $ept-color-2;
+							.cls-bright-stroke {
+								stroke: $ept-color-3;
+							}
+
+							.cls-cursor {
+								cursor: pointer;
+							}
+
+							& > .cls-line {
+								fill: none;
+								stroke-miterlimit: 10;
+								stroke-width: $clock-hand-stroke;
+							}
+
+							& > .cls-text {
+								font-size: $clock-font;
+								font-weight: lighter;
+								line-height: 1;
+								fill: $ept-color-6-1;
+								user-select: none;
+							}
+
+							& > .cls-text-small {
+								font-size: $clock-font-small;
+								font-weight: lighter;
+								line-height: 1;
+								fill: $ept-color-6-1;
+								user-select: none;
+							}
+
+							.cls-transparent {
+								fill: transparent !important;
+							}
+
+							& > path {
+								&.disabled {
+									pointer-events: none;
 								}
+							}
 
-								.cls-bright-fill {
-									fill: $ept-color-3;
-								}
-
-								.cls-bright-stroke {
-									stroke: $ept-color-3;
-								}
-
-								.cls-cursor {
+							& > circle {
+								.cls-2 {
 									cursor: pointer;
 								}
+							}
 
-								& > .cls-line {
-									fill: none;
-									stroke-miterlimit: 10;
-									stroke-width: $clock-hand-stroke;
+							& > text {
+								&.disabled {
+									pointer-events: none;
+									fill: $ept-color-6-2;
 								}
 
-								& > .cls-text {
-									font-size: $clock-font;
-									font-weight: lighter;
-									line-height: 1;
-									fill: $ept-color-6-1;
-									user-select: none;
+								&.selected {
+									fill: $ept-color-6 !important;
 								}
+							}
 
-								& > .cls-text-small {
-									font-size: $clock-font-small;
-									font-weight: lighter;
-									line-height: 1;
-									fill: $ept-color-6-1;
-									user-select: none;
-								}
-
-								.cls-transparent {
-									fill: transparent !important;
-								}
-
-								& > path {
-									&.disabled {
-										pointer-events: none;
-									}
-								}
-
-								& > circle {
-									.cls-2 {
-										cursor: pointer;
-									}
-								}
-
+							& > g {
 								& > text {
+									&.selected {
+										fill: $ept-color-6 !important;
+									}
+
 									&.disabled {
 										pointer-events: none;
 										fill: $ept-color-6-2;
-									}
-
-									&.white {
-										fill: $ept-color-6 !important;
-									}
-								}
-
-								& > g {
-									& > text {
-										&.white {
-											fill: $ept-color-6 !important;
-										}
-
-										&.disabled {
-											pointer-events: none;
-											fill: $ept-color-6-2;
-										}
 									}
 								}
 							}
@@ -216,24 +208,11 @@
 				}
 
 				&.hours {
-					& > .clock-container {
-						& > .header {
-							& > .numbers-container {
-								& > .number {
-									&.hours {
-										//color: #42ace1;
-										color: $ept-color-4;
-									}
-								}
-							}
-						}
-
-						& > .outside-container {
-							&.hours {
-								display: block;
-
-								svg {
-									pointer-events: all;
+					& > .header {
+						& > .numbers-container {
+							& > .number {
+								&.hours {
+									color: $ept-color-4;
 								}
 							}
 						}
@@ -241,24 +220,11 @@
 				}
 
 				&.minutes {
-					& > .clock-container {
-						& > .header {
-							& > .numbers-container {
-								& > .number {
-									&.minutes {
-										//color: #42ace1;
-										color: $ept-color-4;
-									}
-								}
-							}
-						}
-
-						& > .outside-container {
-							&.minutes {
-								display: block;
-
-								svg {
-									pointer-events: all;
+					& > .header {
+						& > .numbers-container {
+							& > .number {
+								&.minutes {
+									color: $ept-color-4;
 								}
 							}
 						}

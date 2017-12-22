@@ -4,7 +4,7 @@
  */
 import $ from 'jquery';
 import Component from '@ember/component';
-import { observer, get, set } from '@ember/object';
+import { observer, get, getWithDefault, set } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
 import { on } from '@ember/object/evented';
 import keyEvents from '@busy-web/ember-date-time/mixins/key-events';
@@ -153,6 +153,9 @@ export default Component.extend(keyEvents, {
 			}
 		}
 
+		let selectRound = getWithDefault(this, 'selectRound', 1);
+		timestamp = _time.round(timestamp, selectRound);
+
 		setPrivate(this, 'timestamp', timestamp);
 		setPrivate(this, 'calendar', timestamp);
 		setPrivate(this, 'min', minDate);
@@ -176,8 +179,10 @@ export default Component.extend(keyEvents, {
 
 		if (isNone(get(this, 'activeState'))) {
 			let round = get(this, 'round');
+			let selectRound = getWithDefault(this, 'selectRound', 1);
 
-			set(this, 'activeState', _state({ timestamp, calendarDate, minDate, maxDate, format, round }));
+			timestamp = _time.round(timestamp, selectRound);
+			set(this, 'activeState', _state({ timestamp, calendarDate, minDate, maxDate, format, round, selectRound }));
 		} else {
 			set(this, 'activeState.timestamp', timestamp);
 			set(this, 'activeState.calendarDate', calendarDate);
@@ -287,6 +292,9 @@ export default Component.extend(keyEvents, {
 	},
 
 	updateTime(type, time, calendar) {
+		time = _time.round(time, getWithDefault(this, 'selectRound', 1));
+		calendar = _time.round(calendar, getWithDefault(this, 'selectRound', 1));
+
 		if (type === 'months') {
 			if (!isNone(calendar)) {
 				setPrivate(this, 'calendar', calendar);

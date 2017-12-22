@@ -4,7 +4,7 @@
  */
 import $ from 'jquery';
 import { Promise as EmberPromise, resolve } from 'rsvp';
-import { observer, computed, get, set } from '@ember/object';
+import { observer, computed, get, getWithDefault, set } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
 import { on } from '@ember/object/evented';
 import { run, later } from '@ember/runloop';
@@ -80,6 +80,7 @@ export default TextField.extend({
 			date = _time();
 		}
 		setValue(this, date.format(get(this, 'format')));
+		set(this, '_date', date.timestamp());
 	}),
 
 	/**
@@ -244,7 +245,7 @@ export default TextField.extend({
 	upDownArrows(keyName) {
 		const { sectionFormat, start, end } = getMeta(this);
 		const type = sectionFormatType(this);
-		const _date = get(this, '_date');
+		let _date = get(this, '_date');
 
 		let isUp = ['ArrowUp', '=', '+'].indexOf(keyName) !== -1;
 		let isDown = ['ArrowDown', '-', '_'].indexOf(keyName) !== -1;
@@ -264,6 +265,16 @@ export default TextField.extend({
 			}
 		}
 
+		if (/^mm?/.test(type)) {
+			if (getWithDefault(this, 'selectRound', 1) > 1) {
+				if (isUp) {
+					_date = _time(_date).add(get(this, 'selectRound')-1, 'minutes').timestamp();
+				} else {
+					_date = _time(_date).subtract(get(this, 'selectRound')+1, 'minutes').timestamp();
+				}
+			}
+		}
+
 		let val;
 		if (isUp) {
 			val = _time(_date).addFormatted(1, sectionFormat);
@@ -271,8 +282,12 @@ export default TextField.extend({
 			val = _time(_date).subFormatted(1, sectionFormat);
 		}
 
+
 		if (val) {
-			setValue(this, val.format(get(this, 'format')));
+			const newVal = val.format(get(this, 'format'));
+
+			fixSelection(this, newVal);
+			setValue(this, newVal);
 			handleCursor(this, '');
 		}
 	},
@@ -416,6 +431,16 @@ function getMeta(target, el) {
 		end = cursor.end;
 	}
 	return { format, selection, position, sectionFormat, start, end };
+}
+
+function fixSelection(target, val) {
+	let { selection } = getMeta(target);
+	let value = getValue(target).trim()
+	let v1 = value.substr(selection - value.length);
+	let v2 = val.substr(selection - val.length);
+	if (v2.length > v1.length) {
+		setData(target.$(), 'selection', selection+1);
+	}
 }
 
 function sectionBounds(target) {

@@ -1,6 +1,13 @@
 
 <div class="main-container">
-	{{private/date-input timestamp=activeState.timestamp max=activeState.maxDate min=activeState.minDate format=activeState.format name=inputDataName defaultFocus=__defaultFocus
+	{{private/date-input
+		selectRound=activeState.selectRound
+		timestamp=activeState.timestamp
+		max=activeState.maxDate
+		min=activeState.minDate
+		format=activeState.format
+		name=inputDataName
+		defaultFocus=__defaultFocus
 		oncursor=(action 'stateChange')
 		onchange=(action 'dateChange')
 		onsubmit=(action 'applyChange')}}

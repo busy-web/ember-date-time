@@ -75,6 +75,20 @@ _time.utcFromLocal = function(time) {
 	return new Time(m);
 };
 
+_time.round = function(time, round=1) {
+	let date = moment(time);
+	let minute = date.minute();
+	let dist = minute % round;
+	let low = round - dist;
+	if (low > dist) {
+		minute -= dist;
+	} else {
+		minute += low;
+	}
+	date.minute(minute).seconds(0);
+	return date.valueOf();
+};
+
 _time.formatStringType = function(fmt) {
 	if (/^D(o|D)?$/.test(fmt)) {
 		return 'days';

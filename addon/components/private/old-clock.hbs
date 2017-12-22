@@ -1,0 +1,315 @@
+
+	<!--
+	<div class="outside-container hours">
+		<svg id="clocks-hours-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+				<defs></defs>
+
+				<title>hours</title>
+
+				<circle id="big-circle-hours" class="cls-dark-fill" cx="105" cy="105" r="101.5"/>
+				<circle id="center-point-hours" class="cls-bright-fill" cx="104.75" cy="105.21" r="2.83"/>
+
+				<line id="hours-line-01" class="cls-bright-stroke cls-line" x1="138.88" y1="45.9" x2="104.75" y2="105"/>
+				<line id="hours-line-02" class="cls-bright-stroke cls-line" x1="163.86" y1="70.89" x2="104.75" y2="105"/>
+				<line id="hours-line-03" class="cls-bright-stroke cls-line" x1="173" y1="105.02" x2="104.75" y2="105"/>
+				<line id="hours-line-04" class="cls-bright-stroke cls-line" x1="163.84" y1="139.15" x2="104.75" y2="105"/>
+				<line id="hours-line-05" class="cls-bright-stroke cls-line" x1="138.85" y1="164.12" x2="104.75" y2="105"/>
+				<line id="hours-line-06" class="cls-bright-stroke cls-line" x1="104.71" y1="173.25" x2="104.75" y2="105"/>
+				<line id="hours-line-07" class="cls-bright-stroke cls-line" x1="70.59" y1="164.09" x2="104.75" y2="105"/>
+				<line id="hours-line-08" class="cls-bright-stroke cls-line" x1="45.62" y1="139.08" x2="104.75" y2="105"/>
+				<line id="hours-line-09" class="cls-bright-stroke cls-line" x1="36.5" y1="104.95" x2="104.75" y2="105"/>
+				<line id="hours-line-10" class="cls-bright-stroke cls-line" x1="45.67" y1="70.82" x2="104.75" y2="105"/>
+				<line id="hours-line-11" class="cls-bright-stroke cls-line" x1="70.68" y1="45.86" x2="104.75" y2="105"/>
+				<line id="hours-line-12" class="cls-bright-stroke cls-line" x1="104.75" y1="36.75" x2="104.75" y2="105"/>
+
+				<circle id="hours-circle-01" class="cls-bright-fill cls-cursor" cx="147.31" cy="38.42" r="14" />
+				<circle id="hours-circle-02" class="cls-bright-fill cls-cursor" cx="175.54" cy="66.65" r="14" />
+				<circle id="hours-circle-03" class="cls-bright-fill cls-cursor" cx="185.87" cy="105.21" r="14" />
+				<circle id="hours-circle-04" class="cls-bright-fill cls-cursor" cx="171.54" cy="147.77" r="14" />
+				<circle id="hours-circle-05" class="cls-bright-fill cls-cursor" cx="143.31" cy="176" r="14" />
+				<circle id="hours-circle-06" class="cls-bright-fill cls-cursor" cx="104.75" cy="186.33" r="14"/>
+				<circle id="hours-circle-07" class="cls-bright-fill cls-cursor" cx="62.19" cy="172" r="14" />
+				<circle id="hours-circle-08" class="cls-bright-fill cls-cursor" cx="33.96" cy="143.77" r="14" />
+				<circle id="hours-circle-09" class="cls-bright-fill cls-cursor" cx="23.62" cy="105.21" r="14" />
+				<circle id="hours-circle-10" class="cls-bright-fill cls-cursor" cx="37.96" cy="62.65" r="14" />
+				<circle id="hours-circle-11" class="cls-bright-fill cls-cursor" cx="67.19" cy="34.92" r="14" />
+				<circle id="hours-circle-12" class="cls-bright-fill cls-cursor" cx="104.75" cy="24.08" r="14" />
+
+				<text id="hours-text-01" class="cls-text cls-cursor" transform="translate(137 40.5)" {{action 'clickHour' '01'}}>01</text>
+				<text id="hours-text-02" class="cls-text cls-cursor" transform="translate(166 69.5)" {{action 'clickHour' '02'}}>02</text>
+				<text id="hours-text-03" class="cls-text cls-cursor" transform="translate(177.5 110.7)" {{action 'clickHour' '03'}}>03</text>
+				<text id="hours-text-04" class="cls-text cls-cursor" transform="translate(167 152)" {{action 'clickHour' '04'}}>04</text>
+				<text id="hours-text-05" class="cls-text cls-cursor" transform="translate(136 181)" {{action 'clickHour' '05'}}>05</text>
+				<text id="hours-text-06" class="cls-text cls-cursor" transform="translate(96 191.82)" {{action 'clickHour' '06'}}>06</text>
+				<text id="hours-text-07" class="cls-text cls-cursor" transform="translate(55.5 180.49)" {{action 'clickHour' '07'}}>07</text>
+				<text id="hours-text-08" class="cls-text cls-cursor" transform="translate(25.5 151)" {{action 'clickHour' '08'}}>08</text>
+				<text id="hours-text-09" class="cls-text cls-cursor" transform="translate(14.5 110.7)" {{action 'clickHour' '09'}}>09</text>
+				<text id="hours-text-10" class="cls-text cls-cursor" transform="translate(24.5 70.14)" {{action 'clickHour' '10'}}>10</text>
+				<text id="hours-text-11" class="cls-text cls-cursor" transform="translate(56 40.75)" {{action 'clickHour' '11'}}>11</text>
+				<text id="hours-text-12" class="cls-text cls-cursor" transform="translate(95.26 29.57)" {{action 'clickHour' '12'}}>12</text>
+		</svg>
+	</div>
+
+	<div class="outside-container minutes">
+		<svg id="clocks-minutes-svg" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210">
+				<defs></defs>
+
+				<title>minutes</title>
+				<circle id="big-circle-minutes" class="cls-dark-fill" cx="104.87496" cy="105.10482" r="101.5"/>
+
+				<path id="section-minutes-00" class="cls-transparent cls-cursor" d="M108.09261,41.22293l1.261-25.97194a90.46309,90.46309,0,0,0-9.41287.0389l1.46275,25.95882A64.3819,64.3819,0,0,1,108.09261,41.22293Z" {{action 'minuteClicked' '00'}}/>
+				<path id="section-minutes-01" class="cls-transparent cls-cursor" d="M114.74194,41.89776l3.96948-25.702a89.34486,89.34486,0,0,0-9.35777-.94476l-1.261,25.97194A63.69769,63.69769,0,0,1,114.74194,41.89776Z" {{action 'minuteClicked' '01'}}/>
+				<path id="section-minutes-02" class="cls-transparent cls-cursor" d="M121.28258,43.26926l6.63538-25.15a89.02266,89.02266,0,0,0-9.20654-1.92357l-3.96948,25.702A63.31862,63.31862,0,0,1,121.28258,43.26926Z" {{action 'minuteClicked' '02'}}/>
+				<path id="section-minutes-03" class="cls-transparent cls-cursor" d="M127.64216,45.32l9.22907-24.32142a89.22276,89.22276,0,0,0-8.95327-2.87927l-6.63538,25.15A63.31367,63.31367,0,0,1,127.64216,45.32Z" {{action 'minuteClicked' '03'}}/>
+				<path id="section-minutes-04" class="cls-transparent cls-cursor" d="M133.75147,48.024l11.71924-23.221a89.723,89.723,0,0,0-8.59948-3.80445L127.64216,45.32A63.65271,63.65271,0,0,1,133.75147,48.024Z" {{action 'minuteClicked' '04'}}/>
+				<path id="section-minutes-05" class="cls-transparent cls-cursor" d="M139.5508,51.35l14.07777-21.85739a90.22412,90.22412,0,0,0-8.15786-4.68958L133.75147,48.024A63.98872,63.98872,0,0,1,139.5508,51.35Z" {{action 'minuteClicked' '05'}}/>
+				<path id="section-minutes-06" class="cls-transparent cls-cursor" d="M144.97091,55.25389l16.28028-20.25953a90.47279,90.47279,0,0,0-7.62262-5.50174L139.5508,51.35A64.35987,64.35987,0,0,1,144.97091,55.25389Z" {{action 'minuteClicked' '06'}}/>
+				<path id="section-minutes-07" class="cls-transparent cls-cursor" d="M149.95141,59.70535l18.30905-18.447a90.57924,90.57924,0,0,0-7.00926-6.264L144.97091,55.25389A64.48389,64.48389,0,0,1,149.95141,59.70535Z" {{action 'minuteClicked' '07'}}/>
+				<path id="section-minutes-08" class="cls-transparent cls-cursor" d="M154.4381,64.65413l20.14351-16.43762a90.46225,90.46225,0,0,0-6.32115-6.95813l-18.30905,18.447A64.21661,64.21661,0,0,1,154.4381,64.65413Z" {{action 'minuteClicked' '08'}}/>
+				<path id="section-minutes-09" class="cls-transparent cls-cursor" d="M158.38991,70.03945L180.1511,55.79114a90.05437,90.05437,0,0,0-5.56949-7.57464L154.4381,64.65413A64.02974,64.02974,0,0,1,158.38991,70.03945Z" {{action 'minuteClicked' '09'}}/>
+
+				<path id="section-minutes-10" class="cls-transparent cls-cursor" d="M161.76447,75.81235l23.13427-11.89507a89.729,89.729,0,0,0-4.74765-8.12614L158.38991,70.03945A63.73557,63.73557,0,0,1,161.76447,75.81235Z" {{action 'minuteClicked' '10'}}/>
+				<path id="section-minutes-11" class="cls-transparent cls-cursor" d="M164.51451,81.90215l24.24824-9.41035a89.25075,89.25075,0,0,0-3.864-8.57451L161.76447,75.81235A63.35123,63.35123,0,0,1,164.51451,81.90215Z" {{action 'minuteClicked' '11'}}/>
+				<path id="section-minutes-12" class="cls-transparent cls-cursor" d="M166.60971,88.24794l25.09558-6.82306a89.04122,89.04122,0,0,0-2.94253-8.93308l-24.24824,9.41035A63.192,63.192,0,0,1,166.60971,88.24794Z" {{action 'minuteClicked' '12'}}/>
+				<path id="section-minutes-13" class="cls-transparent cls-cursor" d="M168.02532,94.77971l25.66712-4.16155a89.34423,89.34423,0,0,0-1.98716-9.19329l-25.09558,6.82306A63.51368,63.51368,0,0,1,168.02532,94.77971Z" {{action 'minuteClicked' '13'}}/>
+				<path id="section-minutes-14" class="cls-transparent cls-cursor" d="M169,101.3995v0.01658l25.90692-1.45592c-0.00044-.0078-0.027-0.0156-0.02746-0.0234a90.35722,90.35722,0,0,0-1.10032-9.32274L168.195,94.77349A41.69984,41.69984,0,0,1,169,101.3995Z" {{action 'minuteClicked' '14'}}/>
+				<path id="section-minutes-15" class="cls-transparent cls-cursor" d="M168.77177,108.11333l25.97184,1.26789a90.46318,90.46318,0,0,0-.03645-9.41276l-25.95945,1.45594A64.2406,64.2406,0,0,1,168.77177,108.11333Z" {{action 'minuteClicked' '15'}}/>
+				<path id="section-minutes-16" class="cls-transparent cls-cursor" d="M168.77177,108.11333a63.5751,63.5751,0,0,1-.67655,6.64918l25.70118,3.97638a89.41936,89.41936,0,0,0,.94721-9.35766Z" {{action 'minuteClicked' '16'}}/>
+				<path id="section-minutes-17" class="cls-transparent cls-cursor" d="M166.72222,121.30275l25.14837,6.64207a89.0344,89.0344,0,0,0,1.9258-9.20593l-25.70118-3.97638A63.21776,63.21776,0,0,1,166.72222,121.30275Z" {{action 'minuteClicked' '17'}}/>
+				<path id="section-minutes-18" class="cls-transparent cls-cursor" d="M164.67,127.66168l24.31911,9.2358a89.24646,89.24646,0,0,0,2.88151-8.95266l-25.14837-6.64207A63.28568,63.28568,0,0,1,164.67,127.66168Z" {{action 'minuteClicked' '18'}}/>
+				<path id="section-minutes-19" class="cls-transparent cls-cursor" d="M161.96469,133.77033l23.21744,11.72555a89.69292,89.69292,0,0,0,3.807-8.5984L164.67,127.66168A63.55947,63.55947,0,0,1,161.96469,133.77033Z" {{action 'minuteClicked' '19'}}/>
+
+				<path id="section-minutes-20" class="cls-transparent cls-cursor" d="M158.637,139.56927l21.85379,14.08335a90.20209,90.20209,0,0,0,4.69136-8.15674l-23.21744-11.72555A64.09092,64.09092,0,0,1,158.637,139.56927Z"  {{action 'minuteClicked' '20'}}/>
+				<path id="section-minutes-21" class="cls-transparent cls-cursor" d="M154.73182,144.98847L174.987,161.27364a90.5986,90.5986,0,0,0,5.50379-7.621L158.637,139.56927A64.34971,64.34971,0,0,1,154.73182,144.98847Z" {{action 'minuteClicked' '21'}}/>
+				<path id="section-minutes-22" class="cls-transparent cls-cursor" d="M150.27855,149.96711l18.44262,18.31419a90.67536,90.67536,0,0,0,6.26582-7.00765l-20.25516-16.28517A64.38438,64.38438,0,0,1,150.27855,149.96711Z" {{action 'minuteClicked' '22'}}/>
+				<path id="section-minutes-23" class="cls-transparent cls-cursor" d="M145.329,154.45287l16.43249,20.148a90.55917,90.55917,0,0,0,6.95969-6.31953l-18.44262-18.31419A64.25846,64.25846,0,0,1,145.329,154.45287Z" {{action 'minuteClicked' '23'}}/>
+				<path id="section-minutes-24" class="cls-transparent cls-cursor" d="M139.94236,158.40329l14.24289,21.76491a90.14874,90.14874,0,0,0,7.57622-5.56738l-16.43249-20.148A63.99815,63.99815,0,0,1,139.94236,158.40329Z" {{action 'minuteClicked' '24'}}/>
+				<path id="section-minutes-25" class="cls-transparent cls-cursor" d="M134.16913,161.7764l11.88861,23.13684a89.6388,89.6388,0,0,0,8.12751-4.745l-14.24289-21.76491A63.72789,63.72789,0,0,1,134.16913,161.7764Z" {{action 'minuteClicked' '25'}}/>
+				<path id="section-minutes-26" class="cls-transparent cls-cursor" d="M128.07854,164.52526l9.40385,24.25007a89.12947,89.12947,0,0,0,8.57535-3.8621L134.16913,161.7764A63.44214,63.44214,0,0,1,128.07854,164.52526Z" {{action 'minuteClicked' '26'}}/>
+				<path id="section-minutes-27" class="cls-transparent cls-cursor" d="M121.73191,166.61855l6.81655,25.09717a88.90322,88.90322,0,0,0,8.93393-2.94038l-9.40385-24.25007A63.30758,63.30758,0,0,1,121.73191,166.61855Z" {{action 'minuteClicked' '27'}}/>
+				<path id="section-minutes-28" class="cls-transparent cls-cursor" d="M115.1998,168.03272l4.15525,25.66821a89.4822,89.4822,0,0,0,9.1934-1.98521l-6.81655-25.09717A63.44073,63.44073,0,0,1,115.1998,168.03272Z" {{action 'minuteClicked' '28'}}/>
+				<path id="section-minutes-29" class="cls-transparent cls-cursor" d="M108.59647,168.89875l-0.03315.00187,1.44934,25.95958,0.04656-.00262a90.46153,90.46153,0,0,0,9.3-1.083l-4.15318-25.6314A64.30207,64.30207,0,0,1,108.59647,168.89875Z" {{action 'minuteClicked' '29'}}/>
+
+				<path id="section-minutes-30" class="cls-transparent cls-cursor" d="M101.86618,168.77476l-1.2745,25.97172a90.584,90.584,0,0,0,9.41265-.034L108.555,168.75242A64.23071,64.23071,0,0,1,101.86618,168.77476Z" {{action 'minuteClicked' '30'}}/>
+				<path id="section-minutes-31" class="cls-transparent cls-cursor" d="M95.21715,168.09649l-3.98278,25.70032a89.1977,89.1977,0,0,0,9.35731.94967l1.2745-25.97172A63.43231,63.43231,0,0,1,95.21715,168.09649Z" {{action 'minuteClicked' '31'}}/>
+				<path id="section-minutes-32" class="cls-transparent cls-cursor" d="M88.67732,166.722L82.0288,191.86878a88.98265,88.98265,0,0,0,9.20557,1.928l3.98278-25.70032A63.1682,63.1682,0,0,1,88.67732,166.722Z" {{action 'minuteClicked' '32'}}/>
+				<path id="section-minutes-33" class="cls-transparent cls-cursor" d="M82.3188,164.66827L73.077,188.98552a89.291,89.291,0,0,0,8.95178,2.88327L88.67732,166.722A63.26213,63.26213,0,0,1,82.3188,164.66827Z" {{action 'minuteClicked' '33'}}/>
+				<path id="section-minutes-34" class="cls-transparent cls-cursor" d="M76.21081,161.96172L64.47943,185.17558a89.58033,89.58033,0,0,0,8.59759,3.80993l9.24177-24.31724A63.73538,63.73538,0,0,1,76.21081,161.96172Z" {{action 'minuteClicked' '34'}}/>
+				<path id="section-minutes-35" class="cls-transparent cls-cursor" d="M70.413,158.63273l-14.0892,21.84972a90.10676,90.10676,0,0,0,8.15561,4.69313l11.73138-23.21386A64.14232,64.14232,0,0,1,70.413,158.63273Z" {{action 'minuteClicked' '35'}}/>
+				<path id="section-minutes-36" class="cls-transparent cls-cursor" d="M64.99469,154.72581L48.70393,174.97713a90.61762,90.61762,0,0,0,7.61989,5.50532L70.413,158.63273A64.32275,64.32275,0,0,1,64.99469,154.72581Z" {{action 'minuteClicked' '36'}}/>
+				<path id="section-minutes-37" class="cls-transparent cls-cursor" d="M60.0172,150.27124L41.69834,168.709a90.72345,90.72345,0,0,0,7.00558,6.26814l16.29077-20.25132A64.28849,64.28849,0,0,1,60.0172,150.27124Z" {{action 'minuteClicked' '37'}}/>
+				<path id="section-minutes-38" class="cls-transparent cls-cursor" d="M55.53284,145.32038L35.38068,161.74773a90.54785,90.54785,0,0,0,6.31766,6.96126L60.0172,150.27124A64.35467,64.35467,0,0,1,55.53284,145.32038Z" {{action 'minuteClicked' '38'}}/>
+				<path id="section-minutes-39" class="cls-transparent cls-cursor" d="M51.58359,139.933L29.81447,154.17046a90.18893,90.18893,0,0,0,5.56621,7.57727l20.15216-16.42735A64.03429,64.03429,0,0,1,51.58359,139.933Z" {{action 'minuteClicked' '39'}}/>
+
+				<path id="section-minutes-40" class="cls-transparent cls-cursor" d="M48.21215,134.1589L25.072,146.04109a89.6766,89.6766,0,0,0,4.74245,8.12937L51.58359,139.933A63.66751,63.66751,0,0,1,48.21215,134.1589Z" {{action 'minuteClicked' '40'}}/>
+				<path id="section-minutes-41" class="cls-transparent cls-cursor" d="M45.46471,128.06749l-24.25264,9.39739a89.1437,89.1437,0,0,0,3.85995,8.57621l23.14013-11.8822A63.30018,63.30018,0,0,1,45.46471,128.06749Z" {{action 'minuteClicked' '41'}}/>
+				<path id="section-minutes-42" class="cls-transparent cls-cursor" d="M43.37263,121.72055l-25.09876,6.81a89.04278,89.04278,0,0,0,2.9382,8.9343l24.25264-9.39739A63.2612,63.2612,0,0,1,43.37263,121.72055Z" {{action 'minuteClicked' '42'}}/>
+				<path id="section-minutes-43" class="cls-transparent cls-cursor" d="M41.96037,115.1876l-25.66905,4.14894a89.36738,89.36738,0,0,0,1.98255,9.194l25.09876-6.81A63.52722,63.52722,0,0,1,41.96037,115.1876Z" {{action 'minuteClicked' '43'}}/>
+				<path id="section-minutes-44" class="cls-transparent cls-cursor" d="M41.24444,108.59244c-0.00093-.01658-0.07475-0.029-0.07568-0.04562l-26.03429,1.447,0.00393,0.06971a90.43562,90.43562,0,0,0,1.07931,9.27721l25.70586-4.151A64.33046,64.33046,0,0,1,41.24444,108.59244Z" {{action 'minuteClicked' '44'}}/>
+				<path id="section-minutes-45" class="cls-transparent cls-cursor" d="M41.22224,101.854l-25.97164-1.2816a90.51932,90.51932,0,0,0,.03206,9.413l25.96019-1.44278A64.28818,64.28818,0,0,1,41.22224,101.854Z" {{action 'minuteClicked' '45'}}/>
+				<path id="section-minutes-46" class="cls-transparent cls-cursor" d="M41.90223,95.20512L16.20275,91.21545a89.38721,89.38721,0,0,0-.95214,9.357l25.97164,1.2816A63.4849,63.4849,0,0,1,41.90223,95.20512Z" {{action 'minuteClicked' '46'}}/>
+				<path id="section-minutes-47" class="cls-transparent cls-cursor" d="M43.27821,88.66569L18.133,82.01024a89.06214,89.06214,0,0,0-1.93024,9.20521l25.69949,3.98968A63.2108,63.2108,0,0,1,43.27821,88.66569Z" {{action 'minuteClicked' '47'}}/>
+				<path id="section-minutes-48" class="cls-transparent cls-cursor" d="M45.33367,82.30756L21.01875,73.0593A89.23632,89.23632,0,0,0,18.133,82.01024l25.14522,6.65545A63.34853,63.34853,0,0,1,45.33367,82.30756Z" {{action 'minuteClicked' '48'}}/>
+				<path id="section-minutes-49" class="cls-transparent cls-cursor" d="M48.042,76.20021L24.831,64.463a89.69121,89.69121,0,0,0-3.81221,8.59625l24.31492,9.24826A63.67755,63.67755,0,0,1,48.042,76.20021Z" {{action 'minuteClicked' '49'}}/>
+
+				<path id="section-minutes-50" class="cls-transparent cls-cursor" d="M51.37222,70.40308L29.52636,56.30853A90.20215,90.20215,0,0,0,24.831,64.463L48.042,76.20021A64.01072,64.01072,0,0,1,51.37222,70.40308Z" {{action 'minuteClicked' '50'}}/>
+				<path id="section-minutes-51" class="cls-transparent cls-cursor" d="M55.28017,64.98568L35.03345,48.68976a90.51442,90.51442,0,0,0-5.5071,7.61877L51.37222,70.40308A64.35245,64.35245,0,0,1,55.28017,64.98568Z" {{action 'minuteClicked' '51'}}/>
+				<path id="section-minutes-52" class="cls-transparent cls-cursor" d="M59.73678,60.00979L41.30367,41.68626a90.67211,90.67211,0,0,0-6.27021,7.0035L55.28017,64.98568A64.53225,64.53225,0,0,1,59.73678,60.00979Z" {{action 'minuteClicked' '52'}}/>
+				<path id="section-minutes-53" class="cls-transparent cls-cursor" d="M64.68846,55.52684L48.26623,35.37a90.55873,90.55873,0,0,0-6.96256,6.31627L59.73678,60.00979A64.253,64.253,0,0,1,64.68846,55.52684Z" {{action 'minuteClicked' '53'}}/>
+				<path id="section-minutes-54" class="cls-transparent cls-cursor" d="M70.07693,51.57876L55.84508,29.80589A90.19045,90.19045,0,0,0,48.26623,35.37L64.68846,55.52684A64.03781,64.03781,0,0,1,70.07693,51.57876Z" {{action 'minuteClicked' '54'}}/>
+				<path id="section-minutes-55" class="cls-transparent cls-cursor" d="M75.79336,48.23917L63.89259,25.10791a89.54016,89.54016,0,0,0-8.04751,4.698L70.07693,51.57876A63.69521,63.69521,0,0,1,75.79336,48.23917Z" {{action 'minuteClicked' '55'}}/>
+				<path id="section-minutes-56" class="cls-transparent cls-cursor" d="M81.88233,45.48747L72.46575,21.24153a89.19619,89.19619,0,0,0-8.57316,3.86638L75.79336,48.23917A63.4334,63.4334,0,0,1,81.88233,45.48747Z" {{action 'minuteClicked' '56'}}/>
+				<path id="section-minutes-57" class="cls-transparent cls-cursor" d="M88.22779,43.39082l-6.82958-25.094a89.02349,89.02349,0,0,0-8.93246,2.9447l9.41658,24.24593A63.31944,63.31944,0,0,1,88.22779,43.39082Z" {{action 'minuteClicked' '57'}}/>
+				<path id="section-minutes-58" class="cls-transparent cls-cursor" d="M94.75948,41.97375L90.59088,16.30727a89.47927,89.47927,0,0,0-9.19267,1.98957l6.82958,25.094A63.57074,63.57074,0,0,1,94.75948,41.97375Z" {{action 'minuteClicked' '58'}}/>
+				<path id="section-minutes-59" class="cls-transparent cls-cursor" d="M101.40353,41.24871L99.94078,15.28989a90.44825,90.44825,0,0,0-9.34991,1.01738l4.16861,25.66648A64.274,64.274,0,0,1,101.40353,41.24871Z" {{action 'minuteClicked' '59'}}/>
+
+
+				{{!-- lines for minutes 00 - 04 --}}
+				<line id="minutes-line-00" class="cls-bright-stroke cls-line" x1="104.99999" y1="32.74992" x2="104.99999" y2="105"/>
+				<line id="minutes-line-01" class="cls-bright-stroke cls-line" x1="112.13993" y1="35.12442" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-02" class="cls-bright-stroke cls-line" x1="119.19575" y1="36.24257" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-03" class="cls-bright-stroke cls-line" x1="126.09604" y1="38.09214" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-04" class="cls-bright-stroke cls-line" x1="132.76519" y1="40.65285" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 05 - 09 --}}
+				<line id="minutes-line-05" class="cls-bright-stroke cls-line" x1="143.13014" y1="45.89664" x2="104.99999" y2="105"/>
+				<line id="minutes-line-06" class="cls-bright-stroke cls-line" x1="147.12593" y1="49.79146" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-07" class="cls-bright-stroke cls-line" x1="152.67698" y1="52.2882" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-08" class="cls-bright-stroke cls-line" x1="157.72758" y1="57.34055" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-09" class="cls-bright-stroke cls-line" x1="162.2224" y1="62.89315" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 10 - 14 --}}
+				<line id="minutes-line-10" class="cls-bright-stroke cls-line" x1="170.1122" y1="70.88517" x2="104.99999" y2="105"/>
+				<line id="minutes-line-11" class="cls-bright-stroke cls-line" x1="171.35674" y1="78.25636" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-12" class="cls-bright-stroke cls-line" x1="173.91515" y1="83.9264" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-13" class="cls-bright-stroke cls-line" x1="175.76233" y1="90.82732" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-14" class="cls-bright-stroke cls-line" x1="176.87804" y1="97.88352" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 15 - 19 --}}
+				<line id="minutes-line-15" class="cls-bright-stroke cls-line" x1="177.25008" y1="105.01769" x2="104.99999" y2="105"/>
+				<line id="minutes-line-16" class="cls-bright-stroke cls-line" x1="174.87373" y1="112.15754" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-17" class="cls-bright-stroke cls-line" x1="173.75374" y1="119.21307" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-18" class="cls-bright-stroke cls-line" x1="171.90239" y1="126.11287" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-19" class="cls-bright-stroke cls-line" x1="169.33995" y1="132.78136" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 20 - 21 --}}
+				<line id="minutes-line-20" class="cls-bright-stroke cls-line" x1="167.0945" y1="138.14547" x2="104.99999" y2="105"/>
+				<line id="minutes-line-21" class="cls-bright-stroke cls-line" x1="162.19814" y1="146.14025" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-22" class="cls-bright-stroke cls-line" x1="157.69996" y1="151.69014" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-23" class="cls-bright-stroke cls-line" x1="152.6463" y1="156.73943" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-24" class="cls-bright-stroke cls-line" x1="148.09253" y1="160.23281" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 25 - 29 --}}
+				<line id="minutes-line-25" class="cls-bright-stroke cls-line" x1="142.0995" y1="164.12105" x2="104.99999" y2="105"/>
+				<line id="minutes-line-26" class="cls-bright-stroke cls-line" x1="132.72748" y1="169.36395" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-27" class="cls-bright-stroke cls-line" x1="126.05678" y1="171.92062" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-28" class="cls-bright-stroke cls-line" x1="119.15537" y1="173.76601" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-29" class="cls-bright-stroke cls-line" x1="112.09888" y1="174.8799" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 30 - 34 --}}
+				<line id="minutes-line-30" class="cls-bright-stroke cls-line" x1="104.96461" y1="175.25008" x2="104.99999" y2="105"/>
+				<line id="minutes-line-31" class="cls-bright-stroke cls-line" x1="97.82487" y1="174.87189" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-32" class="cls-bright-stroke cls-line" x1="89.76963" y1="175.75007" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-33" class="cls-bright-stroke cls-line" x1="81.8703" y1="174.89693" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-34" class="cls-bright-stroke cls-line" x1="75.20248" y1="169.33276" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 35 - 39 --}}
+				<line id="minutes-line-35" class="cls-bright-stroke cls-line" x1="66.83921" y1="164.08567" x2="104.99999" y2="105"/>
+				<line id="minutes-line-36" class="cls-bright-stroke cls-line" x1="62.84544" y1="160.18775" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-37" class="cls-bright-stroke cls-line" x1="56.29672" y1="155.68813" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-38" class="cls-bright-stroke cls-line" x1="50.24874" y1="154.63316" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-39" class="cls-bright-stroke cls-line" x1="46.7568" y1="147.07823" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 40 - 44 --}}
+				<line id="minutes-line-40" class="cls-bright-stroke cls-line" x1="42.87011" y1="139.08419" x2="104.99999" y2="105"/>
+				<line id="minutes-line-41" class="cls-bright-stroke cls-line" x1="39.62887" y1="131.71133" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-42" class="cls-bright-stroke cls-line" x1="37.07392" y1="125.03997" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-43" class="cls-bright-stroke cls-line" x1="36.23032" y1="118.13808" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-44" class="cls-bright-stroke cls-line" x1="35.11826" y1="112.0813" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 45 - 49 --}}
+				<line id="minutes-line-45" class="cls-bright-stroke cls-line" x1="16.74992" y1="104.94693" x2="104.99999" y2="105"/>
+				<line id="minutes-line-46" class="cls-bright-stroke cls-line" x1="16.12998" y1="94.80729" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-47" class="cls-bright-stroke cls-line" x1="16.25362" y1="86.75234" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-48" class="cls-bright-stroke cls-line" x1="20.10855" y1="78.8535" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-49" class="cls-bright-stroke cls-line" x1="22.67444" y1="71.18634" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 50 - 54 --}}
+				<line id="minutes-line-50" class="cls-bright-stroke cls-line" x1="28.92319" y1="64.82391" x2="104.99999" y2="105"/>
+				<line id="minutes-line-51" class="cls-bright-stroke cls-line" x1="38.82266" y1="60.83116" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-52" class="cls-bright-stroke cls-line" x1="42.32372" y1="55.2836" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-53" class="cls-bright-stroke cls-line" x1="49.37999" y1="50.23693" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-54" class="cls-bright-stroke cls-line" x1="56.93609" y1="45.74642" x2="104.99999" y2="105.00001"/>
+
+				{{!-- lines for minutes 55 - 59 --}}
+				<line id="minutes-line-55" class="cls-bright-stroke cls-line" x1="64.93114" y1="41.86129" x2="104.99999" y2="105"/>
+				<line id="minutes-line-56" class="cls-bright-stroke cls-line" x1="71.24018" y1="38.65045" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-57" class="cls-bright-stroke cls-line" x1="79.90956" y1="36.09032" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-58" class="cls-bright-stroke cls-line" x1="86.81" y1="34.24135" x2="104.99999" y2="105.00001"/>
+				<line id="minutes-line-59" class="cls-bright-stroke cls-line" x1="93.86591" y1="33.1238" x2="104.99999" y2="105.00001"/>
+
+				{{!-- circles for minutes 00 - 04 --}}
+				<circle id="minutes-circle-00" class="cls-bright-fill" cx="105" cy="23.87496" r="12" />
+				<circle id="minutes-circle-01" class="cls-bright-fill" cx="117.06176" cy="28.29746" r="12" />
+				<circle id="minutes-circle-02" class="cls-bright-fill" cx="125.0352" cy="29.56032" r="12"  />
+				<circle id="minutes-circle-03" class="cls-bright-fill" cx="132.83295" cy="31.64973" r="12" />
+				<circle id="minutes-circle-04" class="cls-bright-fill" cx="140.36958" cy="34.54277" r="12" />
+
+				{{!-- circles for minutes 05 - 09 --}}
+				<circle id="minutes-circle-05" class="cls-bright-fill" cx="146.56252" cy="42.20775" r="12" />
+				<circle id="minutes-circle-06" class="cls-bright-fill" cx="154.33296" cy="44.60453" r="12" />
+				<circle id="minutes-circle-07" class="cls-bright-fill" cx="160.60673" cy="47.68492" r="12" />
+				<circle id="minutes-circle-08" class="cls-bright-fill" cx="166.31508" cy="53.39327" r="12" />
+				<circle id="minutes-circle-09" class="cls-bright-fill" cx="171.39547" cy="59.66704" r="12" />
+
+				{{!-- circles for minutes 10 - 14 --}}
+				<circle id="minutes-circle-10" class="cls-bright-fill" cx="177.79225" cy="69.43748" r="12" />
+				<circle id="minutes-circle-11" class="cls-bright-fill" cx="180.45723" cy="75.63042" r="12" />
+				<circle id="minutes-circle-12" class="cls-bright-fill" cx="183.35027" cy="81.16705" r="12" />
+				<circle id="minutes-circle-13" class="cls-bright-fill" cx="185.43968" cy="88.9648" r="12" />
+				<circle id="minutes-circle-14" class="cls-bright-fill" cx="186.70254" cy="96.93824" r="12" />
+
+				{{!-- circles for minutes 15 - 19--}}
+				<circle id="minutes-circle-15" class="cls-bright-fill" cx="188.72504" cy="105" r="12"/>
+				<circle id="minutes-circle-16" class="cls-bright-fill" cx="181.70254" cy="117.06176" r="12" />
+				<circle id="minutes-circle-17" class="cls-bright-fill" cx="180.43968" cy="125.0352" r="12" />
+				<circle id="minutes-circle-18" class="cls-bright-fill" cx="178.35027" cy="132.83295" r="12" />
+				<circle id="minutes-circle-19" class="cls-bright-fill" cx="175.45723" cy="140.36958" r="12" />
+
+				{{!-- circles for minutes 20 - 24--}}
+				<circle id="minutes-circle-20" class="cls-bright-fill" cx="173.79225" cy="147.56252" r="12" />
+				<circle id="minutes-circle-21" class="cls-bright-fill" cx="167.39547" cy="154.33296" r="12" />
+				<circle id="minutes-circle-22" class="cls-bright-fill" cx="162.31508" cy="160.60673" r="12" />
+				<circle id="minutes-circle-23" class="cls-bright-fill" cx="156.60673" cy="166.31508" r="12" />
+				<circle id="minutes-circle-24" class="cls-bright-fill" cx="152.33296" cy="171.39547" r="12" />
+
+				{{!-- circles for minutes 25 - 29--}}
+				<circle id="minutes-circle-25" class="cls-bright-fill" cx="146.56252" cy="175.79225" r="12" />
+				<circle id="minutes-circle-26" class="cls-bright-fill" cx="136.36958" cy="179.45723" r="12" />
+				<circle id="minutes-circle-27" class="cls-bright-fill" cx="128.83295" cy="182.35027" r="12" />
+				<circle id="minutes-circle-28" class="cls-bright-fill" cx="121.0352" cy="184.43968" r="12" />
+				<circle id="minutes-circle-29" class="cls-bright-fill" cx="113.06176" cy="185.70254" r="12" />
+
+				{{!-- circles for minutes 30 - 34--}}
+				<circle id="minutes-circle-30" class="cls-bright-fill" cx="105" cy="186.12504" r="12" />
+				<circle id="minutes-circle-31" class="cls-bright-fill" cx="92.93824" cy="181.70254" r="12" />
+				<circle id="minutes-circle-32" class="cls-bright-fill" cx="84.9648" cy="180.43968" r="12" />
+				<circle id="minutes-circle-33" class="cls-bright-fill" cx="77.16705" cy="178.35027" r="12" />
+				<circle id="minutes-circle-34" class="cls-bright-fill" cx="69.63042" cy="175.45723" r="12" />
+
+				{{!-- circles for minutes 35 - 39--}}
+				<circle id="minutes-circle-35" class="cls-bright-fill" cx="62.43748" cy="167.79225" r="12" />
+				<circle id="minutes-circle-36" class="cls-bright-fill" cx="55.66704" cy="165.39547" r="12" />
+				<circle id="minutes-circle-37" class="cls-bright-fill" cx="49.39327" cy="160.31508" r="12" />
+				<circle id="minutes-circle-38" class="cls-bright-fill" cx="43.68492" cy="156.60673" r="12" />
+				<circle id="minutes-circle-39" class="cls-bright-fill" cx="38.20453" cy="150.33296" r="12" />
+
+				{{!-- circles for minutes 40 - 44--}}
+				<circle id="minutes-circle-40" class="cls-bright-fill" cx="32.20775" cy="140.56252" r="12" />
+				<circle id="minutes-circle-41" class="cls-bright-fill" cx="29.54277" cy="134.36958" r="12" />
+				<circle id="minutes-circle-42" class="cls-bright-fill" cx="26.64973" cy="127.23295" r="12" />
+				<circle id="minutes-circle-43" class="cls-bright-fill" cx="24.56032" cy="120.0352" r="12" />
+				<circle id="minutes-circle-44" class="cls-bright-fill" cx="23.29746" cy="113.06176" r="12" />
+
+				{{!-- circles for minutes 45 - 49--}}
+				<circle id="minutes-circle-45" class="cls-bright-fill" cx="22.87496" cy="105" r="12"/>
+				<circle id="minutes-circle-46" class="cls-bright-fill" cx="29.29746" cy="91.93824" r="12" />
+				<circle id="minutes-circle-47" class="cls-bright-fill" cx="30.56032" cy="84.9648" r="12" />
+				<circle id="minutes-circle-48" class="cls-bright-fill" cx="31.64973" cy="77.16705" r="12" />
+				<circle id="minutes-circle-49" class="cls-bright-fill" cx="33.54277" cy="69.63042" r="12" />
+
+				{{!-- circles for minutes 50 - 54--}}
+				<circle id="minutes-circle-50" class="cls-bright-fill" cx="36.20775" cy="62.43748" r="12" />
+				<circle id="minutes-circle-51" class="cls-bright-fill" cx="40.60453" cy="55.66704" r="12" />
+				<circle id="minutes-circle-52" class="cls-bright-fill" cx="43.68492" cy="49.39327" r="12" />
+				<circle id="minutes-circle-53" class="cls-bright-fill" cx="49.39327" cy="43.68492" r="12" />
+				<circle id="minutes-circle-54" class="cls-bright-fill" cx="55.66704" cy="38.60453" r="12" />
+
+				{{!-- circles for minutes 55 - 59--}}
+				<circle id="minutes-circle-55" class="cls-bright-fill" cx="62.43748" cy="34.20775" r="12" />
+				<circle id="minutes-circle-56" class="cls-bright-fill" cx="69.63042" cy="30.54277" r="12" />
+				<circle id="minutes-circle-57" class="cls-bright-fill" cx="77.16705" cy="27.64973" r="12" />
+				<circle id="minutes-circle-58" class="cls-bright-fill" cx="84.9648" cy="25.56032" r="12" />
+				<circle id="minutes-circle-59" class="cls-bright-fill" cx="92.93824" cy="24.29746" r="12" />
+
+
+
+				<text id="minutes-text-00" class="cls-text-small cls-cursor" transform="translate(96.4 28.57251)" {{action 'minuteClicked' '00'}}>00</text>
+				<text id="minutes-text-05" class="cls-text-small cls-cursor" transform="translate(140 41.90527)" {{action 'minuteClicked' '05'}}>05</text>
+				<text id="minutes-text-10" class="cls-text-small cls-cursor" transform="translate(169.0105 71.13501)" {{action 'minuteClicked' '10'}}>10</text>
+				<text id="minutes-text-15" class="cls-text-small cls-cursor" transform="translate(179.5 110.69751)" {{action 'minuteClicked' '15'}}>15</text>
+				<text id="minutes-text-20" class="cls-text-small cls-cursor" transform="translate(168 149.25952)" {{action 'minuteClicked' '20'}}>20</text>
+				<text id="minutes-text-25" class="cls-text-small cls-cursor" transform="translate(140 178.48926)" {{action 'minuteClicked' '25'}}>25</text>
+				<text id="minutes-text-30" class="cls-text-small cls-cursor" transform="translate(96 190.82202)" {{action 'minuteClicked' '30'}}>30</text>
+				<text id="minutes-text-35" class="cls-text-small cls-cursor" transform="translate(52.5 178.48975)" {{action 'minuteClicked' '35'}}>35</text>
+				<text id="minutes-text-40" class="cls-text-small cls-cursor" transform="translate(23 149.25952)" {{action 'minuteClicked' '40'}}>40</text>
+				<text id="minutes-text-45" class="cls-text-small cls-cursor" transform="translate(13.5 110.69751)" {{action 'minuteClicked' '45'}}>45</text>
+				<text id="minutes-text-50" class="cls-text-small cls-cursor" transform="translate(25 71.13501)" {{action 'minuteClicked' '50'}}>50</text>
+				<text id="minutes-text-55" class="cls-text-small cls-cursor" transform="translate(52.5 41.90552)" {{action 'minuteClicked' '55'}}>55</text>
+
+				<circle id="center-point-minutes" class="cls-bright-fill" cx="104.87496" cy="105.10482" r="3.83185"/>
+		</svg>
+	</div>
+</div>
+
+-->

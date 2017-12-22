@@ -71,10 +71,12 @@ function normalizeIndex(key, startBound, endBound) {
 }
 
 export function getCursorPosition(format, value, index, isAdd=false, isSub=false) {
+	//console.log('format', value, index);
 	index = normalizeIndex(index, 0, value.length - 1);
 	let { vmap } = findSectionIndex(format, value);
 	let length = vmap.sections.length;
 	let idx = vmap.map.get(index);
+	//console.log(vmap, length, idx);
 	if (isAdd) {
 		idx = normalizeIndex(idx + 1, 0, length-1);
 	} else if (isSub) {

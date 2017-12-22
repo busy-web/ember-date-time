@@ -1,10 +1,10 @@
-import DragDrop from 'dummy/utils/drag-drop';
+import clockMath from 'dummy/utils/clock/math';
 import { module, test } from 'qunit';
 
-module('Unit | Utility | drag drop');
+module('Unit | Utility | clock/math');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = DragDrop.create();
+  let result = clockMath();
   assert.ok(result);
 });
