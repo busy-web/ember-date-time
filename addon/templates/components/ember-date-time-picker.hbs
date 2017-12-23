@@ -1,20 +1,20 @@
 
 <div class="main-container">
 	{{private/date-input
-		selectRound=activeState.selectRound
-		timestamp=activeState.timestamp
-		max=activeState.maxDate
-		min=activeState.minDate
-		format=activeState.format
+		selectRound=stateManager.selectRound
+		timestamp=stateManager.timestamp
+		max=stateManager.maxDate
+		min=stateManager.minDate
+		format=stateManager.format
 		name=inputDataName
 		defaultFocus=__defaultFocus
 		oncursor=(action 'stateChange')
 		onchange=(action 'dateChange')
 		onsubmit=(action 'applyChange')}}
 
-	<div class="dialog-container{{if activeState.isOpen ' show'}}{{if activeState.isTop ' top'}}">
-		{{#if activeState.isOpen}}
-			{{private/date-time-menu activeState=activeState onClose=(action 'closeAction') onUpdate=(action 'update')}}
+	<div class="dialog-container{{if stateManager.isOpen ' show'}}{{if stateManager.isTop ' top'}}">
+		{{#if stateManager.isOpen}}
+			{{private/date-time-menu stateManager=stateManager onClose=(action 'closeAction') onUpdate=(action 'update')}}
 		{{/if}}
 	</div>
 </div>

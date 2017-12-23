@@ -96,7 +96,7 @@ export default Component.extend({
 
 	defaultAction: '',
 
-	activeState: null,
+	stateManager: null,
 	calendar: null,
 
 	isStart: true,
@@ -387,8 +387,8 @@ export default Component.extend({
 		const startRange = _time(start).startOf('day').valueOf();
 		const endRange = _time(end).startOf('day').valueOf();
 
-		if (isNone(get(this, 'activeState'))) {
-			set(this, 'activeState', _state({
+		if (isNone(get(this, 'stateManager'))) {
+			set(this, 'stateManager', _state({
 				isOpen: true, // isOpen should always be true
 				timestamp, calendarDate,
 				minDate, maxDate,
@@ -396,12 +396,12 @@ export default Component.extend({
 				range: [startRange, endRange]
 			}));
 		} else {
-			set(this, 'activeState.timestamp', timestamp);
-			set(this, 'activeState.calendarDate', calendarDate);
-			set(this, 'activeState.minDate', minDate);
-			set(this, 'activeState.maxDate', maxDate);
-			set(this, 'activeState.format', format);
-			set(this, 'activeState.range', [startRange, endRange]);
+			set(this, 'stateManager.timestamp', timestamp);
+			set(this, 'stateManager.calendarDate', calendarDate);
+			set(this, 'stateManager.minDate', minDate);
+			set(this, 'stateManager.maxDate', maxDate);
+			set(this, 'stateManager.format', format);
+			set(this, 'stateManager.range', [startRange, endRange]);
 		}
 	},
 

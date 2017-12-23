@@ -1,16 +1,16 @@
 
 <div class="picker-container">
 	{{#if isClock}}
-		{{private/time-picker activeState=activeState onUpdate=(action 'update')}}
+		{{private/time-picker stateManager=stateManager onUpdate=(action 'update')}}
 	{{/if}}
 
 	{{#if isCalendar}}
-		{{private/date-picker activeState=activeState onUpdate=(action 'update') onChange=(action 'change')}}
+		{{private/date-picker stateManager=stateManager onUpdate=(action 'update') onChange=(action 'change')}}
 	{{/if}}
 
 	<div class="picker-footer">
 		{{#if isClock}}
-			{{#if activeState.showDate}}
+			{{#if stateManager.showDate}}
 				<div class="current-date keepOpen" {{action 'togglePicker' 'isClock' bubbles=false}}>{{currentDate}}</div>
 			{{else}}
 				<div class="current-date keepOpen"></div>
@@ -20,7 +20,7 @@
 		{{/if}}
 
 		{{#if isCalendar}}
-			{{#if activeState.showTime}}
+			{{#if stateManager.showTime}}
 				<div class="current-date keepOpen" {{action 'togglePicker' 'isCalendar' bubbles=false}}>{{currentTime}}</div>
 			{{else}}
 				<div class="current-date keepOpen"></div>

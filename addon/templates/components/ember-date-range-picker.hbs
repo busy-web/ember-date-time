@@ -20,7 +20,7 @@
 	<li class="date-range-picker-menu picker{{if isCustom ' active'}}">
 		<div class="header">
 			<span class="state start{{if isStart ' open'}}">
-				{{private/date-input timestamp=_start max=activeState.maxDate min=activeState.minDate format=format name=inputDataName
+				{{private/date-input timestamp=_start max=stateManager.maxDate min=stateManager.minDate format=format name=inputDataName
 					onclick=(action 'setFocus' 'start')
 					onfocus=(action 'setFocus' 'start')
 					ontabkey=(action 'tabAction')
@@ -31,7 +31,7 @@
 			<span>{{busy-loc "to"}}</span>
 
 			<span class="state end{{if isStart '' ' open'}}">
-				{{private/date-input timestamp=_end max=activeState.maxDate min=activeState.minDate format=format name=inputDataName
+				{{private/date-input timestamp=_end max=stateManager.maxDate min=stateManager.minDate format=format name=inputDataName
 					onclick=(action 'setFocus' 'end')
 					onfocus=(action 'setFocus' 'end')
 					ontabkey=(action 'tabAction')
@@ -41,7 +41,7 @@
 		</div>
 
 		<div class="body">
-			{{private/date-picker activeState=activeState onUpdate=(action 'calendarChange')}}
+			{{private/date-picker stateManager=stateManager onUpdate=(action 'calendarChange')}}
 		</div>
 
 		<div class="footer">

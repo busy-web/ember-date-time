@@ -4,7 +4,7 @@
  */
 import Component from '@ember/component';
 import $ from 'jquery';
-import { isNone } from '@ember/utils';
+//import { isNone } from '@ember/utils';
 import { on } from '@ember/object/evented';
 import { get, set, computed, observer } from '@ember/object';
 import _time from '@busy-web/ember-date-time/utils/time';
@@ -28,7 +28,7 @@ export default Component.extend({
   classNames: ['busyweb', 'emberdatetime', 'p-date-time-menu'],
   layout: layout,
 
-	activeState: null,
+	stateManager: null,
 
   /**
    * timestamp that is passed in when using combined-picker
@@ -68,24 +68,6 @@ export default Component.extend({
    * @optional
    */
   isMilliseconds: null,
-
-  /**
-   * boolean based on if the clock or calendar is showing
-   *
-   * @private
-   * @property isClockHour
-   * @type Boolean
-   */
-  isClock: false,
-
-  /**
-   * boolean based on if the clock or calendar is showing
-   *
-   * @private
-   * @property isCalendar
-   * @type Boolean
-   */
-  isCalendar: true,
 
   /**
    * String as the current date of the timestamp
@@ -135,14 +117,13 @@ export default Component.extend({
    */
   initialize: on('init', function() {
 		this.setupTime();
-    this.observeActiveSection();
-    set(this, 'backupTimestamp', get(this, 'timestamp'));
 	}),
 
-	setupTime: observer('activeState.timestamp', function() {
-		set(this, 'minDate', get(this, 'activeState.minDate'));
-		set(this, 'maxDate', get(this, 'activeState.maxDate'));
-		set(this, 'timestamp', get(this, 'activeState.timestamp'));
+	setupTime: observer('stateManager.timestamp', function() {
+		set(this, 'minDate', get(this, 'stateManager.minDate'));
+		set(this, 'maxDate', get(this, 'stateManager.maxDate'));
+		set(this, 'timestamp', get(this, 'stateManager.timestamp'));
+    set(this, 'backupTimestamp', get(this, 'timestamp'));
   }),
 
 	bindListeners() {
@@ -218,8 +199,8 @@ export default Component.extend({
    * @private
    * @method observeCloseOnTab
    */
-	observeCloseOnTab: observer('activeState.isOpen', function() {
-		if (get(this, 'activeState.isOpen')) {
+	observeCloseOnTab: observer('stateManager.isOpen', function() {
+		if (get(this, 'stateManager.isOpen')) {
 			this.unbindListeners();
 			this.bindListeners();
 		} else {
@@ -227,19 +208,15 @@ export default Component.extend({
 		}
 	}),
 
-  /**
-   * opens/closes the correct dialogs based on the inputs clicked on/ focused on
-   *
-   * @private
-   * @method observeActiveSection
-   */
-  observeActiveSection: observer('activeState.section', function() {
-    const section = get(this, 'activeState.section');
-		if (!isNone(section)) {
-			set(this, 'isClock', (section === 'hours' || section === 'minutes' || section === 'meridian'));
-			set(this, 'isCalendar', (section === 'years' || section === 'months' || section === 'days'));
-		}
-  }),
+	isClock: computed('stateManager.section', function() {
+		let section = get(this, 'stateManager.section');
+		return (section === 'hours' || section === 'minutes' || section === 'meridian');
+	}),
+
+	isCalendar: computed('stateManager.section', function() {
+		let section = get(this, 'stateManager.section');
+		return (section === 'years' || section === 'months' || section === 'days');
+	}),
 
 	actions: {
 		update(focus, time, calendar) {
@@ -255,14 +232,11 @@ export default Component.extend({
      *
      * @event togglePicker
      */
-		togglePicker(current) {
-			const isClock = (current === 'isClock');
-			const section = (isClock ? 'days' : 'hours');
-
-			//set(this, 'isClock', !isClock);
-			//set(this, 'isCalendar', isClock);
-			//set(this, 'activeState.section', section);
-
+		togglePicker() {
+			let section = 'hours';
+			if (get(this, 'isClock')) {
+				section = 'days';
+			}
 			this.sendAction('onUpdate', section, get(this, 'timestamp'));
 		},
 
@@ -273,8 +247,6 @@ export default Component.extend({
 		 */
 		close() {
 			set(this, 'backupTimestamp', get(this, 'timestamp'));
-			//set(this, 'isClock', false);
-			//set(this, 'isCalendar', false);
 			this.sendAction('onClose');
 		},
 
@@ -285,13 +257,11 @@ export default Component.extend({
      */
 		cancel() {
 			set(this, 'timestamp', get(this, 'backupTimestamp'));
-			//set(this, 'isClock', false);
-			//set(this, 'isCalendar', false);
 			this.sendAction('onClose');
 		},
 
 		onHeaderSelect(type) {
-			//set(this, 'activeState.section', type);
+			//set(this, 'stateManager.section', type);
 			this.sendAction('onUpdate', type, get(this, 'timestamp'));
 		}
 	}

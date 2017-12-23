@@ -37,8 +37,6 @@ class Clock extends dataArray(render(Base)) {
 		let { points, renderSize } = createPoints(start, end, rounder, selectRounder);
 		super(points);
 
-		console.log('rounder', rounder, 'selectRounder', selectRounder);
-
 		this.setProps({
 			component, key,
 			name: metaName(key),

@@ -5,6 +5,7 @@
 import { assert } from '@ember/debug';
 import { isNone } from '@ember/utils';
 import EmberObject, { observer, computed } from '@ember/object';
+import Evented from '@ember/object/evented';
 import _time from './time';
 
 /**
@@ -12,7 +13,7 @@ import _time from './time';
  *
  * @class State
  */
-const State = EmberObject.extend({
+const StateManager = EmberObject.extend(Evented, {
 	/**
 	 * Must be a timestamp in milliseconds
 	 *
@@ -24,10 +25,12 @@ const State = EmberObject.extend({
 	_backupTimestamp: null,
 
 	type: null,
+
 	minDate: null,
 	maxDate: null,
 
 	section: '',
+
 	isOpen: false,
 	isTop: false,
 
@@ -171,7 +174,7 @@ const State = EmberObject.extend({
 });
 
 export default function _state(options) {
-	const state = State.create();
+	const state = StateManager.create();
 
 	// changed to assert in and removed if statements that are not needed.
 	// minDate and maxDate should be null or a timestamp

@@ -101,7 +101,6 @@ export function getHourMinute(type, timestamp, selectRounder) {
 		return hour;
 	} else {
 		let num = _time(timestamp).minute();
-		let minute = num;
 		let dist = num % selectRounder;
 		let low = selectRounder - dist;
 		if (low > dist) {
@@ -109,7 +108,6 @@ export function getHourMinute(type, timestamp, selectRounder) {
 		} else {
 			num += low;
 		}
-		console.log('getHourMinute', minute, num, dist, low, selectRounder);
 		return num;
 	}
 }

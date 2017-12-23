@@ -28,7 +28,7 @@ export default Component.extend({
 	classNames: ['busyweb', 'emberdatetime', 'p-time-picker'],
 	layout: layout,
 
-	activeState: null,
+	stateManager: null,
 
 	/**
 	 * timestamp that is passed in when using date picker
@@ -79,18 +79,17 @@ export default Component.extend({
 
 		// TODO:
 		// pass format from parent element
-		//set(this, 'format', get(this, 'activeState.format'));
+		//set(this, 'format', get(this, 'stateManager.format'));
 
-		let min = get(this, 'activeState.minDate');
-		let max = get(this, 'activeState.maxDate');
+		let min = get(this, 'stateManager.minDate');
+		let max = get(this, 'stateManager.maxDate');
 
 		set(this, 'minDate', min);
 		set(this, 'maxDate', max);
 
-		set(this, 'round', getWithDefault(this, 'activeState.round', 5));
-		set(this, 'selectRound', getWithDefault(this, 'activeState.selectRound', 1));
+		set(this, 'round', getWithDefault(this, 'stateManager.round', 5));
+		set(this, 'selectRound', getWithDefault(this, 'stateManager.selectRound', 1));
 
-		console.log(get(this, 'round'), get(this, 'selectRound'));
 		// create hours clock meta object
 		createMetaFor(this, HOUR_FLAG, 1, 12, min, max, 1);
 
@@ -102,23 +101,26 @@ export default Component.extend({
 		this.renderClock();
 	}),
 
-	timeChange: observer('activeState.timestamp', function() {
-		set(this, 'timestamp', get(this, 'activeState.timestamp'));
+	timeChange: observer('stateManager.timestamp', function() {
+		set(this, 'timestamp', get(this, 'stateManager.timestamp'));
 		if (get(this, '_state') === 'inDOM') {
 			this.renderClock();
 		}
 	}),
 
-	sectionChage: observer('activeState.section', function() {
-		let section = get(this, 'activeState.section');
+	sectionChage: observer('stateManager.section', function() {
+		let section = get(this, 'stateManager.section');
 		if (section === 'meridian') {
 			section = HOUR_FLAG;
 		}
-		assert(`activeState.section passed an unknown flag [${section}] time-picker only supports ${HOUR_FLAG} and ${MINUTE_FLAG}`, section === HOUR_FLAG || section === MINUTE_FLAG);
 
-		set(this, 'section', section);
-		if (get(this, '_state') === 'inDOM') {
-			this.renderClock();
+		if (section === HOUR_FLAG || section === MINUTE_FLAG) {
+			//assert(`stateManager.section passed an unknown flag [${section}] time-picker only supports ${HOUR_FLAG} and ${MINUTE_FLAG}`, section === HOUR_FLAG || section === MINUTE_FLAG);
+
+			set(this, 'section', section);
+			if (get(this, '_state') === 'inDOM') {
+				this.renderClock();
+			}
 		}
 	}),
 

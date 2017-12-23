@@ -13,6 +13,8 @@ import _time from '@busy-web/ember-date-time/utils/time';
 import { splitFormat, longFormatDate } from '@busy-web/ember-date-time/utils/format';
 import layout from '../templates/components/ember-date-time-picker';
 
+//import stateManager from '../--private/state';
+
 /**
  * `Component/Busyweb/EmberDateTimePicker`
  *
@@ -77,7 +79,7 @@ export default Component.extend(keyEvents, {
 	 */
 	utc: false,
 
-	format: 'L LT',
+	format: 'MM/DD/YYYY hh:mm A', //'L LT',
 
 	/**
 	 * value thats used to only allow one action to be sent each keyup/heydown for calendar
@@ -89,13 +91,13 @@ export default Component.extend(keyEvents, {
 	keyHasGoneUp: true,
 
 	/**
-	 * The activeState object used by busy-web-date-time-picker
+	 * The stateManager object used by busy-web-date-time-picker
 	 *
 	 * @private
-	 * @property activeState
+	 * @property stateManager
 	 * @type object
 	 */
-	activeState: null,
+	stateManager: null,
 
 	/**
 	 * Round the minutes by this amount of minutes.
@@ -124,6 +126,28 @@ export default Component.extend(keyEvents, {
 	 * @constructor
 	 */
 	initialize: on('init', function() {
+		/**
+		 * TODO:
+		 * replace stateManager with more advanced state manager
+		 * capable of passing events around to all listeners
+		 *
+		 *
+		const __state = stateManager();
+		__state.setup({
+			timestamp: get(this, 'timestamp'),
+			unix: get(this, 'unix'),
+			minDate: get(this, 'minDate'),
+			maxDate: get(this, 'maxDate'),
+			utc: get(this, 'utc'),
+			format: get(this, 'format'),
+			round: get(this, 'round'),
+			roundSelect: get(this, 'roundSelect')
+		});
+
+		set(this, '__state', __state);
+		__state.update({ active: 'hours' });
+		*/
+
 		// get locale converted format str
 		let format = get(this, 'format');
 		format = longFormatDate(format);
@@ -153,7 +177,7 @@ export default Component.extend(keyEvents, {
 			}
 		}
 
-		let selectRound = getWithDefault(this, 'selectRound', 1);
+		let selectRound = get(this, 'stateManager.selectRound');
 		timestamp = _time.round(timestamp, selectRound);
 
 		setPrivate(this, 'timestamp', timestamp);
@@ -176,19 +200,18 @@ export default Component.extend(keyEvents, {
 		let minDate = getPrivate(this, 'min');
 		let maxDate = getPrivate(this, 'max');
 		let format = getPrivate(this, 'format');
+		let selectRound = getWithDefault(this, 'round', 1);
+		timestamp = _time.round(timestamp, selectRound);
 
-		if (isNone(get(this, 'activeState'))) {
-			let round = get(this, 'round');
-			let selectRound = getWithDefault(this, 'selectRound', 1);
-
-			timestamp = _time.round(timestamp, selectRound);
-			set(this, 'activeState', _state({ timestamp, calendarDate, minDate, maxDate, format, round, selectRound }));
+		if (isNone(get(this, 'stateManager'))) {
+			set(this, 'stateManager', _state({ timestamp, calendarDate, minDate, maxDate, format, selectRound }));
 		} else {
-			set(this, 'activeState.timestamp', timestamp);
-			set(this, 'activeState.calendarDate', calendarDate);
-			set(this, 'activeState.minDate', minDate);
-			set(this, 'activeState.maxDate', maxDate);
-			set(this, 'format', format);
+			set(this, 'stateManager.timestamp', timestamp);
+			set(this, 'stateManager.calendarDate', calendarDate);
+			set(this, 'stateManager.minDate', minDate);
+			set(this, 'stateManager.maxDate', maxDate);
+			set(this, 'stateManager.format', format);
+			set(this, 'stateManager.selectRound', selectRound);
 		}
 	},
 
@@ -204,45 +227,45 @@ export default Component.extend(keyEvents, {
 	}),
 
 	setActiveState(options={}) {
-		if (isNone(get(this, 'activeState'))) {
+		if (isNone(get(this, 'stateManager'))) {
 			this.setState();
 		}
 
 		if (!isEmpty(options.section)) {
-			if (get(this, 'activeState.section') !== options.section) {
-				this.set('activeState.section', options.section);
+			if (get(this, 'stateManager.section') !== options.section) {
+				this.set('stateManager.section', options.section);
 				this.focusState(options.section);
 			}
 		} else {
 			if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
-				this.set('activeState.section', 'days');
+				this.set('stateManager.section', 'days');
 				this.focusState('days');
 			} else if (!this.get('hideTime') && this.get('lockOpen')) {
-				this.set('activeState.section', 'hours');
+				this.set('stateManager.section', 'hours');
 				this.focusState('hours');
 			}
 		}
 
 		if (!isNone(options.isOpen)) {
 			if (!this.get('lockOpen')) {
-				this.set('activeState.isOpen', options.isOpen);
+				this.set('stateManager.isOpen', options.isOpen);
 			}
 		}
 
 		if (!isNone(options.isTop)) {
-			this.set('activeState.isTop', options.isTop);
+			this.set('stateManager.isTop', options.isTop);
 		}
 
 		if (!isNone(options.showDate)) {
-			this.set('activeState.showDate', options.showDate);
+			this.set('stateManager.showDate', options.showDate);
 		}	else if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
-			this.set('activeState.showDate', true);
+			this.set('stateManager.showDate', true);
 		}
 
 		if (!isNone(options.showTime)) {
-			this.set('activeState.showTime', options.showTime);
+			this.set('stateManager.showTime', options.showTime);
 		} else if (!this.get('hideTime') && this.get('lockOpen')) {
-			this.set('activeState.showTime', true);
+			this.set('stateManager.showTime', true);
 		}
 	},
 
@@ -292,8 +315,8 @@ export default Component.extend(keyEvents, {
 	},
 
 	updateTime(type, time, calendar) {
-		time = _time.round(time, getWithDefault(this, 'selectRound', 1));
-		calendar = _time.round(calendar, getWithDefault(this, 'selectRound', 1));
+		time = _time.round(time, get(this, 'stateManager.selectRound'));
+		calendar = _time.round(calendar, get(this, 'stateManager.selectRound'));
 
 		if (type === 'months') {
 			if (!isNone(calendar)) {

@@ -24,7 +24,7 @@ export default Component.extend({
   classNames: ['busyweb', 'emberdatetime', 'p-date-picker'],
   layout: layout,
 
-	activeState: null,
+	stateManager: null,
 
   /**
    * timestamp that is passed in when using date picker
@@ -165,9 +165,9 @@ export default Component.extend({
     this.updateActiveSection();
 	}),
 
-	updateTime: observer('activeState.timestamp', 'activeState.calendarDate', function() {
-		let timestamp = get(this, 'activeState.timestamp');
-		let calendarDate = get(this, 'activeState.calendarDate');
+	updateTime: observer('stateManager.timestamp', 'stateManager.calendarDate', function() {
+		let timestamp = get(this, 'stateManager.timestamp');
+		let calendarDate = get(this, 'stateManager.calendarDate');
 		if (isNone(calendarDate)) {
 			deprecate('passing only timestamp to date-picker is deprecated, please pass calendarDate as well', true, { id: 'date-picker.updateTime', until: 'v2.0' });
 			calendarDate = timestamp;
@@ -203,8 +203,8 @@ export default Component.extend({
    * @private
    * @method updateActiveSection
    */
-  updateActiveSection: observer('activeState.section', function() {
-		let section = get(this, 'activeState.section');
+  updateActiveSection: observer('stateManager.section', function() {
+		let section = get(this, 'stateManager.section');
 		if (!isNone(section)) {
 			section = camelize(section);
 			const statusType = ['day', 'month', 'year', 'monthYear'];
@@ -229,7 +229,7 @@ export default Component.extend({
    * @private
    * @method keepCalendarUpdated
    */
-  keepCalendarUpdated: observer('calendarDate', 'activeState.range', function() {
+  keepCalendarUpdated: observer('calendarDate', 'stateManager.range', function() {
     const calendarObject = _time(get(this, 'calendarDate'));
     this.buildDaysArrayForMonth();
     set(this, 'monthYear', calendarObject.format('MMMM YYYY'));
@@ -243,9 +243,9 @@ export default Component.extend({
    */
   buildDaysArrayForMonth: function() {
 		const calendarDate = get(this, 'calendarDate');
-    const minDate =	get(this, 'activeState.minDate');
-    const maxDate = get(this, 'activeState.maxDate');
-		let [ startRange, endRange ] = (get(this, 'activeState.range') || []);
+    const minDate =	get(this, 'stateManager.minDate');
+    const maxDate = get(this, 'stateManager.maxDate');
+		let [ startRange, endRange ] = (get(this, 'stateManager.range') || []);
 
 		const currentCalendar = _time(calendarDate);
     const currentTime = _time(get(this, 'timestamp'));
