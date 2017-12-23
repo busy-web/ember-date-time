@@ -71,7 +71,7 @@ export default class SVG extends Base {
 
 	unselectPlot(value) {
 		const { text, arm, plot } = this.at(value);
-		if (!isNone(text) && text.hasClass('selected')) {
+		if (!isNone(text)) {
 			text.removeClass('selected');
 		}
 		arm.insertBefore(this.face);
@@ -80,11 +80,14 @@ export default class SVG extends Base {
 
 	selectPlot(value) {
 		const { text, arm, plot } = this.at(value);
+		if (!isNone(text) && !text.hasClass('selected')) {
+			text.addClass('selected');
+		}
+
 		arm.appendTo(this.snap);
 		plot.appendTo(this.snap);
 
 		if (!isNone(text) && !text.hasClass('selected')) {
-			text.addClass('selected');
 			const fill = (this.__opts.fillColor || 'white');
 			text.animate({ fill }, 100, mina.easein).appendTo(this.snap);
 		}

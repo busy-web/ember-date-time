@@ -98,13 +98,13 @@ export default Component.extend({
 	}),
 
 	renderPicker: on('didInsertElement', function() {
-		this.renderClock();
+		this.resetTimeElements();
 	}),
 
 	timeChange: observer('stateManager.timestamp', function() {
-		set(this, 'timestamp', get(this, 'stateManager.timestamp'));
-		if (get(this, '_state') === 'inDOM') {
-			this.renderClock();
+		if (get(this, 'timestamp') !== get(this, 'stateManager.timestamp')) {
+			set(this, 'timestamp', get(this, 'stateManager.timestamp'));
+			this.resetTimeElements();
 		}
 	}),
 
@@ -119,7 +119,7 @@ export default Component.extend({
 
 			set(this, 'section', section);
 			if (get(this, '_state') === 'inDOM') {
-				this.renderClock();
+				this.resetTimeElements();
 			}
 		}
 	}),
@@ -177,15 +177,16 @@ export default Component.extend({
 		return getHourMinute(type, get(this, 'timestamp'), getWithDefault(this, 'selectRounder', 1));
 	},
 
-	//resetTimeElements(type, min, max) {
-	//	this.renderClock();
+	resetTimeElements() {
+		this.renderClock();
+		this.cleanClock();
 
-	//	const time = this.getCurrentTimeByType(get(this, 'section'));
-	//	if (get(this, 'lastActive') !== time) {
-	//		set(this, 'lastActive', time);
-	//		this.setTimestamp(time);
-	//	}
-	//},
+		const time = this.getCurrentTimeByType(get(this, 'section'));
+		if (get(this, 'lastActive') !== time) {
+			set(this, 'lastActive', time);
+			this.setTimestamp(time);
+		}
+	},
 
 	/**
 	 * sets up the active time classes and removes the lst active times
@@ -198,7 +199,9 @@ export default Component.extend({
 			const value = this.getCurrentTimeByType(get(this, 'section'));
 			if (!isNone(value)) {
 				const clock = metaFor(this, get(this, 'section'));
-				clock.unselectAll();
+				if (!isNone(get(this, 'lastActive'))) {
+					clock.unselectPlot(get(this, 'lastActive'));
+				}
 				clock.selectPlot(value);
 				set(this, `lastActive`, value);
 				this.dragHandler(value);

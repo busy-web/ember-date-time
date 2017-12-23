@@ -73,39 +73,31 @@ class Clock extends dataArray(render(Base)) {
 
 	renderDOM(timestamp) {
 		if (!isNone(this.container)) {
-			this.cleanup();
-
 			this.__lastTime = timestamp;
 			const height = this.container.height();
 			const width = this.container.width();
+			console.log('set bounds', height, width, this.type);
 			this.setBounds(0, 0, height, width);
 
 			this.filterEach('isRender', p => {
 				this.svg.minMaxHandler(this.type, p.num, this.__min, this.__max, timestamp);
 			});
-
-			// reselet last selected time
-			let selected = getHourMinute(this.type, this.__lastTime, this.__selectRounder);
-			this.selectPlot(selected);
 		}
 	}
 
 	cleanup() {
 		this.unselectAll();
-		if (!isNone(this.__lastGroup)) {
-			this.__lastGroup.undrag();
-		}
-
-		//if (this.__lastTime) {
-		//	// reselet last selected time
-		//	let selected = getHourMinute(this.type, this.__lastTime, this.__selectRounder);
-		//	this.selectPlot(selected);
-		//}
 	}
 
 	selectPlot(num) {
 		if (!isNone(this.container)) {
 			this.svg.selectPlot(num);
+		}
+	}
+
+	unselectPlot(num) {
+		if (!isNone(this.container)) {
+			this.svg.unselectPlot(num);
 		}
 	}
 
@@ -118,8 +110,6 @@ class Clock extends dataArray(render(Base)) {
 	}
 
 	setBounds(minX, minY, width, height) {
-		this.svg.createSnap();
-
 		this.svg.snap.attr({viewBox: `${minX} ${minY} ${width} ${height}`});
 
 		const faceCoords = getBoundsCenter(width, height);
@@ -159,10 +149,7 @@ class Clock extends dataArray(render(Base)) {
 	}
 
 	handleDrag(num, cb) {
-		this.svg.createSnap();
-
-		const { snap, face } = this.svg;
-		const faceAttrs = getAttrs(face, ['cx', 'cy']);
+		const faceAttrs = getAttrs(this.svg.face, ['cx', 'cy']);
 		const angle = getSliceDegree(this.points.length, num);
 
 		const { plot, arm, text } = this.svg.at(num);
@@ -174,9 +161,9 @@ class Clock extends dataArray(render(Base)) {
 
 		let group;
 		if (!isNone(text)) {
-			group = snap.g(arm, plot, text);
+			group = this.svg.snap.g(arm, plot, text);
 		} else {
-			group = snap.g(arm, plot);
+			group = this.svg.snap.g(arm, plot);
 		}
 
 		let point = this.objectAt(num);
@@ -184,7 +171,7 @@ class Clock extends dataArray(render(Base)) {
 			onMove(angle, parseFloat(faceAttrs.cx), parseFloat(faceAttrs.cy), parseFloat(plotAttrs.cx), parseFloat(plotAttrs.cy), ang => {
 				point = this.getPointFromDegree(ang);
 			}),
-			onMoveStart(text, 'selected', snap),
+			onMoveStart(text, 'selected', this.svg.snap),
 			onMoveStop(this, () => {
 				cb(point);
 			})
