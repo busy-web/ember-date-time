@@ -169,7 +169,7 @@ export default Component.extend({
 		let timestamp = get(this, 'stateManager.timestamp');
 		let calendarDate = get(this, 'stateManager.calendarDate');
 		if (isNone(calendarDate)) {
-			deprecate('passing only timestamp to date-picker is deprecated, please pass calendarDate as well', true, { id: 'date-picker.updateTime', until: 'v2.0' });
+			deprecate('passing only timestamp to date-picker is deprecated, please pass calendarDate as well', true, { id: 'date-picker.updateTime', until: 'v3.0' });
 			calendarDate = timestamp;
 		}
 		set(this, 'timestamp', timestamp);

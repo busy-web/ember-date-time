@@ -5,6 +5,6 @@ module('Unit | Utility | clock/base');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = clockBase();
+  let result = clockBase;
   assert.ok(result);
 });

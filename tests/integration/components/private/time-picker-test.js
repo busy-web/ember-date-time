@@ -8,7 +8,7 @@ moduleForComponent('private/time-picker', 'Integration | Component | private/tim
 });
 
 const timestamp = moment().valueOf();
-const activeState = _state({
+const stateManager = _state({
 	timestamp: timestamp,
 	state: '',
 	isOpen: false,
@@ -16,28 +16,28 @@ const activeState = _state({
 });
 
 test('it renders', function(assert) {
-	this.set('activeState', activeState);
+	this.set('stateManager', stateManager);
 
-  this.render(hbs`{{private/time-picker activeState=activeState}}`);
+  this.render(hbs`{{private/time-picker stateManager=stateManager}}`);
 
   assert.ok(this.$().text().trim());
 });
 
 test('changes from hours to minutes', function(assert) {
-	activeState.set('section', 'hours');
-	this.set('activeState', activeState);
-  this.render(hbs`{{private/time-picker activeState=activeState}}`);
+	stateManager.set('section', 'hours');
+	this.set('stateManager', stateManager);
+  this.render(hbs`{{private/time-picker stateManager=stateManager}}`);
 
-  assert.ok(this.$('.p-time-picker').hasClass('hours'), 'State is Hours');
+  assert.ok(this.$('.clock-container').hasClass('hours'), 'State is Hours');
 
-	this.set('activeState.section', 'minutes');
+	this.set('stateManager.section', 'minutes');
 
-  assert.ok(this.$('.p-time-picker').hasClass('minutes'), 'State is Minutes');
+  assert.ok(this.$('.clock-container').hasClass('minutes'), 'State is Minutes');
 });
 
 test('changes from pm to am and back', function(assert) {
-	activeState.set('section', 'hours');
-	this.set('activeState', activeState);
+	stateManager.set('section', 'hours');
+	this.set('stateManager', stateManager);
 	let meridian = { start: moment(this.get('paper.timestamp')).format('A'), next: 'PM' };
 
 	this.set('update', (flag, timestamp) => {
@@ -45,7 +45,7 @@ test('changes from pm to am and back', function(assert) {
 		meridian.next = _meridian;
 	});
 
-  this.render(hbs`{{private/time-picker activeState=activeState onUpdate=(action update)}}`);
+  this.render(hbs`{{private/time-picker stateManager=stateManager onUpdate=(action update)}}`);
 
 	// if it is pm then swith to am to start tests
 	if (meridian.start === 'PM') {
@@ -67,13 +67,13 @@ test('changes from pm to am and back', function(assert) {
 });
 
 test('click random minute sectionMin', function(assert) {
-	activeState.set('section', 'minutes');
-	this.set('activeState', activeState);
+	stateManager.set('section', 'minutes');
+	this.set('stateManager', stateManager);
 
-  this.render(hbs`{{private/time-picker activeState=activeState}}`);
+  this.render(hbs`{{private/time-picker stateManager=stateManager}}`);
 
   let randomSection = ('0' + Math.round(Math.random() * (59 - 1) + 1)).slice(-2);
-  let id = '#section-minutes-' + randomSection;
+  let id = `.--svg-path-${randomSection}`;
 
   this.$(id).click();
 

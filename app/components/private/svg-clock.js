@@ -1,1 +1,0 @@
-export { default } from '@busy-web/ember-date-time/components/private/svg-clock';

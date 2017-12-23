@@ -5,6 +5,6 @@ module('Unit | Utility | clock/render');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = clockRender();
+  let result = clockRender;
   assert.ok(result);
 });

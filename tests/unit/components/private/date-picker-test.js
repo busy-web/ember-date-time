@@ -8,19 +8,19 @@ moduleForComponent('private/date-picker', 'Unit | Component | private/date picke
 
 const timestamp = moment().valueOf();
 
-const activeState = _state({
+const stateManager = _state({
 	timestamp: timestamp,
 });
 
 test('it renders', function(assert) {
-  const args = { activeState };
+  const args = { stateManager };
   this.subject(args);
   this.render();
   assert.ok(this.$().text().trim());
 });
 
 test('set timestamp', function(assert) {
-  const args = { activeState };
+  const args = { stateManager };
   let component = this.subject(args);
   let newTimestamp = moment().add('1', 'days');
 
@@ -30,7 +30,7 @@ test('set timestamp', function(assert) {
 });
 
 test('set calendar date', function(assert) {
-  const args = { activeState };
+  const args = { stateManager };
   let component = this.subject(args);
   let newTimestamp = moment().add('6', 'days');
 

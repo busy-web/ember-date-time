@@ -9,7 +9,7 @@ import Base, { HOUR_FLAG } from './clock/base';
 import dataArray, { getHourMinute, getAttrs, createPoints } from './clock/data';
 import render from './clock/render';
 import SVG from './clock/svg';
-import { metaName, elementName } from './clock/string-gen';
+import { metaName, elementName } from './clock/string';
 import { onMoveStart, onMove, onMoveStop } from './clock/movement';
 import {
 	getSliceDegree,

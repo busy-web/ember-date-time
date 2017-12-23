@@ -8,7 +8,7 @@ moduleForComponent('private/date-time-menu', 'Integration | Component | private/
 });
 
 const timestamp = moment().valueOf();
-const activeState = _state({
+const stateManager = _state({
 	timestamp: timestamp,
 	section: '',
 	isOpen: false,
@@ -16,9 +16,9 @@ const activeState = _state({
 });
 
 test('it renders', function(assert) {
-	this.set('activeState', activeState);
+	this.set('stateManager', stateManager);
 
-	this.render(hbs`{{private/date-time-menu activeState=activeState}}`);
+	this.render(hbs`{{private/date-time-menu stateManager=stateManager}}`);
 
 	assert.ok(this.$().text().trim().length === 0);
 });

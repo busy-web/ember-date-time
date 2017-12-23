@@ -6,7 +6,7 @@ module('Unit | Helper | equal');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = equal([42]);
+  let result = equal([42, 42]);
   assert.ok(result);
 });
 

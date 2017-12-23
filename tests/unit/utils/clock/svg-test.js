@@ -5,6 +5,6 @@ module('Unit | Utility | clock/svg');
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  let result = clockSvg();
+  let result = clockSvg;
   assert.ok(result);
 });
