@@ -10,7 +10,7 @@ import { get, getWithDefault, set, computed, observer } from '@ember/object';
 import _time from '@busy-web/ember-date-time/utils/time';
 import { isInBounds, getDate, getHourMinute } from '@busy-web/ember-date-time/utils/clock/data';
 import { createMetaFor, metaFor } from '@busy-web/ember-date-time/utils/clock';
-import { numberToString, stringToNumber } from '@busy-web/ember-date-time/utils/clock/string';
+import { numberToString } from '@busy-web/ember-date-time/utils/clock/string';
 import { HOUR_FLAG, MINUTE_FLAG } from '@busy-web/ember-date-time/utils/clock/base';
 
 import layout from '../../templates/components/private/time-picker';
@@ -116,8 +116,7 @@ export default Component.extend({
 		}
 
 		if (section === HOUR_FLAG || section === MINUTE_FLAG) {
-			//assert(`stateManager.section passed an unknown flag [${section}] time-picker only supports ${HOUR_FLAG} and ${MINUTE_FLAG}`, section === HOUR_FLAG || section === MINUTE_FLAG);
-
+			set(this, 'lastActive', null);
 			set(this, 'section', section);
 			if (get(this, '_state') === 'inDOM') {
 				this.resetTimeElements();
@@ -166,11 +165,11 @@ export default Component.extend({
 		return get(this, 'section') === HOUR_FLAG;
 	}),
 
-	isAM: computed('meridian', function() {
+	isAM: computed('timestamp', function() {
 		return _time(get(this, 'timestamp')).format('A') === 'AM';
 	}),
 
-	isPM: computed('meridian', function() {
+	isPM: computed('timestamp', function() {
 		return _time(get(this, 'timestamp')).format('A') === 'PM';
 	}),
 
@@ -308,58 +307,6 @@ export default Component.extend({
 	},
 
 	actions: {
-		clickHours(hour) {
-			// set time and remove last active
-			this.setTimestamp(hour);
-
-			// notify event listeners that an update has occurred
-			this.sendAction('onUpdate', HOUR_FLAG, get(this, 'timestamp'));
-		},
-
-		clickMinutes(minute) {
-			if (get(this, 'lastActive') !== minute) {
-				// set time and remove last active
-				this.setTimestamp(minute);
-
-				// notify event listeners that an update has occurred
-				this.sendAction('onUpdate', MINUTE_FLAG, get(this, 'timestamp'));
-			}
-		},
-
-		/**
-		 * sets the clicked hour to active and makes the active hour draggable
-		 *
-		 * @param hour {string} hour clicked on clock
-		 * @event clickHour
-		 */
-		clickHour(hour) {
-			// convert hour to integer
-			hour = stringToNumber(hour);
-
-			// set time and remove last active
-			this.setTimestamp(hour);
-
-			// notify event listeners that an update has occurred
-			this.sendAction('onUpdate', HOUR_FLAG, get(this, 'timestamp'));
-		},
-
-		/**
-		 * handles clicking on minutes
-		 *
-		 * @param minute {string} minute clicked on clock
-		 * @event minuteClicked
-		 */
-		minuteClicked(minute) {
-			// convert minute to integer
-			minute = stringToNumber(minute);
-
-			// set time and remove last active
-			this.setTimestamp(minute);
-
-			// notify event listeners that an update has occurred
-			this.sendAction('onUpdate', MINUTE_FLAG, get(this, 'timestamp'));
-		},
-
 		/**
 		 * handles clicking AM && PM, wont allow if it goes under min date
 		 *
