@@ -22,10 +22,10 @@
 				<circle class="--svg-pivot cls-bright-fill" />
 
 				{{#each __hours__meta.points as |point|}}
-					<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{action 'clickMinutes' point.num}} />
+					<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{!action 'clickMinutes' point.num}} />
 					<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
 					<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
-					<text class="--svg-text-{{point.value}} cls-text cls-cursor" {{action 'clickMinutes' point.num}}>{{point.value}}</text>
+					<text class="--svg-text-{{point.value}} cls-text cls-cursor" {{!action 'clickMinutes' point.num}}>{{point.value}}</text>
 				{{/each}}
 			</svg>
 		</div>
