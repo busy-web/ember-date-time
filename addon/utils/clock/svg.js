@@ -41,6 +41,14 @@ export default class SVG extends Base {
 		return this.snap.select(`.--svg-pivot`);
 	}
 
+	has(type, num) {
+		assert(`num is required in svg.at, you pased type {${typeof num}} ${num}`, !isEmpty(num));
+		if (typeof num === 'number') {
+			num = numberToString(num);
+		}
+		return !isEmpty(this.snap.select(`.--svg-${type}-${num}`));
+	}
+
 	at(num) {
 		assert(`num is required in svg.at, you pased type {${typeof num}} ${num}`, !isEmpty(num));
 		if (typeof num === 'number') {
@@ -69,13 +77,42 @@ export default class SVG extends Base {
 		}
 	}
 
+	clean(start, end) {
+		for(let i=start; i<=end; i++) {
+			const { text, arm, plot } = this.at(i);
+			if (!isNone(text)) {
+				text.removeClass('selected');
+			}
+			arm.insertBefore(this.face);
+			plot.insertBefore(this.face);
+		}
+	}
+
 	unselectPlot(value) {
 		const { text, arm, plot } = this.at(value);
+		let next, prev;
+		if (this.has('plot', value - 1)) {
+			prev = this.at(value - 1);
+		} else {
+			next = this.at(value + 1);
+		}
+
 		if (!isNone(text)) {
 			text.removeClass('selected');
+			if (prev) {
+				text.insertAfter(prev.path);
+			} else {
+				text.insertBefore(next.path);
+			}
 		}
-		arm.insertBefore(this.face);
-		plot.insertBefore(this.face);
+
+		if (prev) {
+			plot.insertAfter(prev.plot);
+			arm.insertAfter(prev.plot);
+		} else {
+			arm.insertBefore(next.arm);
+			plot.insertBefore(next.arm);
+		}
 	}
 
 	selectPlot(value) {

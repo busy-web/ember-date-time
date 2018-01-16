@@ -99,12 +99,13 @@ export default Component.extend({
 
 	renderPicker: on('didInsertElement', function() {
 		this.resetTimeElements();
+		this.clickHandler();
 	}),
 
 	timeChange: observer('stateManager.timestamp', function() {
 		if (get(this, 'timestamp') !== get(this, 'stateManager.timestamp')) {
-			set(this, 'timestamp', get(this, 'stateManager.timestamp'));
-			this.resetTimeElements();
+			this.saveTimestamp(get(this, 'stateManager.timestamp'));
+			this.setActiveTime();
 		}
 	}),
 
@@ -183,7 +184,6 @@ export default Component.extend({
 
 		const time = this.getCurrentTimeByType(get(this, 'section'));
 		if (get(this, 'lastActive') !== time) {
-			set(this, 'lastActive', time);
 			this.setTimestamp(time);
 		}
 	},
@@ -284,9 +284,22 @@ export default Component.extend({
 	dragHandler(value) {
 		if (get(this, '_state') === 'inDOM') {
 			const clock = metaFor(this, get(this, 'section'));
-			clock.handleDrag(value, point => {
+			clock.handleDrag(value, time => {
 				// set the time according to the new angle
-				this.setTimestamp(point.num);
+				this.setTimestamp(time);
+
+				// notify listeners an update has occured
+				this.sendAction('onUpdate', get(this, 'section'), get(this, 'timestamp'));
+			});
+		}
+	},
+
+	clickHandler() {
+		if (get(this, '_state') === 'inDOM') {
+			const clock = metaFor(this, get(this, 'section'));
+			clock.click(time => {
+				// set the time according to the new angle
+				this.setTimestamp(time);
 
 				// notify listeners an update has occured
 				this.sendAction('onUpdate', get(this, 'section'), get(this, 'timestamp'));

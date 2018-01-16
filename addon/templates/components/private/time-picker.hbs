@@ -34,16 +34,21 @@
 			<svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg">
 				<defs></defs>
 				<title>{{__minutes__meta.type}}</title>
+				{{#each __minutes__meta.points as |point|}}
+					{{#if point.isRender}}
+						<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
+						<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
+					{{/if}}
+				{{/each}}
+
 				<circle class="--svg-face cls-dark-fill" />
 				<circle class="--svg-pivot cls-bright-fill" />
 
 				{{#each __minutes__meta.points as |point|}}
 					{{#if point.isRender}}
-						<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{action 'clickMinutes' point.num}} />
-						<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
-						<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
+						<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{!action 'clickMinutes' point.num}} />
 						{{#if point.isVisible}}
-							<text class="--svg-text-{{point.value}} cls-text cls-cursor" {{action 'clickMinutes' point.num}}>{{point.value}}</text>
+							<text class="--svg-text-{{point.value}} cls-text cls-text-small cls-cursor" {{!action 'clickMinutes' point.num}}>{{point.value}}</text>
 						{{/if}}
 					{{/if}}
 				{{/each}}

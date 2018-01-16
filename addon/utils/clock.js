@@ -6,12 +6,13 @@ import { isNone } from '@ember/utils';
 import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
 import Base, { HOUR_FLAG } from './clock/base';
-import dataArray, { getHourMinute, getAttrs, createPoints } from './clock/data';
+import dataArray, { /*getHourMinute,*/ getAttrs, createPoints } from './clock/data';
 import render from './clock/render';
 import SVG from './clock/svg';
 import { metaName, elementName } from './clock/string';
 import { onMoveStart, onMove, onMoveStop } from './clock/movement';
 import {
+	angleOfLine,
 	getSliceDegree,
 	getLineFromDegree,
 	getSliceFromDegree,
@@ -66,7 +67,7 @@ class Clock extends dataArray(render(Base)) {
 	get svg() {
 		if (!this.__snap) {
 			const el = this.container.find('svg');
-			this.__snap = new SVG(el.get(0));
+			this.__snap = new SVG(el.get(0), { min: this.__min, max: this.__max });
 		}
 		return this.__snap;
 	}
@@ -76,7 +77,6 @@ class Clock extends dataArray(render(Base)) {
 			this.__lastTime = timestamp;
 			const height = this.container.height();
 			const width = this.container.width();
-			console.log('set bounds', height, width, this.type);
 			this.setBounds(0, 0, height, width);
 
 			this.filterEach('isRender', p => {
@@ -85,8 +85,21 @@ class Clock extends dataArray(render(Base)) {
 		}
 	}
 
+	click(cb) {
+		const _this = this;
+		const faceAttrs = getAttrs(this.svg.face, ['cx', 'cy']);
+		this.svg.snap.click(function(evt) {
+			// use offsetX and offsetY to get local point to clock
+			let angle = angleOfLine(evt.offsetX, evt.offsetY, faceAttrs.cx, faceAttrs.cy);
+			let point = _this.getPointFromDegree(angle);
+			cb(point.num);
+		});
+	}
+
 	cleanup() {
-		this.unselectAll();
+		if (!isNone(this.container)) {
+			this.svg.clean(this.__start, this.__end);
+		}
 	}
 
 	selectPlot(num) {
@@ -98,14 +111,6 @@ class Clock extends dataArray(render(Base)) {
 	unselectPlot(num) {
 		if (!isNone(this.container)) {
 			this.svg.unselectPlot(num);
-		}
-	}
-
-	unselectAll() {
-		if (!isNone(this.container)) {
-			this.filterEach('isRender', p => {
-				this.svg.unselectPlot(p.num);
-			});
 		}
 	}
 
@@ -134,16 +139,15 @@ class Clock extends dataArray(render(Base)) {
 			// at this number
 			if (!isNone(text)) {
 				const bounds = text.node.getBBox();
-				text.attr('transform', `translate(${(armCoords.x2 - (bounds.width / 2))}, ${(armCoords.y2 + (bounds.height / 3))})`);
-				if (this.length > 12 && !text.hasClass('cls-text-small')) {
-					text.addClass('cls-text-small');
-				}
+				let tAttr = `translate(${(armCoords.x2 - (bounds.width / 2))}, ${(armCoords.y2 + (bounds.height / 3))})`;
+				text.attr('transform', tAttr);
 			}
 
 			// calculate section position for click areas on minutes
 			if (!isNone(path)) {
+				const pt = createSVGPath(this.length, degree, faceCoords.cx, faceCoords.cy, pathLen, faceCoords.r);
 				// build the path string
-				path.attr(createSVGPath(this.length, degree, faceCoords.cx, faceCoords.cy, pathLen, faceCoords.r));
+				path.attr(pt);
 			}
 		});
 	}
@@ -166,14 +170,19 @@ class Clock extends dataArray(render(Base)) {
 			group = this.svg.snap.g(arm, plot);
 		}
 
-		let point = this.objectAt(num);
+		let point;
 		group.drag(
 			onMove(angle, parseFloat(faceAttrs.cx), parseFloat(faceAttrs.cy), parseFloat(plotAttrs.cx), parseFloat(plotAttrs.cy), ang => {
 				point = this.getPointFromDegree(ang);
 			}),
 			onMoveStart(text, 'selected', this.svg.snap),
-			onMoveStop(this, () => {
-				cb(point);
+			onMoveStop(this, (el, evt) => {
+				if (!point) {
+					// use offsetX and offsetY to get local point to clock
+					let angle = angleOfLine(evt.offsetX, evt.offsetY, faceAttrs.cx, faceAttrs.cy);
+					point = this.getPointFromDegree(angle);
+				}
+				cb(point.num);
 			})
 		);
 
@@ -195,6 +204,9 @@ class Clock extends dataArray(render(Base)) {
 			slice = downSlice;
 		}
 		slice = Math.round(slice);
+		if (slice === 60) {
+			slice = 0;
+		}
 		return this.objectAt(slice);
 	}
 }

@@ -141,13 +141,13 @@
 								cursor: pointer;
 							}
 
-							& > .cls-line {
+							.cls-line {
 								fill: none;
 								stroke-miterlimit: 10;
 								stroke-width: $clock-hand-stroke;
 							}
 
-							& > .cls-text {
+							.cls-text {
 								font-size: $clock-font;
 								font-weight: lighter;
 								line-height: 1;
@@ -155,7 +155,7 @@
 								user-select: none;
 							}
 
-							& > .cls-text-small {
+							.cls-text-small {
 								font-size: $clock-font-small;
 								font-weight: lighter;
 								line-height: 1;
@@ -167,19 +167,19 @@
 								fill: transparent !important;
 							}
 
-							& > path {
+							path {
 								&.disabled {
 									pointer-events: none;
 								}
 							}
 
-							& > circle {
+							circle {
 								.cls-2 {
 									cursor: pointer;
 								}
 							}
 
-							& > text {
+							text {
 								&.disabled {
 									pointer-events: none;
 									fill: $ept-color-6-2;
@@ -187,19 +187,6 @@
 
 								&.selected {
 									fill: $ept-color-6 !important;
-								}
-							}
-
-							& > g {
-								& > text {
-									&.selected {
-										fill: $ept-color-6 !important;
-									}
-
-									&.disabled {
-										pointer-events: none;
-										fill: $ept-color-6-2;
-									}
 								}
 							}
 						}

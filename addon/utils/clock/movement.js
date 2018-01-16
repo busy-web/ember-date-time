@@ -45,8 +45,8 @@ export function onMove(angleStart, cx, cy, x, y, cb=function(){}) {
 	* checks to see where the dragging stops and makes the closest hour active
 	*/
 export function onMoveStop(target, cb=function(){}) {
-	return function() {
-		cb(target);
+	return function(evt) {
+		cb(target, evt);
 	}
 }
 
