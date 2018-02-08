@@ -1,12 +1,10 @@
+[![Build Status](https://travis-ci.org/busy-web/ember-date-time.svg?branch=master)](https://travis-ci.org/busy-web/ember-date-time)
+[![npm version](https://badge.fury.io/js/%40busy-web%2Fember-date-time.svg)](https://badge.fury.io/js/%40busy-web%2Fember-date-time)
+[![Maintainability](https://api.codeclimate.com/v1/badges/c4cab55b53739c2a883f/maintainability)](https://codeclimate.com/github/busy-web/ember-date-time/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/c4cab55b53739c2a883f/test_coverage)](https://codeclimate.com/github/busy-web/ember-date-time/test_coverage)
+
 @busy-web/ember-date-time
 ==============================================================================
-<!--[![Build Status](https://travis-ci.org/busy-web/ember-date-time.svg?branch=master)](https://travis-ci.org/busy-web/ember-date-time)
-[![Ember Observer Score](https://emberobserver.com/badges/busy-web/ember-date-time.svg)](https://emberobserver.com/addons/busy-web/ember-date-time) -->
-
-[![npm version](https://badge.fury.io/js/%40busy-web%2Fember-date-time.svg)](https://badge.fury.io/js/%40busy-web%2Fember-date-time)
-[![Ember badge][ember-badge]][embadge]
-[![Test Coverage](https://api.codeclimate.com/v1/badges/33200deefc810162f315/test_coverage)](https://codeclimate.com/repos/5a34307eeeb19e02d300012d/test_coverage)
-[![Maintainability](https://api.codeclimate.com/v1/badges/33200deefc810162f315/maintainability)](https://codeclimate.com/repos/5a34307eeeb19e02d300012d/maintainability)
 
 Date time picker and date range picker for [ember cli](https://ember-cli.com/)
 
@@ -68,6 +66,3 @@ License
 ------------------------------------------------------------------------------
 
 [MIT License](https://opensource.org/licenses/mit-license.php)
-
-[embadge]: http://embadge.io/
-[ember-badge]: http://embadge.io/v1/badge.svg?start=2.16.2
