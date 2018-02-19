@@ -274,9 +274,7 @@ export default TextField.extend({
 				isDown = false;
 				isUp = true;
 			}
-		}
-
-		if (/^mm?/.test(type)) {
+		} else if (/^mm?/.test(type)) {
 			if (getWithDefault(this, 'selectRound', 1) > 1) {
 				if (isUp) {
 					_date = _time(_date).add(get(this, 'selectRound')-1, 'minutes').timestamp();

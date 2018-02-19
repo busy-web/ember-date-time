@@ -179,7 +179,7 @@ export default Component.extend({
 
 	changeSection(section) {
 		if (section === MERIDIAN_FLAG) {
-			section = getWithDefault(this, 'section', HOUR_FLAG);
+			section = HOUR_FLAG;
 		}
 
 		if (section !== get(this, 'section') && (section === HOUR_FLAG || section === MINUTE_FLAG)) {

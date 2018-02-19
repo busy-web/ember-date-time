@@ -52,11 +52,11 @@
 				border-color: lighten(indianred, 20%);
 				background-color: lighten(indianred, 40%);
 
-				//&::selection { background: lighten(indianred, 30%); }
-				//&::-webkit-selection { background: lighten(indianred, 30%); }
-				//&::-moz-selection { background: lighten(indianred, 30%); }
-				//&::-ms-selection { background: lighten(indianred, 30%); }
-				//&::-o-selection { background: lighten(indianred, 30%); }
+				&::selection { color: indianred; }
+				&::-webkit-selection { color: indianred; }
+				&::-moz-selection { color: indianred; }
+				&::-ms-selection { color: indianred; }
+				&::-o-selection { color: indianred; }
 			}
 		}
 	}
