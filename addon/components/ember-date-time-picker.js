@@ -6,7 +6,6 @@ import $ from 'jquery';
 import Component from '@ember/component';
 import { observer, get, getWithDefault, set } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
-import { on } from '@ember/object/evented';
 import keyEvents from '@busy-web/ember-date-time/mixins/key-events';
 import _state from '@busy-web/ember-date-time/utils/state';
 import _time from '@busy-web/ember-date-time/utils/time';
@@ -130,7 +129,12 @@ export default Component.extend(keyEvents, {
 	 * @method initialize
 	 * @constructor
 	 */
-	initialize: on('init', function() {
+	init(...args) {
+		this._super(...args);
+		this.initialize(...args);
+	},
+
+	initialize() {
 		/**
 		 * TODO:
 		 * replace stateManager with more advanced state manager
@@ -158,37 +162,8 @@ export default Component.extend(keyEvents, {
 		format = longFormatDate(format);
 		setPrivate(this, 'format', format);
 
-		let timestamp = get(this, 'timestamp');
-		let unix = get(this, 'unix');
-		let minDate = get(this, 'minDate');
-		let maxDate = get(this, 'maxDate');
-
-		if (!isNone(timestamp)) {
-			if (get(this, 'utc')) {
-				timestamp = _time.utcToLocal(timestamp).timestamp();
-				if (!isNone(minDate)) { minDate = _time.utcToLocal(minDate).timestamp(); }
-				if (!isNone(maxDate)) { maxDate = _time.utcToLocal(maxDate).timestamp(); }
-			}
-		} else if (!isNone(unix)) {
-			// assume all dates are unix and convert them to milliseconds
-			timestamp = _time.unix(unix).timestamp()
-			if (!isNone(minDate)) { minDate = _time.unix(minDate).timestamp(); }
-			if (!isNone(maxDate)) { maxDate = _time.unix(maxDate).timestamp(); }
-
-			if (get(this, 'utc')) {
-				timestamp = _time.utcToLocal(timestamp).timestamp();
-				if (!isNone(minDate)) { minDate = _time.utcToLocal(minDate).timestamp(); }
-				if (!isNone(maxDate)) { maxDate = _time.utcToLocal(maxDate).timestamp(); }
-			}
-		}
-
-		let selectRound = get(this, 'stateManager.selectRound');
-		timestamp = _time.round(timestamp, selectRound);
-
-		setPrivate(this, 'timestamp', timestamp);
-		setPrivate(this, 'calendar', timestamp);
-		setPrivate(this, 'min', minDate);
-		setPrivate(this, 'max', maxDate);
+		// set timestamp and min max dates
+		this.setupTime();
 
 		// set initial focus state
 		let index = findSectionIndex(this, HOUR_FLAG);
@@ -196,6 +171,50 @@ export default Component.extend(keyEvents, {
 
 		this.setActiveState();
 		this.setupPicker();
+		this.setState();
+	},
+
+	setupTime() {
+		let timestamp = get(this, 'timestamp');
+		let unix = get(this, 'unix');
+		let minDate = get(this, 'minDate');
+		let maxDate = get(this, 'maxDate');
+
+		if (timestamp !== get(this, '__lastTimestamp') || unix !== get(this, '__lastUnix') || minDate !== get(this, '__lastMinDate') || maxDate !== get(this, '__lastMaxDate')) {
+			set(this, '__lastTimestamp', timestamp);
+			set(this, '__lastUnix', unix);
+			set(this, '__lastMinDate', minDate);
+			set(this, '__lastMaxDate', maxDate);
+
+			let time, min, max
+			if (!isNone(unix)) {
+				// assume all dates are unix and convert them to milliseconds
+				time = _time.unix(unix).timestamp()
+				if (!isNone(minDate)) { min = _time.unix(minDate).timestamp(); }
+				if (!isNone(maxDate)) { max = _time.unix(maxDate).timestamp(); }
+
+				if (get(this, 'utc')) {
+					time = _time.utcToLocal(time).timestamp();
+					if (!isNone(minDate)) { min = _time.utcToLocal(min).timestamp(); }
+					if (!isNone(maxDate)) { max = _time.utcToLocal(max).timestamp(); }
+				}
+			} else if (!isNone(timestamp)) {
+				if (get(this, 'utc')) {
+					time = _time.utcToLocal(timestamp).timestamp();
+					if (!isNone(minDate)) { min = _time.utcToLocal(minDate).timestamp(); }
+					if (!isNone(maxDate)) { max = _time.utcToLocal(maxDate).timestamp(); }
+				}
+			}
+
+			setPrivate(this, 'timestamp', time);
+			setPrivate(this, 'calendar', time);
+			setPrivate(this, 'min', min);
+			setPrivate(this, 'max', max);
+		}
+	},
+
+	changeAttrs: observer('timestamp', 'unix', 'minDate', 'maxDate', function() {
+		this.setupTime();
 		this.setState();
 	}),
 
@@ -283,8 +302,12 @@ export default Component.extend(keyEvents, {
 			} else {
 				index = findSectionIndex(this, HOUR_FLAG);
 			}
-			el.data('selection', index);
-			el.focus();
+
+			if (el.data('selection') !== index) {
+				el.data('selection', index);
+				el.data('forceSelection', true);
+				el.focus();
+			}
 		}
 	},
 
@@ -311,12 +334,22 @@ export default Component.extend(keyEvents, {
 			time = _time.utcFromLocal(time).timestamp();
 		}
 
-		let unix = _time(time).unix();
-		set(this, 'timestamp', time);
-		set(this, 'unix', unix);
+		let timestamp;
+		if (!isNone(get(this, 'timestamp'))) {
+			timestamp = time;
+			set(this, '__lastTimestamp', timestamp);
+			set(this, 'timestamp', timestamp);
+		}
+
+		let unix;
+		if (!isNone(get(this, 'unix'))) {
+			unix = _time(time).unix();
+			set(this, '__lastUnix', unix);
+			set(this, 'unix', unix);
+		}
 
 		this.setState();
-		this.sendAction('onChange', time, unix);
+		this.sendAction('onChange', { timestamp, unix });
 	},
 
 	updateTime(type, time, calendar) {

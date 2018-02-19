@@ -321,11 +321,17 @@ export default TextField.extend({
 	},
 
 	focusInEvent: on('focusIn', function(event) {
-		let { selection, position } = getMeta(this, $(event.target));
-		handleFocus(this, selection, position, true);
+		let data = this.$().data();
+		if (get(data, 'forceSelection') === true) {
+			this.$().data('forceSelection', false);
+
+			let { selection, position } = getMeta(this, $(event.target));
+			handleFocus(this, selection, position, true);
+		}
 
 		let type = sectionFormatType(this);
 		this.sendAction('onfocus', event, type);
+
 		let os = getOSType();
 		if (os === 'iOS') {
 			if (!getData(this.$(), 'overrideFocus')) {
