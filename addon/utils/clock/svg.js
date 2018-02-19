@@ -41,6 +41,10 @@ export default class SVG extends Base {
 		return this.snap.select(`.--svg-pivot`);
 	}
 
+	get selectRounder() {
+		return this.__opts.selectRounder && this.__opts.selectRounder > 1 ? this.__opts.selectRounder : 1;
+	}
+
 	has(type, num) {
 		assert(`num is required in svg.at, you pased type {${typeof num}} ${num}`, !isEmpty(num));
 		if (typeof num === 'number') {
@@ -79,22 +83,24 @@ export default class SVG extends Base {
 
 	clean(start, end) {
 		for(let i=start; i<=end; i++) {
-			const { text, arm, plot } = this.at(i);
-			if (!isNone(text)) {
-				text.removeClass('selected');
+			if (i%this.selectRounder === 0) {
+				const { text, arm, plot } = this.at(i);
+				if (!isNone(text)) {
+					text.removeClass('selected');
+				}
+				arm.insertBefore(this.face);
+				plot.insertBefore(this.face);
 			}
-			arm.insertBefore(this.face);
-			plot.insertBefore(this.face);
 		}
 	}
 
 	unselectPlot(value) {
 		const { text, arm, plot } = this.at(value);
 		let next, prev;
-		if (this.has('plot', value - 1)) {
-			prev = this.at(value - 1);
+		if (this.has('plot', value - this.selectRounder)) {
+			prev = this.at(value - this.selectRounder);
 		} else {
-			next = this.at(value + 1);
+			next = this.at(value + this.selectRounder);
 		}
 
 		if (!isNone(text)) {

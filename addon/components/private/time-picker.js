@@ -4,16 +4,19 @@
  */
 import Component from '@ember/component';
 import { isNone } from '@ember/utils';
-import { assert } from '@ember/debug';
+//import { assert } from '@ember/debug';
 import { on } from '@ember/object/evented';
 import { get, getWithDefault, set, computed, observer } from '@ember/object';
 import _time from '@busy-web/ember-date-time/utils/time';
 import { isInBounds, getDate, getHourMinute } from '@busy-web/ember-date-time/utils/clock/data';
 import { createMetaFor, metaFor } from '@busy-web/ember-date-time/utils/clock';
 import { numberToString } from '@busy-web/ember-date-time/utils/clock/string';
-import { HOUR_FLAG, MINUTE_FLAG } from '@busy-web/ember-date-time/utils/clock/base';
-
 import layout from '../../templates/components/private/time-picker';
+import {
+	HOUR_FLAG,
+	MINUTE_FLAG,
+	MERIDIAN_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 
 /***/
 
@@ -25,7 +28,7 @@ import layout from '../../templates/components/private/time-picker';
  * @extends Component
  */
 export default Component.extend({
-	classNames: ['busyweb', 'emberdatetime', 'p-time-picker'],
+	classNames: ['busy-web', 'emberdatetime', 'p-time-picker'],
 	layout: layout,
 
 	stateManager: null,
@@ -73,6 +76,8 @@ export default Component.extend({
 
 	section: HOUR_FLAG,
 
+	invalidTime: false,
+
 	initialize: on('init', function() {
 		this.timeChange();
 		this.sectionChage();
@@ -87,19 +92,24 @@ export default Component.extend({
 		set(this, 'minDate', min);
 		set(this, 'maxDate', max);
 
-		set(this, 'round', getWithDefault(this, 'stateManager.round', 5));
-		set(this, 'selectRound', getWithDefault(this, 'stateManager.selectRound', 1));
+		let selectRound = getWithDefault(this, 'stateManager.selectRound', 1);
+		let round = getWithDefault(this, 'stateManager.round', 5);
+		if (round < selectRound) {
+			round = selectRound;
+		}
+
+		set(this, 'round', round);
+		set(this, 'selectRound', selectRound);
 
 		// create hours clock meta object
 		createMetaFor(this, HOUR_FLAG, 1, 12, min, max, 1);
 
 		// create minutes clock meta object
-		createMetaFor(this, MINUTE_FLAG, 0, 59, min, max, get(this, 'round'), get(this, 'selectRound'));
+		createMetaFor(this, MINUTE_FLAG, 0, 59, min, max, round, selectRound);
 	}),
 
 	renderPicker: on('didInsertElement', function() {
 		this.resetTimeElements();
-		this.clickHandler();
 	}),
 
 	timeChange: observer('stateManager.timestamp', function() {
@@ -111,17 +121,7 @@ export default Component.extend({
 
 	sectionChage: observer('stateManager.section', function() {
 		let section = get(this, 'stateManager.section');
-		if (section === 'meridian') {
-			section = HOUR_FLAG;
-		}
-
-		if (section === HOUR_FLAG || section === MINUTE_FLAG) {
-			set(this, 'lastActive', null);
-			set(this, 'section', section);
-			if (get(this, '_state') === 'inDOM') {
-				this.resetTimeElements();
-			}
-		}
+		this.changeSection(section);
 	}),
 
 	/**
@@ -177,6 +177,21 @@ export default Component.extend({
 		return getHourMinute(type, get(this, 'timestamp'), getWithDefault(this, 'selectRounder', 1));
 	},
 
+	changeSection(section) {
+		if (section === MERIDIAN_FLAG) {
+			section = getWithDefault(this, 'section', HOUR_FLAG);
+		}
+
+		if (section !== get(this, 'section') && (section === HOUR_FLAG || section === MINUTE_FLAG)) {
+			set(this, 'lastActive', null);
+			set(this, 'section', section);
+
+			if (get(this, '_state') === 'inDOM') {
+				this.resetTimeElements();
+			}
+		}
+	},
+
 	resetTimeElements() {
 		this.renderClock();
 		this.cleanClock();
@@ -185,6 +200,8 @@ export default Component.extend({
 		if (get(this, 'lastActive') !== time) {
 			this.setTimestamp(time);
 		}
+
+		this.bindClick();
 	},
 
 	/**
@@ -219,23 +236,27 @@ export default Component.extend({
 		if (!get(this, 'isDestroyed') && get(this, 'timestamp') !== date.valueOf()) {
 			const bounds = isInBounds(date, get(this, 'minDate'), get(this, 'maxDate'));
 			if (bounds.isBefore || bounds.isAfter) {
-				this.setAvailableTimestamp(bounds);
+				set(this, 'invalidTime', true);
+				//this.setAvailableTimestamp(bounds);
 			} else {
-				// save the current date as the timestamp
-				set(this, 'timestamp', date.valueOf());
+				set(this, 'invalidTime', false);
 			}
+
+			// save the current date as the timestamp
+			set(this, 'timestamp', date.valueOf());
+			//}
 		}
 	},
 
-	setAvailableTimestamp(bounds) {
-		if (bounds.isBefore) {
-			this.saveTimestamp(_time(get(this, 'minDate')));
-		} else if (bounds.isAfter) {
-			this.saveTimestamp(_time(get(this, 'maxDate')));
-		} else {
-			assert(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`, false);
-		}
-	},
+	//setAvailableTimestamp(bounds) {
+	//	if (bounds.isBefore) {
+	//		this.saveTimestamp(_time(get(this, 'minDate')));
+	//	} else if (bounds.isAfter) {
+	//		this.saveTimestamp(_time(get(this, 'maxDate')));
+	//	} else {
+	//		assert(`error trying to setAvailableTimestamp with bounds isBefore: ${bounds.isBefore} and isAfter: ${bounds.isAfter}`, false);
+	//	}
+	//},
 
 	/**
 	 * sets the timestamp to be the passed minute
@@ -293,8 +314,17 @@ export default Component.extend({
 		}
 	},
 
-	clickHandler() {
+	bindClick() {
 		if (get(this, '_state') === 'inDOM') {
+			// unregister hour clicks
+			const hourClock = metaFor(this, HOUR_FLAG);
+			hourClock.unclick();
+
+			// unregister minute clicks
+			const minClock = metaFor(this, MINUTE_FLAG);
+			minClock.unclick();
+
+			// bind new click handler
 			const clock = metaFor(this, get(this, 'section'));
 			clock.click(time => {
 				// set the time according to the new angle
@@ -314,9 +344,9 @@ export default Component.extend({
 		 */
 		meridianChange(type) {
 			let time;
-			if (type === 'AM' && get(this, 'meridian') === 'PM') {
+			if (type === 'AM' && get(this, MERIDIAN_FLAG) === 'PM') {
 				time = _time(get(this, 'timestamp')).subtract(12, 'hours');
-			} else if (type === 'PM' && get(this, 'meridian') === 'AM') {
+			} else if (type === 'PM' && get(this, MERIDIAN_FLAG) === 'AM') {
 				time = _time(get(this, 'timestamp')).add(12, 'hours');
 			}
 
@@ -325,7 +355,7 @@ export default Component.extend({
 				this.saveTimestamp(time);
 
 				// notify event listeners that an update has occurred
-				this.sendAction('onUpdate', 'meridian', get(this, 'timestamp'));
+				this.sendAction('onUpdate', get(this, 'section'), get(this, 'timestamp'));
 			}
 		},
 
@@ -335,7 +365,7 @@ export default Component.extend({
 		 * @event hourHeaderClicked
 		 */
 		hourHeaderClicked() {
-			set(this, 'isHourPicker', true);
+			this.changeSection(HOUR_FLAG);
 
 			// notify event listeners that an update has occurred
 			this.sendAction('onUpdate', HOUR_FLAG, get(this, 'timestamp'));
@@ -347,7 +377,7 @@ export default Component.extend({
 		 * @event minuteHeaderClicked
 		 */
 		minuteHeaderClicked() {
-			set(this, 'isHourPicker', false);
+			this.changeSection(MINUTE_FLAG);
 
 			// notify event listeners that an update has occurred
 			this.sendAction('onUpdate', MINUTE_FLAG, get(this, 'timestamp'));

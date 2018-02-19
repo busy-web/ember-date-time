@@ -5,7 +5,8 @@
 import { isNone } from '@ember/utils';
 import { assert } from '@ember/debug';
 import { get, set } from '@ember/object';
-import Base, { HOUR_FLAG } from './clock/base';
+import Base from './clock/base';
+import { HOUR_FLAG } from './constant';
 import dataArray, { /*getHourMinute,*/ getAttrs, createPoints } from './clock/data';
 import render from './clock/render';
 import SVG from './clock/svg';
@@ -67,7 +68,7 @@ class Clock extends dataArray(render(Base)) {
 	get svg() {
 		if (!this.__snap) {
 			const el = this.container.find('svg');
-			this.__snap = new SVG(el.get(0), { min: this.__min, max: this.__max });
+			this.__snap = new SVG(el.get(0), { rounder: this.__rounder, selectRounder: this.__selectRounder, min: this.__min, max: this.__max });
 		}
 		return this.__snap;
 	}
@@ -86,14 +87,21 @@ class Clock extends dataArray(render(Base)) {
 	}
 
 	click(cb) {
-		const _this = this;
+		this.__clickHandler = (evt) => this.clickHandler(evt, cb);
+		this.svg.snap.click(this.__clickHandler);
+	}
+
+	unclick() {
+		this.svg.snap.unclick(this.__clickHandler);
+	}
+
+	clickHandler(evt, cb=function(){}) {
 		const faceAttrs = getAttrs(this.svg.face, ['cx', 'cy']);
-		this.svg.snap.click(function(evt) {
-			// use offsetX and offsetY to get local point to clock
-			let angle = angleOfLine(evt.offsetX, evt.offsetY, faceAttrs.cx, faceAttrs.cy);
-			let point = _this.getPointFromDegree(angle);
-			cb(point.num);
-		});
+
+		// use offsetX and offsetY to get local point to clock
+		let angle = angleOfLine(evt.offsetX, evt.offsetY, faceAttrs.cx, faceAttrs.cy);
+		let point = this.getPointFromDegree(angle);
+		cb(point.num);
 	}
 
 	cleanup() {
@@ -190,23 +198,32 @@ class Clock extends dataArray(render(Base)) {
 	}
 
 	getPointFromDegree(degree) {
-		// get slice num for clock
-		let slice = getSliceFromDegree(this.length, degree);
+		let len = this.__end;
+		if (this.__start === 0) {
+			len = len + 1;
+		}
 
-		// check to see if the slice is on the edge
-		// of a visible number and move to it so clicks
-		// on visible number are easier.
-		const upSlice = Math.ceil(slice);
-		const downSlice = Math.floor(slice);
-		if ((upSlice % this.__rounder) === 0) {
-			slice = upSlice;
-		} else if ((downSlice % this.__rounder) === 0) {
-			slice = downSlice;
+		// get round num for rounding by 1, 5, 10, 15, 30
+		const round = this.__selectRounder || 1;
+
+		// get slice num for clock
+		let slice = getSliceFromDegree(len, degree);
+
+		// round the slice based on the selected round number
+		slice = Math.round(slice / round) * round;
+
+		// make sure max and min numbers are correct
+		if (this.__end < slice) {
+			slice = this.__start;
+		} else if (this.__start > slice) {
+			slice = this.__end;
 		}
-		slice = Math.round(slice);
-		if (slice === 60) {
-			slice = 0;
+
+		// subtract the offset for the array index
+		if (this.__start !== 0) {
+			slice = slice - this.__start;
 		}
+
 		return this.objectAt(slice);
 	}
 }

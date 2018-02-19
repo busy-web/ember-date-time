@@ -7,11 +7,16 @@ import { A } from '@ember/array';
 import { camelize } from '@ember/string';
 import { isNone } from '@ember/utils';
 import { assert, deprecate } from '@ember/debug';
-import { observer, get, set } from '@ember/object';
+import { computed, observer, get, set } from '@ember/object';
 import { on } from '@ember/object/evented';
 import _state from '@busy-web/ember-date-time/utils/state';
 import _time from '@busy-web/ember-date-time/utils/time';
 import layout from '../../templates/components/private/date-picker';
+import {
+	YEAR_FLAG,
+	MONTH_FLAG,
+	DAY_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 
 /**
  * `Component/DatePicker`
@@ -23,6 +28,10 @@ import layout from '../../templates/components/private/date-picker';
 export default Component.extend({
   classNames: ['busyweb', 'emberdatetime', 'p-date-picker'],
   layout: layout,
+
+	dayKey: DAY_FLAG,
+	monthKey: MONTH_FLAG,
+	yearKey: YEAR_FLAG,
 
 	stateManager: null,
 
@@ -72,15 +81,6 @@ export default Component.extend({
   year: null,
 
   /**
-   * month + year string - based off calendarTimestamp
-   *
-   * @private
-   * @property monthYear
-   * @type String
-   */
-  monthYear: null,
-
-  /**
    * array of all days in the current month of calendarTimestamp
    *
    * @private
@@ -123,7 +123,7 @@ export default Component.extend({
    * @property monthActive
    * @type String
    */
-  monthActive: false,
+  months_active: false,
 
   /**
    * becomes string 'active' (binded to classes in template) if dayActive is active
@@ -132,7 +132,7 @@ export default Component.extend({
    * @property monthActive
    * @type dayActive
    */
-  dayActive: false,
+  days_active: false,
 
   /**
    * becomes string 'active' (binded to classes in template) if yearActive is active
@@ -141,16 +141,7 @@ export default Component.extend({
    * @property yearActive
    * @type String
    */
-  yearActive: false,
-
-  /**
-   * becomes string 'active' (binded to classes in template) if monthYearActive is active
-   *
-   * @private
-   * @property monthYearActive
-   * @type String
-   */
-  monthYearActive: false,
+  years_active: false,
 
 
   /**
@@ -161,7 +152,6 @@ export default Component.extend({
   initialize: on('init', function() {
 		this.updateTime();
     this.resetCalendarDate();
-    this.keepCalendarUpdated();
     this.updateActiveSection();
 	}),
 
@@ -207,18 +197,15 @@ export default Component.extend({
 		let section = get(this, 'stateManager.section');
 		if (!isNone(section)) {
 			section = camelize(section);
-			const statusType = ['day', 'month', 'year', 'monthYear'];
+			const statusType = [DAY_FLAG, MONTH_FLAG, YEAR_FLAG];
 
 			// ensure the active status applies to the calendar
 			if (statusType.indexOf(section) !== -1) {
 				// reset active status
-				set(this, 'dayActive', false);
-				set(this, 'monthActive', false);
-				set(this, 'yearActive', false);
-				set(this, 'monthYearActive', false);
+				statusType.forEach(name => set(this, `${name}_active`, false));
 
 				// set new active status
-				set(this, `${section}Active`, true);
+				set(this, `${section}_active`, true);
 			}
 		}
   }),
@@ -227,12 +214,12 @@ export default Component.extend({
    * re configures the calendar when calendarDate is changed, sets the monthYear calendar header
    *
    * @private
-   * @method keepCalendarUpdated
+   * @method monthYear
    */
-  keepCalendarUpdated: observer('calendarDate', 'stateManager.range', function() {
+  monthYear: computed('calendarDate', 'stateManager.range', function() {
     const calendarObject = _time(get(this, 'calendarDate'));
     this.buildDaysArrayForMonth();
-    set(this, 'monthYear', calendarObject.format('MMMM YYYY'));
+    return calendarObject.format('MMMM YYYY');
   }),
 
   /**
@@ -386,7 +373,7 @@ export default Component.extend({
 
 				this.setTimestamp(timestamp);
 
-				this.sendAction('onUpdate', 'days', get(this, 'timestamp'), get(this, 'calendarDate'));
+				this.sendAction('onUpdate', DAY_FLAG, get(this, 'timestamp'), get(this, 'calendarDate'));
 			}
     },
 
@@ -401,10 +388,10 @@ export default Component.extend({
 
 			if (!_time.isDateBefore(calDate, get(this, 'minDate'))) {
 				this.setCalendarDate(calDate);
-				set(this, 'calendarActiveSection', 'month-year');
+				set(this, 'calendarActiveSection', MONTH_FLAG);
 			}
 
-			this.sendAction('onUpdate', 'months', get(this, 'timestamp'), calDate.valueOf());
+			this.sendAction('onUpdate', MONTH_FLAG, get(this, 'timestamp'), calDate.valueOf());
     },
 
     /**
@@ -418,10 +405,10 @@ export default Component.extend({
 
 			if (!_time.isDateAfter(calDate, get(this, 'maxDate'))) {
 				this.setCalendarDate(calDate);
-				set(this, 'calendarActiveSection', 'month-year');
+				set(this, 'calendarActiveSection', MONTH_FLAG);
 			}
 
-			this.sendAction('onUpdate', 'months', get(this, 'timestamp'), calDate.valueOf());
+			this.sendAction('onUpdate', MONTH_FLAG, get(this, 'timestamp'), calDate.valueOf());
     },
 
 		activateHeader(section) {

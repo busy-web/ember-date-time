@@ -12,6 +12,11 @@ import _state from '@busy-web/ember-date-time/utils/state';
 import _time from '@busy-web/ember-date-time/utils/time';
 import { splitFormat, longFormatDate } from '@busy-web/ember-date-time/utils/format';
 import layout from '../templates/components/ember-date-time-picker';
+import {
+	MONTH_FLAG,
+	DAY_FLAG,
+	HOUR_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 
 //import stateManager from '../--private/state';
 
@@ -145,7 +150,7 @@ export default Component.extend(keyEvents, {
 		});
 
 		set(this, '__state', __state);
-		__state.update({ active: 'hours' });
+		__state.update({ active: HOUR_FLAG });
 		*/
 
 		// get locale converted format str
@@ -186,7 +191,7 @@ export default Component.extend(keyEvents, {
 		setPrivate(this, 'max', maxDate);
 
 		// set initial focus state
-		let index = findSectionIndex(this, 'hours');
+		let index = findSectionIndex(this, HOUR_FLAG);
 		set(this, '__defaultFocus', index);
 
 		this.setActiveState();
@@ -218,9 +223,9 @@ export default Component.extend(keyEvents, {
 	setupPicker: observer('hideTime', 'hideDate', function() {
 		const showDate = (this.get('hideTime') || !this.get('hideDate'));
 		const showTime = (this.get('hideDate') || !this.get('hideTime'));
-		let section = 'days';
+		let section = DAY_FLAG;
 		if (!showDate) {
-			section = 'hours';
+			section = HOUR_FLAG;
 		}
 
 		this.setActiveState({ section, showDate, showTime });
@@ -238,11 +243,11 @@ export default Component.extend(keyEvents, {
 			}
 		} else {
 			if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
-				this.set('stateManager.section', 'days');
-				this.focusState('days');
+				this.set('stateManager.section', DAY_FLAG);
+				this.focusState(DAY_FLAG);
 			} else if (!this.get('hideTime') && this.get('lockOpen')) {
-				this.set('stateManager.section', 'hours');
-				this.focusState('hours');
+				this.set('stateManager.section', HOUR_FLAG);
+				this.focusState(HOUR_FLAG);
 			}
 		}
 
@@ -276,7 +281,7 @@ export default Component.extend(keyEvents, {
 			if (!isEmpty(section)) {
 				index = findSectionIndex(this, section);
 			} else {
-				index = findSectionIndex(this, 'hours');
+				index = findSectionIndex(this, HOUR_FLAG);
 			}
 			el.data('selection', index);
 			el.focus();
@@ -318,7 +323,7 @@ export default Component.extend(keyEvents, {
 		time = _time.round(time, get(this, 'stateManager.selectRound'));
 		calendar = _time.round(calendar, get(this, 'stateManager.selectRound'));
 
-		if (type === 'months') {
+		if (type === MONTH_FLAG) {
 			if (!isNone(calendar)) {
 				setPrivate(this, 'calendar', calendar);
 				this.setState();
@@ -332,11 +337,11 @@ export default Component.extend(keyEvents, {
 
 	actions: {
 		dateChange(time) {
-			this.updateTime('days', time);
+			this.updateTime(DAY_FLAG, time);
 		},
 
 		applyChange(time) {
-			this.updateTime('days', time);
+			this.updateTime(DAY_FLAG, time);
 			this.send('closeAction');
 		},
 
@@ -347,8 +352,8 @@ export default Component.extend(keyEvents, {
 		},
 
 		stateChange(section) {
-			if (section === 'm-hours') {
-				section = 'hours';
+			if (section === `m-${HOUR_FLAG}`) {
+				section = HOUR_FLAG;
 			}
 			const isOpen = true;
 			const isTop = this.shouldPickerOpenTop();
@@ -378,7 +383,7 @@ function findSectionIndex(target, type) {
 	let v = splitFormat(value);
 
 	let exp;
-	if (type === 'hours') {
+	if (type === HOUR_FLAG) {
 		exp = _time.typeExp(`m-${type}`);
 		if (!exp.test(format)) {
 			exp = _time.typeExp(type);

@@ -1,5 +1,5 @@
 
-.busyweb {
+.busy-web {
 	&.emberdatetime {
 		&.p-time-picker {
 			position: relative;
@@ -20,6 +20,7 @@
 					border-radius: 2px 2px 0 0;
 					background: $ept-color-7;
 					box-sizing: border-box;
+					color: $ept-color-4-1;
 
 					& > span {
 						height: 100%;
@@ -36,7 +37,6 @@
 							height: 100%;
 							margin: 0;
 							background-color: none;
-							color: $ept-color-4-1;
 						}
 
 						&.numbers-container {
@@ -211,6 +211,46 @@
 							& > .number {
 								&.minutes {
 									color: $ept-color-4;
+								}
+							}
+						}
+					}
+				}
+
+				&.invalid {
+					& > .header {
+						color: lighten(indianred, 20%);
+
+						& > span {
+							&.am-pm-container {
+								& > .button {
+									&.active {
+										color: indianred;
+									}
+								}
+							}
+						}
+					}
+
+					&.hours {
+						& > .header {
+							& > .numbers-container {
+								& > .number {
+									&.hours {
+										color: indianred;
+									}
+								}
+							}
+						}
+					}
+
+					&.minutes {
+						& > .header {
+							& > .numbers-container {
+								& > .number {
+									&.minutes {
+										color: indianred;
+									}
 								}
 							}
 						}

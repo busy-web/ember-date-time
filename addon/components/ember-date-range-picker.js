@@ -16,6 +16,9 @@ import _time from '@busy-web/ember-date-time/utils/time';
 import keyEvent from '@busy-web/ember-date-time/utils/key-event';
 import { longFormatDate } from '@busy-web/ember-date-time/utils/format';
 import layout from '../templates/components/ember-date-range-picker';
+import {
+	DAY_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 
 /**
  * `Component/Busyweb/EmberDateTimePicker`
@@ -458,7 +461,7 @@ export default Component.extend({
 	 */
 	updateDates(type, time, calendar, singleSet=false) {
 		let isStart = get(this, 'isStart');
-		if (type === 'days') {
+		if (type === DAY_FLAG) {
 			if (!singleSet && !isStart && time < getStart(this)) {
 				isStart = true;
 			}
@@ -649,11 +652,11 @@ export default Component.extend({
 		},
 
 		dateChange(time) {
-			this.updateDates('days', time, null, true);
+			this.updateDates(DAY_FLAG, time, null, true);
 		},
 
 		updateTime(state, time) {
-			let isStart = this.updateDates('days', time);
+			let isStart = this.updateDates(DAY_FLAG, time);
 			this.setActiveState(!isStart);
 
 			// resets the focus after the user clicks a day
@@ -673,7 +676,7 @@ export default Component.extend({
 		 */
 		calendarChange(type, time, calendar) {
 			let isStart;
-			if (type === 'days') {
+			if (type === DAY_FLAG) {
 				isStart = this.updateDates(type, time, calendar);
 				this.setActiveState(!isStart);
 				this.focusActive(get(this, '__dayIndex'));

@@ -1,5 +1,5 @@
 
-<div class="clock-container{{if isHourPicker ' hours' ' minutes'}}">
+<div class="clock-container{{if isHourPicker ' hours' ' minutes'}}{{if invalidTime ' invalid'}}">
 	<div class="header">
 		<span class="am-pm-container">
 			<span class="button am{{if isAM ' active'}}" {{action 'meridianChange' 'AM'}}>AM</span>
@@ -22,10 +22,10 @@
 				<circle class="--svg-pivot cls-bright-fill" />
 
 				{{#each __hours__meta.points as |point|}}
-					<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{!action 'clickMinutes' point.num}} />
-					<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
-					<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
-					<text class="--svg-text-{{point.value}} cls-text cls-cursor" {{!action 'clickMinutes' point.num}}>{{point.value}}</text>
+					<path class="--svg-path --svg-path-{{point.value}} cls-transparent cls-cursor" {{!action 'clickMinutes' point.num}} />
+					<line class="--svg-arm --svg-arm-{{point.value}} cls-bright-stroke cls-line" />
+					<circle class="--svg-plot --svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
+					<text class="--svg-text --svg-text-{{point.value}} cls-text cls-cursor" {{!action 'clickMinutes' point.num}}>{{point.value}}</text>
 				{{/each}}
 			</svg>
 		</div>
@@ -36,8 +36,8 @@
 				<title>{{__minutes__meta.type}}</title>
 				{{#each __minutes__meta.points as |point|}}
 					{{#if point.isRender}}
-						<line class="--svg-arm-{{point.value}} cls-bright-stroke cls-line" />
-						<circle class="--svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
+						<line class="--svg-arm --svg-arm-{{point.value}} cls-bright-stroke cls-line" />
+						<circle class="--svg-arm --svg-plot-{{point.value}} cls-bright-fill cls-cursor" />
 					{{/if}}
 				{{/each}}
 
@@ -46,9 +46,9 @@
 
 				{{#each __minutes__meta.points as |point|}}
 					{{#if point.isRender}}
-						<path class="--svg-path-{{point.value}} cls-transparent cls-cursor" {{!action 'clickMinutes' point.num}} />
+						<path class="--svg-path --svg-path-{{point.value}} cls-transparent cls-cursor" {{!action 'clickMinutes' point.num}} />
 						{{#if point.isVisible}}
-							<text class="--svg-text-{{point.value}} cls-text cls-text-small cls-cursor" {{!action 'clickMinutes' point.num}}>{{point.value}}</text>
+							<text class="--svg-text --svg-text-{{point.value}} cls-text cls-text-small cls-cursor" {{!action 'clickMinutes' point.num}}>{{point.value}}</text>
 						{{/if}}
 					{{/if}}
 				{{/each}}

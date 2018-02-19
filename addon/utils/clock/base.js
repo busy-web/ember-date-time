@@ -13,8 +13,3 @@ export default class Base {
 		});
 	}
 }
-
-const HOUR_FLAG = 'hours';
-const MINUTE_FLAG = 'minutes';
-
-export { HOUR_FLAG, MINUTE_FLAG };

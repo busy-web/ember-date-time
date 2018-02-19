@@ -11,11 +11,22 @@ import { run, later } from '@ember/runloop';
 import TextField from "@ember/component/text-field"
 import keyEvent from '@busy-web/ember-date-time/utils/key-event';
 import _time from '@busy-web/ember-date-time/utils/time';
+
 import {
 	getCursorPosition,
 	getFormatSection,
 	longFormatDate
 } from '@busy-web/ember-date-time/utils/format';
+
+import {
+	YEAR_FLAG,
+	MONTH_FLAG,
+	DAY_FLAG,
+	HOUR_FLAG,
+	MINUTE_FLAG,
+	SECONDS_FLAG,
+	MERIDIAN_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 
 /***/
 
@@ -254,7 +265,7 @@ export default TextField.extend({
 		// the time accordingly so that the day does not change.
 		// So hitting up arrow 2 times will change from 'am' => 'pm' => 'am'
 		// and the actual date has not changed.
-		if (type === 'meridian') {
+		if (type === MERIDIAN_FLAG) {
 			const substr = getValue(this).substring(start, end);
 			if (isUp && substr.toLowerCase() === 'pm') {
 				isUp = false;
@@ -446,23 +457,23 @@ function fixSelection(target, val) {
 function sectionBounds(target) {
 	let type = sectionFormatType(target);
 	let max, min = 1;
-	if (type === 'days') {
+	if (type === DAY_FLAG) {
 		const date = _time(get(target, '_date'));
 		max = date.daysInMonth();
-	} else if (type === 'months') {
+	} else if (type === MONTH_FLAG) {
 		max = 12;
-	} else if (type === 'years') {
+	} else if (type === YEAR_FLAG) {
 		max = isNone(get(target, 'max')) ? _time().add(100, 'years').endOf('year').year() : _time(get(target, 'max')).endOf('year').year();
 		min = isNone(get(target, 'min')) ? _time().subtract(100, 'years').startOf('year').year() : _time(get(target, 'min')).startOf('year').year();
-	} else if (type === 'hours') {
+	} else if (type === HOUR_FLAG) {
 		max = 12;
-	} else if (type === 'm-hours') {
+	} else if (type === `m-${HOUR_FLAG}`) {
 		min = 0;
 		max = 24;
-	} else if (type === 'minutes') {
+	} else if (type === MINUTE_FLAG) {
 		min = 0;
 		max = 59;
-	} else if (type === 'seconds') {
+	} else if (type === SECONDS_FLAG) {
 		min = 0;
 		max = 59;
 	}

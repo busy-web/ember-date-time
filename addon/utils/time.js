@@ -165,6 +165,10 @@ _time.isDateBefore = function(date, minDate) {
 			minDate = _time(minDate);
 		}
 
+		if (typeof date === 'number' && !isNaN(date)) {
+			date = _time(date);
+		}
+
 		if (typeof minDate === 'object' && _time.isValidDate(minDate)) {
 			isBefore = date.isBefore(minDate);
 		} else {
@@ -179,6 +183,10 @@ _time.isDateAfter = function(date, maxDate) {
 	if (!isNone(maxDate)) {
 		if (typeof maxDate === 'number' && !isNaN(maxDate)) {
 			maxDate = _time(maxDate);
+		}
+
+		if (typeof date === 'number' && !isNaN(date)) {
+			date = _time(date);
 		}
 
 		if (typeof maxDate === 'object' && _time.isValidDate(maxDate)) {

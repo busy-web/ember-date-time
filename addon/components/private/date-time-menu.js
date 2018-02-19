@@ -4,10 +4,17 @@
  */
 import Component from '@ember/component';
 import $ from 'jquery';
-//import { isNone } from '@ember/utils';
 import { on } from '@ember/object/evented';
 import { get, set, computed, observer } from '@ember/object';
 import _time from '@busy-web/ember-date-time/utils/time';
+import {
+	YEAR_FLAG,
+	MONTH_FLAG,
+	DAY_FLAG,
+	HOUR_FLAG,
+	MINUTE_FLAG,
+	MERIDIAN_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 import layout from '../../templates/components/private/date-time-menu';
 
 /**
@@ -210,12 +217,12 @@ export default Component.extend({
 
 	isClock: computed('stateManager.section', function() {
 		let section = get(this, 'stateManager.section');
-		return (section === 'hours' || section === 'minutes' || section === 'meridian');
+		return (section === HOUR_FLAG || section === MINUTE_FLAG || section === MERIDIAN_FLAG);
 	}),
 
 	isCalendar: computed('stateManager.section', function() {
 		let section = get(this, 'stateManager.section');
-		return (section === 'years' || section === 'months' || section === 'days');
+		return (section === YEAR_FLAG || section === MONTH_FLAG || section === DAY_FLAG);
 	}),
 
 	actions: {
@@ -233,9 +240,9 @@ export default Component.extend({
      * @event togglePicker
      */
 		togglePicker() {
-			let section = 'hours';
+			let section = HOUR_FLAG;
 			if (get(this, 'isClock')) {
-				section = 'days';
+				section = DAY_FLAG;
 			}
 			this.sendAction('onUpdate', section, get(this, 'timestamp'));
 		},

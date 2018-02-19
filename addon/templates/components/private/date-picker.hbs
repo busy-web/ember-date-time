@@ -2,9 +2,9 @@
 <div class="calendar-container">
 	<div class="header-container">
 		<div class="year-container">
-			<div class="date-picker-header-year{{if yearActive ' active'}}" {{action 'activateHeader' 'years' bubbles=false}}>{{year}}</div>
+			<div class="date-picker-header-year{{if years_active ' active'}}" {{action 'activateHeader' yearKey bubbles=false}}>{{year}}</div>
 		</div>
-		<div class="month-container{{if monthActive ' active'}}" {{action 'activateHeader' 'days' bubbles=false}}>
+		<div class="month-container{{if months_active ' active'}}" {{action 'activateHeader' dayKey bubbles=false}}>
 			<div class="week-day">{{dayOfWeek}},</div>
 			<div class="month">{{month}}</div>
 			<div class="day">{{day}}</div>
@@ -14,7 +14,7 @@
 	<div class="calendar-body">
 		<div class="header">
 			<div class="subtract-month arrow" {{action "subtractMonth" bubbles=false}}><span></span></div>
-			<div class="month-year{{if monthYearActive ' active'}}">{{monthYear}}</div>
+			<div class="month-year{{if months_active ' active'}}">{{monthYear}}</div>
 			<div class="add-month arrow" {{action "addMonth" bubbles=false}}><span></span></div>
 		</div>
 

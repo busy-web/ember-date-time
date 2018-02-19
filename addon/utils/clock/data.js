@@ -5,7 +5,7 @@
 import { assert } from '@ember/debug';
 import { isArray } from '@ember/array';
 import { numberToString } from './string';
-import { HOUR_FLAG, MINUTE_FLAG } from './base';
+import { HOUR_FLAG, MINUTE_FLAG } from '../constant';
 import _time from '../time';
 
 const dataArray = Base => class extends Base {
