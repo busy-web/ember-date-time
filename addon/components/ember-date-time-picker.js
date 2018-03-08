@@ -373,7 +373,7 @@ export default Component.extend(keyEvents, {
 			this.updateTime(DAY_FLAG, time);
 		},
 
-		applyChange(time) {
+		applyChange(evt, time) {
 			this.updateTime(DAY_FLAG, time);
 			this.send('closeAction');
 		},

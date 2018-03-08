@@ -386,7 +386,7 @@ export default TextField.extend({
 				} else if (handler.keyName === 'Tab') {
 					this.sendAction('ontabkey', event);
 				} else if (handler.keyName === 'Enter') {
-					this.sendAction('onsubmit', event);
+					this.sendAction('onsubmit', event, get(this, '_date'));
 				}
 			}
 		}
