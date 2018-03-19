@@ -62,8 +62,7 @@ function createSectionMap(str) {
 	let sections = [];
 	let start = 0,		// index for the start of a section
 			end = 0,			// index for the end of a section
-			index = 0,		// tracks the current section for indexing each char
-			parsed = 0;		// prevents section changes due to multiple splitter types in a row like `, `
+			index = 0;		// tracks the current section for indexing each char
 
 	// loop over each char and assign it to the a section
 	// for example:
@@ -75,13 +74,10 @@ function createSectionMap(str) {
 	for(let i=0; i<str.length; i++) {
 		end = start + split[index].length;
 		map.set(i, index);
-		if (REGX.test(str[i]) && parsed > 0) {
+		if (REGX.test(str[i]) && !REGX.test(str[i+1])) {
 			sections.push({ start, end });
-			parsed = 0;
 			index += 1;
 			start = i+1;
-		} else {
-			parsed += 1;
 		}
 	}
 
