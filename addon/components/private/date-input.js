@@ -69,7 +69,7 @@ export default TextField.extend({
 		}
 
 		// get the current value as a date object
-		const date = _time(getValue(this), get(this, 'format'));
+		const date = getDate(this); //_time(getValue(this), get(this, 'format'));
 
 		// date must be valid and within range to be a valid date range
 		if (date.isValid() && this.isDateInBounds(date)) {
@@ -90,6 +90,7 @@ export default TextField.extend({
 		} else {
 			date = _time();
 		}
+		set(this, '__year', date.year());
 		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
 	}),
@@ -113,6 +114,7 @@ export default TextField.extend({
 
 	timestampChange: observer('timestamp', function() {
 		let date = _time(get(this, 'timestamp'));
+		set(this, '__year', date.year());
 		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
 	}),
@@ -150,7 +152,7 @@ export default TextField.extend({
 	},
 
 	finalizeDateSection() {
-		let date = _time(getValue(this), get(this, 'format'));
+		let date = getDate(this); //_time(getValue(this), get(this, 'format'));
 		if (date.isValid()) {
 			if (get(this, '_date') !== date.timestamp()) {
 				this.submitChange(date);
@@ -293,8 +295,8 @@ export default TextField.extend({
 
 
 		if (val) {
+			set(this, '__year', val.year());
 			const newVal = val.format(get(this, 'format'));
-
 			fixSelection(this, newVal);
 			setValue(this, newVal);
 			handleCursor(this, '');
@@ -400,6 +402,18 @@ function getOSType() {
 	} else if (/Android/.test(window.navigator.userAgent)) {
 		return 'Android';
 	}
+}
+
+function getDate(target) {
+	let format = get(target, 'format');
+	let value = getValue(target);
+
+	if (!/YY/.test(format)) {
+		format = format + ' YYYY';
+		value = value + ' ' + get(target, '__year');
+	}
+
+	return _time(value, format);
 }
 
 function setValue(target, value) {
