@@ -69,7 +69,7 @@ export default TextField.extend({
 		}
 
 		// get the current value as a date object
-		const date = getDate(this); //_time(getValue(this), get(this, 'format'));
+		const date = getDate(this);
 
 		// date must be valid and within range to be a valid date range
 		if (date.isValid() && this.isDateInBounds(date)) {
@@ -152,7 +152,13 @@ export default TextField.extend({
 	},
 
 	finalizeDateSection() {
-		let date = getDate(this); //_time(getValue(this), get(this, 'format'));
+		let date = getDate(this);
+		let selectRound = getWithDefault(this, 'selectRound', 1);
+		if (selectRound%date.minute() !== 0) {
+			date = _time(_time.round(date.timestamp(), selectRound));
+			setValue(this, date.format(get(this, 'format')));
+		}
+
 		if (date.isValid()) {
 			if (get(this, '_date') !== date.timestamp()) {
 				this.submitChange(date);

@@ -224,7 +224,7 @@ export default Component.extend(keyEvents, {
 		let minDate = getPrivate(this, 'min');
 		let maxDate = getPrivate(this, 'max');
 		let format = getPrivate(this, 'format');
-		let selectRound = getWithDefault(this, 'round', 1);
+		let selectRound = parseInt(getWithDefault(this, 'round', 1), 10);
 		timestamp = _time.round(timestamp, selectRound);
 
 		if (isNone(get(this, 'stateManager'))) {
