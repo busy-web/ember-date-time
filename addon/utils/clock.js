@@ -123,7 +123,10 @@ class Clock extends dataArray(render(Base)) {
 	}
 
 	setBounds(minX, minY, width, height) {
-		this.svg.snap.attr({viewBox: `${minX} ${minY} ${width} ${height}`});
+		// hide box until calculations have been made
+		// safari fix
+		this.svg.__el.style.display = "none";
+		this.svg.snap.attr({ viewBox: `${minX} ${minY} ${width} ${height}` });
 
 		const faceCoords = getBoundsCenter(width, height);
 
@@ -146,8 +149,14 @@ class Clock extends dataArray(render(Base)) {
 			// calculate text position if there is a text
 			// at this number
 			if (!isNone(text)) {
+				// show box long enough to get text box size
+				this.svg.__el.style.display = "";
 				const bounds = text.node.getBBox();
-				let tAttr = `translate(${(armCoords.x2 - (bounds.width / 2))}, ${(armCoords.y2 + (bounds.height / 3))})`;
+				this.svg.__el.style.display = "none";
+
+				let tx = (armCoords.x2 - (bounds.width / 2));
+				let ty = (armCoords.y2 + (bounds.height / 3));
+				let tAttr = `translate(${tx}, ${ty})`;
 				text.attr('transform', tAttr);
 			}
 
@@ -158,6 +167,8 @@ class Clock extends dataArray(render(Base)) {
 				path.attr(pt);
 			}
 		});
+		// show box
+		this.svg.__el.style.display = "";
 	}
 
 	handleDrag(num, cb) {

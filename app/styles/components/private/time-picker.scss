@@ -123,7 +123,9 @@
 						$clock-hand-stroke: ($ept-width * .0087);
 
 						& > svg {
+							margin: 0;
 							pointer-events: all;
+							box-sizing: content-box;
 
 							.cls-dark-fill {
 								fill: $ept-color-2;
