@@ -58,6 +58,7 @@ function _time(...args) {
 _time.unix = time => new Time(moment.unix(time));
 _time.utc = time => new Time(moment.utc(time));
 _time.localeData = () => moment.localeData();
+_time.locale = () => moment.locale();
 _time.duration = (time, type) => moment.duration(time, type);
 
 _time.daysApart = (start, end) => Math.floor(moment.duration(end - start, 'ms').asDays());
@@ -245,3 +246,43 @@ function convertType(type) {
 }
 
 export default _time;
+
+const LOCALE_DATA = {
+	"en": {
+		this_day: 'Today',
+		next_day: 'Tomorrow',
+		last_day: 'Yesterday',
+		this_week: 'This Week',
+		next_week: 'Next Week',
+		last_week: 'Last Week',
+		this_month: 'This Month',
+		next_month: 'Next Month',
+		last_month: 'Last Month'
+	},
+	"en-us": {
+		this_day: 'Today',
+		next_day: 'Tomorrow',
+		last_day: 'Yesterday',
+		this_week: 'This Week',
+		next_week: 'Next Week',
+		last_week: 'Last Week',
+		this_month: 'This Month',
+		next_month: 'Next Month',
+		last_month: 'Last Month'
+	},
+	"es": {
+		this_day: 'Hoy',
+		next_day: 'Mañana',
+		last_day: 'Ayer',
+		this_week: 'Esta Semana',
+		next_week: 'La Próxima Semana',
+		last_week: 'La Semana Pasada',
+		this_month: 'Este Mes',
+		next_month: 'Próximo Mes',
+		last_month: 'El Mes Pasado'
+	}
+};
+
+export function i18n(key) {
+	return LOCALE_DATA[_time.locale()][key];
+}

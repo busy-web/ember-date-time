@@ -6,13 +6,13 @@ import $ from 'jquery';
 import Component from '@ember/component';
 import EmberObject, { set, get, computed } from '@ember/object';
 import { next, later } from '@ember/runloop';
-import { underscore } from '@ember/string';
+import { underscore, classify } from '@ember/string';
 import { on } from '@ember/object/evented';
 import { isEmpty, isNone } from '@ember/utils';
 import { loc } from '@ember/string';
 import { assert } from '@ember/debug';
 import _state from '@busy-web/ember-date-time/utils/state';
-import _time from '@busy-web/ember-date-time/utils/time';
+import _time, { i18n } from '@busy-web/ember-date-time/utils/time';
 import keyEvent from '@busy-web/ember-date-time/utils/key-event';
 import { longFormatDate } from '@busy-web/ember-date-time/utils/format';
 import layout from '../templates/components/ember-date-range-picker';
@@ -107,6 +107,9 @@ export default Component.extend({
 	isListOpen: false,
 	isCustom: false,
 	activeDates: null,
+	weekStart: 0,
+	defaultDateOnChange: true,
+	restrictAfterNow: false,
 
 	inputDataName: computed('elementId', function() {
 		return `range-picker-${get(this, 'elementId')}`;
@@ -121,8 +124,17 @@ export default Component.extend({
 	}),
 
 	disableNext: computed('selected', '_start', '_max', function() {
-		const { start } = this.getInterval(1);
-		return get(this, '_max') < start;
+		if (get(this, 'restrictAfterNow')) {
+			const today = _time();
+			const start = _time(getStart(this));
+			const end = _time(getEnd(this));
+			if (today.valueOf() >= start.valueOf() && today.valueOf() <= end.valueOf()) {
+				return true;
+			}
+		}
+
+		const { startTime } = this.getInterval(1);
+		return get(this, '_max') < startTime;
 	}),
 
 	disablePrev: computed('selected', '_end', '_min', function() {
@@ -130,22 +142,60 @@ export default Component.extend({
 		return get(this, '_min') > end;
 	}),
 
+	isInRange(date, start, end) {
+		return (date.valueOf() >= start.valueOf() && date.valueOf() <= end.valueOf())
+	},
+
 	selectedDateRange: computed('selected', '_start', '_end', 'format', function() {
 		const { id } = get(this, 'selected');
 		const start = _time(getStart(this));
 		const end = _time(getEnd(this));
-		if (start.year() !== end.year()) {
-			return `${start.format('ll')} - ${end.format('ll')}`;
-		} else if (start.month() !== end.month()) {
-			return `${start.format('MMM DD')} - ${end.format('MMM DD')}`;
-		} else {
-			if (id === 'monthly') {
-				return start.format('MMMM');
-			} else if (start.date() === end.date()) {
-				return `${start.format('MMM DD')} - ${end.format('MMM DD')}`;
-			} else {
-				return `${start.format('MMM DD')} - ${end.format('MMM DD')}`;
+		let isCurrent = false;
+		if (this.isInRange(_time(), start, end)) {
+			isCurrent = true;
+		}
+
+		if (id === 'monthly') {
+			if (isCurrent) {
+				return i18n('this_month');
+			} else if (this.isInRange(_time().add(1, 'months'), start, end)) {
+				return i18n('next_month');
+			} else if (this.isInRange(_time().subtract(1, 'months'), start, end)) {
+				return i18n('last_month');
+			} else if (_time().year() !== start.year()) {
+				return classify(start.format('MMMM')) + ' ' + start.year();
 			}
+			return classify(start.format('MMMM'));
+		} else if (id === 'weekly') {
+			if (isCurrent) {
+				return i18n('this_week');
+			} else if (this.isInRange(_time().add(1, 'weeks'), start, end)) {
+				return i18n('next_week');
+			} else if (this.isInRange(_time().subtract(1, 'weeks'), start, end)) {
+				return i18n('last_week');
+			} else if (_time().year() !== start.year() && start.year() !== end.year()) {
+				return `${start.format('MMM D YYYY')} - ${end.format('MMM D YYYY')}`;
+			} else if (_time().year() !== start.year()) {
+				return `${start.format('MMM D')} - ${end.format('MMM D YYYY')}`;
+			}
+			return `${start.format('MMM D')} - ${end.format('MMM D')}`;
+		} else if (id === 'daily') {
+			if (isCurrent) {
+				return i18n('this_day');
+			} else if (this.isInRange(_time().add(1, 'days'), start, end)) {
+				return i18n('next_day');
+			} else if (this.isInRange(_time().subtract(1, 'days'), start, end)) {
+				return i18n('last_day');
+			} else if (_time().year() === start.year() && _time().week() === start.week()) {
+				return start.format('dddd');
+			} else if (_time().year() !== start.year()) {
+				return `${start.format('MMM D')} - ${end.format('MMM D YYYY')}`;
+			}
+			return `${start.format('MMM D')}`;
+		} else if (start.year() !== end.year()) {
+			return `${start.format('ll')} - ${end.format('ll')}`;
+		} else {
+			return `${start.format('MMM D')} - ${end.format('MMM D')}`;
 		}
 	}),
 
@@ -322,8 +372,11 @@ export default Component.extend({
 		let { span, type } = get(this, 'selected');
 		let start, end;
 		if (!isEmpty(type) && !isNone(span)) {
-			const endType = type.replace(/s$/, '');
-			start = _time(getStart(this));
+			start = _time(getStart(this)).valueOf();
+			end = _time(getEnd(this)).valueOf();
+
+			let currentSpanInSeconds = _time(end).unix() - _time(start).unix();
+			let selectedSpanInSeconds = _time(start).add(span, type).unix() - _time(start).unix();
 
 			if (typeof span === 'function') {
 				start = getUserStart(this);
@@ -334,14 +387,34 @@ export default Component.extend({
 				start = setUserStart(this, range.start);
 				end = setUserEnd(this, range.end);
 			} else {
-				if (direction === -1) {
-					start = start.subtract(span, type).valueOf();
-				} else if (direction === 1) {
-					start = start.add(span, type).valueOf();
-				} else {
-					start = start.startOf(endType).valueOf();
+				// if the current time span is greater than selected time span
+				// then set the new start to the end of the current period.
+				// this will keep the date more current.
+				if (currentSpanInSeconds > selectedSpanInSeconds) {
+					start = _time(getEnd(this)).startOf('day').valueOf();
+					if (!isNone(get(this, '_max')) && start > get(this, '_max')) {
+						start = _time(get(this, '_max')).subtract(span, type).startOf('day').valueOf();
+					}
 				}
 
+				if (type === 'weeks') {
+					if (_time(start).day() !== get(this, 'weekStart')) {
+						start = _time(start).day(get(this, 'weekStart')).valueOf();
+					}
+				} else if (type === 'months') {
+					// for months use startof month for proper month alignment
+					start = _time(start).startOf('month').valueOf();
+				}
+
+				if (direction === -1) {
+					start = _time(start).subtract(span, type).valueOf();
+				} else if (direction === 1) {
+					start = _time(start).add(span, type).valueOf();
+				} else {
+					start = _time(start).startOf('day').valueOf();
+				}
+
+				start = start.valueOf();
 				end = _time(start).add(span, type).subtract(1, 'days').endOf('day').valueOf();
 			}
 		}
@@ -422,7 +495,9 @@ export default Component.extend({
 		this.setState();
 
 		set(this, 'changeFired', true);
-		this.sendAction('onChange', start, end, get(this, 'isCustom'));
+
+		let selectedType = get(this, 'isCustom') ? 'custom' : get((get(this, '__actionList').findBy('selected', true) || {id: 'weekly'}), 'id');
+		this.sendAction('onChange', start, end, get(this, 'isCustom'), selectedType);
 	},
 
 	/**
@@ -527,6 +602,12 @@ export default Component.extend({
 		} else {
 			set(this, 'isCustom', false);
 			selected = get(this, '__actionList').findBy('id', id);
+			if (get(this, 'defaultDateOnChange')) {
+				if (get(this, 'selected.id') !== get(selected, 'id')) {
+					setStart(this, _time().startOf('day').valueOf());
+					setEnd(this, _time().endOf('day').valueOf());
+				}
+			}
 		}
 
 		set(selected, 'selected', true);
