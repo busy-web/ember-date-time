@@ -71,10 +71,12 @@ module.exports = {
 function defineValue(name, _export, content) {
 	return `define(['${name}'], function() { ` +
 		`return (function() {\n` +
-			`${content}\n` +
-			`let ret = {};` +
-			`'${_export.join(',')}'.split(',').forEach(key => ret[key] = window[key]);` +
-			`return ret;` +
-		`}).bind(window)();` +
-	`});`;
+			`(function() { ${content} })();\n\n` +
+			`\nreturn (function() { \n` +
+				`let ret = {};\n` +
+				`'${_export.join(',')}'.split(',').forEach(function(key) { ret[key] = window[key]; });\n` +
+				`return ret;\n` +
+			`})();\n\n` +
+		`}).bind(window)();\n` +
+	`});\n`;
 }
