@@ -1,6 +1,6 @@
 {
   "name": "@busy-web/ember-date-time",
-  "version": "2.1.16",
+  "version": "2.1.17",
   "description": "Date time & and range picker for ember addon",
   "keywords": [
     "ember-addon",
