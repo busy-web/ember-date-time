@@ -258,8 +258,8 @@ export default Component.extend(keyEvents, {
 		if (!isEmpty(options.section)) {
 			if (get(this, 'stateManager.section') !== options.section) {
 				this.set('stateManager.section', options.section);
-				this.focusState(options.section);
 			}
+			this.focusState(options.section);
 		} else {
 			if (this.get('hideTime') && !this.get('hideDate') && this.get('lockOpen')) {
 				this.set('stateManager.section', DAY_FLAG);
@@ -306,8 +306,9 @@ export default Component.extend(keyEvents, {
 			if (el.data('selection') !== index) {
 				el.data('selection', index);
 				el.data('forceSelection', true);
-				el.focus();
 			}
+
+			el.focus();
 		}
 	},
 

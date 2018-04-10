@@ -6,7 +6,9 @@ import Component from '@ember/component';
 import $ from 'jquery';
 import { on } from '@ember/object/evented';
 import { get, set, computed, observer } from '@ember/object';
+import { isEmpty } from '@ember/utils';
 import _time from '@busy-web/ember-date-time/utils/time';
+import { bind, unbind } from '@busy-web/ember-date-time/utils/event';
 import {
 	YEAR_FLAG,
 	MONTH_FLAG,
@@ -127,58 +129,108 @@ export default Component.extend({
 	}),
 
 	setupTime: observer('stateManager.timestamp', function() {
-		set(this, 'minDate', get(this, 'stateManager.minDate'));
-		set(this, 'maxDate', get(this, 'stateManager.maxDate'));
-		set(this, 'timestamp', get(this, 'stateManager.timestamp'));
-    set(this, 'backupTimestamp', get(this, 'timestamp'));
+		if (!this.get('isDestroyed')) {
+			set(this, 'minDate', get(this, 'stateManager.minDate'));
+			set(this, 'maxDate', get(this, 'stateManager.maxDate'));
+			set(this, 'timestamp', get(this, 'stateManager.timestamp'));
+			set(this, 'backupTimestamp', get(this, 'timestamp'));
+		}
   }),
 
-	bindListeners() {
-    if (get(this, 'isClock') === true || get(this, 'isCalendar') === true) {
-      const modal = $(document);
-      const thisEl = this.$();
-			const id = thisEl.attr('id');
+	/**
+	 * binds a click event that will call the provided
+	 * action anytime a click occurs not within the component
+	 *
+	 * NOTE:
+	 * The action name provided will get called everytime a click occurs so the
+	 * action should only handle on thing like closing a drop down vs toggling a dropdown.
+	 * this will prevent accidently opening the dialog when it is closed and a click occurs.
+	 *
+	 * @public
+	 * @method bindClick
+	 * @return {void}
+	 */
+	bindClick() {
+		// save this for later
+		const _this = this;
 
-      modal.bind(`click.c-date-time-picker-${id}`, (evt) => {
-        if (!get(this, 'isDestroyed')) {
-          let el = $(evt.target);
+		// get the components elementId
+		let elementId = get(this, 'elementId');
 
-          let elMain = el.parents('.c-date-time-picker');
-          let thisMain = thisEl.parents('.c-date-time-picker');
+		// make sure an elementId exists on the class
+		// using this mixin
+		if (!isEmpty(elementId)) {
+			// bind the click listener
+			bind(document, 'click', elementId, function(evt) {
+				// get the element that was clicked on
+				const el = $(evt.target);
 
-          if (elMain.attr('id') !== thisMain.attr('id')) {
-            if(el.attr('class') !== 'c-date-time-picker' || el.parents('.c-date-time-picker').length === 0) {
-              if(!el.hasClass('keepOpen')) {
-                if(get(this, 'isClock') === true || get(this, 'isCalendar') === true) {
-									this.unbindListeners();
-                  this.send('close');
-                }
-              }
-            }
-          }
-        }
-      });
+				// if the clicked element id does not match the components id and the clicked
+				// elements parents dont have an id that matches then call the action provided
+				if (el.attr('id') !== elementId && el.parents(`#${elementId}`).length === 0) {
+					// send a call to the actionName
+					evt.stopPropagation();
+					evt.preventDefault();
 
-      modal.bind(`keyup.c-date-time-picker-${id}`, (e) => {
-        if (!get(this, 'isDestroyed')) {
-          let key = e.which;
-          if (key === 27) {
-						this.unbindListeners();
-            this.send('cancel');
-          } else if (key === 13) {
-						this.unbindListeners();
-            this.send('close');
-          }
-        }
-      });
-    }
-  },
+					// call handler
+					_this.unbindClick();
+					_this.send('close');
+					return false;
+				}
+			}, { capture: true, rebind: true });
+		}
+	},
 
-	unbindListeners() {
-    let modal = $(document);
-		const id = this.$().attr('id');
-    modal.unbind(`click.c-date-time-picker-${id}`);
-    modal.unbind(`keyup.c-date-time-picker-${id}`);
+	bindKeyup() {
+		// save this for later
+		const _this = this;
+
+		// get the components elementId
+		let elementId = get(this, 'elementId');
+
+		// make sure an elementId exists on the class
+		// using this mixin
+		if (!isEmpty(elementId)) {
+			bind(document, 'keyup', elementId, function(evt) {
+				let key = evt.which;
+				if (key === 27) {
+					_this.closeHandler('cancel');
+				} else if (key === 13) {
+					_this.closeHandler('close');
+				}
+			}, { capture: true, rebind: true });
+		}
+	},
+
+	/**
+	 * method to unbind a click event that may have been
+	 * setup by this components
+	 *
+	 * @public
+	 * @method unbindClick
+	 */
+	unbindClick() {
+		// get the components elementId
+		let elementId = get(this, 'elementId');
+
+		// make sure an elementId exists on the class
+		// using this mixin
+		if (!isEmpty(elementId)) {
+			// unbind any previous click listeners
+			unbind(document, 'click', elementId);
+		}
+	},
+
+	unbindKeyup() {
+		// get the components elementId
+		let elementId = get(this, 'elementId');
+
+		// make sure an elementId exists on the class
+		// using this mixin
+		if (!isEmpty(elementId)) {
+			// unbind any previous click listeners
+			unbind(document, 'keyup', elementId);
+		}
 	},
 
   /**
@@ -187,8 +239,7 @@ export default Component.extend({
    * @method didInsertElement
    */
   onOpen: on('didInsertElement', function() {
-		this.unbindListeners();
-		this.bindListeners();
+		this.bindHandler();
 	}),
 
   /**
@@ -197,7 +248,7 @@ export default Component.extend({
    * @method removeClick
    */
   onClose: on('willDestroyElement', function() {
-		this.unbindListeners();
+		this.closeHandler();
   }),
 
   /**
@@ -208,10 +259,9 @@ export default Component.extend({
    */
 	observeCloseOnTab: observer('stateManager.isOpen', function() {
 		if (get(this, 'stateManager.isOpen')) {
-			this.unbindListeners();
-			this.bindListeners();
+			this.bindHandler();
 		} else {
-			this.unbindListeners();
+			this.closeHandler();
 		}
 	}),
 
@@ -224,6 +274,19 @@ export default Component.extend({
 		let section = get(this, 'stateManager.section');
 		return (section === YEAR_FLAG || section === MONTH_FLAG || section === DAY_FLAG);
 	}),
+
+	bindHandler() {
+		this.bindClick();
+		this.bindKeyup();
+	},
+
+	closeHandler(type) {
+		this.unbindClick();
+		this.unbindKeyup();
+		if (!isEmpty(type)) {
+			this.send(type);
+		}
+	},
 
 	actions: {
 		update(focus, time, calendar) {
@@ -253,7 +316,9 @@ export default Component.extend({
 		 * @event togglePicker
 		 */
 		close() {
-			set(this, 'backupTimestamp', get(this, 'timestamp'));
+			if (!get(this, 'isDestroyed')) {
+				set(this, 'backupTimestamp', get(this, 'timestamp'));
+			}
 			this.sendAction('onClose');
 		},
 
@@ -263,12 +328,16 @@ export default Component.extend({
      * @event togglePicker
      */
 		cancel() {
-			set(this, 'timestamp', get(this, 'backupTimestamp'));
+			if (!get(this, 'isDestroyed')) {
+				set(this, 'timestamp', get(this, 'backupTimestamp'));
+			}
 			this.sendAction('onClose');
 		},
 
 		onHeaderSelect(type) {
-			//set(this, 'stateManager.section', type);
+			//if (!get(this, 'isDestroyed')) {
+			//	set(this, 'stateManager.section', type);
+			//}
 			this.sendAction('onUpdate', type, get(this, 'timestamp'));
 		}
 	}
