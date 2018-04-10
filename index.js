@@ -69,14 +69,12 @@ module.exports = {
 };
 
 function defineValue(name, _export, content) {
-	return `define(['${name}'], function() { ` +
+	return `define(['${name}'], function() {\n` +
+		`(function() { ${content} }).bind(window)();\n` +
 		`return (function() {\n` +
-			`(function() { ${content} })();\n\n` +
-			`\nreturn (function() { \n` +
-				`let ret = {};\n` +
-				`'${_export.join(',')}'.split(',').forEach(function(key) { ret[key] = window[key]; });\n` +
-				`return ret;\n` +
-			`})();\n\n` +
-		`}).bind(window)();\n` +
-	`});\n`;
+			`let exports = {};\n` +
+			`'${_export.join(',')}'.split(',').forEach(function(key) { exports[key] = window[key] });\n` +
+			`return exports;\n` +
+		`})();\n` +
+	`});`;
 }
