@@ -96,11 +96,26 @@ class Clock extends dataArray(render(Base)) {
 	}
 
 	clickHandler(evt, cb=function(){}) {
+		evt = evt || window.event;
+		// use the svg element as our target element
+		const target = this.container.find('svg').get(0);
+
+		// get the main clock center x and y
 		const faceAttrs = getAttrs(this.svg.face, ['cx', 'cy']);
+		const cx = parseInt(faceAttrs.cx, 10);
+		const cy = parseInt(faceAttrs.cy, 10);
+
+		// calculate offset because any browser other than chrome
+		// is not caluculating it correctly
+		const rect = target.getBoundingClientRect();
+		const offsetX = evt.clientX - rect.left;
+		const offsetY = evt.clientY - rect.top;
 
 		// use offsetX and offsetY to get local point to clock
-		let angle = angleOfLine(evt.offsetX, evt.offsetY, faceAttrs.cx, faceAttrs.cy);
+		let angle = angleOfLine(offsetX, offsetY, cx, cy);
 		let point = this.getPointFromDegree(angle);
+
+		// call the callback with the number selected
 		cb(point.num);
 	}
 

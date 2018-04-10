@@ -328,10 +328,12 @@ export default TextField.extend({
 
 	focusInEvent: on('focusIn', function(event) {
 		let data = this.$().data();
-		if (get(data, 'forceSelection') === true) {
+
+		// prevent open picker from selecting the wrong section
+		if (!this.$().is(':active') || get(data, 'forceSelection') === true) {
 			this.$().data('forceSelection', false);
 
-			let { selection, position } = getMeta(this, $(event.target));
+			let { selection, position } = getMeta(this, this.$());
 			handleFocus(this, selection, position, true);
 		}
 
