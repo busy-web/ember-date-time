@@ -71,10 +71,9 @@ module.exports = {
 function defineValue(name, _export, content) {
 	return `define(['${name}'], function() {\n` +
 		`(function() { ${content} }).bind(window)();\n` +
-		`return (function() {\n` +
-			`let exports = {};\n` +
+		`return (function(exports) {\n` +
 			`'${_export.join(',')}'.split(',').forEach(function(key) { exports[key] = window[key] });\n` +
 			`return exports;\n` +
-		`})();\n` +
+		`})({});\n` +
 	`});`;
 }
