@@ -6,7 +6,7 @@ import $ from 'jquery';
 import { Promise as EmberPromise, resolve } from 'rsvp';
 import { observer, computed, get, getWithDefault, set } from '@ember/object';
 import { isNone, isEmpty } from '@ember/utils';
-import { on } from '@ember/object/evented';
+//import { on } from '@ember/object/evented';
 import { run, later } from '@ember/runloop';
 import TextField from "@ember/component/text-field"
 import keyEvent from '@busy-web/ember-date-time/utils/key-event';
@@ -21,6 +21,7 @@ import {
 import {
 	YEAR_FLAG,
 	MONTH_FLAG,
+	//WEEKDAY_FLAG,
 	DAY_FLAG,
 	HOUR_FLAG,
 	MINUTE_FLAG,
@@ -83,24 +84,29 @@ export default TextField.extend({
 	 * is rendered.
 	 *
 	 */
-	setupComponent: on('init', function() {
+	init(...args) {
+		this._super(...args);
+
 		let date;
 		if (!isNone(get(this, 'timestamp'))) {
 			date = _time(get(this, 'timestamp'));
 		} else {
 			date = _time();
 		}
+
 		set(this, '__year', date.year());
 		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
-	}),
+	},
 
 	/**
 	 * initialize the DOM object after render has
 	 * finished.
 	 *
 	 */
-	finishSetup: on('didInsertElement', function() {
+	didInsertElement(...args) {
+		this._super(...args);
+
 		let format = get(this, 'format');
 		format = longFormatDate(format);
 
@@ -110,7 +116,7 @@ export default TextField.extend({
 		setData(this.$(), 'linked', null);
 
 		set(this, 'keyboard', getKeyboardStyle());
-	}),
+	},
 
 	timestampChange: observer('timestamp', function() {
 		let date = _time(get(this, 'timestamp'));
@@ -326,7 +332,7 @@ export default TextField.extend({
 		return handler.preventDefault();
 	},
 
-	focusInEvent: on('focusIn', function(event) {
+	focusIn(event) {
 		let data = this.$().data();
 
 		// prevent open picker from selecting the wrong section
@@ -350,14 +356,14 @@ export default TextField.extend({
 		} else if (os === 'Android') {
 			this.$().blur();
 		}
-	}),
+	},
 
-	focusOutEvent: on('focusOut', function(event) {
+	focusOut(event) {
 		this.set('active', false);
 		this.sendAction('onblur', event);
-	}),
+	},
 
-	clickEvent: on('click', function(event) {
+	click(event) {
 		event.stopPropagation();
 		let index = event.target.selectionStart;
 
@@ -373,7 +379,7 @@ export default TextField.extend({
 			setData(this.$(), 'overrideFocus', true);
 			later(() => this.$().focus(), 10);
 		}
-	}),
+	},
 
 	keyDown(event) {
 		// TODO:
@@ -413,9 +419,13 @@ function getOSType() {
 }
 
 function getDate(target) {
-	let format = get(target, 'format');
-	let value = getValue(target);
+	let format = getData(target.$(), 'format');
+	if (isEmpty(format)) {
+		format = get(target, 'format');
+		format = longFormatDate(format);
+	}
 
+	let value = getValue(target);
 	if (!/YY/.test(format)) {
 		format = format + ' YYYY';
 		value = value + ' ' + get(target, '__year');

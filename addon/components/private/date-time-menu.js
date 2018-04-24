@@ -4,7 +4,6 @@
  */
 import Component from '@ember/component';
 import $ from 'jquery';
-import { on } from '@ember/object/evented';
 import { get, set, computed, observer } from '@ember/object';
 import { isEmpty } from '@ember/utils';
 import _time from '@busy-web/ember-date-time/utils/time';
@@ -12,6 +11,7 @@ import { bind, unbind } from '@busy-web/ember-date-time/utils/event';
 import {
 	YEAR_FLAG,
 	MONTH_FLAG,
+	WEEKDAY_FLAG,
 	DAY_FLAG,
 	HOUR_FLAG,
 	MINUTE_FLAG,
@@ -124,9 +124,11 @@ export default Component.extend({
    * @method init
    * @constructor
    */
-  initialize: on('init', function() {
+	init(...args) {
+		this._super(...args);
+
 		this.setupTime();
-	}),
+	},
 
 	setupTime: observer('stateManager.timestamp', function() {
 		if (!this.get('isDestroyed')) {
@@ -238,18 +240,22 @@ export default Component.extend({
    * @private
    * @method didInsertElement
    */
-  onOpen: on('didInsertElement', function() {
+	didInsertElement(...args) {
+		this._super(...args);
+
 		this.bindHandler();
-	}),
+	},
 
   /**
    * removes the click handler to close the dialogs if anything outside is clicked
    * @private
    * @method removeClick
    */
-  onClose: on('willDestroyElement', function() {
+	willDestroyElement(...args) {
+		this._super(...args);
+
 		this.closeHandler();
-  }),
+  },
 
   /**
    * closes dialog if tabbed on last input
@@ -272,7 +278,7 @@ export default Component.extend({
 
 	isCalendar: computed('stateManager.section', function() {
 		let section = get(this, 'stateManager.section');
-		return (section === YEAR_FLAG || section === MONTH_FLAG || section === DAY_FLAG);
+		return (section === YEAR_FLAG || section === MONTH_FLAG || section === DAY_FLAG || section === WEEKDAY_FLAG);
 	}),
 
 	bindHandler() {

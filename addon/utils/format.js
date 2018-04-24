@@ -81,7 +81,9 @@ function createSectionMap(str) {
 		}
 	}
 
-	sections.push({ start, end });
+	if (start < end) {
+		sections.push({ start, end });
+	}
 	return { map, sections };
 }
 

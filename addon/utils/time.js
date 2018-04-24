@@ -5,6 +5,15 @@
 import moment from 'moment';
 import { isNone } from '@ember/utils';
 import { assert } from '@ember/debug';
+import {
+	YEAR_FLAG,
+	MONTH_FLAG,
+	WEEKDAY_FLAG,
+	DAY_FLAG,
+	HOUR_FLAG,
+	MINUTE_FLAG,
+	MERIDIAN_FLAG
+} from '@busy-web/ember-date-time/utils/constant';
 
 /**
  * Time utils for working with dates that will not
@@ -92,40 +101,46 @@ _time.round = function(time, round=1) {
 
 _time.formatStringType = function(fmt) {
 	if (/^D(o|D)?$/.test(fmt)) {
-		return 'days';
-	} else if (/^M(o|M)?$/.test(fmt)) {
-		return 'months';
+		return DAY_FLAG;
+	} else if (/^d(o|d|dd|ddd)?$/.test(fmt)) {
+		return WEEKDAY_FLAG;
+	} else if (/^M(o|M|MM|MMM)?$/.test(fmt)) {
+		return MONTH_FLAG;
 	} else if (/^Y{1,4}$/.test(fmt)) {
-		return 'years';
+		return YEAR_FLAG;
 	} else if (/^hh?$/.test(fmt)) {
-		return 'hours';
+		return HOUR_FLAG;
 	} else if (/^HH?$/.test(fmt)) {
 		return 'm-hours';
 	} else if (/^mm?$/.test(fmt)) {
-		return 'minutes';
+		return MINUTE_FLAG;
 	} else if (/^ss?$/.test(fmt)) {
 		return 'seconds';
 	} else if (/^A|a$/.test(fmt)) {
-		return 'meridian';
+		return MERIDIAN_FLAG;
+	} else {
+		return null;
 	}
 };
 
 _time.typeExp = function(type) {
-	if (type === 'days') {
+	if (type === DAY_FLAG) {
 		return /D(o|D)?/;
-	} else if (type === 'months') {
-		return /M(o|M)?/;
-	} else if (type === 'years') {
+	} else if (type === WEEKDAY_FLAG) {
+		return /d(o|d|dd|ddd)?/;
+	} else if (type === MONTH_FLAG) {
+		return /M(o|M|MM|MMM)?/;
+	} else if (type === YEAR_FLAG) {
 		return /Y{1,4}/;
-	} else if (type === 'hours') {
+	} else if (type === HOUR_FLAG) {
 		return /hh?/;
 	} else if (type === 'm-hours') {
 		return /HH?/;
-	} else if (type === 'minutes') {
+	} else if (type === MINUTE_FLAG) {
 		return /mm?/;
 	} else if (type === 'seconds') {
 		return /ss?/;
-	} else if (type === 'meridian') {
+	} else if (type === MERIDIAN_FLAG) {
 		return /A|a/;
 	}
 };

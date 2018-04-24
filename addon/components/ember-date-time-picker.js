@@ -9,7 +9,7 @@ import { isNone, isEmpty } from '@ember/utils';
 import keyEvents from '@busy-web/ember-date-time/mixins/key-events';
 import _state from '@busy-web/ember-date-time/utils/state';
 import _time from '@busy-web/ember-date-time/utils/time';
-import { splitFormat, longFormatDate } from '@busy-web/ember-date-time/utils/format';
+import { longFormatDate } from '@busy-web/ember-date-time/utils/format';
 import layout from '../templates/components/ember-date-time-picker';
 import {
 	MONTH_FLAG,
@@ -412,9 +412,9 @@ function setPrivate(target, name, value) {
 
 function findSectionIndex(target, type) {
 	let format = getPrivate(target, 'format');
-	let value = _time(getPrivate(target, 'timestamp')).format(format);
-	let f = splitFormat(format);
-	let v = splitFormat(value);
+	//et value = _time(getPrivate(target, 'timestamp')).format(format);
+	//let f = splitFormat(format);
+	//let v = splitFormat(value);
 
 	let exp;
 	if (type === HOUR_FLAG) {
@@ -426,17 +426,10 @@ function findSectionIndex(target, type) {
 		exp = _time.typeExp(type);
 	}
 
-	let done = false;
-	let length = 0;
-	f.forEach((sec, idx) => {
-		if (exp.test(sec)) {
-			done = true;
-		}
-
-		if (!done) {
-			length = length + v[idx].length + 1;
-		}
-	});
-	return length;
+	let idx = format.search(exp);
+	if (idx < 0) {
+		idx = 0;
+	}
+	return idx;
 }
 

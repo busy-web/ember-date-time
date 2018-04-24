@@ -8,13 +8,13 @@ import { camelize } from '@ember/string';
 import { isNone } from '@ember/utils';
 import { assert, deprecate } from '@ember/debug';
 import { computed, observer, get, set } from '@ember/object';
-import { on } from '@ember/object/evented';
 import _state from '@busy-web/ember-date-time/utils/state';
 import _time from '@busy-web/ember-date-time/utils/time';
 import layout from '../../templates/components/private/date-picker';
 import {
 	YEAR_FLAG,
 	MONTH_FLAG,
+	WEEKDAY_FLAG,
 	DAY_FLAG
 } from '@busy-web/ember-date-time/utils/constant';
 
@@ -149,11 +149,13 @@ export default Component.extend({
    * @method init
    * @constructor
    */
-  initialize: on('init', function() {
+	init(...args) {
+		this._super(...args);
+
 		this.updateTime();
     this.resetCalendarDate();
     this.updateActiveSection();
-	}),
+	},
 
 	updateTime: observer('stateManager.timestamp', 'stateManager.calendarDate', function() {
 		let timestamp = get(this, 'stateManager.timestamp');
@@ -196,6 +198,10 @@ export default Component.extend({
   updateActiveSection: observer('stateManager.section', function() {
 		let section = get(this, 'stateManager.section');
 		if (!isNone(section)) {
+			if (section === WEEKDAY_FLAG) {
+				section === DAY_FLAG;
+			}
+
 			section = camelize(section);
 			const statusType = [DAY_FLAG, MONTH_FLAG, YEAR_FLAG];
 
