@@ -381,6 +381,21 @@ export default TextField.extend({
 		}
 	},
 
+	dragStart() {
+		// store the current value so it can be fixed after the
+		// drag is complete
+		set(this, '__saveDragValue', getValue(this));
+	},
+
+	dragEnd() {
+		// if the drag has changed the value then
+		// replace it with the old value so the date format
+		// is not changed
+		if (getValue(this) !== get(this, '__saveDragValue')) {
+			setValue(this, get(this, '__saveDragValue'));
+		}
+	},
+
 	keyDown(event) {
 		// TODO:
 		// handle arrows for am pm and allow letters for am pm
