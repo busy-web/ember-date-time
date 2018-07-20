@@ -94,6 +94,18 @@ $day-size: ($ept-width * .1213);
 									box-sizing: border-box;
 								}
 
+								&.disabled {
+									cursor: not-allowed;
+
+									&:hover {
+										background-color: transparent;
+									}
+
+									& > span {
+										border-color: $ept-color-5;
+									}
+								}
+
 								&.add-month {
 									float: right;
 
@@ -220,6 +232,28 @@ $day-size: ($ept-width * .1213);
 												& > span {
 													background-color: $ept-color-3;
 												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		&.flash-warn {
+			.p-date-picker {
+				& > .calendar-container {
+					& > .calendar-body {
+						& > table {
+							&.calendar {
+								& > tr {
+									& > td {
+										&.current {
+											& > span {
+												background-color: cornflowerblue;
 											}
 										}
 									}

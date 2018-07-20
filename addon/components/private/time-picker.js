@@ -28,7 +28,7 @@ import {
  * @extends Component
  */
 export default Component.extend({
-	classNames: ['busy-web', 'emberdatetime', 'p-time-picker'],
+	classNames: ['busyweb', 'emberdatetime', 'p-time-picker'],
 	layout: layout,
 
 	stateManager: null,

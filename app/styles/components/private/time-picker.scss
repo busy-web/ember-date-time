@@ -1,5 +1,5 @@
 
-.busy-web {
+.busyweb {
 	&.emberdatetime {
 		&.p-time-picker {
 			position: relative;
@@ -252,6 +252,24 @@
 								& > .number {
 									&.minutes {
 										color: indianred;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		&.flash-warn {
+			.p-time-picker {
+				& > .clock-container {
+					& > .body {
+						& > .outside-container {
+							& > svg {
+								.--svg-plot {
+									&.cls-bright-fill {
+										fill: cornflowerblue;
 									}
 								}
 							}

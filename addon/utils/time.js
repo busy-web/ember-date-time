@@ -99,6 +99,17 @@ _time.round = function(time, round=1) {
 	return date.valueOf();
 };
 
+_time.standardFormatTypes = function() {
+	return {
+		YYYY: /Y{1,4}/,
+		MM: /M(o|M)?/,
+		DD: /D(o|D)?/,
+		HH: /(HH?|hh?)/,
+		mm: /mm?/,
+		ss: /ss?/
+	};
+};
+
 _time.formatStringType = function(fmt) {
 	if (/^D(o|D)?$/.test(fmt)) {
 		return DAY_FLAG;

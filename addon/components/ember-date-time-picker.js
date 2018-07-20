@@ -112,6 +112,7 @@ export default Component.extend(keyEvents, {
 	 */
 	round: 1,
 
+	allowTab: true,
 	hideTime: false,
 	hideDate: false,
 	lockOpen: false,
@@ -291,6 +292,8 @@ export default Component.extend(keyEvents, {
 		} else if (!this.get('hideTime') && this.get('lockOpen')) {
 			this.set('stateManager.showTime', true);
 		}
+
+		this.set('stateChangeInProgress', false);
 	},
 
 	focusState(section) {
@@ -380,24 +383,46 @@ export default Component.extend(keyEvents, {
 		},
 
 		update(section, time, calendar) {
-			this.updateTime(section, time, calendar);
-			this.setActiveState({ section });
-			this.focusState(section);
+			if (!this.get('stateChangeInProgress')) {
+				this.set('stateChangeInProgress', true);
+				this.updateTime(section, time, calendar);
+				this.setActiveState({ section });
+				this.focusState(section);
+			}
 		},
 
 		stateChange(section) {
-			if (section === `m-${HOUR_FLAG}`) {
-				section = HOUR_FLAG;
+			if (!this.get('stateChangeInProgress')) {
+				this.set('stateChangeInProgress', true);
+				if (section === `m-${HOUR_FLAG}`) {
+					section = HOUR_FLAG;
+				}
+				const isOpen = true;
+				const isTop = this.shouldPickerOpenTop();
+				this.setActiveState({ section, isOpen, isTop });
 			}
-			const isOpen = true;
-			const isTop = this.shouldPickerOpenTop();
-			this.setActiveState({ section, isOpen, isTop });
 		},
 
 		closeAction() {
 			if (!this.get('lockOpen')) {
 				this.setActiveState({ section: '', isOpen: false, isTop: false });
 			}
+		},
+
+		focusAction(evt, section) {
+			if (!this.get('stateChangeInProgress')) {
+				this.set('stateChangeInProgress', true);
+				if (section === `m-${HOUR_FLAG}`) {
+					section = HOUR_FLAG;
+				}
+				const isOpen = true;
+				const isTop = this.shouldPickerOpenTop();
+				this.setActiveState({ section, isOpen, isTop });
+			}
+		},
+
+		tabAction(evt) {
+			this.sendAction('onTabKey', evt);
 		}
 	}
 });

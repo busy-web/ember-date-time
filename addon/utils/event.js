@@ -95,7 +95,7 @@ export function bind(target, type, namespace, listener, { capture=false, rebind=
 	assert('once {boolean} must be a boolean value true | false', typeof once === 'boolean');
 
 	// auto rebind the event if rebind is set to true.
-		assert("An event already exists for this event. You must unbind it first, or pass rebind true to the bind method to auto rebind the event", rebind === true);
+	assert("An event already exists for this event. You must unbind it first, or pass rebind true to the bind method to auto rebind the event", rebind === true);
 
 	if (hasListener(type, namespace)) {
 		// unbind the event and remove the local listener so it can be bound again.

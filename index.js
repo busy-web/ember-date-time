@@ -18,7 +18,11 @@ module.exports = {
         //import: ['mina.js', 'svg.js']
       },
     }
-  },
+	},
+
+	isDevelopingAddon() {
+		return true;
+	},
 
   included() {
     this._super.included.apply(this, arguments);

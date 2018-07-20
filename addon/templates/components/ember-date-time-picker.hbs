@@ -8,6 +8,11 @@
 		format=stateManager.format
 		name=inputDataName
 		defaultFocus=__defaultFocus
+		allowTab=allowTab
+		ontabkey=(action 'tabAction')
+		onfocus=(action 'focusAction')
+		onblur=(action 'closeAction')
+		onescape=(action 'closeAction' bubbles=false)
 		oncursor=(action 'stateChange')
 		onchange=(action 'dateChange')
 		onsubmit=(action 'applyChange')}}

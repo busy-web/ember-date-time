@@ -6,7 +6,7 @@ import Component from '@ember/component';
 import { A } from '@ember/array';
 import { camelize } from '@ember/string';
 import { isNone } from '@ember/utils';
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { computed, observer, get, set } from '@ember/object';
 import _state from '@busy-web/ember-date-time/utils/state';
 import _time from '@busy-web/ember-date-time/utils/time';
@@ -141,7 +141,10 @@ export default Component.extend({
    * @property yearActive
    * @type String
    */
-  years_active: false,
+	years_active: false,
+
+	isPrev: true,
+	isNext: true,
 
 
   /**
@@ -153,41 +156,25 @@ export default Component.extend({
 		this._super(...args);
 
 		this.updateTime();
-    this.resetCalendarDate();
     this.updateActiveSection();
 	},
 
 	updateTime: observer('stateManager.timestamp', 'stateManager.calendarDate', function() {
-		let timestamp = get(this, 'stateManager.timestamp');
+		const timestamp = get(this, 'stateManager.timestamp');
+
 		let calendarDate = get(this, 'stateManager.calendarDate');
-		if (isNone(calendarDate)) {
-			deprecate('passing only timestamp to date-picker is deprecated, please pass calendarDate as well', true, { id: 'date-picker.updateTime', until: 'v3.0' });
+		if (!calendarDate) {
 			calendarDate = timestamp;
 		}
-		set(this, 'timestamp', timestamp);
-		set(this, 'calendarDate', calendarDate);
-	}),
 
-  /**
-   * sets the calendarDate to the timestamp and sets the values for the date picker headers
-   *
-   * @private
-   * @method resetCalendarDate
-   */
-  resetCalendarDate: observer('calendarDate', function() {
-		if (!isNone(get(this, 'calendarDate'))) {
-			// get moment timestamp
-			const time = _time(get(this, 'calendarDate'));
-			if (_time.isValidDate(time)) {
-				set(this, 'year', time.format('YYYY'));
-				set(this, 'month', time.format('MMM'));
-				set(this, 'day', time.format('DD'));
-				set(this, 'dayOfWeek', time.format('ddd'));
-			} else {
-				assert("timestamp must be a valid unix timestamp", false);
-			}
+		if (get(this, 'timestamp') !== timestamp) {
+			this.setTimestamp(get(this, 'stateManager.timestamp'));
 		}
-  }),
+
+		if (get(this, 'calendarDate') !== calendarDate) {
+			this.setCalendarDate(get(this, 'stateManager.calendarDate') || get(this, 'stateManager.timestamp'));
+		}
+	}),
 
   /**
    * updates to the new active header  (day, month, or year)
@@ -340,22 +327,88 @@ export default Component.extend({
    *
    * @private
    * @method setTimestamp
-   * @param moment {object} moment object
+   * @param timestamp {number} date time in milliseconds
    */
-  setTimestamp(date) {
-    set(this, 'timestamp', date.valueOf());
+  setTimestamp(timestamp) {
+    set(this, 'timestamp', timestamp);
+
+		const time = _time(timestamp);
+		set(this, 'year', time.format('YYYY'));
+		set(this, 'month', time.format('MMM'));
+		set(this, 'day', time.format('DD'));
+		set(this, 'dayOfWeek', time.format('ddd'));
   },
 
   /**
    * receives a moment object and sets it to calendarTimestamp
    *
    * @private
-   * @method setCalendarTimestamp
-   * @param moment {object} moment object
+   * @method setCalendarDate
+   * @param timestamp {number} timestamp in milliseconds
    */
-  setCalendarDate(date) {
-    set(this, 'calendarDate', date.valueOf());
-  },
+  setCalendarDate(timestamp) {
+		this.validateNextPrev(timestamp);
+    set(this, 'calendarDate', timestamp);
+	},
+
+	/**
+	 * validates the next and prev arrows can move in their
+	 * respective directions
+	 *
+	 * @method validateNextPrev
+	 * @param time {number} timestamp in milliseconds
+	 * @return {void}
+	 */
+	validateNextPrev(time) {
+		// validates the timestamp is inbounds for the
+		// given `name: string` (isPrev | isNext) and `time: number`
+		const validateTime = (name, npTime) => {
+			// sets the prop according to `name: string` and `inBounds: boolean`
+			const update = inBounds => set(this, name, inBounds);
+
+			// call update to set the property
+			update(
+				name === 'isPrev'
+					? !this.isBeforeMin(npTime)
+					: !this.isAfterMax(npTime)
+			);
+		};
+
+		// validate that isPrev and isNext will be inBounds
+		// if the next or prev arrows are clicked
+		validateTime('isPrev', getPrevDate(time));
+		validateTime('isNext', getNextDate(time));
+	},
+
+	isBeforeMin(time) {
+		// if the timestamp gets set to a date before the
+		// minDate then allow the back arrow to go back as
+		// far as the current timestamp
+		if (_time.isDateBefore(get(this, 'timestamp'), time)) {
+			return false;
+		}
+		return _time.isDateBefore(time, get(this, 'stateManager.minDate'));
+	},
+
+	isAfterMax(time) {
+		// if the timestamp gets set to a date after the
+		// maxDate then allow the forward arrow to go forward as
+		// far as the current timestamp
+		if (_time.isDateAfter(get(this, 'timestamp'), time)) {
+			return false;
+		}
+		return _time.isDateAfter(time, get(this, 'stateManager.maxDate'));
+	},
+
+	triggerUpdate(flag) {
+		assert(
+			`flag is required and must be on of [${YEAR_FLAG}, ${MONTH_FLAG}, ${WEEKDAY_FLAG}, ${DAY_FLAG}]`,
+			[YEAR_FLAG, MONTH_FLAG, WEEKDAY_FLAG, DAY_FLAG].indexOf(flag) !== -1
+		);
+
+		set(this, 'calendarActiveSection', flag);
+		this.sendAction('onUpdate', flag, get(this, 'timestamp'), get(this, 'calendarDate'));
+	},
 
   actions: {
 
@@ -365,21 +418,18 @@ export default Component.extend({
      * @param day {object} moment object of the clicked day
      * @event dayClicked
      */
-    dayClicked(dayState) {
-			if (!dayState.get('isDisabled')) {
-				const day = dayState.get('date');
-				const newDay = day.date();
-				const newMonth = day.month();
-				const newYear = day.year();
+		dayClicked(dayState) {
+			if (!get(dayState, 'isDisabled')) {
+				const day = get(dayState, 'date');
+				const time = _time(get(this, 'timestamp'))
+					.year(day.year())
+					.month(day.month())
+					.date(day.date());
 
-				let timestamp = _time(get(this, 'timestamp'));
-				timestamp.year(newYear);
-				timestamp.month(newMonth);
-				timestamp.date(newDay);
+				this.setTimestamp(time.timestamp());
+				this.setCalendarDate(time.timestamp());
 
-				this.setTimestamp(timestamp);
-
-				this.sendAction('onUpdate', DAY_FLAG, get(this, 'timestamp'), get(this, 'calendarDate'));
+				this.triggerUpdate(DAY_FLAG);
 			}
     },
 
@@ -389,15 +439,16 @@ export default Component.extend({
      * @event subtractMonth
      */
     subtractMonth() {
-      const calDate = _time(get(this, 'calendarDate'));
-			calDate.subtract('1', 'months').endOf('month');
+			// get next date
+			const calTime = getPrevDate(get(this, 'calendarDate'));
 
-			if (!_time.isDateBefore(calDate, get(this, 'minDate'))) {
-				this.setCalendarDate(calDate);
-				set(this, 'calendarActiveSection', MONTH_FLAG);
+			if (!this.isBeforeMin(calTime)) {
+				// set calendar date
+				this.setCalendarDate(calTime);
+
+				// trigger update
+				this.triggerUpdate(MONTH_FLAG);
 			}
-
-			this.sendAction('onUpdate', MONTH_FLAG, get(this, 'timestamp'), calDate.valueOf());
     },
 
     /**
@@ -405,22 +456,49 @@ export default Component.extend({
      *
      * @event addMonth
      */
-    addMonth() {
-      const calDate = _time(get(this, 'calendarDate'));
-      calDate.add('1', 'months').startOf('month');
+		addMonth() {
+			// get next date
+			const calTime = getNextDate(get(this, 'calendarDate'));
 
-			if (!_time.isDateAfter(calDate, get(this, 'maxDate'))) {
-				this.setCalendarDate(calDate);
-				set(this, 'calendarActiveSection', MONTH_FLAG);
+			if (!this.isAfterMax(calTime)) {
+				// set calendar date
+				this.setCalendarDate(calTime);
+
+				// trigger update
+				this.triggerUpdate(MONTH_FLAG);
 			}
-
-			this.sendAction('onUpdate', MONTH_FLAG, get(this, 'timestamp'), calDate.valueOf());
     },
 
+		/**
+		 * Sets the new header selection
+		 *
+		 * @event activateHeader
+		 */
 		activateHeader(section) {
-			set(this, 'calendarActiveSection', section);
-
-			this.sendAction('onUpdate', section, get(this, 'timestamp'), get(this, 'calendarDate'));
+			// trigger update for input to reposition selection
+			this.triggerUpdate(section);
 		}
   }
 });
+
+/**
+ * Creates a timestamp for the first day of the next months
+ *
+ * @method getNextDate
+ * @param time {number} timestamp in milliseconds
+ * @return {number} timestamp in milliseconds
+ */
+const getNextDate = time => (
+	_time(time).add(1, 'months').startOf('month').timestamp()
+);
+
+/**
+ * Creates a timestamp for the last day of the previous months
+ *
+ * @method getPrevDate
+ * @param time {number} timestamp in milliseconds
+ * @return {number} timestamp in milliseconds
+ */
+const getPrevDate = time => (
+	_time(time).subtract(1, 'month').endOf('month').timestamp()
+);

@@ -13,9 +13,9 @@
 
 	<div class="calendar-body">
 		<div class="header">
-			<div class="subtract-month arrow" {{action "subtractMonth" bubbles=false}}><span></span></div>
+			<div class="subtract-month arrow{{unless isPrev ' disabled'}}" {{action "subtractMonth" bubbles=false}}><span></span></div>
 			<div class="month-year{{if months_active ' active'}}">{{monthYear}}</div>
-			<div class="add-month arrow" {{action "addMonth" bubbles=false}}><span></span></div>
+			<div class="add-month arrow{{unless isNext ' disabled'}}" {{action "addMonth" bubbles=false}}><span></span></div>
 		</div>
 
 		<table class="calendar">

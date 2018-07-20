@@ -166,10 +166,22 @@ export default Component.extend({
 			bind(document, 'click', elementId, function(evt) {
 				// get the element that was clicked on
 				const el = $(evt.target);
+				let canClose = false;
+
+				const elContainer = el.parents('.emberdatetime');
+				if (elContainer.length) {
+					const elChild = elContainer.find(`#${elementId}`);
+					if (!elChild.length) {
+						canClose = true;
+					}
+				} else {
+					canClose = true;
+				}
 
 				// if the clicked element id does not match the components id and the clicked
 				// elements parents dont have an id that matches then call the action provided
-				if (el.attr('id') !== elementId && el.parents(`#${elementId}`).length === 0) {
+				//if (el.attr('id') !== elementId && el.parents(`#${elementId}`).length === 0) {
+				if (canClose) {
 					// send a call to the actionName
 					evt.stopPropagation();
 					evt.preventDefault();

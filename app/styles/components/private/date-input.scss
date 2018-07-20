@@ -59,5 +59,11 @@
 				&::-o-selection { color: indianred; }
 			}
 		}
+
+		&.flash-warn {
+			.p-date-input {
+				background-color: lighten(indianred, 40%);
+			}
+		}
 	}
 }

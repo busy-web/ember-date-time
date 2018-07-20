@@ -11,6 +11,7 @@ import { run, later } from '@ember/runloop';
 import TextField from "@ember/component/text-field"
 import keyEvent from '@busy-web/ember-date-time/utils/key-event';
 import _time from '@busy-web/ember-date-time/utils/time';
+import { bind, unbind } from '@busy-web/ember-date-time/utils/event';
 
 import {
 	getCursorPosition,
@@ -94,9 +95,9 @@ export default TextField.extend({
 			date = _time();
 		}
 
-		set(this, '__year', date.year());
 		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
+		set(this, '_dateRef', date.timestamp());
 	},
 
 	/**
@@ -106,6 +107,32 @@ export default TextField.extend({
 	 */
 	didInsertElement(...args) {
 		this._super(...args);
+
+		const target = this.$().get(0);
+
+		bind(
+			target,
+			'click',
+			`ember-date-time.date-input.${this.get('elementId')}`,
+			(...args) => this.clickEvent(...args),
+			{ capture: true, rebind: true }
+		);
+
+		bind(
+			target,
+			'focusin',
+			`ember-date-time.date-input.${this.get('elementId')}`,
+			(...args) => this.focusInEvent(...args),
+			{ capture: true, rebind: true }
+		);
+
+		bind(
+			target,
+			'focusout',
+			`ember-date-time.date-input.${this.get('elementId')}`,
+			(...args) => this.focusOutEvent(...args),
+			{ capture: true, rebind: true }
+		);
 
 		let format = get(this, 'format');
 		format = longFormatDate(format);
@@ -118,11 +145,21 @@ export default TextField.extend({
 		set(this, 'keyboard', getKeyboardStyle());
 	},
 
+	willDestroyElement(...args) {
+		this._super(...args);
+
+		const target = this.$().get(0);
+
+		unbind(target, 'click', `ember-date-time.date-input.${this.get('elementId')}`);
+		unbind(target, 'focusin', `ember-date-time.date-input.${this.get('elementId')}`);
+		unbind(target, 'focusout', `ember-date-time.date-input.${this.get('elementId')}`);
+	},
+
 	timestampChange: observer('timestamp', function() {
 		let date = _time(get(this, 'timestamp'));
-		set(this, '__year', date.year());
 		setValue(this, date.format(get(this, 'format')));
 		set(this, '_date', date.timestamp());
+		set(this, '_dateRef', date.timestamp());
 	}),
 
 	isValid(date) {
@@ -158,7 +195,7 @@ export default TextField.extend({
 	},
 
 	finalizeDateSection() {
-		let date = getDate(this);
+		let date = getInBoundsDate(getDate(this), get(this, 'min'), get(this, 'max'));
 		let selectRound = getWithDefault(this, 'selectRound', 1);
 		if (selectRound%date.minute() !== 0) {
 			date = _time(_time.round(date.timestamp(), selectRound));
@@ -186,6 +223,7 @@ export default TextField.extend({
 			valueSection = `${max}`;
 		}
 		let newVal = mergeString(getValue(this), valueSection, start, end);
+
 		setValue(this, newVal);
 	},
 
@@ -305,13 +343,36 @@ export default TextField.extend({
 			val = _time(_date).subFormatted(1, sectionFormat);
 		}
 
+		let bounds = _time.isDateInBounds(val, get(this, 'min'), get(this, 'max'));
+		if (bounds.isAfter || bounds.isBefore) {
+			if (/^M(M|o)?$/.test(sectionFormat)) {
+				if (isUp && !_time.isDateAfter(_time(val).startOf('month'), get(this, 'max'))) {
+					val = val.date(_time(get(this, 'max')).date());
+					bounds = _time.isDateInBounds(val, get(this, 'min'), get(this, 'max'));
+				} else if (!isUp && !_time.isDateBefore(_time(val).endOf('month'))) {
+					val = val.date(_time(get(this, 'min')).date());
+					bounds = _time.isDateInBounds(val, get(this, 'min'), get(this, 'max'));
+				}
+			} else if (/^Y{1,4}$/.test(sectionFormat)) {
+				if (isUp && !_time.isDateAfter(_time(val).startOf('year'), get(this, 'max'))) {
+					val = val.date(_time(get(this, 'max')).date());
+					bounds = _time.isDateInBounds(val, get(this, 'min'), get(this, 'max'));
+				} else if (!isUp && !_time.isDateBefore(_time(val).endOf('year'))) {
+					val = val.date(_time(get(this, 'min')).date());
+					bounds = _time.isDateInBounds(val, get(this, 'min'), get(this, 'max'));
+				}
+			}
+		}
 
 		if (val) {
-			set(this, '__year', val.year());
-			const newVal = val.format(get(this, 'format'));
-			fixSelection(this, newVal);
-			setValue(this, newVal);
-			handleCursor(this, '');
+			if (!bounds.isBefore && !bounds.isAfter) {
+				const newVal = val.format(get(this, 'format'));
+				fixSelection(this, newVal);
+				setValue(this, newVal);
+				handleCursor(this, '');
+			} else {
+				flashWarn(this);
+			}
 		}
 	},
 
@@ -332,16 +393,16 @@ export default TextField.extend({
 		return handler.preventDefault();
 	},
 
-	focusIn(event) {
-		let data = this.$().data();
+	focusInEvent(event) {
+		//let data = this.$().data();
 
 		// prevent open picker from selecting the wrong section
-		if (!this.$().is(':active') || get(data, 'forceSelection') === true) {
+		//if (!this.$().is(':active') || get(data, 'forceSelection') === true) {
 			this.$().data('forceSelection', false);
 
 			let { selection, position } = getMeta(this, this.$());
 			handleFocus(this, selection, position, true);
-		}
+		//}
 
 		let type = sectionFormatType(this);
 		this.sendAction('onfocus', event, type);
@@ -358,12 +419,12 @@ export default TextField.extend({
 		}
 	},
 
-	focusOut(event) {
+	focusOutEvent(event) {
 		this.set('active', false);
 		this.sendAction('onblur', event);
 	},
 
-	click(event) {
+	clickEvent(event) {
 		event.stopPropagation();
 		let index = event.target.selectionStart;
 
@@ -397,8 +458,6 @@ export default TextField.extend({
 	},
 
 	keyDown(event) {
-		// TODO:
-		// handle arrows for am pm and allow letters for am pm
 		if (isModifierKeyActive(this, event)) {
 			return true;
 		}
@@ -415,15 +474,26 @@ export default TextField.extend({
 				} else if (handler.keyName === 'Backspace') {
 					return this.handleDeleteKey(event, handler);
 				} else if (handler.keyName === 'Tab') {
-					this.sendAction('ontabkey', event);
+					if (this.get('allowTab')) {
+						return this.sendAction('ontabkey', event, handler);
+					} else {
+						this.sendAction('ontabkey', event, handler);
+					}
 				} else if (handler.keyName === 'Enter') {
-					this.sendAction('onsubmit', event, get(this, '_date'));
+					this.sendAction('onsubmit', event, get(this, '_date'), handler);
 				}
 			}
 		}
 		return handler.preventDefault();
 	}
 });
+
+function flashWarn(target) {
+	const el = target.$().parents('.emberdatetime');
+	const className = 'flash-warn';
+	el.addClass(className);
+	setTimeout(() => el.removeClass(className), 100);
+}
 
 function getOSType() {
 	if (/(iPhone|iPad|iPod)/.test(window.navigator.userAgent)) {
@@ -435,18 +505,31 @@ function getOSType() {
 
 function getDate(target) {
 	let format = getData(target.$(), 'format');
+
 	if (isEmpty(format)) {
 		format = get(target, 'format');
 		format = longFormatDate(format);
 	}
 
 	let value = getValue(target);
-	if (!/YY/.test(format)) {
-		format = format + ' YYYY';
-		value = value + ' ' + get(target, '__year');
-	}
+	value = value.replace(/[ ]*$/, '');
+	({ value, format } = addFormat(target, format, value));
 
 	return _time(value, format);
+}
+
+function addFormat(target, format, value) {
+	let dRef = _time(get(target, '_dateRef'));
+	let stdTypes = _time.standardFormatTypes();
+
+	Object.keys(stdTypes).forEach((key) => {
+		let typeExp = new RegExp(stdTypes[key]);
+		if (!typeExp.test(format)) {
+			format = format + ' ' + key;
+			value = value + ' ' + dRef.format(key);
+		}
+	});
+	return { value, format };
 }
 
 function setValue(target, value) {
@@ -769,3 +852,19 @@ function getData(el, key, defaultValue=null) {
 	return el.data(key) || defaultValue;
 }
 
+
+function getInBoundsDate(date, min, max) {
+	const adjustTime = (d1, d2) => {
+		if (d1.hours() < d2.hours()) d2.hours(d1.hours());
+		if (d1.minutes() < d2.minutes()) d2.minutes(d1.minutes());
+		if (d1.seconds() < d2.seconds()) d2.seconds(d1.seconds());
+		return d2;
+	};
+
+	if (_time.isDateAfter(date, max)) {
+		return adjustTime(_time(date), _time(max));
+	} else if (_time.isDateBefore(date, min)) {
+		return adjustTime(_time(min), _time(date));
+	}
+	return _time(date);
+}
