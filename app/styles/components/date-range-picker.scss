@@ -259,6 +259,19 @@
 						&.active {
 							display: inline-block;
 						}
+
+						&.disable-custom {
+							& > .header {
+								& > span {
+									display: none;
+
+									&.start {
+										display: inline;
+										width: 100%;
+									}
+								}
+							}
+						}
 					}
 				}
 			}

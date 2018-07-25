@@ -421,8 +421,14 @@ export default Component.extend(keyEvents, {
 			}
 		},
 
-		tabAction(evt) {
+		tabAction(evt, handler) {
 			this.sendAction('onTabKey', evt);
+			if (evt.isDefaultPrevented() || evt.isPropagationStopped()) {
+				return handler.preventDefault();
+			} else {
+				this.send('closeAction');
+				return true;
+			}
 		}
 	}
 });

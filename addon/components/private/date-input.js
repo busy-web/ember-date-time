@@ -11,7 +11,7 @@ import { run, later } from '@ember/runloop';
 import TextField from "@ember/component/text-field"
 import keyEvent from '@busy-web/ember-date-time/utils/key-event';
 import _time from '@busy-web/ember-date-time/utils/time';
-import { bind, unbind } from '@busy-web/ember-date-time/utils/event';
+import { bind, unbind, isEventLocal } from '@busy-web/ember-date-time/utils/event';
 
 import {
 	getCursorPosition,
@@ -420,8 +420,12 @@ export default TextField.extend({
 	},
 
 	focusOutEvent(event) {
-		this.set('active', false);
-		this.sendAction('onblur', event);
+		// check if the evt.target is local to this elements main parent
+		let isLocal = isEventLocal(event, get(this, 'elementId'), '.emberdatetime');
+		if (!isLocal) {
+			this.set('active', false);
+			this.sendAction('onblur', event);
+		}
 	},
 
 	clickEvent(event) {

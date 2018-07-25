@@ -106,6 +106,7 @@ export default Component.extend({
 
 	isListOpen: false,
 	isCustom: false,
+	allowCustom: true,
 	activeDates: null,
 	weekStart: 0,
 	defaultDateOnChange: true,
@@ -365,7 +366,11 @@ export default Component.extend({
 
 
 	setActiveState(isStart) {
-		set(this, 'isStart', isStart);
+		if (get(this, 'allowCustom')) {
+			set(this, 'isStart', isStart);
+		} else {
+			set(this, 'isStart', true);
+		}
 	},
 
 	getInterval(direction=0) {
@@ -383,7 +388,7 @@ export default Component.extend({
 				end = getUserEnd(this);
 
 				// get range defined by span function
-				let range = span.call(this.get('selected'), start, end, direction);
+				let range = span.call(get(this, 'selected'), start, end, direction);
 				start = setUserStart(this, range.start);
 				end = setUserEnd(this, range.end);
 			} else {
@@ -456,7 +461,7 @@ export default Component.extend({
 		let maxDate = get(this, '_max');
 		let format = get(this, 'format');
 
-		if (!this.get('isStart')) {
+		if (!get(this, 'isStart')) {
 			timestamp = end;
 		}
 
@@ -536,6 +541,10 @@ export default Component.extend({
 	 */
 	updateDates(type, time, calendar, singleSet=false) {
 		let isStart = get(this, 'isStart');
+		if (!get(this, 'allowCustom')) {
+			isStart = true;
+		}
+
 		if (type === DAY_FLAG) {
 			if (!singleSet && !isStart && time < getStart(this)) {
 				isStart = true;
@@ -704,8 +713,10 @@ export default Component.extend({
 		},
 
 		selectItem(id) {
-			this.saveState();
-			this.setSelected(id);
+			if (!get(this, 'selected') !== id) {
+				this.saveState();
+				this.setSelected(id);
+			}
 			this.closeMenu();
 			this.changeInterval();
 		},
@@ -720,7 +731,9 @@ export default Component.extend({
 
 		applyRange() {
 			this.saveState();
-			this.setSelected('custom');
+			if (get(this, 'allowCustom')) {
+				this.setSelected('custom');
+			}
 			this.closeMenu();
 			this.setActiveState(true);
 			this.changeInterval();

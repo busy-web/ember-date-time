@@ -15,9 +15,11 @@
 		<li class="item{{if item.selected ' active'}}" {{action 'selectItem' item.id}}>{{item.name}}</li>
 	{{/each}}
 
-	<li class="item custom{{if isCustom ' active'}}" {{action 'selectCustom'}}>{{loc "Custom"}}</li>
+	{{#if allowCustom}}
+		<li class="item custom{{if isCustom ' active'}}" {{action 'selectCustom'}}>{{loc "Custom"}}</li>
+	{{/if}}
 
-	<li class="date-range-picker-menu picker{{if isCustom ' active'}}">
+	<li class="date-range-picker-menu picker{{if isCustom ' active'}}{{if allowCustom '' ' disable-custom'}}">
 		<div class="header">
 			<span class="state start{{if isStart ' open'}}">
 				{{private/date-input timestamp=_start max=stateManager.maxDate min=stateManager.minDate format=format name=inputDataName

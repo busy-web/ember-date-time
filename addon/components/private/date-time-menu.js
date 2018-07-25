@@ -3,11 +3,10 @@
  *
  */
 import Component from '@ember/component';
-import $ from 'jquery';
 import { get, set, computed, observer } from '@ember/object';
 import { isEmpty } from '@ember/utils';
 import _time from '@busy-web/ember-date-time/utils/time';
-import { bind, unbind } from '@busy-web/ember-date-time/utils/event';
+import { bind, unbind, isEventLocal } from '@busy-web/ember-date-time/utils/event';
 import {
 	YEAR_FLAG,
 	MONTH_FLAG,
@@ -164,24 +163,13 @@ export default Component.extend({
 		if (!isEmpty(elementId)) {
 			// bind the click listener
 			bind(document, 'click', elementId, function(evt) {
-				// get the element that was clicked on
-				const el = $(evt.target);
-				let canClose = false;
-
-				const elContainer = el.parents('.emberdatetime');
-				if (elContainer.length) {
-					const elChild = elContainer.find(`#${elementId}`);
-					if (!elChild.length) {
-						canClose = true;
-					}
-				} else {
-					canClose = true;
-				}
+				// check if the evt.target is local to this elements main parent
+				let isLocal = isEventLocal(evt, elementId, '.emberdatetime');
 
 				// if the clicked element id does not match the components id and the clicked
 				// elements parents dont have an id that matches then call the action provided
 				//if (el.attr('id') !== elementId && el.parents(`#${elementId}`).length === 0) {
-				if (canClose) {
+				if (!isLocal) {
 					// send a call to the actionName
 					evt.stopPropagation();
 					evt.preventDefault();

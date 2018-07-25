@@ -2,6 +2,7 @@
  * @module Utils
  *
  */
+import $ from 'jquery';
 import { assert } from '@ember/debug';
 import { isNone, isEmpty } from '@ember/utils';
 
@@ -123,6 +124,25 @@ export function unbind(target, type, namespace) {
 		// remove targets event listener
 		target.removeEventListener(type, eventData.listener, { capture: eventData.capture, passive: eventData.passive });
 	}
+}
+
+export function isEventLocal(event, id, parentSelector) {
+	// get the element that was clicked on
+	const el = $(event.target);
+
+	// find the local parent from the event target
+	const elContainer = el.parents(parentSelector);
+
+	let isLocal = false;
+	if (elContainer.length) {
+		// if the parent was found then find the child with the
+		// element id to verify its the corrent local element
+		const elChild = elContainer.find(`#${id}`);
+		if (elChild.length) {
+			isLocal = true;
+		}
+	}
+	return isLocal;
 }
 
 
