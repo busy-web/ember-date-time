@@ -892,6 +892,14 @@ function keyDownEventHandler(target) {
 		if (event.altKey) {
 			if (handler.type === 'letter' || handler.type === 'math') {
 				handleAltKeys(target, handler.keyName, isOpen);
+			} else if (handler.keyName === 'ArrowLeft') {
+				if (!isOpen) {
+					target.send('intervalBack');
+				}
+			} else if (handler.keyName === 'ArrowRight') {
+				if (!isOpen) {
+					target.send('intervalForward');
+				}
 			}
 		} else {
 			if (handler.keyName === 'Tab') {
@@ -901,14 +909,6 @@ function keyDownEventHandler(target) {
 			} else if (handler.keyName === 'Escape') {
 				if (isOpen) {
 					target.send('toggleList');
-				}
-			} else if (handler.keyName === 'ArrowLeft') {
-				if (!isOpen) {
-					target.send('intervalBack');
-				}
-			} else if (handler.keyName === 'ArrowRight') {
-				if (!isOpen) {
-					target.send('intervalForward');
 				}
 			} else if (handler.keyName === 'ArrowDown') {
 				if (isOpen) {
