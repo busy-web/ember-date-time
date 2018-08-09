@@ -404,7 +404,11 @@ export default Component.extend({
 
 				if (type === 'weeks') {
 					if (_time(start).day() !== get(this, 'weekStart')) {
-						start = _time(start).day(get(this, 'weekStart')).valueOf();
+						let __start = _time(start).day(get(this, 'weekStart')).valueOf();
+						if (start < __start) {
+							__start = _time(__start).subtract(7, 'days').valueOf();
+						}
+						start = __start;
 					}
 				} else if (type === 'months') {
 					// for months use startof month for proper month alignment
