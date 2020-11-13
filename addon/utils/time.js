@@ -70,7 +70,8 @@ _time.localeData = () => moment.localeData();
 _time.locale = () => moment.locale();
 _time.duration = (time, type) => moment.duration(time, type);
 
-_time.daysApart = (start, end) => Math.floor(moment.duration(end - start, 'ms').asDays());
+// _time.daysApart = (start, end) => Math.floor(moment.duration(end - start, 'ms').asDays());
+_time.daysApart = (start, end) => moment(end).diff(moment(start), 'days');
 _time.hoursApart = (start, end) => Math.floor(moment.duration(end - start, 'ms').asHours());
 
 _time.utcToLocal = function(time) {
